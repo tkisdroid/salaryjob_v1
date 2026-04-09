@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -226,9 +227,14 @@ function WorkerStep3() {
   );
 }
 
-export default function SignupPage() {
-  const [role, setRole] = useState<Role | null>(null);
-  const [step, setStep] = useState(0);
+function SignupFlow() {
+  const searchParams = useSearchParams();
+  const roleParam = searchParams.get("role");
+  const initialRole: Role | null =
+    roleParam === "worker" || roleParam === "employer" ? roleParam : null;
+
+  const [role, setRole] = useState<Role | null>(initialRole);
+  const [step, setStep] = useState(initialRole ? 1 : 0);
 
   if (!role) {
     return <RoleSelect onRoleSelect={(r) => { setRole(r); setStep(1); }} />;
@@ -291,4 +297,12 @@ export default function SignupPage() {
   }
 
   return null;
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupFlow />
+    </Suspense>
+  );
 }

@@ -1,398 +1,241 @@
-"use client";
-
 import Link from "next/link";
 import {
-  ChevronLeft,
-  Wallet,
-  Clock,
-  CheckCircle,
-  AlertTriangle,
-  XCircle,
-  Building2,
-  Calendar,
-  Inbox,
-  TrendingUp,
-} from "lucide-react";
+  MOCK_APPLICATIONS,
+  MOCK_CURRENT_WORKER,
+  calculateEarnings,
+} from "@/lib/mock-data";
+import { formatMoney } from "@/lib/format";
 import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+  ArrowLeft,
+  Wallet,
+  CheckCircle2,
+  Clock,
+  TrendingUp,
+  Zap,
+  Download,
+  Calendar,
+  Info,
+} from "lucide-react";
 
-// ---------------------------------------------------------------------------
-// Types & Config
-// ---------------------------------------------------------------------------
-
-type SettlementStatus =
-  | "CHECKOUT_PENDING"
-  | "APPROVED"
-  | "AUTO_APPROVED"
-  | "PROCESSING"
-  | "SETTLED"
-  | "RETRY_1"
-  | "RETRY_2"
-  | "RETRY_3"
-  | "FAILED";
-
-interface Settlement {
-  readonly id: string;
-  readonly company: string;
-  readonly postTitle: string;
-  readonly date: string;
-  readonly grossAmount: number;
-  readonly netAmount: number;
-  readonly status: SettlementStatus;
-  readonly settledAt: string | null;
+function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getMonth() + 1}월 ${d.getDate()}일 ${d
+    .getHours()
+    .toString()
+    .padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
 }
 
-interface StatusConfig {
-  readonly label: string;
-  readonly variant: "default" | "secondary" | "outline" | "destructive";
-  readonly colorClass: string;
-  readonly icon: typeof CheckCircle;
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  return `${d.getMonth() + 1}/${d.getDate()}`;
 }
-
-const STATUS_CONFIG: Record<SettlementStatus, StatusConfig> = {
-  CHECKOUT_PENDING: {
-    label: "확인 대기",
-    variant: "secondary",
-    colorClass: "text-muted-foreground",
-    icon: Clock,
-  },
-  APPROVED: {
-    label: "승인됨",
-    variant: "secondary",
-    colorClass: "text-muted-foreground",
-    icon: Clock,
-  },
-  AUTO_APPROVED: {
-    label: "자동 승인",
-    variant: "secondary",
-    colorClass: "text-muted-foreground",
-    icon: Clock,
-  },
-  PROCESSING: {
-    label: "처리 중",
-    variant: "outline",
-    colorClass: "text-yellow-600",
-    icon: AlertTriangle,
-  },
-  SETTLED: {
-    label: "정산 완료",
-    variant: "default",
-    colorClass: "text-teal",
-    icon: CheckCircle,
-  },
-  RETRY_1: {
-    label: "재시도 1",
-    variant: "outline",
-    colorClass: "text-yellow-600",
-    icon: AlertTriangle,
-  },
-  RETRY_2: {
-    label: "재시도 2",
-    variant: "outline",
-    colorClass: "text-yellow-600",
-    icon: AlertTriangle,
-  },
-  RETRY_3: {
-    label: "재시도 3",
-    variant: "outline",
-    colorClass: "text-yellow-600",
-    icon: AlertTriangle,
-  },
-  FAILED: {
-    label: "실패",
-    variant: "destructive",
-    colorClass: "text-destructive",
-    icon: XCircle,
-  },
-};
-
-// ---------------------------------------------------------------------------
-// Mock Data
-// ---------------------------------------------------------------------------
-
-const MOCK_SETTLEMENTS: readonly Settlement[] = [
-  {
-    id: "stl-1",
-    company: "블루보틀 강남점",
-    postTitle: "카페 바리스타 (3/25)",
-    date: "2026-03-25",
-    grossAmount: 52000,
-    netAmount: 52000,
-    status: "CHECKOUT_PENDING",
-    settledAt: null,
-  },
-  {
-    id: "stl-2",
-    company: "이벤트플러스",
-    postTitle: "행사 스태프 (3/24)",
-    date: "2026-03-24",
-    grossAmount: 75000,
-    netAmount: 75000,
-    status: "PROCESSING",
-    settledAt: null,
-  },
-  {
-    id: "stl-3",
-    company: "쿠팡 풀필먼트",
-    postTitle: "물류 분류 작업 (3/22)",
-    date: "2026-03-22",
-    grossAmount: 120000,
-    netAmount: 120000,
-    status: "SETTLED",
-    settledAt: "2026-03-22T18:30:00",
-  },
-  {
-    id: "stl-4",
-    company: "CU 삼성역점",
-    postTitle: "편의점 주간 (3/20)",
-    date: "2026-03-20",
-    grossAmount: 88000,
-    netAmount: 88000,
-    status: "SETTLED",
-    settledAt: "2026-03-20T19:15:00",
-  },
-  {
-    id: "stl-5",
-    company: "스타벅스 선릉점",
-    postTitle: "서빙 알바 (3/18)",
-    date: "2026-03-18",
-    grossAmount: 46000,
-    netAmount: 46000,
-    status: "SETTLED",
-    settledAt: "2026-03-18T17:45:00",
-  },
-  {
-    id: "stl-6",
-    company: "마케팅허브",
-    postTitle: "전단지 배포 (3/15)",
-    date: "2026-03-15",
-    grossAmount: 60000,
-    netAmount: 60000,
-    status: "SETTLED",
-    settledAt: "2026-03-15T16:20:00",
-  },
-  {
-    id: "stl-7",
-    company: "GS25 역삼점",
-    postTitle: "편의점 야간 (3/12)",
-    date: "2026-03-12",
-    grossAmount: 96000,
-    netAmount: 96000,
-    status: "FAILED",
-    settledAt: null,
-  },
-] as const;
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function formatCurrency(amount: number): string {
-  return amount.toLocaleString("ko-KR") + "원";
-}
-
-function calculateSummary(settlements: readonly Settlement[]) {
-  const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
-
-  const thisMonth = settlements.filter((s) => {
-    const d = new Date(s.date);
-    return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
-  });
-
-  const totalIncome = thisMonth
-    .filter((s) => s.status === "SETTLED")
-    .reduce((sum, s) => sum + s.netAmount, 0);
-
-  const pendingAmount = thisMonth
-    .filter((s) =>
-      ["CHECKOUT_PENDING", "APPROVED", "AUTO_APPROVED", "PROCESSING", "RETRY_1", "RETRY_2", "RETRY_3"].includes(s.status)
-    )
-    .reduce((sum, s) => sum + s.netAmount, 0);
-
-  const settledCount = thisMonth.filter((s) => s.status === "SETTLED").length;
-
-  return { totalIncome, pendingAmount, settledCount };
-}
-
-// ---------------------------------------------------------------------------
-// Sub-components
-// ---------------------------------------------------------------------------
-
-function SummaryCards({
-  totalIncome,
-  pendingAmount,
-  settledCount,
-}: {
-  totalIncome: number;
-  pendingAmount: number;
-  settledCount: number;
-}) {
-  return (
-    <div className="grid grid-cols-3 gap-3">
-      <Card size="sm">
-        <CardContent className="text-center">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-teal/10 mx-auto mb-1.5">
-            <TrendingUp className="w-4 h-4 text-teal" />
-          </div>
-          <p className="text-[11px] text-muted-foreground">이번 달 수입</p>
-          <p className="text-sm font-bold text-foreground mt-0.5">
-            {formatCurrency(totalIncome)}
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card size="sm">
-        <CardContent className="text-center">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-brand/10 mx-auto mb-1.5">
-            <Clock className="w-4 h-4 text-brand" />
-          </div>
-          <p className="text-[11px] text-muted-foreground">대기 중</p>
-          <p className="text-sm font-bold text-foreground mt-0.5">
-            {formatCurrency(pendingAmount)}
-          </p>
-        </CardContent>
-      </Card>
-
-      <Card size="sm">
-        <CardContent className="text-center">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-teal/10 mx-auto mb-1.5">
-            <CheckCircle className="w-4 h-4 text-teal" />
-          </div>
-          <p className="text-[11px] text-muted-foreground">정산 완료</p>
-          <p className="text-sm font-bold text-foreground mt-0.5">
-            {settledCount}건
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-function SettlementCard({ settlement }: { settlement: Settlement }) {
-  const config = STATUS_CONFIG[settlement.status];
-  const StatusIcon = config.icon;
-
-  return (
-    <Card size="sm" className="hover:ring-brand/30 transition-shadow">
-      <CardContent className="space-y-2">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-medium text-sm truncate">
-            {settlement.postTitle}
-          </h3>
-          <Badge variant={config.variant} className="shrink-0">
-            <StatusIcon className="w-3 h-3 mr-0.5" />
-            {config.label}
-          </Badge>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-          <span className="flex items-center gap-1">
-            <Building2 className="w-3 h-3" />
-            {settlement.company}
-          </span>
-          <span className="flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            {settlement.date}
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between pt-1">
-          <span className="text-xs text-muted-foreground">정산 금액</span>
-          <span className="text-sm font-bold text-foreground">
-            {formatCurrency(settlement.netAmount)}
-          </span>
-        </div>
-
-        {settlement.settledAt && (
-          <p className="text-[11px] text-muted-foreground">
-            입금 완료: {new Date(settlement.settledAt).toLocaleString("ko-KR", {
-              month: "long",
-              day: "numeric",
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
-        )}
-      </CardContent>
-    </Card>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <Inbox className="w-12 h-12 text-muted-foreground/40 mb-4" />
-      <p className="text-muted-foreground font-medium">
-        아직 정산 내역이 없어요
-      </p>
-      <p className="text-sm text-muted-foreground/70 mt-1">
-        첫 근무를 완료하면 여기에 표시돼요!
-      </p>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 export default function WorkerSettlementsPage() {
-  const settlements = MOCK_SETTLEMENTS;
-  const { totalIncome, pendingAmount, settledCount } =
-    calculateSummary(settlements);
+  const worker = MOCK_CURRENT_WORKER;
+  // Settled and pending settlements
+  const allPastJobs = MOCK_APPLICATIONS.filter(
+    (a) => a.status === "completed"
+  );
+  const settled = allPastJobs.filter((a) => a.settlementStatus === "settled");
+  const pending = allPastJobs.filter(
+    (a) => a.settlementStatus === "pending" || a.settlementStatus === null
+  );
 
-  if (settlements.length === 0) {
+  // This month income
+  const now = new Date();
+  const thisMonthSettled = settled.filter((a) => {
+    if (!a.settledAt) return false;
+    const d = new Date(a.settledAt);
     return (
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
-        <header>
-          <div className="flex items-center gap-2">
-            <Link href="/my" className="p-1 -ml-1 hover:bg-muted rounded-md">
-              <ChevronLeft className="w-5 h-5" />
-            </Link>
-            <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
-              <Wallet className="w-5 h-5 text-brand" />
-              정산 내역
-            </h1>
-          </div>
-        </header>
-        <EmptyState />
-      </div>
+      d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
     );
-  }
+  });
+  const thisMonthTotal = thisMonthSettled.reduce(
+    (sum, a) => sum + (a.earnings ?? 0),
+    0
+  );
+  const allTimeTotal = settled.reduce(
+    (sum, a) => sum + (a.earnings ?? 0),
+    0
+  );
+  // Fastest settlement in this dataset
+  const avgSettleMinutes = 2; // Timee 즉시 정산 평균
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
-      <header>
-        <div className="flex items-center gap-2">
-          <Link href="/my" className="p-1 -ml-1 hover:bg-muted rounded-md">
-            <ChevronLeft className="w-5 h-5" />
+    <div className="bg-background min-h-screen">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
+        <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
+          <Link
+            href="/my"
+            className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center"
+          >
+            <ArrowLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
-            <Wallet className="w-5 h-5 text-brand" />
-            정산 내역
-          </h1>
+          <p className="text-sm font-bold flex-1">정산 내역</p>
+          <button className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center">
+            <Download className="w-4 h-4 text-muted-foreground" />
+          </button>
         </div>
       </header>
 
-      <SummaryCards
-        totalIncome={totalIncome}
-        pendingAmount={pendingAmount}
-        settledCount={settledCount}
-      />
+      <div className="max-w-lg mx-auto px-4 py-4 space-y-5">
+        {/* Hero: this month */}
+        <section className="rounded-2xl bg-gradient-to-br from-brand to-brand-dark text-white p-5 shadow-lg shadow-brand/20">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm opacity-90 flex items-center gap-1.5">
+              <Wallet className="w-4 h-4" /> 이번 달 총 수입
+            </p>
+            <TrendingUp className="w-4 h-4 opacity-80" />
+          </div>
+          <p className="text-3xl font-bold tracking-tight">
+            {formatMoney(thisMonthTotal)}
+          </p>
+          <p className="text-[11px] opacity-80 mt-1">
+            {thisMonthSettled.length}건 정산 완료 · 누적 {formatMoney(allTimeTotal)}
+          </p>
 
-      <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-muted-foreground">
-          전체 내역
-        </h2>
-        {settlements.map((settlement) => (
-          <SettlementCard key={settlement.id} settlement={settlement} />
-        ))}
-      </section>
+          <div className="mt-4 pt-4 border-t border-white/20">
+            <div className="flex items-center gap-2 text-[11px]">
+              <Zap className="w-3.5 h-3.5 fill-white" />
+              <span>
+                평균 정산 <strong>{avgSettleMinutes}분</strong> · 근무 완료 즉시
+                본인 계좌 입금
+              </span>
+            </div>
+          </div>
+        </section>
+
+        {/* Pending */}
+        {pending.length > 0 && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-sm font-bold flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-amber-500" />
+                입금 대기 ({pending.length})
+              </h2>
+            </div>
+            <div className="space-y-2">
+              {pending.map((app) => {
+                const amount = app.earnings ?? calculateEarnings(app.job);
+                return (
+                  <div
+                    key={app.id}
+                    className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3"
+                  >
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-xl shrink-0">
+                        {app.job.business.logo}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {app.job.business.name}
+                        </p>
+                        <p className="text-xs font-medium line-clamp-1">
+                          {app.job.title}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1 text-[10px] text-amber-700">
+                          <Clock className="w-3 h-3" />
+                          <span>곧 입금 예정</span>
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold text-amber-700">
+                          {formatMoney(amount)}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </section>
+        )}
+
+        {/* Settled */}
+        <section>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-bold flex items-center gap-1.5">
+              <CheckCircle2 className="w-4 h-4 text-brand" />
+              입금 완료 ({settled.length})
+            </h2>
+            <button className="text-[11px] text-muted-foreground flex items-center gap-0.5">
+              <Calendar className="w-3 h-3" />
+              전체 기간
+            </button>
+          </div>
+
+          {settled.length === 0 ? (
+            <div className="rounded-2xl border-2 border-dashed border-border p-8 text-center">
+              <Wallet className="w-10 h-10 text-muted-foreground/40 mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">
+                아직 정산 내역이 없어요
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {settled.map((app) => (
+                <div
+                  key={app.id}
+                  className="rounded-xl border border-border bg-card p-3"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center text-xl shrink-0">
+                      {app.job.business.logo}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-[11px] text-muted-foreground truncate">
+                          {app.job.business.name}
+                        </p>
+                        <span className="shrink-0 text-[9px] font-bold px-1.5 py-0.5 rounded bg-brand/10 text-brand">
+                          완료
+                        </span>
+                      </div>
+                      <p className="text-xs font-medium line-clamp-1 mt-0.5">
+                        {app.job.title}
+                      </p>
+                      {app.settledAt && (
+                        <p className="text-[10px] text-muted-foreground mt-1">
+                          {formatDateTime(app.settledAt)} 입금
+                        </p>
+                      )}
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="text-[10px] text-muted-foreground">
+                        {app.checkInAt && formatDate(app.checkInAt)}
+                      </p>
+                      <p className="text-sm font-bold text-brand mt-0.5">
+                        {formatMoney(app.earnings ?? 0)}
+                      </p>
+                      <p className="text-[9px] text-muted-foreground">
+                        {app.actualHours}시간 근무
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Info banner */}
+        <div className="rounded-xl bg-muted/50 p-4">
+          <div className="flex items-start gap-2">
+            <Info className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+            <div className="text-[11px] leading-relaxed text-muted-foreground">
+              <p className="font-bold mb-1 text-foreground">
+                GigNow 즉시 정산 안내
+              </p>
+              <p>
+                체크아웃 확인 즉시 3.3% 원천징수 후 본인 명의 계좌로 자동 송금됩니다.
+                연말정산용 원천징수영수증은 매년 1월 MY 페이지에서 다운로드할 수
+                있어요.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

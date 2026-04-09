@@ -1,251 +1,397 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
-  ChevronLeft,
-  MapPin,
+  getJobById,
+  calculateEarnings,
+  formatWorkDate,
+  categoryLabel,
+  MOCK_REVIEWS,
+} from "@/lib/mock-data";
+import { formatMoney, formatDistance } from "@/lib/format";
+import {
+  ArrowLeft,
   Clock,
+  MapPin,
+  Star,
+  Users,
+  Shield,
+  Zap,
+  CheckCircle2,
+  ShieldCheck,
+  Shirt,
+  Package,
   Calendar,
-  Building2,
-  BadgeCheck,
   Wallet,
-  Share2,
-  Heart,
+  Coins,
+  Info,
+  ChevronRight,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-// ---------------------------------------------------------------------------
-// Mock Data
-// ---------------------------------------------------------------------------
-
-const POST = {
-  id: "p-1",
-  title: "카페 바리스타 주말 근무",
-  company: {
-    name: "블루보틀 강남점",
-    initials: "BB",
-    verified: true,
-    rating: 4.8,
-    reviewCount: 23,
-  },
-  payMin: 13000,
-  payMax: 15000,
-  payType: "시급",
-  location: "서울 강남구 역삼동 123-45",
-  distance: "0.8km",
-  schedule: {
-    dates: "2026.03.28 (토) ~ 2026.03.29 (일)",
-    time: "09:00 - 18:00",
-    hours: "8시간",
-  },
-  description: `블루보틀 강남점에서 주말 바리스타를 모집합니다.
-
-주요 업무:
-- 에스프레소 음료 제조
-- 핸드드립 커피 추출
-- 매장 청결 관리
-- 고객 응대
-
-자격 요건:
-- 바리스타 경험 3개월 이상 (우대)
-- 주말 근무 가능자
-- 성실하고 친절한 분
-
-근무 조건:
-- 시급 13,000원 ~ 15,000원 (경력에 따라 차등)
-- 식사 제공
-- 교통비 지원 (일 5,000원)
-- 4대보험 가입`,
-  tags: ["카페", "바리스타", "주말", "강남", "식사제공"],
-  urgent: false,
-  postedAt: "2시간 전",
-  applicantCount: 5,
-};
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
-
-export default async function PostDetailPage({
-  params,
-}: {
+interface Props {
   params: Promise<{ id: string }>;
-}) {
+}
+
+export default async function JobDetailPage({ params }: Props) {
   const { id } = await params;
+  const job = getJobById(id);
+  if (!job) notFound();
+
+  const earnings = calculateEarnings(job);
+  const basePay = job.hourlyPay * job.workHours;
+  const nightBonus = job.nightShiftAllowance
+    ? Math.floor(basePay * 0.5)
+    : 0;
+  const spotsLeft = job.headcount - job.filled;
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 pb-28 space-y-6">
-      {/* Top bar */}
-      <div className="flex items-center justify-between">
-        <Link href="/explore" className="p-1 -ml-1 hover:bg-muted rounded-md">
-          <ChevronLeft className="w-5 h-5" />
-        </Link>
-        <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon">
-            <Share2 className="w-5 h-5" />
-          </Button>
-          <Button variant="ghost" size="icon">
-            <Heart className="w-5 h-5" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Title & Meta */}
-      <div>
-        <div className="flex flex-wrap gap-1.5 mb-2">
-          {POST.urgent && (
-            <Badge variant="destructive" className="animate-urgent">
-              급구
-            </Badge>
+    <div className="bg-background min-h-screen pb-24">
+      {/* Header */}
+      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
+        <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
+          <Link
+            href="/home"
+            className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Link>
+          <p className="text-sm font-bold truncate flex-1">공고 상세</p>
+          {job.isUrgent && (
+            <span className="shrink-0 bg-red-500/10 text-red-600 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
+              <Zap className="w-3 h-3 fill-red-600" /> 급구
+            </span>
           )}
-          {POST.tags.slice(0, 3).map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-[10px]">
-              {tag}
-            </Badge>
-          ))}
         </div>
-        <h1 className="text-xl font-bold tracking-tight leading-snug">
-          {POST.title}
-        </h1>
-        <p className="text-xs text-muted-foreground mt-1">{POST.postedAt}</p>
-      </div>
+      </header>
 
-      {/* Company info */}
-      <Card size="sm">
-        <CardContent className="flex items-center gap-3">
-          <Avatar>
-            <AvatarFallback className="text-xs font-semibold bg-brand-light text-brand">
-              {POST.company.initials}
-            </AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5">
-              <span className="font-medium text-sm truncate">
-                {POST.company.name}
-              </span>
-              {POST.company.verified && (
-                <BadgeCheck className="w-4 h-4 text-brand shrink-0" />
-              )}
+      <div className="max-w-lg mx-auto">
+        {/* Hero */}
+        <section className="bg-gradient-to-br from-brand/5 to-brand/10 p-5">
+          <div className="flex items-start gap-3 mb-4">
+            <div className="w-16 h-16 rounded-2xl bg-white shadow-sm flex items-center justify-center text-3xl shrink-0">
+              {job.business.logo}
             </div>
-            <p className="text-xs text-muted-foreground">
-              {POST.company.rating} ({POST.company.reviewCount}개 리뷰)
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5 mb-1">
+                <p className="text-xs text-muted-foreground truncate">
+                  {job.business.name}
+                </p>
+                {job.business.verified && (
+                  <ShieldCheck className="w-3.5 h-3.5 text-brand shrink-0" />
+                )}
+              </div>
+              <h1 className="text-xl font-bold leading-tight line-clamp-2">
+                {job.title}
+              </h1>
+              <div className="flex items-center gap-2 mt-1.5 text-xs text-muted-foreground">
+                <div className="flex items-center gap-0.5">
+                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                  <span className="font-medium text-foreground">
+                    {job.business.rating}
+                  </span>
+                  <span>({job.business.reviewCount})</span>
+                </div>
+                <span>·</span>
+                <span>완료율 {job.business.completionRate}%</span>
+                <span>·</span>
+                <span>{categoryLabel(job.category)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Tags */}
+          {job.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5">
+              {job.tags.map((t) => (
+                <span
+                  key={t}
+                  className="text-[11px] bg-white px-2 py-1 rounded-full border border-border font-medium"
+                >
+                  #{t}
+                </span>
+              ))}
+            </div>
+          )}
+        </section>
+
+        {/* Earnings Breakdown */}
+        <section className="px-4 py-5 border-b border-border">
+          <div className="rounded-2xl bg-gradient-to-br from-brand to-brand-dark text-white p-5 shadow-lg shadow-brand/20">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm opacity-90 flex items-center gap-1.5">
+                <Wallet className="w-4 h-4" /> 예상 수입
+              </p>
+              <span className="text-[10px] bg-white/20 px-2 py-0.5 rounded-full">
+                근무 후 즉시 입금
+              </span>
+            </div>
+            <p className="text-3xl font-bold">{formatMoney(earnings)}</p>
+            <div className="mt-4 pt-4 border-t border-white/20 space-y-1.5 text-sm">
+              <div className="flex justify-between opacity-90">
+                <span>
+                  시급 {formatMoney(job.hourlyPay)} × {job.workHours}시간
+                </span>
+                <span>{formatMoney(basePay)}</span>
+              </div>
+              {nightBonus > 0 && (
+                <div className="flex justify-between opacity-90">
+                  <span>심야 할증 (50%)</span>
+                  <span>+{formatMoney(nightBonus)}</span>
+                </div>
+              )}
+              <div className="flex justify-between opacity-90">
+                <span>교통비</span>
+                <span>+{formatMoney(job.transportFee)}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Key info grid */}
+        <section className="px-4 py-5 border-b border-border">
+          <div className="grid grid-cols-2 gap-3">
+            <div className="rounded-xl border border-border p-3">
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mb-1">
+                <Calendar className="w-3 h-3" /> 근무일
+              </div>
+              <p className="font-bold text-sm">{formatWorkDate(job.workDate)}</p>
+            </div>
+            <div className="rounded-xl border border-border p-3">
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mb-1">
+                <Clock className="w-3 h-3" /> 근무 시간
+              </div>
+              <p className="font-bold text-sm">
+                {job.startTime}~{job.endTime}
+              </p>
+            </div>
+            <div className="rounded-xl border border-border p-3">
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mb-1">
+                <Coins className="w-3 h-3" /> 시급
+              </div>
+              <p className="font-bold text-sm">{formatMoney(job.hourlyPay)}</p>
+            </div>
+            <div className="rounded-xl border border-border p-3">
+              <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mb-1">
+                <Users className="w-3 h-3" /> 모집 인원
+              </div>
+              <p className="font-bold text-sm">
+                <span
+                  className={
+                    spotsLeft <= 2 ? "text-red-600" : "text-foreground"
+                  }
+                >
+                  {spotsLeft}명
+                </span>
+                <span className="text-muted-foreground font-normal text-xs">
+                  {" "}
+                  / {job.headcount}명
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Description */}
+        <section className="px-4 py-5 border-b border-border">
+          <h2 className="text-sm font-bold mb-2 flex items-center gap-1.5">
+            <Info className="w-4 h-4 text-brand" /> 업무 소개
+          </h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            {job.description}
+          </p>
+        </section>
+
+        {/* Duties */}
+        <section className="px-4 py-5 border-b border-border">
+          <h2 className="text-sm font-bold mb-3">주요 업무</h2>
+          <ul className="space-y-2">
+            {job.duties.map((d) => (
+              <li key={d} className="flex items-start gap-2 text-sm">
+                <CheckCircle2 className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+                <span>{d}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Requirements */}
+        <section className="px-4 py-5 border-b border-border">
+          <h2 className="text-sm font-bold mb-3">지원 조건</h2>
+          <ul className="space-y-2">
+            {job.requirements.map((r) => (
+              <li key={r} className="flex items-start gap-2 text-sm">
+                <Shield className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
+                <span>{r}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        {/* Dress code & What to bring */}
+        <section className="px-4 py-5 border-b border-border space-y-4">
+          <div>
+            <h2 className="text-sm font-bold mb-2 flex items-center gap-1.5">
+              <Shirt className="w-4 h-4 text-brand" /> 복장
+            </h2>
+            <p className="text-sm text-muted-foreground">{job.dressCode}</p>
+          </div>
+          <div>
+            <h2 className="text-sm font-bold mb-2 flex items-center gap-1.5">
+              <Package className="w-4 h-4 text-brand" /> 준비물
+            </h2>
+            <div className="flex flex-wrap gap-1.5">
+              {job.whatToBring.map((w) => (
+                <span
+                  key={w}
+                  className="text-xs bg-muted px-2.5 py-1 rounded-full"
+                >
+                  {w}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Location */}
+        <section className="px-4 py-5 border-b border-border">
+          <h2 className="text-sm font-bold mb-3 flex items-center gap-1.5">
+            <MapPin className="w-4 h-4 text-brand" /> 근무 장소
+          </h2>
+          <div className="rounded-xl border border-border overflow-hidden">
+            {/* Map placeholder */}
+            <div className="aspect-[16/9] bg-gradient-to-br from-muted to-muted/50 flex items-center justify-center relative">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,transparent_30%,rgba(0,0,0,0.05)_100%)]" />
+              <div className="relative flex flex-col items-center gap-1">
+                <div className="w-10 h-10 rounded-full bg-red-500 flex items-center justify-center shadow-lg">
+                  <MapPin className="w-5 h-5 text-white fill-white" />
+                </div>
+                <span className="text-[10px] bg-white/90 px-2 py-0.5 rounded shadow-sm">
+                  {formatDistance(job.distanceM)}
+                </span>
+              </div>
+            </div>
+            <div className="p-3 bg-card">
+              <p className="text-sm font-medium">{job.business.address}</p>
+              {job.business.addressDetail && (
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {job.business.addressDetail}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
+                ※ 정확한 주소는 지원 확정 후 공개됩니다
+              </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Business info */}
+        <section className="px-4 py-5 border-b border-border">
+          <h2 className="text-sm font-bold mb-3">업체 정보</h2>
+          <div className="rounded-xl border border-border p-4">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-2xl shrink-0">
+                {job.business.logo}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <p className="font-bold text-sm truncate">
+                    {job.business.name}
+                  </p>
+                  {job.business.verified && (
+                    <ShieldCheck className="w-4 h-4 text-brand shrink-0" />
+                  )}
+                </div>
+                <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
+                  <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                  <span className="font-medium text-foreground">
+                    {job.business.rating}
+                  </span>
+                  <span>
+                    · 리뷰 {job.business.reviewCount} · 완료율{" "}
+                    {job.business.completionRate}%
+                  </span>
+                </div>
+              </div>
+            </div>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {job.business.description}
             </p>
           </div>
-        </CardContent>
-      </Card>
+        </section>
 
-      {/* Key info */}
-      <div className="grid grid-cols-2 gap-3">
-        <Card size="sm">
-          <CardContent className="flex items-start gap-2">
-            <Wallet className="w-4 h-4 text-brand mt-0.5 shrink-0" />
-            <div>
-              <p className="text-xs text-muted-foreground">{POST.payType}</p>
-              <p className="text-sm font-bold text-brand">
-                {POST.payMin.toLocaleString()}원 ~{" "}
-                {POST.payMax.toLocaleString()}원
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+        {/* Reviews */}
+        <section className="px-4 py-5 border-b border-border">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-bold">근무자 리뷰</h2>
+            <button className="text-xs text-brand font-medium flex items-center gap-0.5">
+              전체 보기 <ChevronRight className="w-3 h-3" />
+            </button>
+          </div>
+          <div className="space-y-3">
+            {MOCK_REVIEWS.slice(0, 2).map((rev) => (
+              <div key={rev.id} className="rounded-xl border border-border p-3">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                    {rev.reviewerAvatar}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium">{rev.reviewerName}</p>
+                    <div className="flex items-center gap-0.5">
+                      {Array.from({ length: 5 }).map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`w-3 h-3 ${
+                            i < rev.rating
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-muted-foreground/30"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  {rev.comment}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-        <Card size="sm">
-          <CardContent className="flex items-start gap-2">
-            <MapPin className="w-4 h-4 text-teal mt-0.5 shrink-0" />
-            <div>
-              <p className="text-xs text-muted-foreground">위치</p>
-              <p className="text-sm font-medium">{POST.distance}</p>
+        {/* Safety notice */}
+        <section className="px-4 py-5">
+          <div className="rounded-xl bg-brand/5 border border-brand/20 p-4">
+            <div className="flex items-start gap-2">
+              <Shield className="w-4 h-4 text-brand shrink-0 mt-0.5" />
+              <div className="text-xs leading-relaxed">
+                <p className="font-bold text-foreground mb-1">
+                  GigNow가 보장합니다
+                </p>
+                <p className="text-muted-foreground">
+                  국세청 인증을 거친 업체만 공고를 등록할 수 있으며, 근무 완료
+                  후 <strong className="text-foreground">즉시 본인 계좌로 정산</strong>
+                  됩니다.
+                </p>
+              </div>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card size="sm">
-          <CardContent className="flex items-start gap-2">
-            <Calendar className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
-            <div>
-              <p className="text-xs text-muted-foreground">근무일</p>
-              <p className="text-sm font-medium">{POST.schedule.dates}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card size="sm">
-          <CardContent className="flex items-start gap-2">
-            <Clock className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
-            <div>
-              <p className="text-xs text-muted-foreground">근무시간</p>
-              <p className="text-sm font-medium">
-                {POST.schedule.time} ({POST.schedule.hours})
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
 
-      {/* Location */}
-      <Card size="sm">
-        <CardContent className="flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-muted-foreground shrink-0" />
-          <p className="text-sm text-muted-foreground">{POST.location}</p>
-        </CardContent>
-      </Card>
-
-      <Separator />
-
-      {/* Description */}
-      <section>
-        <h2 className="text-base font-semibold mb-3">상세 정보</h2>
-        <div className="text-sm text-muted-foreground whitespace-pre-line leading-relaxed">
-          {POST.description}
-        </div>
-      </section>
-
-      <Separator />
-
-      {/* Tags */}
-      <section>
-        <h2 className="text-base font-semibold mb-3">태그</h2>
-        <div className="flex flex-wrap gap-2">
-          {POST.tags.map((tag) => (
-            <Badge key={tag} variant="outline" className="px-3 py-1">
-              {tag}
-            </Badge>
-          ))}
-        </div>
-      </section>
-
-      {/* Applicant count */}
-      <Card size="sm" className="bg-muted/50">
-        <CardContent>
-          <p className="text-xs text-muted-foreground text-center">
-            현재{" "}
-            <span className="font-semibold text-foreground">
-              {POST.applicantCount}명
-            </span>
-            이 지원했어요
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Sticky CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 pb-[env(safe-area-inset-bottom)]">
+      {/* Sticky bottom CTA */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-border">
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-brand">
-              {POST.payType} {POST.payMin.toLocaleString()}원 ~{" "}
-              {POST.payMax.toLocaleString()}원
+            <p className="text-[10px] text-muted-foreground">예상 수입</p>
+            <p className="font-bold text-brand text-lg leading-tight">
+              {formatMoney(earnings)}
             </p>
           </div>
-          <Button className="bg-brand hover:bg-brand-dark text-white px-6">
-            지원하기
-          </Button>
+          <Link
+            href={`/posts/${job.id}/apply`}
+            className="flex-[2] h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-brand/20 transition-colors"
+          >
+            <Zap className="w-4 h-4 fill-white" /> 원탭 지원
+          </Link>
         </div>
       </div>
     </div>
