@@ -1560,42 +1560,51 @@ See "Architecture Patterns" section above for verbatim code. All patterns source
 | A10 | `supabase.auth.getClaims()` is preferred over `getUser()` in proxy context (per Supabase's official example) | Pattern 1 code verbatim, Pitfall 3 | LOW — came directly from the official Supabase Next.js example. |
 | A11 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` is the current production-recommended env var name for new projects (not `ANON_KEY`) | Pattern 1, env vars discussion | LOW — verified via Supabase docs; both supported. CONTEXT.md D-07 uses `ANON_KEY` — planner should either follow D-07 verbatim (using ANON_KEY) OR document the upgrade to PUBLISHABLE_KEY as an intentional lift. **Recommendation: use `PUBLISHABLE_KEY` as primary + accept `ANON_KEY` as fallback.** Requires one-line update to CONTEXT.md D-07 after confirmation. |
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+All questions below were resolved during plan creation. Each resolution is noted inline; the planner has already addressed each item in Plan 01-06 or accepted the known limitation.
 
 1. **MCP availability verification**
    - What we know: CONTEXT.md D-03 assumes Supabase MCP is wired up. The Vercel plugin subagent bootstrap doesn't mention it.
    - What's unclear: Whether `mcp__supabase__*` tools respond in the current session.
    - Recommendation: Wave 1 first task = "Verify Supabase MCP connectivity by calling `list_projects`. If fails, fallback to Supabase CLI path." This should be the very first action before creating any files.
+   - **RESOLVED:** Plan 01 Task 5 is a blocking `checkpoint:decision` that verifies Supabase MCP connectivity before Plan 02 (Wave 1) begins. User selects `mcp-primary`, `cli-fallback`, or `try-mcp-fallback-cli`. CLI fallback path (`supabase db push` + `supabase link`) is documented end-to-end in Plan 02 so the executor can re-route mid-flight if MCP fails.
 
 2. **Seed execution on Supabase preview branches**
    - What we know: CONTEXT.md says "Supabase 프리뷰 branch: `supabase migration new seed_dev_data` + Supabase CLI로 브랜치 생성 시 자동 적용"
    - What's unclear: Whether branch migrations should contain seed data (unusual — typically seeds are separate) or whether each branch creates via `prisma db seed` manually.
    - Recommendation: Phase 2 ships with `prisma db seed` only. Supabase branch integration deferred to Phase 3+ (not blocking for Phase 2 DoD).
+   - **RESOLVED:** Phase 2 ships with `prisma db seed` only (Plan 05 owns the seed script + prisma.config.ts wiring). Supabase branch seed integration is explicitly deferred to Phase 3+. Accepted as scope boundary — not blocking for Phase 2 DoD.
 
 3. **`auth.users.email` ↔ `public.users.email` synchronization**
    - What we know: Trigger copies email from auth.users on insert.
    - What's unclear: What happens when user changes email via Supabase `auth.updateUser({ email })` — public.users.email stays stale.
    - Recommendation: Phase 2 adds an UPDATE trigger: `create trigger on_auth_user_email_updated after update of email on auth.users for each row execute procedure public.handle_user_email_update();`. OR accept stale and document as known limitation. Phase 2 priority: document as known limitation, add sync trigger in Phase 3.
+   - **RESOLVED:** Accepted as known limitation for Phase 2. The Phase 2 trigger only handles INSERT (auth.users → public.users row creation). Email-change propagation trigger is deferred to Phase 3 profile work, where user profile editing flows will be implemented alongside the full email-update handler. Drift captured implicitly in Plan 06 Task 4 ARCHITECTURE.md review.
 
 4. **Session cookie name override for multi-project dev**
    - What we know: Supabase default cookie = `sb-<project-ref>-auth-token`.
    - What's unclear: If developer runs multiple Supabase projects locally (dev, staging) on same port, cookies collide.
    - Recommendation: Don't override. The `<project-ref>` differentiator is enough. Use browser profiles for multi-project dev.
+   - **RESOLVED:** Use Supabase default cookie name `sb-<project-ref>-auth-token`. Multi-project local development is a non-goal for Phase 2 (solo developer, single dev project). No cookie name override is introduced. Developers running multiple Supabase projects simultaneously should use browser profiles.
 
 5. **Prisma `directUrl` for Vercel production**
    - What we know: `directUrl` must be non-pooled for migrations.
    - What's unclear: Whether Vercel production runtime needs both `DATABASE_URL` and `DIRECT_URL` or just `DATABASE_URL`. Runtime queries use the pooler, migrations don't run on Vercel (they run during `vercel build` via `prisma generate` only, not `prisma migrate deploy` in production).
    - Recommendation: Set both in Vercel env vars for safety. `DATABASE_URL` for runtime. `DIRECT_URL` only used if CI runs `prisma migrate deploy` as part of build (optional).
+   - **RESOLVED:** Plan 01 Task 4 writes BOTH `DATABASE_URL` (Supavisor pooler port 6543 with `?pgbouncer=true` for runtime queries) AND `DIRECT_URL` (direct connection port 5432 for migrations) into `.env.example`. Plan 02 Task 2 adds `directUrl = env("DIRECT_URL")` to the Prisma `datasource db` block. Vercel production env vars should mirror both — documented in user_setup frontmatter of Plan 01.
 
 6. **Empty `src/app/(biz)` route group**
    - What we know: `src/app/(biz)/` directory exists but is empty. Real biz routes live under `src/app/biz/` (flat path).
    - What's unclear: Whether to delete the empty `(biz)` group or leave it for future use.
    - Recommendation: Leave it. Deletion is not Phase 2 scope; Phase 3 can reorganize if needed.
+   - **RESOLVED:** Left as-is. Phase 2 is not responsible for deleting empty route groups. The real biz routes live at flat `src/app/biz/` path (which is what Plan 04 Task 3 modifies for `requireBusiness()` layout gating). Phase 3+ can reorganize if needed — no Phase 2 scope impact.
 
 7. **`role-select` page does not exist yet**
    - What we know: `src/app/(auth)/role-select/page.tsx` is referenced in CONTEXT.md "existing mock UI to wire Supabase into" but the file does NOT exist.
    - What's unclear: Whether Phase 1 had a role-select page that was later removed, or whether Phase 2 needs to create it from scratch.
    - Recommendation: Phase 2 Wave 3 creates `role-select/page.tsx` + `actions.ts` from scratch. Phase 1 retroactive scope did not include this page.
+   - **RESOLVED:** Plan 04 Task 3 creates `src/app/(auth)/role-select/page.tsx` from scratch as a Server Component with `verifySession()` first-layer check and three `<form action={selectRole}>` submissions (WORKER/BUSINESS/BOTH). Plan 04 Task 3 also creates the matching `src/app/(auth)/role-select/actions.ts` with Next 16 data-security re-verification and admin API `app_metadata.role` update.
 
 ## Sources
 
