@@ -254,11 +254,11 @@ export default async function BizWorkerDetailPage({
                       {day.day}
                     </p>
                     <div className="space-y-1">
-                      {["오전", "오후", "저녁"].map((slot) => (
+                      {(["오전", "오후", "저녁"] as const).map((slot) => (
                         <div
                           key={slot}
                           className={`px-1 py-1.5 rounded text-xs ${
-                            day.slots.includes(slot)
+                            (day.slots as readonly string[]).includes(slot)
                               ? "bg-teal/15 text-teal font-medium"
                               : "bg-muted/50 text-muted-foreground/50"
                           }`}

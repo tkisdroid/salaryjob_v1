@@ -5,9 +5,7 @@ import {
   Phone,
   Clock,
   Star,
-  MessageCircle,
   Pencil,
-  Shield,
   Globe,
   Image as ImageIcon,
   CheckCircle,
@@ -28,7 +26,6 @@ const BUSINESS = {
   name: "맛있는 카페",
   category: "외식/음료",
   verified: true,
-  logo: null,
   address: "서울특별시 강남구 테헤란로 123, 1층",
   phone: "02-1234-5678",
   website: "https://tasty-cafe.kr",
@@ -56,7 +53,6 @@ const BUSINESS = {
 export default function BizProfilePage() {
   return (
     <div className="max-w-5xl mx-auto px-6 py-8">
-      {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-foreground">업체 프로필</h1>
@@ -73,12 +69,10 @@ export default function BizProfilePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {/* Left Column: Main Info */}
+        {/* Left Column */}
         <div className="md:col-span-1 space-y-4">
-          {/* Logo & Basic Info */}
           <Card>
             <CardContent className="flex flex-col items-center text-center pt-2">
-              {/* Logo */}
               <div className="w-24 h-24 rounded-2xl bg-teal/10 flex items-center justify-center mb-4">
                 <Building2 className="w-12 h-12 text-teal" />
               </div>
@@ -96,7 +90,6 @@ export default function BizProfilePage() {
                 {BUSINESS.category}
               </Badge>
 
-              {/* Stats */}
               <div className="flex items-center gap-4 text-sm">
                 <div className="flex items-center gap-1">
                   <Star className="w-4 h-4 fill-brand text-brand" />
@@ -109,7 +102,6 @@ export default function BizProfilePage() {
 
               <Separator className="my-4" />
 
-              {/* Contact Info */}
               <div className="w-full space-y-3 text-sm text-left">
                 <div className="flex items-start gap-3">
                   <MapPin className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
@@ -136,7 +128,6 @@ export default function BizProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Operating Hours */}
           <Card>
             <CardHeader>
               <CardTitle className="text-sm flex items-center gap-2">
@@ -168,7 +159,6 @@ export default function BizProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Quick Stats */}
           <Card>
             <CardContent>
               <div className="grid grid-cols-2 gap-4 text-center">
@@ -176,26 +166,21 @@ export default function BizProfilePage() {
                   <p className="text-2xl font-bold text-teal">
                     {BUSINESS.totalHires}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    총 채용 횟수
-                  </p>
+                  <p className="text-xs text-muted-foreground">총 채용 횟수</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-foreground">
                     {BUSINESS.reviewCount}
                   </p>
-                  <p className="text-xs text-muted-foreground">
-                    받은 리뷰
-                  </p>
+                  <p className="text-xs text-muted-foreground">받은 리뷰</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Right Column: Description & Photos */}
+        {/* Right Column */}
         <div className="md:col-span-2 space-y-4">
-          {/* Description */}
           <Card>
             <CardHeader>
               <CardTitle>업체 소개</CardTitle>
@@ -207,7 +192,6 @@ export default function BizProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Photos */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -232,7 +216,6 @@ export default function BizProfilePage() {
             </CardContent>
           </Card>
 
-          {/* Rating & Reviews Summary */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
