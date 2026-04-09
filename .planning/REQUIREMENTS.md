@@ -23,7 +23,7 @@ v1 = "Timee 모델의 한국 MVP" — Worker가 실제 DB로 탐색·지원·근
 - [ ] **DATA-02**: PostGIS 확장이 활성화되어 Job의 위치(lat/lng)로 거리 기반 쿼리가 가능하다
 - [ ] **DATA-03**: Supabase 프로젝트에 초기 마이그레이션이 적용되어 있다
 - [ ] **DATA-04**: 시드 데이터가 `prisma/seed.ts` 또는 Supabase SQL로 제공되어 로컬/프리뷰에서 빈 DB를 채울 수 있다
-- [ ] **DATA-05**: `src/lib/mock-data.ts` 의존 경로가 코드베이스에서 0개다 (Phase 2 종료 조건)
+- [ ] **DATA-05**: `src/lib/mock-data.ts` 의존 경로가 코드베이스에서 0개다 (Phase 5 종료 조건)
 
 ### Worker Profile (WORK)
 
@@ -124,13 +124,63 @@ v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| *(filled by roadmapper)* | | |
+| AUTH-01 | Phase 2 | Pending |
+| AUTH-02 | Phase 2 | Pending |
+| AUTH-03 | Phase 2 | Pending |
+| AUTH-04 | Phase 2 | Pending |
+| AUTH-05 | Phase 2 | Pending |
+| AUTH-06 | Phase 2 | Pending |
+| AUTH-07 | Phase 2 | Pending |
+| DATA-01 | Phase 2 | Pending |
+| DATA-02 | Phase 2 | Pending |
+| DATA-03 | Phase 2 | Pending |
+| DATA-04 | Phase 2 | Pending |
+| DATA-05 | Phase 5 | Pending (exit criterion) |
+| WORK-01 | Phase 3 | Pending |
+| WORK-02 | Phase 3 | Pending |
+| WORK-03 | Phase 3 | Pending |
+| WORK-04 | Phase 3 | Pending |
+| BIZ-01 | Phase 3 | Pending |
+| BIZ-02 | Phase 3 | Pending |
+| BIZ-03 | Phase 3 | Pending |
+| POST-01 | Phase 3 | Pending |
+| POST-02 | Phase 3 | Pending |
+| POST-03 | Phase 3 | Pending |
+| POST-04 | Phase 3 | Pending |
+| POST-05 | Phase 3 | Pending |
+| POST-06 | Phase 3 | Pending |
+| APPL-01 | Phase 4 | Pending |
+| APPL-02 | Phase 4 | Pending |
+| APPL-03 | Phase 4 | Pending |
+| APPL-04 | Phase 4 | Pending |
+| APPL-05 | Phase 4 | Pending |
+| SHIFT-01 | Phase 4 | Pending |
+| SHIFT-02 | Phase 4 | Pending |
+| SHIFT-03 | Phase 4 | Pending |
+| REV-01 | Phase 5 | Pending |
+| REV-02 | Phase 5 | Pending |
+| REV-03 | Phase 5 | Pending |
+| REV-04 | Phase 5 | Pending |
+| SETL-01 | Phase 5 | Pending |
+| SETL-02 | Phase 5 | Pending |
+| SETL-03 | Phase 5 | Pending |
+
+**Validated (Phase 1, retroactive — PROJECT.md):**
+
+| Capability | Phase | Status |
+|------------|-------|--------|
+| Worker 탐색·지원·체크인·리뷰 목업 루프 | Phase 1 | Completed 2026-04-10 (`55790d1`) |
+| Business 공고 생성·지원자 관리·지원자 리뷰 목업 루프 | Phase 1 | Completed 2026-04-10 (`55790d1`) |
+| 양방향 ReviewForm 공용 컴포넌트 (worker↔biz) | Phase 1 | Completed 2026-04-10 (`55790d1`) |
+| Timee 스타일 UI 언어 (모바일 퍼스트 Worker, 데스크톱 Biz) | Phase 1 | Completed 2026-04-10 (`55790d1`) |
 
 **Coverage:**
-- v1 requirements: 39 total
-- Mapped to phases: 0 (pending roadmapper)
-- Unmapped: 39 ⚠️
+- v1 requirements: 40 total (AUTH 7 + DATA 5 + WORK 4 + BIZ 3 + POST 6 + APPL 5 + SHIFT 3 + REV 4 + SETL 3)
+- Mapped to phases: 40/40 (100%) ✓
+- Unmapped: 0
+
+> Note: previous header recorded "39 total" — the accurate count from the category lists above is 40. Traceability table is authoritative.
 
 ---
 *Requirements defined: 2026-04-10*
-*Last updated: 2026-04-10 after /gsd-new-project initialization*
+*Last updated: 2026-04-10 — traceability populated by /gsd-roadmapper*
