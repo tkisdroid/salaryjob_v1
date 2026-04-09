@@ -1,0 +1,136 @@
+# Requirements: GigNow (NJob)
+
+**Defined:** 2026-04-10
+**Core Value:** 이력서·면접 제로. 탭 하나로 확정, 근무 후 즉시 정산.
+
+## v1 Requirements
+
+v1 = "Timee 모델의 한국 MVP" — Worker가 실제 DB로 탐색·지원·근무·리뷰·정산 확인을 완주하고, Business가 실제 DB로 공고 생성·지원자 관리·리뷰 작성을 완주할 수 있는 상태.
+
+### Authentication (AUTH)
+
+- [ ] **AUTH-01**: 사용자는 휴대폰 번호 또는 이메일로 회원가입할 수 있다 (Supabase Auth)
+- [ ] **AUTH-02**: 사용자는 Worker 역할과 Business 역할 중 하나 또는 둘 다를 선택해 가입할 수 있다
+- [ ] **AUTH-03**: 사용자는 로그인 후 브라우저 새로고침 시에도 세션이 유지된다
+- [ ] **AUTH-04**: 사용자는 로그아웃 시 모든 세션 쿠키가 제거된다
+- [ ] **AUTH-05**: 인증되지 않은 사용자가 보호된 경로에 접근하면 로그인 페이지로 리다이렉트된다 (middleware)
+- [ ] **AUTH-06**: Worker 전용 경로는 Worker 역할이 없는 사용자를 차단한다
+- [ ] **AUTH-07**: Business 전용 경로는 Business 역할이 없는 사용자를 차단한다
+
+### Data Layer (DATA)
+
+- [ ] **DATA-01**: Prisma 스키마에 User, WorkerProfile, BusinessProfile, Job, Application, Review 모델이 정의되어 있다
+- [ ] **DATA-02**: PostGIS 확장이 활성화되어 Job의 위치(lat/lng)로 거리 기반 쿼리가 가능하다
+- [ ] **DATA-03**: Supabase 프로젝트에 초기 마이그레이션이 적용되어 있다
+- [ ] **DATA-04**: 시드 데이터가 `prisma/seed.ts` 또는 Supabase SQL로 제공되어 로컬/프리뷰에서 빈 DB를 채울 수 있다
+- [ ] **DATA-05**: `src/lib/mock-data.ts` 의존 경로가 코드베이스에서 0개다 (Phase 2 종료 조건)
+
+### Worker Profile (WORK)
+
+- [ ] **WORK-01**: Worker는 이름, 닉네임, 프로필 사진, 소개글을 등록할 수 있다
+- [ ] **WORK-02**: Worker는 자신의 선호 카테고리(food, retail, logistics 등)를 저장할 수 있다
+- [ ] **WORK-03**: Worker는 자신의 뱃지 레벨, 평점, 근무 횟수, 완료율을 프로필에서 볼 수 있다
+- [ ] **WORK-04**: Worker는 본인 계정의 프로필만 수정할 수 있다 (RLS)
+
+### Business Profile (BIZ)
+
+- [ ] **BIZ-01**: Business는 상호명, 주소, 카테고리, 로고/이모지, 설명을 등록할 수 있다
+- [ ] **BIZ-02**: Business는 자신의 평점, 리뷰 수, 완료율을 프로필에서 볼 수 있다
+- [ ] **BIZ-03**: Business는 본인 계정의 프로필만 수정할 수 있다 (RLS)
+
+### Job Posting (POST)
+
+- [ ] **POST-01**: Business는 새 공고(제목, 카테고리, 설명, 시급, 교통비, 근무일, 시간, 인원, 주소, 드레스코드, 준비물)를 작성해 저장할 수 있다
+- [ ] **POST-02**: Business는 자신이 작성한 공고 목록을 볼 수 있다
+- [ ] **POST-03**: Business는 공고를 수정하거나 삭제할 수 있다
+- [ ] **POST-04**: Worker는 로그인 없이(또는 가입 후) 공고 목록을 페이지네이션으로 볼 수 있다
+- [ ] **POST-05**: Worker는 공고 상세 페이지에서 모든 정보(예상 수입 포함)를 확인할 수 있다
+- [ ] **POST-06**: 공고는 workDate/startTime이 지나면 자동으로 "만료" 상태로 전환된다
+
+### Application (APPL)
+
+- [ ] **APPL-01**: 인증된 Worker는 공고 상세에서 "원탭 지원" 버튼으로 지원을 생성할 수 있다
+- [ ] **APPL-02**: Worker는 자신의 지원 목록(예정/진행중/완료)을 본다
+- [ ] **APPL-03**: Business는 자신의 공고 각각에 대한 지원자 목록을 본다
+- [ ] **APPL-04**: Business는 지원자를 accept/reject할 수 있으며, 해당 상태가 Worker 쪽에 실시간 반영된다 (또는 폴링)
+- [ ] **APPL-05**: Accept된 지원의 headcount가 공고의 headcount에 도달하면 공고가 자동으로 "마감" 상태로 전환된다
+
+### Check-in / Work (WORK-SHIFT)
+
+- [ ] **SHIFT-01**: Accept된 Worker는 근무 시작 시간에 체크인할 수 있다 (현재 mock UI 존재)
+- [ ] **SHIFT-02**: 체크아웃 시 실근무 시간과 수입이 계산되어 Application에 저장된다
+- [ ] **SHIFT-03**: 야간 할증(22:00-06:00, 4시간 이상)은 DB 레벨 또는 서버 함수에서 50% 가산된다
+
+### Review (REV)
+
+- [ ] **REV-01**: 완료된 Application에 대해 Worker는 Business에 대한 리뷰(별점, 태그, 코멘트)를 작성할 수 있다
+- [ ] **REV-02**: 완료된 Application에 대해 Business는 Worker에 대한 평가(별점, 태그, 코멘트)를 작성할 수 있다
+- [ ] **REV-03**: 각 리뷰는 Application당 정확히 1회만 작성 가능하다 (uniqueness)
+- [ ] **REV-04**: 리뷰 제출 시 대상의 rating/reviewCount가 자동 업데이트된다
+
+### Settlement (SETL)
+
+- [ ] **SETL-01**: 완료된 Application은 pending → settled 상태로 전환되어 Worker의 정산 목록에 표시된다 (mock 즉시 정산 시뮬레이션)
+- [ ] **SETL-02**: Business는 자신의 정산 히스토리(지급 완료/예정)를 볼 수 있다
+- [ ] **SETL-03**: 총수입, 이번 달 수입 집계가 실제 데이터로 계산되어 표시된다
+
+## v2 Requirements
+
+v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
+
+### AI Matching (AIMATCH)
+
+- **AIMATCH-01**: Worker의 선호/근무기록 기반 추천 공고 리스트가 home에 표시된다
+- **AIMATCH-02**: Business의 공고에 적합한 Worker 추천 리스트가 표시된다
+- **AIMATCH-03**: Claude + Gemini 게이트웨이가 비용 효율 모드로 운영에 배포된다
+- **AIMATCH-04**: 매칭 근거(reasons)가 사용자에게 한국어로 노출된다
+
+### Payments (PAY)
+
+- **PAY-01**: Toss Payments 웹훅으로 실제 결제 확인을 받는다
+- **PAY-02**: 원천징수(3.3%)가 자동 계산되어 Settlement에 반영된다
+- **PAY-03**: 국세청 사업자번호 검증 API가 Business 가입 시 호출된다
+- **PAY-04**: 정산 실패 시 Business/Worker에게 알림이 전송된다
+
+### Notifications (NOTIF)
+
+- **NOTIF-01**: 새 지원/수락/거절이 실시간 push/SMS/카카오 알림톡으로 전달된다
+- **NOTIF-02**: 근무 1시간 전 리마인더가 자동 발송된다
+- **NOTIF-03**: 긴급 공고는 위치 기반 near-workers 쿼리로 즉시 매칭 알림 발송
+
+### Advanced Search (SEARCH)
+
+- **SEARCH-01**: Worker는 카테고리, 거리, 시급, 근무일 기준 고급 필터 검색이 가능하다
+- **SEARCH-02**: 카카오맵 연동으로 공고 위치가 지도 상에 표시된다
+
+### Chat (CHAT)
+
+- **CHAT-01**: Accept된 Application에 대해 Worker/Business 간 1:1 채팅방이 생성된다
+- **CHAT-02**: 채팅은 텍스트/이미지/위치를 지원한다
+
+## Out of Scope
+
+| Feature | Reason |
+|---------|--------|
+| 지원→대기→면접→채용 플로우 | Timee 모델의 핵심 차별화 원칙 위배. 기존 한국 알바 플랫폼 패턴 금지 (memory 원칙) |
+| Multi-session / MFA / 조직 관리 | Supabase Auth 기본 기능만 사용. Clerk급 엔터프라이즈 기능 불필요 |
+| 한국어 외 다국어 지원 | 국내 시장 집중, 지역화 우선 |
+| 위치 기반 광고 플랫폼 (규모 인센티브, 위치 프로모션) | Timee의 광고 엔진은 제품-시장 맞물림 검증 후 고려 |
+| 동영상 공고 업로드 | 스토리지/대역폭 비용, 정적 사진만으로 충분 |
+| 자체 동기식 채팅 (WebSocket) | Supabase Realtime으로 충분, 전용 채팅 인프라 불필요 |
+| 모바일 네이티브 앱 | PWA/웹 우선, 네이티브는 v1 이후 |
+
+## Traceability
+
+| Requirement | Phase | Status |
+|-------------|-------|--------|
+| *(filled by roadmapper)* | | |
+
+**Coverage:**
+- v1 requirements: 39 total
+- Mapped to phases: 0 (pending roadmapper)
+- Unmapped: 39 ⚠️
+
+---
+*Requirements defined: 2026-04-10*
+*Last updated: 2026-04-10 after /gsd-new-project initialization*
