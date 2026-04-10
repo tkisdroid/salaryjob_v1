@@ -1,6 +1,11 @@
 import Link from "next/link";
-import { getJobs, getUrgentJobs, getCurrentWorker } from "@/lib/db/queries";
-import { formatWorkDate, calculateEarnings, categoryLabel } from "@/lib/job-utils";
+import {
+  getJobsPaginated,
+  getUrgentJobs,
+  getCurrentWorker,
+} from "@/lib/db/queries";
+import { HomeJobList } from "./home-job-list";
+import { formatWorkDate, calculateEarnings } from "@/lib/job-utils";
 import { formatMoney, formatDistance } from "@/lib/format";
 import {
   Clock,
@@ -22,11 +27,12 @@ const CATEGORIES = [
 ] as const;
 
 export default async function WorkerHomePage() {
-  const [urgentJobs, recommendedJobs, worker] = await Promise.all([
+  const [urgentJobs, jobPage, worker] = await Promise.all([
     getUrgentJobs(),
-    getJobs({ limit: 6 }),
+    getJobsPaginated({ limit: 20 }),
     getCurrentWorker(),
   ]);
+  const { jobs: recommendedJobs, nextCursor: recommendedCursor } = jobPage;
 
   return (
     <div className="bg-background min-h-screen">
@@ -156,90 +162,17 @@ export default async function WorkerHomePage() {
           </section>
         )}
 
-        {/* Recommended */}
+        {/* Recommended — D-06 geolocation + distance sort via HomeJobList */}
         <section>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-bold flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-brand" />내 맞춤 추천
+              <Sparkles className="w-4 h-4 text-brand" />내 주변 공고
             </h2>
-            <Link
-              href="/explore"
-              className="text-xs text-brand font-medium"
-            >
-              더보기 →
-            </Link>
           </div>
-          <div className="space-y-3">
-            {recommendedJobs.map((job) => (
-              <Link
-                key={job.id}
-                href={`/posts/${job.id}`}
-                className="block rounded-2xl border border-border bg-card p-4 hover:shadow-md hover:border-brand/30 transition-all"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-14 h-14 rounded-xl bg-brand/10 flex items-center justify-center text-2xl shrink-0">
-                    {job.business.logo}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <p className="text-[11px] text-muted-foreground truncate">
-                          {job.business.name} · {categoryLabel(job.category)}
-                        </p>
-                        <h3 className="font-bold text-sm line-clamp-1 mt-0.5">
-                          {job.title}
-                        </h3>
-                      </div>
-                      {job.isNew && (
-                        <span className="shrink-0 bg-brand/10 text-brand text-[9px] font-bold px-1.5 py-0.5 rounded">
-                          NEW
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-3 mt-1.5 text-[11px] text-muted-foreground">
-                      <div className="flex items-center gap-0.5">
-                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        <span className="font-medium text-foreground">
-                          {job.business.rating}
-                        </span>
-                      </div>
-                      <span>·</span>
-                      <div className="flex items-center gap-0.5">
-                        <MapPin className="w-3 h-3" />
-                        {formatDistance(job.distanceM)}
-                      </div>
-                      <span>·</span>
-                      <div className="flex items-center gap-0.5">
-                        <Clock className="w-3 h-3" />
-                        {formatWorkDate(job.workDate)} {job.startTime}~
-                        {job.endTime}
-                      </div>
-                    </div>
-                    <div className="flex items-end justify-between mt-2">
-                      <div className="flex flex-wrap gap-1">
-                        {job.tags.slice(0, 2).map((t) => (
-                          <span
-                            key={t}
-                            className="text-[10px] bg-muted px-1.5 py-0.5 rounded"
-                          >
-                            #{t}
-                          </span>
-                        ))}
-                      </div>
-                      <div className="text-right">
-                        <p className="text-[10px] text-muted-foreground">
-                          예상 수입
-                        </p>
-                        <p className="font-bold text-brand text-sm">
-                          {formatMoney(calculateEarnings(job))}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+          <HomeJobList
+            initialJobs={recommendedJobs}
+            initialCursor={recommendedCursor}
+          />
         </section>
       </div>
     </div>

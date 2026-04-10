@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { getJobs } from "@/lib/db/queries";
+import { getJobsPaginated } from "@/lib/db/queries";
+import { JobListInfinite } from "@/components/worker/job-list-infinite";
 import { formatWorkDate, calculateEarnings } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
 import {
@@ -20,7 +21,7 @@ import {
 } from "lucide-react";
 
 export default async function LandingPage() {
-  const allJobs = await getJobs({ limit: 3 });
+  const { jobs: allJobs, nextCursor } = await getJobsPaginated({ limit: 20 });
   const featuredJobs = allJobs.slice(0, 3);
 
   return (
@@ -196,6 +197,17 @@ export default async function LandingPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Full paginated job list — POST-04 */}
+      <section className="max-w-5xl mx-auto px-4 py-8 md:py-12">
+        <div className="mb-6">
+          <h2 className="text-2xl md:text-3xl font-bold">지금 모집 중인 공고</h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            로그인 없이 둘러보세요. 관심 있는 공고를 탭하면 상세로 이동합니다.
+          </p>
+        </div>
+        <JobListInfinite initialJobs={allJobs} initialCursor={nextCursor} />
       </section>
 
       {/* How it works */}

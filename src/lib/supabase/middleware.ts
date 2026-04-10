@@ -51,6 +51,7 @@ export async function updateSession(request: NextRequest) {
     path.startsWith('/login') ||
     path.startsWith('/signup') ||
     path.startsWith('/auth') ||
+    path.startsWith('/posts/') ||
     path === '/'
 
   if (!user && !isAuthPublic) {
