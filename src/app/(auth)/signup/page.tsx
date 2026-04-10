@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -9,17 +9,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import {
-  Smartphone,
   User,
   Lock,
+  Mail,
   MapPin,
   Check,
   ArrowRight,
   ArrowLeft,
   PartyPopper,
 } from "lucide-react";
+import {
+  signUpWithPassword,
+  signInWithMagicLink,
+  signInWithGoogle,
+} from "./actions";
 
-type Role = "worker" | "employer";
+type Role = "worker" | "business";
 
 interface StepProps {
   onNext: () => void;
@@ -59,7 +64,7 @@ function RoleSelect({ onRoleSelect }: { onRoleSelect: (role: Role) => void }) {
         </button>
 
         <button
-          onClick={() => onRoleSelect("employer")}
+          onClick={() => onRoleSelect("business")}
           className="w-full p-4 rounded-xl border-2 border-border hover:border-teal transition-colors text-left group"
         >
           <div className="flex items-center gap-3">
@@ -88,7 +93,9 @@ function RoleSelect({ onRoleSelect }: { onRoleSelect: (role: Role) => void }) {
   );
 }
 
-function WorkerStep1({ onNext }: StepProps) {
+function WorkerStep1({ onNext: _onNext }: StepProps) {
+  const [state, formAction, pending] = useActionState(signUpWithPassword, null);
+
   return (
     <Card className="p-6 shadow-sm">
       <div className="flex items-center gap-3 mb-6">
@@ -104,12 +111,12 @@ function WorkerStep1({ onNext }: StepProps) {
       <h2 className="text-xl font-bold mb-1">기본 정보</h2>
       <p className="text-sm text-muted-foreground mb-6">2분이면 끝나요!</p>
 
-      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); onNext(); }}>
+      <form action={formAction} className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="phone">휴대폰 번호</Label>
+          <Label htmlFor="email">이메일</Label>
           <div className="relative">
-            <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input id="phone" type="tel" placeholder="010-0000-0000" className="pl-10" />
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input id="email" name="email" type="email" placeholder="email@example.com" className="pl-10" />
           </div>
         </div>
 
@@ -117,22 +124,48 @@ function WorkerStep1({ onNext }: StepProps) {
           <Label htmlFor="name">이름</Label>
           <div className="relative">
             <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input id="name" placeholder="실명을 입력해주세요" className="pl-10" />
+            <Input id="name" name="name" placeholder="실명을 입력해주세요" className="pl-10" />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="pw">비밀번호</Label>
+          <Label htmlFor="password">비밀번호</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input id="pw" type="password" placeholder="8자 이상" className="pl-10" />
+            <Input id="password" name="password" type="password" placeholder="8자 이상" className="pl-10" />
           </div>
         </div>
 
-        <Button type="submit" className="w-full bg-brand hover:bg-brand-dark text-white">
-          다음 <ArrowRight className="w-4 h-4 ml-1" />
+        {state?.error?.form && (
+          <p className="text-sm text-destructive">{state.error.form[0]}</p>
+        )}
+        {state?.error?.email && (
+          <p className="text-sm text-destructive">{state.error.email[0]}</p>
+        )}
+        {state?.error?.password && (
+          <p className="text-sm text-destructive">{state.error.password[0]}</p>
+        )}
+
+        <Button type="submit" disabled={pending} className="w-full bg-brand hover:bg-brand-dark text-white">
+          {pending ? '처리 중...' : <span className="flex items-center justify-center gap-1">다음 <ArrowRight className="w-4 h-4" /></span>}
         </Button>
       </form>
+
+      <Separator className="my-4" />
+
+      <div className="space-y-2">
+        <form action={signInWithGoogle}>
+          <Button type="submit" variant="outline" className="w-full">
+            Google로 계속하기
+          </Button>
+        </form>
+        <form action={signInWithMagicLink}>
+          <Input name="email" type="email" placeholder="이메일 주소" className="mb-2" />
+          <Button type="submit" variant="ghost" className="w-full">
+            Magic Link로 가입하기
+          </Button>
+        </form>
+      </div>
     </Card>
   );
 }
@@ -227,11 +260,49 @@ function WorkerStep3() {
   );
 }
 
+function BusinessSignupForm() {
+  const [state, formAction, pending] = useActionState(signUpWithPassword, null);
+
+  return (
+    <Card className="p-6 shadow-sm text-center">
+      <div className="w-12 h-12 rounded-xl bg-teal flex items-center justify-center mx-auto mb-3">
+        <span className="text-white font-bold text-lg">G</span>
+      </div>
+      <h2 className="text-xl font-bold mb-2">업체 회원가입</h2>
+      <p className="text-sm text-muted-foreground mb-6">
+        사업자 인증 후 구인 공고를 등록할 수 있어요
+      </p>
+      <form action={formAction} className="space-y-4 text-left">
+        <div className="space-y-2">
+          <Label htmlFor="biz-name">담당자 이름</Label>
+          <Input id="biz-name" name="name" placeholder="이름" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="biz-email">이메일</Label>
+          <Input id="biz-email" name="email" type="email" placeholder="email@company.com" />
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="biz-pw">비밀번호</Label>
+          <Input id="biz-pw" name="password" type="password" placeholder="8자 이상" />
+        </div>
+
+        {state?.error?.form && (
+          <p className="text-sm text-destructive">{state.error.form[0]}</p>
+        )}
+
+        <Button type="submit" disabled={pending} className="w-full bg-teal hover:bg-teal/90 text-white">
+          {pending ? '처리 중...' : '가입하기'}
+        </Button>
+      </form>
+    </Card>
+  );
+}
+
 function SignupFlow() {
   const searchParams = useSearchParams();
   const roleParam = searchParams.get("role");
   const initialRole: Role | null =
-    roleParam === "worker" || roleParam === "employer" ? roleParam : null;
+    roleParam === "worker" || roleParam === "business" ? roleParam : null;
 
   const [role, setRole] = useState<Role | null>(initialRole);
   const [step, setStep] = useState(initialRole ? 1 : 0);
@@ -251,49 +322,8 @@ function SignupFlow() {
     }
   }
 
-  if (role === "employer") {
-    return (
-      <Card className="p-6 shadow-sm text-center">
-        <div className="w-12 h-12 rounded-xl bg-teal flex items-center justify-center mx-auto mb-3">
-          <span className="text-white font-bold text-lg">G</span>
-        </div>
-        <h2 className="text-xl font-bold mb-2">업체 회원가입</h2>
-        <p className="text-sm text-muted-foreground mb-6">
-          사업자 인증 후 구인 공고를 등록할 수 있어요
-        </p>
-        <form className="space-y-4 text-left" onSubmit={(e) => { e.preventDefault(); setStep(99); }}>
-          <div className="space-y-2">
-            <Label htmlFor="biz-name">담당자 이름</Label>
-            <Input id="biz-name" placeholder="이름" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="biz-phone">휴대폰 번호</Label>
-            <Input id="biz-phone" type="tel" placeholder="010-0000-0000" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="biz-email">이메일</Label>
-            <Input id="biz-email" type="email" placeholder="email@company.com" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="biz-pw">비밀번호</Label>
-            <Input id="biz-pw" type="password" placeholder="8자 이상" />
-          </div>
-          {step === 99 ? (
-            <div className="text-center py-4">
-              <PartyPopper className="w-8 h-8 text-teal mx-auto mb-2" />
-              <p className="font-bold mb-4">가입 완료!</p>
-              <Button className="w-full bg-teal hover:bg-teal/90 text-white" asChild>
-                <Link href="/biz/verify">사업자 인증하기</Link>
-              </Button>
-            </div>
-          ) : (
-            <Button type="submit" className="w-full bg-teal hover:bg-teal/90 text-white">
-              가입하기
-            </Button>
-          )}
-        </form>
-      </Card>
-    );
+  if (role === "business") {
+    return <BusinessSignupForm />;
   }
 
   return null;
