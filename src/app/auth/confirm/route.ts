@@ -22,15 +22,28 @@ function resolveNext(raw: string | null): string {
 }
 
 export async function GET(request: NextRequest) {
-  // Re-verify N/A: the verifyOtp call IS the auth event.
+  // Re-verify N/A: the verifyOtp/exchangeCodeForSession call IS the auth event.
   const { searchParams } = new URL(request.url)
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type') as EmailOtpType | null
+  const code = searchParams.get('code')
   const next = resolveNext(searchParams.get('next'))
 
   const supabase = await createClient()
 
-  // Path 1 — PKCE / OTP token-hash flow (custom email template uses {{ .TokenHash }})
+  // Path 1 — PKCE code exchange (Supabase default signup with @supabase/ssr 0.10+)
+  // The default email template ships with `{{ .ConfirmationURL }}`, which hits
+  // Supabase's /auth/v1/verify endpoint first. That endpoint verifies the PKCE
+  // token and redirects here with a `code` query parameter for us to exchange.
+  if (code) {
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error) {
+      redirect(next)
+    }
+    redirect(`/auth/error?error=${encodeURIComponent(error.message)}`)
+  }
+
+  // Path 2 — Legacy OTP token-hash flow (custom email template with {{ .TokenHash }})
   if (token_hash && type) {
     const { error } = await supabase.auth.verifyOtp({ type, token_hash })
     if (!error) {
@@ -39,15 +52,11 @@ export async function GET(request: NextRequest) {
     redirect(`/auth/error?error=${encodeURIComponent(error.message)}`)
   }
 
-  // Path 2 — Supabase default email-link flow (template uses {{ .ConfirmationURL }})
-  // Supabase's /auth/v1/verify already verified the OTP and set the session
-  // cookies before redirecting here. We just need to confirm the session exists
-  // and forward to `next`. This is the path most fresh projects take because
-  // the default email template ships with `{{ .ConfirmationURL }}`.
+  // Path 3 — Session already established upstream (rare; e.g., cookie-only flow)
   const { data: { user } } = await supabase.auth.getUser()
   if (user) {
     redirect(next)
   }
 
-  redirect(`/auth/error?error=${encodeURIComponent('No token hash or type, and no active session — likely the email template needs to use {{ .TokenHash }} or the user needs to log in manually.')}`)
+  redirect(`/auth/error?error=${encodeURIComponent('Missing auth code, token hash, or active session — check the Supabase email template and URL configuration.')}`)
 }
