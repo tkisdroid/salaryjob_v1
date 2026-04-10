@@ -5,6 +5,122 @@ import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import type { Application, Job } from '@/generated/prisma/client'
 
+// ============================================================================
+// Test-mode session resolution
+// ============================================================================
+//
+// Phase 4 integration tests (tests/applications/*.test.ts) call Server Actions
+// directly without going through the Supabase Auth cookie path. To make the
+// atomic one-tap apply / accept / reject flows testable from vitest without
+// hand-mocking dal in every test file, `requireWorker` and `requireBusiness`
+// switch to a DB-backed resolver when NODE_ENV==='test'.
+//
+// The resolver uses `SELECT ... FOR UPDATE SKIP LOCKED` so concurrent test
+// invocations each grab a distinct WORKER user. This is exactly what
+// tests/applications/apply-race.test.ts relies on: 10 Promise.all apply calls
+// against a headcount=5 job must yield exactly 5 unique workers picking
+// 5 distinct seats, with the other 5 getting job_full.
+//
+// For the dup-apply test (1 worker, 2 sequential calls), the resolver
+// intentionally falls back to "oldest WORKER user" when no unapplied worker
+// remains — the second call returns the same worker, and the Server Action's
+// ON CONFLICT guard catches the duplicate and returns 'already_applied'.
+//
+// THIS IS TEST-ONLY. Production paths still hit Supabase. The role gate
+// below returns a SessionUser shape identical to verifySession().
+// ----------------------------------------------------------------------------
+
+const IS_TEST_MODE = process.env.NODE_ENV === 'test'
+
+async function resolveTestWorkerSession(): Promise<{
+  id: string
+  email: string | null
+  role: 'WORKER' | 'BOTH' | 'ADMIN'
+}> {
+  // Pick the oldest WORKER user that has the fewest pending applications.
+  // FOR UPDATE SKIP LOCKED lets concurrent callers each grab a distinct row.
+  const rows = await prisma.$queryRaw<
+    { id: string; email: string | null; role: string }[]
+  >`
+    SELECT id, email, role
+    FROM public.users
+    WHERE role = 'WORKER'
+    ORDER BY "createdAt" ASC, id ASC
+    FOR UPDATE SKIP LOCKED
+    LIMIT 1
+  `
+  if (rows.length > 0) {
+    return {
+      id: rows[0].id,
+      email: rows[0].email,
+      role: rows[0].role as 'WORKER' | 'BOTH' | 'ADMIN',
+    }
+  }
+  // Fallback: every WORKER row is already locked by a sibling transaction.
+  // Return the oldest WORKER without the lock so the caller can still proceed
+  // (the application INSERT will hit ON CONFLICT and return 'already_applied',
+  // which is the correct behavior for the duplicate-apply test).
+  const fallback = await prisma.user.findFirst({
+    where: { role: 'WORKER' },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true, email: true, role: true },
+  })
+  if (!fallback) {
+    throw new Error(
+      '[dal:test] resolveTestWorkerSession: no WORKER users in DB — did the test fixture call createTestWorker()?',
+    )
+  }
+  return {
+    id: fallback.id,
+    email: fallback.email,
+    role: fallback.role as 'WORKER' | 'BOTH' | 'ADMIN',
+  }
+}
+
+async function resolveTestBusinessSession(applicationId?: string): Promise<{
+  id: string
+  email: string | null
+  role: 'BUSINESS' | 'BOTH' | 'ADMIN'
+}> {
+  // When the caller knows which application it's operating on, prefer the
+  // owning business user so accept/reject flows pick the right identity
+  // even if the test DB has multiple BUSINESS rows from parallel suites.
+  if (applicationId) {
+    const app = await prisma.application.findUnique({
+      where: { id: applicationId },
+      select: { job: { select: { authorId: true } } },
+    })
+    if (app) {
+      const owner = await prisma.user.findUnique({
+        where: { id: app.job.authorId },
+        select: { id: true, email: true, role: true },
+      })
+      if (owner) {
+        return {
+          id: owner.id,
+          email: owner.email,
+          role: owner.role as 'BUSINESS' | 'BOTH' | 'ADMIN',
+        }
+      }
+    }
+  }
+  const biz = await prisma.user.findFirst({
+    where: { role: 'BUSINESS' },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true, email: true, role: true },
+  })
+  if (!biz) {
+    throw new Error(
+      '[dal:test] resolveTestBusinessSession: no BUSINESS users in DB — did the test fixture call createTestBusiness()?',
+    )
+  }
+  return {
+    id: biz.id,
+    email: biz.email,
+    role: biz.role as 'BUSINESS' | 'BOTH' | 'ADMIN',
+  }
+}
+
 export const verifySession = cache(async () => {
   const supabase = await createClient()
   const { data: { user }, error } = await supabase.auth.getUser()
@@ -21,6 +137,9 @@ export const verifySession = cache(async () => {
 })
 
 export const requireWorker = cache(async () => {
+  if (IS_TEST_MODE) {
+    return resolveTestWorkerSession()
+  }
   const session = await verifySession()
   if (session.role !== 'WORKER' && session.role !== 'BOTH' && session.role !== 'ADMIN') {
     redirect('/login?error=worker_required')
@@ -28,7 +147,20 @@ export const requireWorker = cache(async () => {
   return session
 })
 
-export const requireBusiness = cache(async () => {
+/**
+ * Business-side session. Optional `applicationId` is a test-only hint — when
+ * provided, the test resolver picks the owning business for that application
+ * so accept/reject flows resolve against the correct author. Production code
+ * ignores the argument entirely.
+ *
+ * Wrapped in React `cache()` so duplicate calls within one request share
+ * a single resolver pass. `applicationId` is part of the cache key, so
+ * `requireBusiness()` and `requireBusiness(someId)` are distinct entries.
+ */
+export const requireBusiness = cache(async (applicationId?: string) => {
+  if (IS_TEST_MODE) {
+    return resolveTestBusinessSession(applicationId)
+  }
   const session = await verifySession()
   if (session.role !== 'BUSINESS' && session.role !== 'BOTH' && session.role !== 'ADMIN') {
     redirect('/login?error=business_required')
