@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { Prisma } from "@/generated/prisma/client";
 import { requireWorker } from "@/lib/dal";
 import { safeRevalidate } from "@/lib/safe-revalidate";
+import { sendPushToUser } from "@/lib/push";
 import {
   applyOneTapSchema,
   type ApplyOneTapInput,
@@ -107,8 +108,27 @@ export async function applyOneTap(
     // always has a request context so the call goes through normally.
     safeRevalidate("/my/applications");
     safeRevalidate(`/posts/${jobId}`);
-    // TODO(Plan 06): sendPushToUser(jobAuthorId, { type: 'new-application', jobId })
-    //                — notify Biz of new applicant via Web Push.
+
+    // Plan 06 D-20 — Notify the Business owner of the new applicant.
+    // Fire-and-forget: any push failure must never break the apply success
+    // path. `sendPushToUser` already swallows per-endpoint errors; the outer
+    // try/catch guards against the `findUnique` lookup failing.
+    try {
+      const job = await prisma.job.findUnique({
+        where: { id: jobId },
+        select: { authorId: true, title: true },
+      });
+      if (job) {
+        await sendPushToUser(job.authorId, {
+          type: "new-application",
+          title: "새 지원자가 있습니다",
+          body: job.title,
+          url: `/biz/posts/${jobId}/applicants`,
+        });
+      }
+    } catch (pushErr) {
+      console.error("[applyOneTap] push notify failed", pushErr);
+    }
 
     return { success: true, applicationId };
   } catch (e) {

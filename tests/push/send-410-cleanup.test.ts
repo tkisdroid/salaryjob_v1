@@ -19,7 +19,6 @@ vi.mock("web-push", () => ({
   sendNotification: vi.fn(),
 }));
 
-// @ts-expect-error — Plan 04-06 will provide src/lib/push.ts
 import { sendPushToUser } from "@/lib/push";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const webpush = (await import("web-push")) as unknown as {

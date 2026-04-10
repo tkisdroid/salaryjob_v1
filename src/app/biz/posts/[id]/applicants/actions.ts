@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { Prisma } from "@/generated/prisma/client";
 import { requireBusiness } from "@/lib/dal";
 import { safeRevalidate } from "@/lib/safe-revalidate";
+import { sendPushToUser } from "@/lib/push";
 import {
   acceptApplicationSchema,
   rejectApplicationSchema,
@@ -84,7 +85,23 @@ export async function acceptApplication(
 
     safeRevalidate(`/biz/posts/${app.jobId}/applicants`);
     safeRevalidate("/my/applications");
-    // TODO(Plan 06): sendPushToUser(app.workerId, { type: 'accepted', jobTitle: ... })
+
+    // Plan 06 D-20 — Notify the worker that their application was accepted.
+    // Fire-and-forget: see applyOneTap comment.
+    try {
+      const job = await prisma.job.findUnique({
+        where: { id: app.jobId },
+        select: { title: true },
+      });
+      await sendPushToUser(app.workerId, {
+        type: "accepted",
+        title: "지원이 수락되었습니다",
+        body: job?.title ?? "근무가 확정되었어요",
+        url: `/my/applications/${applicationId}`,
+      });
+    } catch (pushErr) {
+      console.error("[acceptApplication] push notify failed", pushErr);
+    }
 
     return { success: true };
   } catch (e) {
@@ -140,7 +157,23 @@ export async function rejectApplication(
 
     safeRevalidate(`/biz/posts/${app.jobId}/applicants`);
     safeRevalidate("/my/applications");
-    // TODO(Plan 06): sendPushToUser(app.workerId, { type: 'rejected', jobTitle: ... })
+
+    // Plan 06 D-20 — Notify the worker that their application was rejected.
+    // Fire-and-forget: see applyOneTap comment.
+    try {
+      const job = await prisma.job.findUnique({
+        where: { id: app.jobId },
+        select: { title: true },
+      });
+      await sendPushToUser(app.workerId, {
+        type: "rejected",
+        title: "지원이 거절되었습니다",
+        body: job?.title ?? "",
+        url: "/my/applications",
+      });
+    } catch (pushErr) {
+      console.error("[rejectApplication] push notify failed", pushErr);
+    }
 
     return { success: true };
   } catch (e) {
