@@ -59,7 +59,10 @@ export function PushPermissionBanner() {
 
       const sub = await reg.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(vapidPublic),
+        // Modern TS lib typings expect BufferSource — copy into a fresh
+        // ArrayBuffer-backed Uint8Array so the `.buffer` view is narrowed.
+        applicationServerKey: urlBase64ToUint8Array(vapidPublic)
+          .buffer as ArrayBuffer,
       });
 
       const json = sub.toJSON() as {

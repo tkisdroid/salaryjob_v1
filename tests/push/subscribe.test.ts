@@ -9,7 +9,6 @@ import {
   buildMockSubscription,
 } from "../fixtures/phase4";
 import { skipIfNoSupabase } from "../helpers/skip-if-no-supabase";
-// @ts-expect-error — Plan 04-06 will provide these
 import { subscribePush, unsubscribePush } from "@/lib/actions/push-actions";
 
 describe.skipIf(skipIfNoSupabase())("NOTIF-01 push subscribe / unsubscribe", () => {
