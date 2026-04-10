@@ -1,6 +1,6 @@
 # System Architecture - GigNow Job Platform
 
-> **Drift note (2026-04-10):** This document was originally aspirational. Phase 2 (Supabase·Prisma·Auth) aligns it with actual installed stack. Clerk/Toss/Push references are being removed as each domain comes online.
+> **Drift note (2026-04-10, updated Phase 2 completion 2026-04-10):** This document was originally aspirational. Phase 2 (Supabase·Prisma·Auth) is now complete — auth provider is Supabase Auth (not Clerk), session is managed via @supabase/ssr 3-file pattern + Next 16 src/proxy.ts updateSession middleware, schema is hybrid Prisma SSOT + Supabase SQL for RLS/PostGIS/triggers, and mock-data.ts UI imports remain intentionally (Phase 5 exit criterion — DATA-05). Kakao OAuth is implemented but requires Supabase Dashboard toggle + Kakao Developers app configuration before it activates.
 
 ## Overview
 GigNow is a short-term gig work matching platform built with Next.js 16.2.1 App Router, featuring real-time job matching between workers and employers through AI-powered algorithms and instant notifications.
@@ -65,10 +65,10 @@ Root Layout (src/app/layout.tsx)
 ## Authentication & Authorization
 
 ### Authentication Strategy
-- **Provider**: Supabase Auth (Email/Password + Magic Link + Google OAuth; Kakao OAuth in Phase 2 final wave). No webhook — session managed via @supabase/ssr proxy. (Phase 2)
-- **Multi-role Support**: WORKER, EMPLOYER, BOTH, ADMIN roles
-- **Session Management**: Server-side session handling via @supabase/ssr cookie store
-- **Route Protection**: Next.js proxy.ts (Plan 03) + layout-level role checks
+- **Provider**: Supabase Auth — Email/Password + Magic Link + Google OAuth + Kakao OAuth (Phase 2 complete). No Clerk webhook. AUTH-01 drift: email-only per CONTEXT.md D-01; SMS OTP deferred to v2.
+- **Multi-role Support**: WORKER, BUSINESS, BOTH, ADMIN — role stored in `public.users.role` AND `auth.users.app_metadata.role` (JWT claim updated via admin API on role-select)
+- **Session Management**: `@supabase/ssr` 3-file pattern (browser client, server client, middleware client) + Next 16 `src/proxy.ts` with `updateSession()` helper for cookie rotation
+- **Route Protection**: Proxy-level optimistic check (JWT `app_metadata.role`) + DAL re-verification (`requireWorker()` / `requireBusiness()`) in layout components
 
 ### Authorization Patterns
 - Role-based route access through layout components
