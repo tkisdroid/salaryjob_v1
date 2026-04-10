@@ -10,5 +10,8 @@ export default defineConfig({
   },
   datasource: {
     url: process.env["DATABASE_URL"],
+    // DIRECT_URL uses port 5432 (direct, not pooler) — required by `prisma migrate dev`
+    // per RESEARCH.md §Key Finding #6
+    directUrl: process.env["DIRECT_URL"],
   },
 });

@@ -1,5 +1,7 @@
 # System Architecture - GigNow Job Platform
 
+> **Drift note (2026-04-10):** This document was originally aspirational. Phase 2 (Supabase·Prisma·Auth) aligns it with actual installed stack. Clerk/Toss/Push references are being removed as each domain comes online.
+
 ## Overview
 GigNow is a short-term gig work matching platform built with Next.js 16.2.1 App Router, featuring real-time job matching between workers and employers through AI-powered algorithms and instant notifications.
 
@@ -22,8 +24,8 @@ Root Layout (src/app/layout.tsx)
 ### API Route Architecture
 - **Matching System**: `/api/matching/` - Real-time job matching logic
 - **Cron Jobs**: `/api/cron/` - Automated tasks (auto-approve, expire urgent posts)
-- **Push Notifications**: `/api/push/` - Worker notification system
-- **Webhooks**: `/api/webhooks/` - External service integrations (Clerk auth, Toss payments)
+- **Push Notifications**: `/api/push/` - Deferred to v2 (not in Phase 2-5 scope)
+- **Webhooks**: `/api/webhooks/` - Settlement system (v2 — Phase 2 does not implement real payments)
 
 ## Component Organization
 
@@ -63,10 +65,10 @@ Root Layout (src/app/layout.tsx)
 ## Authentication & Authorization
 
 ### Authentication Strategy
-- **Provider**: Clerk (webhook integration at `/api/webhooks/clerk`)
+- **Provider**: Supabase Auth (Email/Password + Magic Link + Google OAuth; Kakao OAuth in Phase 2 final wave). No webhook — session managed via @supabase/ssr proxy. (Phase 2)
 - **Multi-role Support**: WORKER, EMPLOYER, BOTH, ADMIN roles
-- **Session Management**: Server-side session handling
-- **Route Protection**: Layout-level authentication checks
+- **Session Management**: Server-side session handling via @supabase/ssr cookie store
+- **Route Protection**: Next.js proxy.ts (Plan 03) + layout-level role checks
 
 ### Authorization Patterns
 - Role-based route access through layout components
@@ -76,8 +78,8 @@ Root Layout (src/app/layout.tsx)
 ## Real-time Features
 
 ### Instant Matching System
-- **AI Matching Service**: Location-based worker matching
-- **Push Notifications**: Real-time job alerts via `/api/push/`
+- **AI Matching Service**: Location-based worker matching (Phase 3+ — scaffold only in Phase 2)
+- **Push Notifications**: Deferred to v2 (not in Phase 2-5 scope)
 - **Urgent Posts**: Time-limited job postings with auto-expiry
 - **Auto-scheduling**: Smart worker availability management
 
@@ -92,7 +94,7 @@ Root Layout (src/app/layout.tsx)
 - **Multi-status Processing**: Checkout → Approved → Processing → Settled
 - **Commission System**: Configurable rates per employer partnership level
 - **Retry Logic**: Built-in retry mechanisms for failed transactions
-- **Integration**: Toss payments webhook at `/api/webhooks/toss`
+- **Integration**: Settlement system (v2 — Phase 2 does not implement real payments)
 
 ### Financial Data Model
 - Gross/Commission/Net amount tracking
@@ -131,7 +133,7 @@ Root Layout (src/app/layout.tsx)
 - **Type Safety**: End-to-end TypeScript with strict mode
 - **Input Validation**: Zod schemas at API boundaries
 - **SQL Injection Protection**: Prisma ORM parameterized queries
-- **Authentication Tokens**: Secure session management via Clerk
+- **Authentication Tokens**: Secure session management via Supabase Auth (Phase 2)
 
 ### Monitoring & Observability
 - **Error Boundaries**: React error handling
