@@ -7,10 +7,13 @@ import path from 'node:path';
 config({ path: path.resolve(process.cwd(), '.env.local') });
 
 // Phase 4-10: force NODE_ENV=test. The repo's .env.local pins NODE_ENV to
-// 'development' (required for `next dev` logs), but src/lib/dal.ts uses
+// 'development' (required for dev-server logs), but src/lib/dal.ts uses
 // NODE_ENV==='test' as the switch between Supabase cookie session resolution
 // and the DB-backed test resolver (resolveTestWorkerSession /
 // resolveTestBusinessSession) that Phase 4 integration tests rely on.
 // Without this override, applyOneTap / accept / reject Server Actions throw
 // `cookies() was called outside a request scope` inside vitest.
-process.env.NODE_ENV = 'test';
+//
+// Next.js 16 types NODE_ENV as a readonly union, so we go through a typed
+// cast to assign here (this file is only loaded by vitest, never by Next).
+(process.env as Record<string, string>).NODE_ENV = 'test';
