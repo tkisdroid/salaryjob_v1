@@ -1,9 +1,6 @@
-// GigNow Phase 2 — placeholder
-// Full schema written by Plan 02 (02-02-PLAN.md Task 2)
-// Legacy schema preserved at prisma/schema.legacy.prisma.txt
-//
-// NOTE: In Prisma 7, `url` and `directUrl` are configured in prisma.config.ts
-// (not here). DATABASE_URL and DIRECT_URL are set in prisma.config.ts datasource.
+// GigNow Platform - Phase 2 Prisma Schema
+// Scope: Auth + core profile/job/app/review shell
+// Legacy 18KB schema preserved at prisma/schema.legacy.prisma.txt
 
 generator client {
   provider        = "prisma-client"
@@ -16,5 +13,188 @@ datasource db {
   extensions = [postgis]
 }
 
-// NOTE: models intentionally empty until Plan 02.
-// Do not run `prisma migrate dev` against this file — it will drop all tables.
+// ============================================================================
+// ENUMS (Phase 2 minimum — matches mock-data.ts types)
+// ============================================================================
+
+enum UserRole {
+  WORKER
+  BUSINESS
+  BOTH
+  ADMIN
+}
+
+enum JobCategory {
+  food
+  retail
+  logistics
+  office
+  event
+  cleaning
+  education
+  tech
+}
+
+enum ApplicationStatus {
+  confirmed
+  in_progress
+  checked_in
+  completed
+  cancelled
+}
+
+enum ReviewDirection {
+  worker_to_business
+  business_to_worker
+}
+
+enum BadgeLevel {
+  newbie
+  bronze
+  silver
+  gold
+  platinum
+  diamond
+}
+
+// ============================================================================
+// MODELS
+// ============================================================================
+
+model User {
+  id        String   @id @db.Uuid      // = auth.users.id (1:1 via trigger)
+  email     String?  @unique
+  phone     String?  @unique
+  role      UserRole @default(WORKER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workerProfile   WorkerProfile?
+  businessProfile BusinessProfile?
+  jobsPosted      Job[]             @relation("BusinessJobs")
+  applications    Application[]     @relation("WorkerApps")
+  reviewsGiven    Review[]          @relation("ReviewerReviews")
+  reviewsReceived Review[]          @relation("RevieweeReviews")
+
+  @@map("users")
+}
+
+model WorkerProfile {
+  id                  String      @id @default(uuid()) @db.Uuid
+  userId              String      @unique @db.Uuid
+  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                String
+  nickname            String?
+  avatar              String?     // emoji or URL (URL upload in Phase 3)
+  bio                 String?     @db.VarChar(140)
+  preferredCategories JobCategory[]
+  badgeLevel          BadgeLevel  @default(newbie)
+  rating              Decimal     @default(0) @db.Decimal(3, 2)
+  totalJobs           Int         @default(0)
+  completionRate      Int         @default(0)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  @@map("worker_profiles")
+}
+
+model BusinessProfile {
+  id             String      @id @default(uuid()) @db.Uuid
+  userId         String      @unique @db.Uuid
+  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  category       JobCategory
+  logo           String?     // emoji or URL
+  address        String
+  addressDetail  String?
+  lat            Decimal     @db.Decimal(10, 7)
+  lng            Decimal     @db.Decimal(10, 7)
+  // Geography column added via Supabase raw SQL migration (Prisma cannot natively declare)
+  location       Unsupported("geography(Point, 4326)")?
+  rating         Decimal     @default(0) @db.Decimal(3, 2)
+  reviewCount    Int         @default(0)
+  completionRate Int         @default(0)
+  verified       Boolean     @default(false)
+  description    String?
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  jobs           Job[]
+
+  @@map("business_profiles")
+}
+
+model Job {
+  id             String      @id @default(uuid()) @db.Uuid
+  businessId     String      @db.Uuid
+  business       BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  authorId       String      @db.Uuid
+  author         User        @relation("BusinessJobs", fields: [authorId], references: [id], onDelete: Cascade)
+  title          String
+  category       JobCategory
+  description    String
+  hourlyPay      Int
+  transportFee   Int         @default(0)
+  workDate       DateTime    @db.Date
+  startTime      String      // "HH:MM"
+  endTime        String      // "HH:MM"
+  workHours      Decimal     @db.Decimal(4, 2)
+  headcount      Int
+  filled         Int         @default(0)
+  lat            Decimal     @db.Decimal(10, 7)
+  lng            Decimal     @db.Decimal(10, 7)
+  location       Unsupported("geography(Point, 4326)")?
+  status         String      @default("active")  // active | filled | expired
+  isUrgent       Boolean     @default(false)
+  nightShiftAllowance Boolean @default(false)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  applications   Application[]
+
+  @@index([category, workDate, status])
+  @@index([businessId])
+  @@map("jobs")
+}
+
+model Application {
+  id              String             @id @default(uuid()) @db.Uuid
+  jobId           String             @db.Uuid
+  job             Job                @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  workerId        String             @db.Uuid
+  worker          User               @relation("WorkerApps", fields: [workerId], references: [id], onDelete: Cascade)
+  status          ApplicationStatus  @default(confirmed)
+  appliedAt       DateTime           @default(now())
+  checkInAt       DateTime?
+  checkOutAt      DateTime?
+  actualHours     Decimal?           @db.Decimal(5, 2)
+  earnings        Int?
+  reviewGiven     Boolean            @default(false)
+  reviewReceived  Boolean            @default(false)
+
+  reviews         Review[]
+
+  @@unique([jobId, workerId])
+  @@index([workerId, status])
+  @@index([jobId])
+  @@map("applications")
+}
+
+model Review {
+  id            String          @id @default(uuid()) @db.Uuid
+  applicationId String          @db.Uuid
+  application   Application     @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  reviewerId    String          @db.Uuid
+  reviewer      User            @relation("ReviewerReviews", fields: [reviewerId], references: [id], onDelete: Cascade)
+  revieweeId    String          @db.Uuid
+  reviewee      User            @relation("RevieweeReviews", fields: [revieweeId], references: [id], onDelete: Cascade)
+  direction     ReviewDirection
+  rating        Int             // 1-5
+  tags          String[]        @default([])
+  comment       String?
+  createdAt     DateTime        @default(now())
+
+  @@unique([applicationId, direction])  // Phase 5 will enforce review-once-per-direction
+  @@map("reviews")
+}
+
