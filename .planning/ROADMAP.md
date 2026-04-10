@@ -69,7 +69,14 @@ Plans:
   3. Business가 상호명·주소·카테고리·로고·설명을 저장하고 평점·리뷰 수·완료율을 실데이터로 확인할 수 있다
   4. Business가 새 공고(시급·교통비·인원·주소·드레스코드·준비물 포함)를 작성·수정·삭제하고 자기 공고 목록을 본다
   5. Worker가 공고 목록을 페이지네이션으로 보고 상세에서 예상 수입까지 확인하며, workDate가 지난 공고는 자동으로 "만료"로 표시된다
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+- [ ] 03-01-PLAN.md — Wave 0: test infrastructure + Prisma schema extension (7 new Job columns) + next.config.ts bodySizeLimit 5mb [BLOCKING schema push]
+- [ ] 03-02-PLAN.md — Wave 1: Supabase migrations (GIST index + jobs RLS + storage bucket + pg_cron expire-every-5-min) [BLOCKING apply-supabase-migrations]
+- [ ] 03-03-PLAN.md — Wave 2: Worker profile CRUD + Supabase Storage avatar upload + /my/profile/edit page
+- [ ] 03-04-PLAN.md — Wave 2: Business profile CRUD + /biz/profile page (1:many profiles per user)
+- [ ] 03-05-PLAN.md — Wave 3: Job CRUD Server Actions (create/update/delete) + wire /biz/posts/new + list + detail to real DB
+- [ ] 03-06-PLAN.md — Wave 4: Worker job list (getJobsPaginated + getJobsByDistance PostGIS) + infinite scroll + public /posts/[id] + lazy filter
 **UI hint**: yes
 
 ---
@@ -109,7 +116,7 @@ Plans:
 |-------|----------------|--------|-----------|
 | 1. 목업 UI 파운데이션 | N/A | Completed | 2026-04-10 |
 | 2. Supabase·Prisma·Auth 기반 | 0/6 | Planned | - |
-| 3. 프로필·공고 DB 연결 | 0/? | Not started | - |
+| 3. 프로필·공고 DB 연결 | 0/6 | Planned | - |
 | 4. 지원·근무 라이프사이클 DB 연결 | 0/? | Not started | - |
 | 5. 리뷰·정산·목업 제거 | 0/? | Not started | - |
 
