@@ -71,12 +71,12 @@ Plans:
   5. Worker가 공고 목록을 페이지네이션으로 보고 상세에서 예상 수입까지 확인하며, workDate가 지난 공고는 자동으로 "만료"로 표시된다
 **Plans**: 6 plans
 Plans:
-- [ ] 03-01-PLAN.md — Wave 0: test infrastructure + Prisma schema extension (7 new Job columns) + next.config.ts bodySizeLimit 5mb [BLOCKING schema push]
-- [ ] 03-02-PLAN.md — Wave 1: Supabase migrations (GIST index + jobs RLS + storage bucket + pg_cron expire-every-5-min) [BLOCKING apply-supabase-migrations]
-- [ ] 03-03-PLAN.md — Wave 2: Worker profile CRUD + Supabase Storage avatar upload + /my/profile/edit page
-- [ ] 03-04-PLAN.md — Wave 2: Business profile CRUD + /biz/profile page (1:many profiles per user)
-- [ ] 03-05-PLAN.md — Wave 3: Job CRUD Server Actions (create/update/delete) + wire /biz/posts/new + list + detail to real DB
-- [ ] 03-06-PLAN.md — Wave 4: Worker job list (getJobsPaginated + getJobsByDistance PostGIS) + infinite scroll + public /posts/[id] + lazy filter
+- [x] 03-01-PLAN.md — Wave 0: test infrastructure + Prisma schema extension (7 new Job columns) + next.config.ts bodySizeLimit 5mb [BLOCKING schema push]
+- [x] 03-02-PLAN.md — Wave 1: Supabase migrations (GIST index + jobs RLS + storage bucket + pg_cron expire-every-5-min) [BLOCKING apply-supabase-migrations]
+- [x] 03-03-PLAN.md — Wave 2: Worker profile CRUD + Supabase Storage avatar upload + /my/profile/edit page
+- [x] 03-04-PLAN.md — Wave 2: Business profile CRUD + /biz/profile page (1:many profiles per user)
+- [x] 03-05-PLAN.md — Wave 3: Job CRUD Server Actions (create/update/delete) + wire /biz/posts/new + list + detail to real DB
+- [x] 03-06-PLAN.md — Wave 4: Worker job list (getJobsPaginated + getJobsByDistance PostGIS) + infinite scroll + public /posts/[id] + lazy filter
 **UI hint**: yes
 
 ---
