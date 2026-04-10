@@ -65,11 +65,11 @@ decisions:
   - "Prisma 7 breaking change: url/directUrl must be in prisma.config.ts, NOT schema.prisma — placeholder omits them from datasource block"
   - "vitest environmentMatchGlobs deprecated in v3 — kept per plan spec; will migrate to test.projects in a future cleanup if needed"
   - ".env.example force-added past .env* gitignore pattern (it is a template, not secrets)"
-  - "Task 5 checkpoint: user must select MCP vs CLI path before Plan 02 can execute schema push"
+  - "Task 5 resolved: chose direct-prisma path (4th option). MCP not accessible (project lkntomgdhfvxzvnzmlct lives in a Supabase account not linked to this Claude Code MCP); Supabase CLI + Docker Desktop not installed locally; pivoted to Prisma migrate + Node-driven raw-SQL execution against direct DATABASE_URL for Supabase-specific concerns (PostGIS extension, auth trigger handle_new_user, RLS policies). Hybrid SSOT model from CONTEXT.md D-03 preserved — Prisma owns tables/relations/enums, supabase/migrations/*.sql files own extension+trigger+RLS, applied via scripts/apply-supabase-migrations.ts (not Supabase CLI)."
 metrics:
-  duration: "~25 minutes"
+  duration: "~30 minutes (incl. checkpoint resolution)"
   completed_date: "2026-04-10"
-  tasks_completed: 4
+  tasks_completed: 5
   tasks_total: 5
   files_created: 21
   files_modified: 5
@@ -126,8 +126,8 @@ Verified: `NEXT_PUBLIC_SUPABASE_URL= npx vitest run tests/data tests/auth tests/
 - `.env.example`: 12 D-07 env vars, DATABASE_URL with `?pgbouncer=true`, DIRECT_URL with `:5432`
 - `.planning/codebase/ARCHITECTURE.md`: removed Clerk webhook + Toss + Push refs; added Supabase Auth; added drift-note banner
 
-### Task 5: CHECKPOINT (awaiting user decision)
-See checkpoint section below.
+### Task 5: CHECKPOINT — RESOLVED (direct-prisma path)
+Chosen path documented in Task 5 Checkpoint Resolution section below. Strategy decision committed alongside `.env.local` env-var population.
 
 ## Deviations from Plan
 
@@ -147,25 +147,41 @@ See checkpoint section below.
 - **Files modified:** `.gitignore` not changed (intentional — `.env.example` force-tracked)
 - **Commit:** a9faf57
 
-## Task 5 Checkpoint — Supabase MCP vs CLI Decision
+## Task 5 Checkpoint — Supabase Push Strategy: RESOLVED
 
-**Type:** decision
+**Resolution date:** 2026-04-10
+**Chosen path:** `direct-prisma` (4th option, introduced after both MCP and CLI paths were ruled out)
 
-Plan 02 (Wave 1) needs to apply migrations to a live Supabase project. The approach (MCP vs CLI) must be decided before Plan 02 executes.
+### Why neither original option worked
 
-**Options:**
+| Option | Outcome | Reason |
+|--------|---------|--------|
+| `mcp-primary` | ❌ blocked | Project `lkntomgdhfvxzvnzmlct` lives in a Supabase account that this Claude Code session's MCP connector is NOT linked to. All `mcp__claude_ai_Supabase__*` calls return `MCP error -32600: You do not have permission`. |
+| `cli-fallback` | ❌ blocked | Supabase CLI not installed locally. `supabase start` (local dev) requires Docker Desktop, which is also not installed. Installing both is a 30+ minute Windows + WSL2 detour. |
+| `try-mcp-fallback-cli` | ❌ blocked | Both prerequisites above fail. |
 
-| Option | ID | Pros | Cons |
-|--------|-----|------|------|
-| MCP primary | `mcp-primary` | Fully automated — Claude creates project + applies migrations without user CLI setup | Requires MCP server wired in this session; Plan 02 stalls if it isn't |
-| Supabase CLI | `cli-fallback` | Proven path, works without MCP | User must `npm i -g supabase` + `supabase login` + `supabase link` before Plan 02 |
-| Try MCP, fall back to CLI | `try-mcp-fallback-cli` | Handles uncertainty gracefully | Conditional branch in Plan 02; may interrupt mid-execution to install CLI |
+### `direct-prisma` path (chosen)
 
-**User must also confirm:**
-- (a) Supabase account ready?
-- (b) Permission to create a new project OR existing dev project ref to reuse?
+Pivoted to a fourth strategy that needs no MCP and no CLI:
 
-**Reply with:** one of `mcp-primary`, `cli-fallback`, or `try-mcp-fallback-cli` + answers to (a) and (b).
+1. **Connection verified.** `db.lkntomgdhfvxzvnzmlct.supabase.co:5432` reachable via `pg` client with password from user; project is empty (0 public tables, 0 auth.users) — clean slate, no collision risk.
+2. **Existing extensions:** `pg_graphql 1.5.11`, `pg_stat_statements 1.11`, `pgcrypto 1.3`, `plpgsql 1.0`, `supabase_vault 0.3.1`, `uuid-ossp 1.1`. **PostGIS not yet enabled** — Plan 02-02 must enable it via raw SQL.
+3. **Hybrid SSOT model preserved (CONTEXT.md D-03):**
+   - **Prisma 7** owns: tables, relations, enums, indexes (via `prisma migrate dev/deploy` reading `prisma/schema.prisma`)
+   - **`supabase/migrations/*.sql`** own: PostGIS extension, `auth.users → public.User` trigger, RLS policies on User/WorkerProfile/EmployerProfile
+   - **Application path** (replaces `supabase db push`): a small Node script `scripts/apply-supabase-migrations.ts` reads `supabase/migrations/*.sql` in lexicographic order and executes them via `pg` client against `DIRECT_URL`.
+4. **`.env.local` populated** (gitignored, never committed):
+   - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` (anon JWT)
+   - `SUPABASE_SERVICE_ROLE_KEY` (service_role JWT, server-only)
+   - `DATABASE_URL` and `DIRECT_URL` both pointing to `db.lkntomgdhfvxzvnzmlct.supabase.co:5432` (Supavisor pooler not provisioned for this project — TODO before production)
+   - All 12 keys from `.env.example` template are present (key-name diff returned empty)
+
+### Implications for downstream plans
+
+- **Plan 02-02:** Use `npx prisma migrate dev` for schema, then `tsx scripts/apply-supabase-migrations.ts` for the four `supabase/migrations/*.sql` files. NO `supabase db push`. NO MCP `apply_migration`.
+- **Plan 02-03..02-06:** Unaffected — `@supabase/ssr` reads the same env vars regardless of how migrations were applied.
+- **Plan 02-05 seed:** `tsx prisma/seed.ts` works against `DATABASE_URL` directly.
+- **Production cutover (post-Phase 2):** Provision the Supavisor pooler in Supabase dashboard, then split `DATABASE_URL` (port 6543, transaction mode) from `DIRECT_URL` (port 5432, direct) per RESEARCH.md §Key Finding #6.
 
 ## Commits
 
@@ -175,6 +191,7 @@ Plan 02 (Wave 1) needs to apply migrations to a live Supabase project. The appro
 | Task 2 | 82b85cc | chore(02-01): add Vitest + Playwright config and test helpers |
 | Task 3 | ec80b97 | test(02-01): add failing test stubs for all REQ-IDs |
 | Task 4 | a9faf57 | chore(02-01): preserve legacy schema, write placeholder, add .env.example, fix ARCHITECTURE.md drift |
+| Task 5 | (pending) | docs(02-01): resolve checkpoint — chose direct-prisma path |
 
 ## Known Stubs
 
