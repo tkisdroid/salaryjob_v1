@@ -15,6 +15,15 @@ export default defineConfig({
     setupFiles: ['tests/setup.ts'],
     exclude: ['node_modules', 'tests/e2e/**', '.next'],
     testTimeout: 15000,
+    // Phase 4 Plan 04 — disable file-level parallelism.
+    // tests/applications/*.test.ts share the Supabase DB and each file runs
+    // `TRUNCATE TABLE ... CASCADE` in beforeEach/afterEach. Running multiple
+    // files in parallel would make one suite wipe rows that another suite is
+    // mid-insert on, producing spurious FK violations.
+    // Within a single file, `describe.it` concurrency is still allowed so
+    // race tests using `Promise.all` continue to exercise real concurrency
+    // inside Postgres (which is the property actually under test).
+    fileParallelism: false,
   },
   resolve: {
     alias: {
