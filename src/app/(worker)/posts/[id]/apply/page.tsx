@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getJobById } from "@/lib/mock-data";
+import { getJobById } from "@/lib/db/queries";
 import { ApplyConfirmFlow } from "./apply-confirm-flow";
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
 
 export default async function ApplyPage({ params }: Props) {
   const { id } = await params;
-  const job = getJobById(id);
+  const job = await getJobById(id);
   if (!job) notFound();
 
   return <ApplyConfirmFlow job={job} />;

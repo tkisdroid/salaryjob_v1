@@ -2,11 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  type MockApplication,
-  calculateEarnings,
-  formatWorkDate,
-} from "@/lib/mock-data";
+import type { MockApplication } from "@/lib/types/job";
+import { calculateEarnings, formatWorkDate } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
 import {
   ArrowLeft,

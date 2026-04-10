@@ -1,9 +1,6 @@
 import Link from "next/link";
-import {
-  MOCK_CURRENT_WORKER,
-  MOCK_APPLICATIONS,
-  formatWorkDate,
-} from "@/lib/mock-data";
+import { getCurrentWorker, getApplications } from "@/lib/db/queries";
+import { formatWorkDate } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
 import {
   User,
@@ -32,13 +29,16 @@ const BADGE_LABELS: Record<string, { label: string; color: string }> = {
   diamond: { label: "다이아", color: "bg-indigo-100 text-indigo-700" },
 };
 
-export default function MyPage() {
-  const worker = MOCK_CURRENT_WORKER;
-  const badge = BADGE_LABELS[worker.badgeLevel];
-  const upcoming = MOCK_APPLICATIONS.filter(
+export default async function MyPage() {
+  const [worker, applications] = await Promise.all([
+    getCurrentWorker(),
+    getApplications(),
+  ]);
+  const badge = BADGE_LABELS[(worker?.badgeLevel ?? "newbie")];
+  const upcoming = applications.filter(
     (a) => a.status === "confirmed" || a.status === "checked_in"
   );
-  const recentCompleted = MOCK_APPLICATIONS.filter(
+  const recentCompleted = applications.filter(
     (a) => a.status === "completed"
   ).slice(0, 2);
 
@@ -63,9 +63,9 @@ export default function MyPage() {
           <div className="flex items-center gap-3 mb-4">
             <div className="relative">
               <div className="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center text-3xl">
-                {worker.avatar}
+                {worker?.avatar ?? "🙂"}
               </div>
-              {worker.verifiedId && (
+              {worker?.verifiedId && (
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-brand border-2 border-background flex items-center justify-center">
                   <ShieldCheck className="w-3 h-3 text-white" />
                 </div>
@@ -73,7 +73,7 @@ export default function MyPage() {
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
-                <h2 className="text-lg font-bold truncate">{worker.name}</h2>
+                <h2 className="text-lg font-bold truncate">{worker?.name ?? "프로필 없음"}</h2>
                 <span
                   className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badge.color}`}
                 >
@@ -81,13 +81,13 @@ export default function MyPage() {
                 </span>
               </div>
               <p className="text-xs text-muted-foreground line-clamp-1">
-                {worker.bio}
+                {worker?.bio ?? ""}
               </p>
               <div className="flex items-center gap-1 mt-1 text-xs">
                 <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                <span className="font-bold">{worker.rating}</span>
+                <span className="font-bold">{worker?.rating ?? 0}</span>
                 <span className="text-muted-foreground">
-                  · 근무 {worker.totalJobs}회 · 완료율 {worker.completionRate}%
+                  · 근무 {worker?.totalJobs ?? 0}회 · 완료율 {worker?.completionRate ?? 0}%
                 </span>
               </div>
             </div>
@@ -104,19 +104,19 @@ export default function MyPage() {
             <div className="text-center">
               <p className="text-[10px] text-muted-foreground">이번 달 수입</p>
               <p className="font-bold text-sm text-brand mt-0.5">
-                {formatMoney(worker.thisMonthEarnings)}
+                {formatMoney(worker?.thisMonthEarnings ?? 0)}
               </p>
             </div>
             <div className="text-center border-x border-border">
               <p className="text-[10px] text-muted-foreground">누적 수입</p>
               <p className="font-bold text-sm mt-0.5">
-                {formatMoney(worker.totalEarnings)}
+                {formatMoney(worker?.totalEarnings ?? 0)}
               </p>
             </div>
             <div className="text-center">
               <p className="text-[10px] text-muted-foreground">노쇼</p>
               <p className="font-bold text-sm mt-0.5">
-                {worker.noShowCount}회
+                {worker?.noShowCount ?? 0}회
               </p>
             </div>
           </div>

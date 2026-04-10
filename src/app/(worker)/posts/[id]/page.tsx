@@ -1,12 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import {
-  getJobById,
-  calculateEarnings,
-  formatWorkDate,
-  categoryLabel,
-  MOCK_REVIEWS,
-} from "@/lib/mock-data";
+import { getJobById, getReviews } from "@/lib/db/queries";
+import { calculateEarnings, formatWorkDate, categoryLabel } from "@/lib/job-utils";
 import { formatMoney, formatDistance } from "@/lib/format";
 import {
   ArrowLeft,
@@ -33,7 +28,7 @@ interface Props {
 
 export default async function JobDetailPage({ params }: Props) {
   const { id } = await params;
-  const job = getJobById(id);
+  const [job, reviews] = await Promise.all([getJobById(id), getReviews()]);
   if (!job) notFound();
 
   const earnings = calculateEarnings(job);
@@ -327,7 +322,7 @@ export default async function JobDetailPage({ params }: Props) {
             </button>
           </div>
           <div className="space-y-3">
-            {MOCK_REVIEWS.slice(0, 2).map((rev) => (
+            {reviews.slice(0, 2).map((rev) => (
               <div key={rev.id} className="rounded-xl border border-border p-3">
                 <div className="flex items-center gap-2 mb-1.5">
                   <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">

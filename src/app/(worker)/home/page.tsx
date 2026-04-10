@@ -1,11 +1,6 @@
 import Link from "next/link";
-import {
-  MOCK_JOBS,
-  MOCK_CURRENT_WORKER,
-  formatWorkDate,
-  calculateEarnings,
-  categoryLabel,
-} from "@/lib/mock-data";
+import { getJobs, getUrgentJobs, getCurrentWorker } from "@/lib/db/queries";
+import { formatWorkDate, calculateEarnings, categoryLabel } from "@/lib/job-utils";
 import { formatMoney, formatDistance } from "@/lib/format";
 import {
   Clock,
@@ -26,9 +21,12 @@ const CATEGORIES = [
   { id: "cleaning", label: "청소", emoji: "✨" },
 ] as const;
 
-export default function WorkerHomePage() {
-  const urgentJobs = MOCK_JOBS.filter((j) => j.isUrgent);
-  const recommendedJobs = MOCK_JOBS.slice(0, 6);
+export default async function WorkerHomePage() {
+  const [urgentJobs, recommendedJobs, worker] = await Promise.all([
+    getUrgentJobs(),
+    getJobs({ limit: 6 }),
+    getCurrentWorker(),
+  ]);
 
   return (
     <div className="bg-background">
@@ -38,7 +36,7 @@ export default function WorkerHomePage() {
           <div>
             <p className="text-[10px] text-muted-foreground">안녕하세요</p>
             <p className="text-sm font-bold">
-              {MOCK_CURRENT_WORKER.name}님 👋
+              {worker?.name ?? "게스트"}님 👋
             </p>
           </div>
           <Link
@@ -59,23 +57,23 @@ export default function WorkerHomePage() {
             <TrendingUp className="w-4 h-4 opacity-80" />
           </div>
           <p className="text-3xl font-bold">
-            {formatMoney(MOCK_CURRENT_WORKER.thisMonthEarnings)}
+            {formatMoney(worker?.thisMonthEarnings ?? 0)}
           </p>
           <div className="mt-4 pt-4 border-t border-white/20 flex justify-between text-sm">
             <div>
               <p className="opacity-80 text-xs">누적 근무</p>
-              <p className="font-bold">{MOCK_CURRENT_WORKER.totalJobs}회</p>
+              <p className="font-bold">{worker?.totalJobs ?? 0}회</p>
             </div>
             <div>
               <p className="opacity-80 text-xs">평점</p>
               <p className="font-bold flex items-center gap-1">
                 <Star className="w-3 h-3 fill-white" />
-                {MOCK_CURRENT_WORKER.rating}
+                {worker?.rating ?? 0}
               </p>
             </div>
             <div>
               <p className="opacity-80 text-xs">완료율</p>
-              <p className="font-bold">{MOCK_CURRENT_WORKER.completionRate}%</p>
+              <p className="font-bold">{worker?.completionRate ?? 0}%</p>
             </div>
           </div>
         </section>
