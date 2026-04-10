@@ -316,9 +316,10 @@ export async function getReviews(): Promise<Review[]> {
     take: 20,
   });
 
-  return rows.map((r) => {
-    const workerName =
-      r.reviewer.workerProfile?.name ?? r.reviewer.email ?? "익명";
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return rows.map((r: any) => {
+    const workerName: string =
+      (r.reviewer.workerProfile?.name as string | undefined) ?? (r.reviewer.email as string | null) ?? "익명";
     const initial = workerName.charAt(0);
     const maskedName =
       workerName.length > 1
