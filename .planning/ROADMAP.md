@@ -50,12 +50,12 @@
   5. `prisma/seed.ts` 또는 Supabase SQL 시드로 빈 DB를 현실적인 테스트 데이터로 채울 수 있다
 **Plans**: 6 plans
 Plans:
-- [ ] 02-01-PLAN.md — Wave 0: 테스트 인프라(Vitest/Playwright) + 하우스키핑(schema 보존, .env.example, ARCHITECTURE.md 드리프트 수정, Supabase MCP 연결성 checkpoint)
-- [ ] 02-02-PLAN.md — Wave 1: Prisma 6 models + 5 enums 스키마 + Supabase PostGIS/RLS/trigger 4 migrations [BLOCKING schema push]
-- [ ] 02-03-PLAN.md — Wave 2: @supabase/ssr 3-file + src/proxy.ts (Next 16) + src/lib/dal.ts
-- [ ] 02-04-PLAN.md — Wave 3: signup/login/role-select Server Actions + auth/confirm·callback routes (OAuth open-redirect 방어 allowlist) + role-gated layouts
-- [ ] 02-05-PLAN.md — Wave 4: prisma/seed.ts (mock-data.ts → DB 이식) + 6 dev 계정 생성 [BLOCKING seed run]
-- [ ] 02-06-PLAN.md — Wave 5: Kakao OAuth 추가 + Phase 2 E2E smoke 수동 검증 + STATE.md drift note + ARCHITECTURE.md 최종 확인
+- [x] 02-01-PLAN.md — Wave 0: 테스트 인프라(Vitest/Playwright) + 하우스키핑(schema 보존, .env.example, ARCHITECTURE.md 드리프트 수정, Supabase MCP 연결성 checkpoint)
+- [x] 02-02-PLAN.md — Wave 1: Prisma 6 models + 5 enums 스키마 + Supabase PostGIS/RLS/trigger 4 migrations [BLOCKING schema push]
+- [x] 02-03-PLAN.md — Wave 2: @supabase/ssr 3-file + src/proxy.ts (Next 16) + src/lib/dal.ts
+- [x] 02-04-PLAN.md — Wave 3: signup/login/role-select Server Actions + auth/confirm·callback routes (OAuth open-redirect 방어 allowlist) + role-gated layouts
+- [x] 02-05-PLAN.md — Wave 4: prisma/seed.ts (mock-data.ts → DB 이식) + 6 dev 계정 생성 [BLOCKING seed run]
+- [x] 02-06-PLAN.md — Wave 5: Kakao OAuth 추가 + Phase 2 E2E smoke 수동 검증 + STATE.md drift note + ARCHITECTURE.md 최종 확인
 
 ---
 

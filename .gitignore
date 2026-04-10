@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# claude code worktrees scratch dir (gsd workflow temp)
+.claude/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

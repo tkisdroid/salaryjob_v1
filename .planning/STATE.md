@@ -26,18 +26,18 @@ progress:
 
 - **Milestone:** v1 MVP
 - **Phase:** 2 — Supabase·Prisma·Auth 기반
-- **Plan:** — (Phase 2 complete — run `/gsd-plan-phase 3` for Phase 3)
+- **Plan:** — (not yet planned — run `/gsd-plan-phase 2`)
 - **Node:** —
-- **Status:** Completed 2026-04-10
-- **Progress:** [##---] 2/5 phases complete
+- **Status:** Ready to execute
+- **Progress:** [#----] 1/5 phases (Phase 1 retroactively completed)
 
 ## Phase Progress
 
 | Phase | Status | Completed |
 |-------|--------|-----------|
 | 1. 목업 UI 파운데이션 | Completed | 2026-04-10 (commit `55790d1`) |
-| 2. Supabase·Prisma·Auth 기반 | Completed | 2026-04-10 |
-| 3. 프로필·공고 DB 연결 | **Current — Not started** | - |
+| 2. Supabase·Prisma·Auth 기반 | **Current — Not started** | - |
+| 3. 프로필·공고 DB 연결 | Pending | - |
 | 4. 지원·근무 라이프사이클 DB 연결 | Pending | - |
 | 5. 리뷰·정산·목업 제거 | Pending | - |
 
@@ -74,9 +74,8 @@ progress:
 
 ### Known Risks
 
+- `ARCHITECTURE.md`에 Clerk/Toss/Push 언급이 남아있지만 실제 미설치 — Phase 2 시작 시 해당 문서와 실제 설치 스택 간 드리프트를 해소할 것
 - `src/lib/services/ai-matching.ts`에 Claude+Codex 스캐폴드가 TS 에러 상태로 남아있음 — Phase 2 범위 아님, v2로 격리 필요
-- **AUTH-01 drift:** REQUIREMENTS.md defines AUTH-01 as "휴대폰 번호 또는 이메일로 회원가입". Phase 2 실구현은 CONTEXT.md D-01 locked decision에 따라 **이메일 전용** (Email/Password + Magic Link + Google + Kakao OAuth). SMS OTP는 v2 (Twilio/Vonage 국내 통신사 연동 비용 + 스팸 필터 이슈). REQUIREMENTS.md는 Phase 2 완료 시점에 AUTH-01을 "이메일 인증" 기준으로 부분 충족으로 간주. v2 추가 여부는 Phase 5 이후 재평가.
-- **mock-data.ts UI imports 미제거:** Phase 2 boundary per CONTEXT.md D-02 — mock-data.ts는 Phase 5 exit criterion (DATA-05). Phase 2 종료 시점에 production code에 import 경로가 남아있음 (정상). Plan 02-07 이후 Phase 5에서 최종 제거.
 
 ## Session Continuity
 
@@ -88,9 +87,9 @@ progress:
 
 ### Next Session Starting Point
 
-1. `cat .planning/ROADMAP.md`로 Phase 3 범위 확인
-2. `/gsd-plan-phase 3` 실행하여 Phase 3 실행 계획 수립
-3. 계획 승인 후 `/gsd-execute-phase 3`으로 Phase 3 착수
+1. `cat .planning/ROADMAP.md`로 Phase 2 범위 확인
+2. `/gsd-plan-phase 2` 실행하여 Phase 2 실행 계획 수립
+3. 계획 승인 후 `/gsd-work` 또는 해당 워크플로로 Phase 2 착수
 
 ### Files of Interest
 
