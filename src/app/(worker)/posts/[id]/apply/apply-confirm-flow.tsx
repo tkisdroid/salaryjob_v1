@@ -5,6 +5,8 @@ import Link from "next/link";
 import type { MockJob } from "@/lib/types/job";
 import { calculateEarnings, formatWorkDate } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
+import { applyOneTap } from "./actions";
+import { applicationErrorToKorean } from "@/lib/errors/application-errors";
 import {
   ArrowLeft,
   Zap,
@@ -19,17 +21,33 @@ import {
   Loader2,
 } from "lucide-react";
 
-type Step = "review" | "confirming" | "confirmed";
+type Step = "review" | "confirming" | "confirmed" | "error";
 
 export function ApplyConfirmFlow({ job }: { job: MockJob }) {
   const [step, setStep] = useState<Step>("review");
   const [agreed, setAgreed] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const earnings = calculateEarnings(job);
 
-  const handleConfirm = () => {
+  // Phase 4 Plan 04-08 — real applyOneTap Server Action wiring.
+  // Replaces the Phase 1 setTimeout mock. applyOneTap returns a
+  // discriminated union; we map error codes to Korean via the shared
+  // taxonomy so T-04-21 (info disclosure) stays mitigated.
+  const handleConfirm = async () => {
     setStep("confirming");
-    // Simulate API call
-    setTimeout(() => setStep("confirmed"), 900);
+    setErrorMessage(null);
+    const result = await applyOneTap({ jobId: job.id });
+    if (result.success) {
+      setStep("confirmed");
+    } else {
+      setErrorMessage(applicationErrorToKorean(result.error));
+      setStep("error");
+    }
+  };
+
+  const handleRetry = () => {
+    setErrorMessage(null);
+    setStep("review");
   };
 
   if (step === "confirmed") {
@@ -83,10 +101,10 @@ export function ApplyConfirmFlow({ job }: { job: MockJob }) {
         <div className="border-t border-border bg-background/95 backdrop-blur p-4 space-y-2">
           <div className="max-w-lg mx-auto space-y-2">
             <Link
-              href="/my"
+              href="/my/applications"
               className="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center justify-center shadow-lg shadow-brand/20 transition-colors"
             >
-              내 스케줄 확인
+              내 지원 목록 보기
             </Link>
             <Link
               href="/home"
@@ -106,6 +124,40 @@ export function ApplyConfirmFlow({ job }: { job: MockJob }) {
         <Loader2 className="w-10 h-10 text-brand animate-spin mb-4" />
         <p className="text-sm font-medium">매칭 중...</p>
         <p className="text-xs text-muted-foreground mt-1">잠시만 기다려주세요</p>
+      </div>
+    );
+  }
+
+  if (step === "error") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
+          <div className="w-20 h-20 rounded-full bg-destructive/10 flex items-center justify-center mb-5">
+            <AlertTriangle className="w-10 h-10 text-destructive" />
+          </div>
+          <h1 className="text-xl font-bold mb-2">지원하지 못했어요</h1>
+          <p className="text-sm text-muted-foreground mb-8 leading-relaxed max-w-xs">
+            {errorMessage ?? "알 수 없는 오류가 발생했습니다"}
+          </p>
+        </div>
+
+        <div className="border-t border-border bg-background/95 backdrop-blur p-4">
+          <div className="max-w-lg mx-auto space-y-2">
+            <button
+              type="button"
+              onClick={handleRetry}
+              className="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center justify-center shadow-lg shadow-brand/20 transition-colors"
+            >
+              다시 시도
+            </button>
+            <Link
+              href="/home"
+              className="w-full h-11 rounded-xl border border-border hover:bg-muted text-sm font-medium flex items-center justify-center transition-colors"
+            >
+              홈으로
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
