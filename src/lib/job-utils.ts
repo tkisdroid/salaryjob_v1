@@ -11,21 +11,77 @@ import type { JobCategory, Job } from "@/lib/types/job";
 // Earnings calculation
 // ============================================================================
 
-/**
- * Calculate total expected earnings for a job including night-shift allowance
- * and transport fee.
- */
-export function calculateEarnings(job: {
+interface JobEarningsInput {
   hourlyPay: number;
   workHours: number;
   nightShiftAllowance: boolean;
   transportFee: number;
-}): number {
+}
+
+interface ShiftEarningsRates {
+  hourlyPay: number;
+  transportFee: number;
+}
+
+/**
+ * Phase 4 SHIFT-02 — Total earnings calculation with two calling conventions:
+ *
+ * 1. **Scheduled (legacy)**: `calculateEarnings(job)` — computes the *expected*
+ *    earnings at job-listing time using `workHours * hourlyPay` plus a flat
+ *    50% night allowance when the job is marked `nightShiftAllowance`.
+ *    Used by the job detail "예상 수입" display and by `check-in-flow.tsx`.
+ *
+ * 2. **Actual (Phase 4 shift settlement)**: `calculateEarnings(actualHours, rates, nightPremium)` —
+ *    computes real payout at check-out time.
+ *    base = floor(actualHours * hourlyPay), total = base + nightPremium + transportFee.
+ *    `nightPremium` comes from `calculateNightShiftPremium` (src/lib/night-shift.ts).
+ *
+ * Dispatching between the two is based on the shape of the first argument:
+ * a number triggers the shift flow, an object triggers the scheduled flow.
+ */
+export function calculateEarnings(job: JobEarningsInput): number;
+export function calculateEarnings(
+  actualHours: number,
+  rates: ShiftEarningsRates,
+  nightPremium: number,
+): number;
+export function calculateEarnings(
+  jobOrHours: JobEarningsInput | number,
+  rates?: ShiftEarningsRates,
+  nightPremium?: number,
+): number {
+  // Phase 4 shift-settlement form: (actualHours, rates, nightPremium)
+  if (typeof jobOrHours === "number") {
+    const actualHours = jobOrHours;
+    const { hourlyPay, transportFee } = rates!;
+    const base = Math.floor(actualHours * hourlyPay);
+    return base + (nightPremium ?? 0) + transportFee;
+  }
+
+  // Legacy scheduled form: (job)
+  const job = jobOrHours;
   let base = job.hourlyPay * job.workHours;
   if (job.nightShiftAllowance && job.workHours >= 4) {
     base = Math.floor(base * 1.5); // 야간 할증 50%
   }
   return base + job.transportFee;
+}
+
+/**
+ * Phase 4 SHIFT-02 D-11 — Actual hours worked, rounded to 0.25 (15-minute) granularity.
+ *
+ * Rounding rule: `Math.round(minutes / 15) * 15`
+ *   - 0 min  → 0.00h
+ *   - 7 min  → 0.00h (rounds down)
+ *   - 8 min  → 0.25h (rounds up)
+ *   - 22 min → 0.25h (rounds down)
+ *   - 23 min → 0.50h (rounds up)
+ */
+export function calculateActualHours(checkInAt: Date, checkOutAt: Date): number {
+  if (checkOutAt.getTime() <= checkInAt.getTime()) return 0;
+  const rawMinutes = (checkOutAt.getTime() - checkInAt.getTime()) / 60000;
+  const roundedMinutes = Math.round(rawMinutes / 15) * 15;
+  return roundedMinutes / 60;
 }
 
 // ============================================================================
