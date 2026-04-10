@@ -19,6 +19,6 @@ export async function truncatePhase4Tables(prisma: {
     );
   }
   await prisma.$executeRawUnsafe(
-    "TRUNCATE TABLE public.applications, public.jobs, public.business_profiles, public.worker_profiles, public.users RESTART IDENTITY CASCADE",
+    "TRUNCATE TABLE public.push_subscriptions, public.applications, public.jobs, public.business_profiles, public.worker_profiles, public.users RESTART IDENTITY CASCADE",
   );
 }
