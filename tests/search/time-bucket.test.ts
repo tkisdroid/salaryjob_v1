@@ -1,8 +1,7 @@
-// RED BASELINE (Wave 0): until Plan 04-07 implements doesTimeBucketMatch.
+// GREEN (Plan 04-07): src/lib/time-filters.ts implements doesTimeBucketMatch.
 // REQ: SEARCH-03 — 시간대 버킷 (오전 06-12, 오후 12-18, 저녁 18-22, 야간 22-06).
 
 import { describe, it, expect } from "vitest";
-// @ts-expect-error — Plan 04-07 will create this module
 import { doesTimeBucketMatch } from "@/lib/time-filters";
 
 describe("SEARCH-03 doesTimeBucketMatch", () => {
