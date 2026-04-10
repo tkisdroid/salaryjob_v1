@@ -1,53 +1,184 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import type { MockApplication } from "@/lib/types/job";
-import { calculateEarnings, formatWorkDate } from "@/lib/job-utils";
-import { formatMoney } from "@/lib/format";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
-  QrCode,
   Clock,
   MapPin,
-  CheckCircle2,
   ShieldCheck,
-  Zap,
-  Camera,
-  Loader2,
-  PartyPopper,
-  Calendar,
-  AlertTriangle,
-  LogOut,
   Navigation,
+  PartyPopper,
+  Loader2,
+  LogOut,
+  Zap,
+  AlertTriangle,
+  CheckCircle2,
 } from "lucide-react";
+import { checkIn, checkOut } from "./actions";
+import { applicationErrorToKorean } from "@/lib/errors/application-errors";
+import { formatMoney } from "@/lib/format";
+import { formatWorkDate } from "@/lib/job-utils";
 
-type Mode = "check-in" | "check-out";
-type Stage = "ready" | "scanning" | "confirmed";
+// Lazy-load the camera scanner — html5-qrcode touches `window` at import
+// time, so the chunk must be client-only. `ssr: false` is load-bearing.
+const QrScanner = dynamic(
+  () => import("@/components/worker/qr-scanner").then((m) => m.QrScanner),
+  { ssr: false },
+);
 
-export function CheckInFlow({ application }: { application: MockApplication }) {
-  const [mode, setMode] = useState<Mode>("check-in");
-  const [stage, setStage] = useState<Stage>("ready");
+/**
+ * Phase 4 Plan 04-08 — Worker check-in / check-out UI.
+ *
+ * Replaces the Phase 1 scanning-animation mock with a 5-phase state machine
+ * backed by real Server Actions:
+ *
+ *   ready      — confirmed status, user has not tapped 체크인 yet
+ *   locating   — navigator.geolocation is resolving coords
+ *   working    — in_progress status, elapsed timer running
+ *   scanning   — camera open, QrScanner mounted, waiting for decodedText
+ *   submitting — checkOut Server Action is in flight
+ *   done       — completed, shows final earnings summary
+ *
+ * The server enforces the same gates (ownership, state, time window,
+ * geofence, QR JWT) regardless of UI phase — the UI machine is pure UX.
+ */
+
+type Phase =
+  | "ready"
+  | "locating"
+  | "working"
+  | "scanning"
+  | "submitting"
+  | "done";
+
+// Shape we accept from the parent page — loose because the server component
+// serializes via JSON.parse(JSON.stringify(app)) so Decimals become numbers
+// and Dates become strings. Everything downstream is for display only.
+export type CheckInApplication = {
+  id: string;
+  status:
+    | "pending"
+    | "confirmed"
+    | "in_progress"
+    | "completed"
+    | "cancelled";
+  checkInAt: string | null;
+  job: {
+    id: string;
+    title: string;
+    workDate: string;
+    startTime: string;
+    endTime: string;
+    workHours?: number | null;
+    business: {
+      id: string;
+      name: string;
+      logo?: string | null;
+      address: string;
+      addressDetail?: string | null;
+    };
+  };
+};
+
+type Props = { application: CheckInApplication };
+
+export function CheckInFlow({ application }: Props) {
+  const router = useRouter();
+  const initialPhase: Phase =
+    application.status === "in_progress"
+      ? "working"
+      : application.status === "completed"
+        ? "done"
+        : "ready";
+  const [phase, setPhase] = useState<Phase>(initialPhase);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<{
+    actualHours: number;
+    earnings: number;
+    nightPremium: number;
+  } | null>(null);
+
+  // Live clock + elapsed timer for the working phase.
   const [now, setNow] = useState<Date>(new Date());
-  const [elapsedMs, setElapsedMs] = useState(0);
-  const [checkedInAt, setCheckedInAt] = useState<Date | null>(null);
-
-  const { job } = application;
-
-  // Tick clock
   useEffect(() => {
-    const iv = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(iv);
+    const id = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(id);
   }, []);
 
-  // Track elapsed after check-in
-  useEffect(() => {
-    if (!checkedInAt) return;
-    const iv = setInterval(() => {
-      setElapsedMs(Date.now() - checkedInAt.getTime());
-    }, 1000);
-    return () => clearInterval(iv);
-  }, [checkedInAt]);
+  const checkedInAt = application.checkInAt
+    ? new Date(application.checkInAt)
+    : null;
+  const elapsedMs = checkedInAt
+    ? Math.max(0, now.getTime() - checkedInAt.getTime())
+    : 0;
+
+  const { job } = application;
+  const businessLogo = job.business.logo ?? "🏢";
+
+  async function handleCheckIn() {
+    setError(null);
+    setPhase("locating");
+    try {
+      const coords = await new Promise<GeolocationPosition>(
+        (resolve, reject) => {
+          if (!("geolocation" in navigator)) {
+            reject(new Error("geolocation_not_supported"));
+            return;
+          }
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10_000,
+            maximumAge: 0,
+          });
+        },
+      );
+      const res = await checkIn(application.id, {
+        lat: coords.coords.latitude,
+        lng: coords.coords.longitude,
+      });
+      if (res.success) {
+        setPhase("working");
+        router.refresh();
+      } else {
+        setError(applicationErrorToKorean(res.error));
+        setPhase("ready");
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg === "geolocation_not_supported") {
+        setError("이 브라우저는 위치 정보를 지원하지 않습니다");
+      } else if (/denied|permission/i.test(msg)) {
+        setError("위치 권한을 허용한 뒤 다시 시도해주세요");
+      } else {
+        setError("위치를 확인하지 못했습니다. 다시 시도해주세요");
+      }
+      setPhase("ready");
+    }
+  }
+
+  async function handleScan(decodedText: string) {
+    // guard against double-fire from the camera scanner when the user
+    // holds the phone over the QR for a few frames.
+    if (phase !== "scanning") return;
+    setPhase("submitting");
+    setError(null);
+    const res = await checkOut(application.id, decodedText);
+    if (res.success) {
+      setResult({
+        actualHours: res.actualHours,
+        earnings: res.earnings,
+        nightPremium: res.nightPremium,
+      });
+      setPhase("done");
+      router.refresh();
+    } else {
+      setError(applicationErrorToKorean(res.error));
+      setPhase("working");
+    }
+  }
 
   const formatClock = (d: Date) =>
     `${d.getHours().toString().padStart(2, "0")}:${d
@@ -56,37 +187,20 @@ export function CheckInFlow({ application }: { application: MockApplication }) {
       .padStart(2, "0")}:${d.getSeconds().toString().padStart(2, "0")}`;
 
   const formatElapsed = (ms: number) => {
-    const totalSec = Math.floor(ms / 1000);
-    const h = Math.floor(totalSec / 3600);
-    const m = Math.floor((totalSec % 3600) / 60);
-    const s = totalSec % 60;
+    const total = Math.floor(ms / 1000);
+    const h = Math.floor(total / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
     return `${h}:${m.toString().padStart(2, "0")}:${s
       .toString()
       .padStart(2, "0")}`;
   };
 
-  const handleScan = () => {
-    setStage("scanning");
-    setTimeout(() => {
-      if (mode === "check-in") {
-        setCheckedInAt(new Date());
-      }
-      setStage("confirmed");
-    }, 1500);
-  };
-
-  const handleContinue = () => {
-    if (mode === "check-in") {
-      setMode("check-out");
-      setStage("ready");
-    }
-  };
-
-  // ---------------------------------------------------------------------
-  // CHECK-OUT confirmed state: show settlement
-  // ---------------------------------------------------------------------
-  if (mode === "check-out" && stage === "confirmed") {
-    const earnings = calculateEarnings(job);
+  // --------------------------------------------------------------------
+  // DONE — settlement summary
+  // --------------------------------------------------------------------
+  if (phase === "done") {
+    const earnings = result?.earnings ?? 0;
     return (
       <div className="min-h-screen bg-background flex flex-col">
         <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
@@ -101,21 +215,24 @@ export function CheckInFlow({ application }: { application: MockApplication }) {
           <div className="w-full max-w-sm rounded-2xl bg-gradient-to-br from-brand to-brand-dark text-white p-5 mb-4">
             <p className="text-xs opacity-90 mb-1">정산 금액</p>
             <p className="text-3xl font-bold">{formatMoney(earnings)}</p>
-            <div className="mt-4 pt-4 border-t border-white/20 space-y-1 text-xs">
-              <div className="flex justify-between opacity-90">
-                <span>근무 시간</span>
-                <span>{formatElapsed(elapsedMs) || `${job.workHours}시간`}</span>
+            {result && (
+              <div className="mt-4 pt-4 border-t border-white/20 space-y-1 text-xs">
+                <div className="flex justify-between opacity-90">
+                  <span>실근무 시간</span>
+                  <span>{result.actualHours}시간</span>
+                </div>
+                {result.nightPremium > 0 && (
+                  <div className="flex justify-between opacity-90">
+                    <span>야간 할증</span>
+                    <span>+{formatMoney(result.nightPremium)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between opacity-90">
+                  <span>입금 예정</span>
+                  <span>1~3분 내 본인 계좌</span>
+                </div>
               </div>
-              <div className="flex justify-between opacity-90">
-                <span>입금 예정</span>
-                <span>1~3분 내 본인 계좌</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="w-full max-w-sm rounded-xl bg-muted/50 p-3 text-[11px] text-muted-foreground leading-relaxed">
-            <Zap className="w-3 h-3 inline text-brand mr-1" />
-            정산 완료 후 알림으로 영수증을 보내드려요.
+            )}
           </div>
         </div>
 
@@ -128,10 +245,10 @@ export function CheckInFlow({ application }: { application: MockApplication }) {
               업체 리뷰 남기기
             </Link>
             <Link
-              href="/my"
+              href="/my/applications"
               className="w-full h-11 rounded-xl border border-border hover:bg-muted text-sm font-medium flex items-center justify-center transition-colors"
             >
-              마이페이지로
+              지원 목록으로
             </Link>
           </div>
         </div>
@@ -139,16 +256,16 @@ export function CheckInFlow({ application }: { application: MockApplication }) {
     );
   }
 
-  // ---------------------------------------------------------------------
-  // CHECK-IN confirmed state: show working screen
-  // ---------------------------------------------------------------------
-  if (mode === "check-in" && stage === "confirmed") {
+  // --------------------------------------------------------------------
+  // WORKING — in progress, elapsed timer running
+  // --------------------------------------------------------------------
+  if (phase === "working") {
     return (
       <div className="min-h-screen bg-background">
         <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
           <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
             <Link
-              href="/my"
+              href="/my/applications"
               className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center"
             >
               <ArrowLeft className="w-5 h-5" />
@@ -162,22 +279,29 @@ export function CheckInFlow({ application }: { application: MockApplication }) {
         </header>
 
         <div className="max-w-lg mx-auto px-4 py-5 space-y-5">
-          {/* Working clock */}
+          {error && (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+
           <div className="rounded-2xl bg-gradient-to-br from-brand to-brand-dark text-white p-6 text-center">
             <p className="text-xs opacity-90 mb-2">근무 중 경과 시간</p>
             <p className="text-5xl font-bold tabular-nums tracking-tight">
               {formatElapsed(elapsedMs)}
             </p>
-            <p className="text-[11px] opacity-90 mt-2">
-              {checkedInAt && `${formatClock(checkedInAt)}에 체크인`}
-            </p>
+            {checkedInAt && (
+              <p className="text-[11px] opacity-90 mt-2">
+                {formatClock(checkedInAt)}에 체크인
+              </p>
+            )}
           </div>
 
-          {/* Job info */}
           <div className="rounded-2xl border border-border bg-card p-4">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-2xl shrink-0">
-                {job.business.logo}
+                {businessLogo}
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-[11px] text-muted-foreground truncate">
@@ -191,31 +315,27 @@ export function CheckInFlow({ application }: { application: MockApplication }) {
             </div>
           </div>
 
-          {/* Safety tips */}
           <div className="rounded-xl bg-blue-500/5 border border-blue-500/20 p-4">
             <div className="flex items-start gap-2">
               <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
               <div className="text-xs leading-relaxed text-blue-900 dark:text-blue-100">
                 <p className="font-bold mb-1">근무 중 안내</p>
                 <p className="text-blue-800/80 dark:text-blue-200/80">
-                  안전하게 근무하시고, 긴급 상황 시 하단 문의 버튼을 이용해주세요.
+                  근무를 마치면 매장 담당자에게 체크아웃 QR을 요청해주세요.
                 </p>
               </div>
             </div>
           </div>
-
-          {/* Contact support */}
-          <button className="w-full h-11 rounded-xl border border-border hover:bg-muted text-sm font-medium transition-colors">
-            긴급 문의 / 상황 보고
-          </button>
         </div>
 
-        {/* Sticky check-out CTA */}
         <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-border">
           <div className="max-w-lg mx-auto px-4 py-3">
             <button
               type="button"
-              onClick={handleContinue}
+              onClick={() => {
+                setError(null);
+                setPhase("scanning");
+              }}
               className="w-full h-12 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold flex items-center justify-center gap-1.5 shadow-lg transition-colors"
             >
               <LogOut className="w-4 h-4" /> 근무 종료 (QR 체크아웃)
@@ -226,62 +346,101 @@ export function CheckInFlow({ application }: { application: MockApplication }) {
     );
   }
 
-  // ---------------------------------------------------------------------
-  // Scanning animation
-  // ---------------------------------------------------------------------
-  if (stage === "scanning") {
+  // --------------------------------------------------------------------
+  // SCANNING — camera open, QR decoded → checkOut
+  // --------------------------------------------------------------------
+  if (phase === "scanning") {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-6">
-        <div className="relative w-64 h-64 rounded-2xl border-2 border-brand/50 mb-6 overflow-hidden">
-          <div className="absolute inset-0 bg-grid-white/5 bg-[size:20px_20px]" />
-          {/* Corner brackets */}
-          <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-brand rounded-tl-2xl" />
-          <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-brand rounded-tr-2xl" />
-          <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-brand rounded-bl-2xl" />
-          <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-brand rounded-br-2xl" />
-          {/* Scan line */}
-          <div className="absolute inset-x-0 top-0 h-1 bg-brand shadow-[0_0_12px_theme(colors.brand.DEFAULT)] animate-[scanline_1.5s_ease-in-out_infinite]" />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <Loader2 className="w-10 h-10 text-brand animate-spin" />
+      <div className="min-h-screen bg-black text-white flex flex-col">
+        <header className="sticky top-0 z-40 bg-black/80 backdrop-blur border-b border-white/10">
+          <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setPhase("working")}
+              className="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <p className="text-sm font-bold flex-1">체크아웃 QR 스캔</p>
           </div>
+        </header>
+
+        <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 space-y-4">
+          <p className="text-sm text-white/80">
+            매장 QR 코드를 카메라에 비춰주세요
+          </p>
+          <QrScanner
+            onScan={handleScan}
+            onError={(e) => {
+              setError(e || "카메라를 열지 못했습니다");
+            }}
+          />
+          {error && (
+            <div className="rounded-lg bg-red-500/20 border border-red-500/40 p-3 text-xs text-red-200 flex items-start gap-2 max-w-sm">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <span>{error}</span>
+            </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setPhase("working")}
+            className="text-xs text-white/60 hover:text-white underline"
+          >
+            취소
+          </button>
         </div>
-        <p className="text-sm font-medium">QR 인식 중...</p>
-        <p className="text-xs text-white/60 mt-1">
-          매장 QR 코드를 프레임 안에 맞춰주세요
-        </p>
-        <style>{`
-          @keyframes scanline {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(250px); }
-            100% { transform: translateY(0); }
-          }
-        `}</style>
       </div>
     );
   }
 
-  // ---------------------------------------------------------------------
-  // Default: Ready to scan
-  // ---------------------------------------------------------------------
-  const isCheckIn = mode === "check-in";
+  // --------------------------------------------------------------------
+  // SUBMITTING — checkOut in flight
+  // --------------------------------------------------------------------
+  if (phase === "submitting") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
+        <Loader2 className="w-10 h-10 text-brand animate-spin mb-4" />
+        <p className="text-sm font-medium">정산 중...</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          잠시만 기다려주세요
+        </p>
+      </div>
+    );
+  }
+
+  // --------------------------------------------------------------------
+  // LOCATING — geolocation resolving
+  // --------------------------------------------------------------------
+  if (phase === "locating") {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
+        <Loader2 className="w-10 h-10 text-brand animate-spin mb-4" />
+        <p className="text-sm font-medium">위치 확인 중...</p>
+        <p className="text-xs text-muted-foreground mt-1">
+          매장 반경 200m 이내여야 체크인이 가능합니다
+        </p>
+      </div>
+    );
+  }
+
+  // --------------------------------------------------------------------
+  // READY — pre-check-in (confirmed status)
+  // --------------------------------------------------------------------
   return (
     <div className="min-h-screen bg-background pb-24">
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
           <Link
-            href="/my"
+            href="/my/applications"
             className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center"
           >
             <ArrowLeft className="w-5 h-5" />
           </Link>
-          <p className="text-sm font-bold flex-1">
-            {isCheckIn ? "QR 체크인" : "QR 체크아웃"}
-          </p>
+          <p className="text-sm font-bold flex-1">체크인</p>
         </div>
       </header>
 
       <div className="max-w-lg mx-auto px-4 py-5 space-y-5">
-        {/* Current time */}
         <div className="text-center py-4">
           <p className="text-[11px] text-muted-foreground mb-1">현재 시각</p>
           <p className="text-4xl font-bold tabular-nums tracking-tight">
@@ -292,11 +451,17 @@ export function CheckInFlow({ application }: { application: MockApplication }) {
           </p>
         </div>
 
-        {/* Job card */}
+        {error && (
+          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive flex items-start gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+            <span>{error}</span>
+          </div>
+        )}
+
         <div className="rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-2xl shrink-0">
-              {job.business.logo}
+              {businessLogo}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-[11px] text-muted-foreground truncate">
@@ -322,72 +487,56 @@ export function CheckInFlow({ application }: { application: MockApplication }) {
                   </p>
                 )}
               </div>
-              <button className="shrink-0 text-[11px] font-medium text-brand flex items-center gap-0.5">
-                <Navigation className="w-3 h-3" /> 길찾기
-              </button>
+              <span className="shrink-0 text-[11px] font-medium text-muted-foreground flex items-center gap-0.5">
+                <Navigation className="w-3 h-3" /> 반경 200m
+              </span>
             </div>
           </div>
         </div>
 
-        {/* QR Frame */}
-        <div className="rounded-3xl bg-muted/50 p-8 text-center">
-          <div className="relative w-40 h-40 mx-auto mb-4 rounded-2xl bg-background border-2 border-dashed border-border flex items-center justify-center">
-            <QrCode className="w-16 h-16 text-muted-foreground/40" />
-            <div className="absolute top-0 left-0 w-6 h-6 border-t-2 border-l-2 border-brand rounded-tl-2xl" />
-            <div className="absolute top-0 right-0 w-6 h-6 border-t-2 border-r-2 border-brand rounded-tr-2xl" />
-            <div className="absolute bottom-0 left-0 w-6 h-6 border-b-2 border-l-2 border-brand rounded-bl-2xl" />
-            <div className="absolute bottom-0 right-0 w-6 h-6 border-b-2 border-r-2 border-brand rounded-br-2xl" />
-          </div>
-          <p className="text-sm font-bold mb-1">
-            {isCheckIn ? "매장 QR 코드를 스캔하세요" : "체크아웃 QR을 스캔하세요"}
-          </p>
-          <p className="text-xs text-muted-foreground">
-            {isCheckIn
-              ? "매장 카운터 또는 출입구의 QR 코드를 찾아주세요"
-              : "매장 QR 코드로 근무를 마무리합니다"}
-          </p>
-        </div>
-
-        {/* Important reminders */}
         <div className="rounded-xl bg-amber-500/5 border border-amber-500/30 p-4">
           <div className="flex items-start gap-2 mb-2">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+            <Zap className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
             <p className="text-xs font-bold text-amber-900 dark:text-amber-200">
-              꼭 확인해주세요
+              체크인 안내
             </p>
           </div>
           <ul className="space-y-1.5 text-[11px] text-amber-900/90 dark:text-amber-200/90 leading-relaxed">
             <li className="flex items-start gap-1.5">
               <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" />
-              <span>매장에 도착한 뒤 담당자에게 먼저 인사해주세요.</span>
-            </li>
-            <li className="flex items-start gap-1.5">
-              <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" />
               <span>
-                {isCheckIn
-                  ? "체크인은 근무 시작 10분 전부터 가능합니다."
-                  : "근무 종료 직전에 체크아웃해주세요."}
+                체크인은 근무 시작 10분 전 ~ 30분 후에만 가능합니다.
               </span>
             </li>
             <li className="flex items-start gap-1.5">
               <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" />
-              <span>위치 정보가 자동으로 기록됩니다.</span>
+              <span>
+                매장 반경 200m 이내에서 위치 권한을 허용해주세요.
+              </span>
+            </li>
+            <li className="flex items-start gap-1.5">
+              <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" />
+              <span>
+                체크아웃 시 매장 담당자의 QR을 카메라로 스캔합니다.
+              </span>
             </li>
           </ul>
         </div>
       </div>
 
-      {/* Sticky CTA */}
       <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-border">
         <div className="max-w-lg mx-auto px-4 py-3">
           <button
             type="button"
-            onClick={handleScan}
+            onClick={handleCheckIn}
             className="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-brand/20 transition-colors"
           >
-            <Camera className="w-4 h-4" />
-            {isCheckIn ? "QR 체크인 시작" : "QR 체크아웃 시작"}
+            <MapPin className="w-4 h-4" />
+            체크인 시작
           </button>
+          <p className="text-[10px] text-center text-muted-foreground mt-2">
+            버튼을 누르면 위치 정보를 전송합니다
+          </p>
         </div>
       </div>
     </div>

@@ -3,6 +3,7 @@ import { getCurrentWorker, getApplications } from "@/lib/db/queries";
 import { formatWorkDate } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
 import { logout } from "@/app/(auth)/login/actions";
+import { PushPermissionBanner } from "@/components/worker/push-permission-banner";
 import {
   User,
   Clock,
@@ -60,6 +61,11 @@ export default async function MyPage() {
       </header>
 
       <div className="max-w-lg mx-auto px-4 py-4 space-y-5">
+        {/* Phase 4 Plan 04-08 — Web Push opt-in banner.
+            Self-dismisses when permission is already granted/denied or
+            the user clicks 닫기 (see push-permission-banner.tsx). */}
+        <PushPermissionBanner />
+
         {/* Profile Card */}
         <section className="rounded-2xl border border-border bg-card p-4">
           <div className="flex items-center gap-3 mb-4">
