@@ -25,6 +25,8 @@ import { requireBusiness } from "@/lib/dal";
 import { getJobById } from "@/lib/db/queries";
 import { prisma } from "@/lib/db";
 import { deleteJob } from "../actions";
+import { CheckoutQrModal } from "@/components/biz/checkout-qr-modal";
+import { QrCode } from "lucide-react";
 
 /* ── Helpers ── */
 
@@ -131,6 +133,18 @@ export default async function BizPostDetailPage({
             삭제
           </Button>
         </form>
+        <CheckoutQrModal
+          jobId={job.id}
+          trigger={
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand/90"
+            >
+              <QrCode className="w-4 h-4" />
+              퇴근 QR 열기
+            </button>
+          }
+        />
         <Button
           className="bg-teal text-white hover:bg-teal/90 ml-auto"
           asChild
