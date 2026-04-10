@@ -8,7 +8,6 @@ import {
   truncatePhase4Tables,
 } from "../fixtures/phase4";
 import { skipIfNoSupabase } from "../helpers/skip-if-no-supabase";
-// @ts-expect-error — Plan 04-05 will create src/lib/geofence.ts
 import { isWithinGeofence } from "@/lib/geofence";
 
 describe.skipIf(skipIfNoSupabase())("SHIFT-01 geofence ST_DWithin", () => {

@@ -3,7 +3,6 @@
 // Rounding rule: Math.round(minutes / 15) * 15.
 
 import { describe, it, expect } from "vitest";
-// @ts-expect-error — Plan 04-05 will extend job-utils.ts
 import { calculateActualHours } from "@/lib/job-utils";
 
 function dt(minutesFromBase: number) {

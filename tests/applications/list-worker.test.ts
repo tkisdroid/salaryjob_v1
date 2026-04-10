@@ -10,7 +10,6 @@ import {
   truncatePhase4Tables,
 } from "../fixtures/phase4";
 import { skipIfNoSupabase } from "../helpers/skip-if-no-supabase";
-// @ts-expect-error — Plan 04-04 will extend queries.ts to accept { bucket }
 import { getApplicationsByWorker } from "@/lib/db/queries";
 
 type Bucket = "upcoming" | "active" | "done";

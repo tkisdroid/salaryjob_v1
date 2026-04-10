@@ -3,7 +3,6 @@
 // 6 boundary cases per VALIDATION.md.
 
 import { describe, it, expect } from "vitest";
-// @ts-expect-error — Plan 04-05 creates this module
 import {
   calculateNightShiftPremium,
   computeNightHoursOverlap,

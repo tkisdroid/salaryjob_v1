@@ -2,7 +2,6 @@
 // REQ: SHIFT-01 — 체크인 가능 시간창은 시작시간 -10분 ~ +30분 (boundary inclusive).
 
 import { describe, it, expect } from "vitest";
-// @ts-expect-error — Plan 04-05 will create src/lib/shift-validation.ts
 import { isWithinCheckInWindow } from "@/lib/shift-validation";
 
 // All times in Asia/Seoul; reference job startTime = 10:00 on 2026-04-11.

@@ -10,7 +10,6 @@ import {
   truncatePhase4Tables,
 } from "../fixtures/phase4";
 import { skipIfNoSupabase } from "../helpers/skip-if-no-supabase";
-// @ts-expect-error — Plan 04-04 will create this Server Action file
 import { applyOneTap } from "@/app/(worker)/posts/[id]/apply/actions";
 
 describe.skipIf(skipIfNoSupabase())("APPL-01 applyOneTap happy path", () => {

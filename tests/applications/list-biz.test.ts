@@ -10,7 +10,6 @@ import {
   truncatePhase4Tables,
 } from "../fixtures/phase4";
 import { skipIfNoSupabase } from "../helpers/skip-if-no-supabase";
-// @ts-expect-error — Plan 04-04 will provide getApplicationsByJob
 import { getApplicationsByJob } from "@/lib/db/queries";
 
 describe.skipIf(skipIfNoSupabase())("APPL-03 list applications by biz job", () => {
