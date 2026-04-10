@@ -1,8 +1,7 @@
-// RED BASELINE (Wave 0): until Plan 04-07 implements src/lib/time-filters.ts.
+// GREEN (Plan 04-07): src/lib/time-filters.ts implements buildTimeFilterSQL.
 // REQ: SEARCH-03 — 시간 프리셋(오늘/내일/이번주)을 SQL WHERE 절 조각으로 변환.
 
 import { describe, it, expect } from "vitest";
-// @ts-expect-error — Plan 04-07 will create this module
 import { buildTimeFilterSQL } from "@/lib/time-filters";
 
 describe("SEARCH-03 buildTimeFilterSQL presets", () => {

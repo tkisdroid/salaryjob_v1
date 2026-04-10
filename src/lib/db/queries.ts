@@ -27,6 +27,7 @@ import { Prisma } from "@/generated/prisma/client";
 import type { ApplicationStatus as PrismaApplicationStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { verifySession } from "@/lib/dal";
+import type { TimePreset, TimeBucket } from "@/lib/time-filters";
 import type {
   Job,
   Application,
@@ -497,6 +498,76 @@ const LAZY_FILTER_SQL = Prisma.sql`
 `;
 
 /**
+ * Phase 4 Plan 04-07 — build a Prisma.Sql fragment for SEARCH-03 time filters.
+ *
+ * Returns either `Prisma.empty` (no filters requested) or an `AND (...)`
+ * fragment ready to drop inside a WHERE clause. Kept in this file (not
+ * time-filters.ts) because it imports Prisma.Sql — keeping time-filters.ts
+ * pure-string lets vitest run those tests without loading the Prisma client.
+ *
+ * The SQL constants here must stay byte-identical to buildTimeFilterSQL in
+ * time-filters.ts — both paths produce the same WHERE semantics, but this one
+ * is the production query builder while the other serves the RED test
+ * contract for parsability. See threat T-04-39 (SQL injection): all dynamic
+ * values are SQL constants, not user input.
+ */
+function buildTimeFilterPrismaSql(opts: {
+  timePreset?: TimePreset;
+  timeBuckets?: TimeBucket[];
+}): Prisma.Sql {
+  const parts: Prisma.Sql[] = [];
+
+  switch (opts.timePreset) {
+    case "오늘":
+      parts.push(Prisma.sql`"workDate" = current_date`);
+      break;
+    case "내일":
+      parts.push(Prisma.sql`"workDate" = current_date + interval '1 day'`);
+      break;
+    case "이번주":
+      parts.push(
+        Prisma.sql`"workDate" BETWEEN date_trunc('week', now())::date AND (date_trunc('week', now())::date + 6)`,
+      );
+      break;
+  }
+
+  if (opts.timeBuckets && opts.timeBuckets.length > 0) {
+    const bucketFragments: Prisma.Sql[] = [];
+    for (const b of opts.timeBuckets) {
+      switch (b) {
+        case "오전":
+          bucketFragments.push(
+            Prisma.sql`("startTime" >= '06:00' AND "startTime" < '12:00')`,
+          );
+          break;
+        case "오후":
+          bucketFragments.push(
+            Prisma.sql`("startTime" >= '12:00' AND "startTime" < '18:00')`,
+          );
+          break;
+        case "저녁":
+          bucketFragments.push(
+            Prisma.sql`("startTime" >= '18:00' AND "startTime" < '22:00')`,
+          );
+          break;
+        case "야간":
+          bucketFragments.push(
+            Prisma.sql`("startTime" >= '22:00' OR "startTime" < '06:00')`,
+          );
+          break;
+      }
+    }
+    if (bucketFragments.length > 0) {
+      // OR-join bucket fragments: Prisma.join keeps this parameterized-safe.
+      parts.push(Prisma.sql`(${Prisma.join(bucketFragments, " OR ")})`);
+    }
+  }
+
+  if (parts.length === 0) return Prisma.empty;
+  return Prisma.sql`AND ${Prisma.join(parts, " AND ")}`;
+}
+
+/**
  * Cursor format: {createdAtISO}_{uuid}
  * ISO 8601 datetime is fixed 24 chars (2026-04-10T12:00:00.000Z), then
  * underscore at position 24, then a UUID in positions 25..60.
@@ -540,6 +611,10 @@ export async function getJobsPaginated(opts: {
   limit: number;
   cursor?: string | null;
   category?: JobCategory;
+  /** SEARCH-03: optional workDate preset filter */
+  timePreset?: TimePreset;
+  /** SEARCH-03: optional startTime bucket filter (OR across buckets) */
+  timeBuckets?: TimeBucket[];
 }): Promise<{ jobs: Job[]; nextCursor: string | null }> {
   const cursor = opts.cursor ? decodeJobCursor(opts.cursor) : null;
 
@@ -550,6 +625,11 @@ export async function getJobsPaginated(opts: {
   const cursorFilter = cursor
     ? Prisma.sql`AND (j."createdAt", j.id) < (${cursor.createdAt}, ${cursor.id}::uuid)`
     : Prisma.empty;
+
+  const timeFilter = buildTimeFilterPrismaSql({
+    timePreset: opts.timePreset,
+    timeBuckets: opts.timeBuckets,
+  });
 
   const rows = await prisma.$queryRaw<RawJobRow[]>`
     SELECT
@@ -572,6 +652,7 @@ export async function getJobsPaginated(opts: {
       AND ${LAZY_FILTER_SQL}
       ${categoryFilter}
       ${cursorFilter}
+      ${timeFilter}
     ORDER BY j."createdAt" DESC, j.id DESC
     LIMIT ${opts.limit}
   `;
@@ -609,6 +690,10 @@ export async function getJobsByDistance(opts: {
   limit: number;
   cursor?: string | null;
   category?: JobCategory;
+  /** SEARCH-03: optional workDate preset filter */
+  timePreset?: TimePreset;
+  /** SEARCH-03: optional startTime bucket filter (OR across buckets) */
+  timeBuckets?: TimeBucket[];
 }): Promise<{ jobs: Job[]; nextCursor: string | null }> {
   const cursor = opts.cursor ? decodeJobCursor(opts.cursor) : null;
 
@@ -619,6 +704,11 @@ export async function getJobsByDistance(opts: {
   const cursorFilter = cursor
     ? Prisma.sql`AND (j."createdAt", j.id) < (${cursor.createdAt}, ${cursor.id}::uuid)`
     : Prisma.empty;
+
+  const timeFilter = buildTimeFilterPrismaSql({
+    timePreset: opts.timePreset,
+    timeBuckets: opts.timeBuckets,
+  });
 
   const rows = await prisma.$queryRaw<(RawJobRow & { distance_m: number })[]>`
     SELECT
@@ -651,6 +741,7 @@ export async function getJobsByDistance(opts: {
       )
       ${categoryFilter}
       ${cursorFilter}
+      ${timeFilter}
     ORDER BY distance_m ASC NULLS LAST, j."createdAt" DESC, j.id DESC
     LIMIT ${opts.limit}
   `;

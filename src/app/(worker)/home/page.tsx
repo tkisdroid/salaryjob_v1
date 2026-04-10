@@ -1,10 +1,9 @@
 import Link from "next/link";
 import {
-  getJobsPaginated,
+  getJobsByDistance,
   getUrgentJobs,
   getCurrentWorker,
 } from "@/lib/db/queries";
-import { HomeJobList } from "./home-job-list";
 import { formatWorkDate, calculateEarnings } from "@/lib/job-utils";
 import { formatMoney, formatDistance } from "@/lib/format";
 import {
@@ -16,6 +15,13 @@ import {
   Sparkles,
   TrendingUp,
 } from "lucide-react";
+import { HomeClient } from "./home-client";
+import {
+  isTimePreset,
+  isTimeBucket,
+  type TimePreset,
+  type TimeBucket,
+} from "@/lib/time-filters";
 
 const CATEGORIES = [
   { id: "food", label: "음식점", emoji: "☕" },
@@ -26,75 +32,147 @@ const CATEGORIES = [
   { id: "cleaning", label: "청소", emoji: "✨" },
 ] as const;
 
-export default async function WorkerHomePage() {
-  const [urgentJobs, jobPage, worker] = await Promise.all([
+// Seoul City Hall — SSR fallback coordinate. The client-side geolocation
+// hook (used by legacy HomeJobList) upgraded this after permission grant,
+// but for Plan 04-07 the SSR rendering uses Seoul as the default center.
+// Future work (Phase 5): read an optional ?lat&lng query param so the map
+// view can deep-link to a worker's current position.
+const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 } as const;
+const DEFAULT_RADIUS_KM = 3;
+const VALID_RADII = new Set([1, 3, 5, 10]);
+
+type RawSearchParams = Record<string, string | string[] | undefined>;
+
+interface ParsedFilters {
+  view: "list" | "map";
+  radiusKm: number;
+  preset?: TimePreset;
+  buckets: TimeBucket[];
+}
+
+function parseFilters(params: RawSearchParams): ParsedFilters {
+  const viewRaw = typeof params.view === "string" ? params.view : undefined;
+  const view: "list" | "map" = viewRaw === "map" ? "map" : "list";
+
+  const radiusRaw =
+    typeof params.radius === "string" ? Number(params.radius) : NaN;
+  const radiusKm = VALID_RADII.has(radiusRaw) ? radiusRaw : DEFAULT_RADIUS_KM;
+
+  const presetRaw =
+    typeof params.preset === "string" ? params.preset : undefined;
+  const preset = isTimePreset(presetRaw) ? presetRaw : undefined;
+
+  const bucketsRaw = params.buckets;
+  const bucketArr = Array.isArray(bucketsRaw)
+    ? bucketsRaw
+    : typeof bucketsRaw === "string"
+      ? [bucketsRaw]
+      : [];
+  const buckets: TimeBucket[] = bucketArr.filter(isTimeBucket);
+
+  return { view, radiusKm, preset, buckets };
+}
+
+/**
+ * Phase 4 Plan 04-07 — Worker /home page with SEARCH-02/03 filters.
+ *
+ * Server component that:
+ *   1. Parses searchParams (Next.js 16: Promise<...>)
+ *   2. Calls getJobsByDistance with timePreset + timeBuckets filters
+ *   3. Hands the result + filter state to HomeClient for list/map rendering
+ *
+ * The Earnings / Categories / Urgent sections from Phase 3 are preserved
+ * so the /home landing experience remains visually consistent; only the
+ * "내 주변 공고" section has been replaced with HomeClient (which owns
+ * the filter bar + list/map switch).
+ */
+export default async function WorkerHomePage({
+  searchParams,
+}: {
+  searchParams: Promise<RawSearchParams>;
+}) {
+  const params = await searchParams;
+  const filters = parseFilters(params);
+
+  const [urgentJobs, nearby, worker] = await Promise.all([
     getUrgentJobs(),
-    getJobsPaginated({ limit: 20 }),
+    getJobsByDistance({
+      userLat: DEFAULT_CENTER.lat,
+      userLng: DEFAULT_CENTER.lng,
+      radiusM: filters.radiusKm * 1000,
+      limit: 50,
+      timePreset: filters.preset,
+      timeBuckets: filters.buckets,
+    }),
     getCurrentWorker(),
   ]);
-  const { jobs: recommendedJobs, nextCursor: recommendedCursor } = jobPage;
+
+  const kakaoAvailable = Boolean(
+    process.env.NEXT_PUBLIC_KAKAO_MAP_KEY &&
+      process.env.NEXT_PUBLIC_KAKAO_MAP_KEY.trim() !== "",
+  );
 
   return (
-    <div className="bg-background min-h-screen">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
+      <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
+        <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
           <div>
             <p className="text-[10px] text-muted-foreground">안녕하세요</p>
-            <p className="text-sm font-bold">
-              {worker?.name ?? "게스트"}님 👋
-            </p>
+            <p className="text-sm font-bold">{worker?.name ?? "게스트"}님 👋</p>
           </div>
           <Link
             href="/notifications"
-            className="relative w-10 h-10 rounded-full hover:bg-muted flex items-center justify-center"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted"
           >
-            <Bell className="w-5 h-5" />
-            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500" />
+            <Bell className="h-5 w-5" />
+            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500" />
           </Link>
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 py-4 space-y-6">
+      <div className="mx-auto max-w-lg space-y-6 py-4">
         {/* Earnings Card */}
-        <section className="rounded-2xl bg-gradient-to-br from-brand to-brand-dark text-white p-5 shadow-lg shadow-brand/20">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-sm opacity-90">이번 달 수입</p>
-            <TrendingUp className="w-4 h-4 opacity-80" />
-          </div>
-          <p className="text-3xl font-bold">
-            {formatMoney(worker?.thisMonthEarnings ?? 0)}
-          </p>
-          <div className="mt-4 pt-4 border-t border-white/20 flex justify-between text-sm">
-            <div>
-              <p className="opacity-80 text-xs">누적 근무</p>
-              <p className="font-bold">{worker?.totalJobs ?? 0}회</p>
+        <section className="mx-4">
+          <div className="rounded-2xl bg-gradient-to-br from-brand to-brand-dark p-5 text-white shadow-lg shadow-brand/20">
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-sm opacity-90">이번 달 수입</p>
+              <TrendingUp className="h-4 w-4 opacity-80" />
             </div>
-            <div>
-              <p className="opacity-80 text-xs">평점</p>
-              <p className="font-bold flex items-center gap-1">
-                <Star className="w-3 h-3 fill-white" />
-                {worker?.rating ?? 0}
-              </p>
-            </div>
-            <div>
-              <p className="opacity-80 text-xs">완료율</p>
-              <p className="font-bold">{worker?.completionRate ?? 0}%</p>
+            <p className="text-3xl font-bold">
+              {formatMoney(worker?.thisMonthEarnings ?? 0)}
+            </p>
+            <div className="mt-4 flex justify-between border-t border-white/20 pt-4 text-sm">
+              <div>
+                <p className="text-xs opacity-80">누적 근무</p>
+                <p className="font-bold">{worker?.totalJobs ?? 0}회</p>
+              </div>
+              <div>
+                <p className="text-xs opacity-80">평점</p>
+                <p className="flex items-center gap-1 font-bold">
+                  <Star className="h-3 w-3 fill-white" />
+                  {worker?.rating ?? 0}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs opacity-80">완료율</p>
+                <p className="font-bold">{worker?.completionRate ?? 0}%</p>
+              </div>
             </div>
           </div>
         </section>
 
         {/* Category Chips */}
-        <section>
-          <h2 className="text-sm font-bold mb-3">카테고리</h2>
+        <section className="mx-4">
+          <h2 className="mb-3 text-sm font-bold">카테고리</h2>
           <div className="grid grid-cols-6 gap-2">
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/search?category=${cat.id}`}
-                className="flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-muted transition-colors"
+                className="flex flex-col items-center gap-1 rounded-xl p-2 transition-colors hover:bg-muted"
               >
-                <div className="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-xl">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-xl">
                   {cat.emoji}
                 </div>
                 <span className="text-[10px] font-medium">{cat.label}</span>
@@ -105,54 +183,54 @@ export default async function WorkerHomePage() {
 
         {/* Urgent Jobs */}
         {urgentJobs.length > 0 && (
-          <section>
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base font-bold flex items-center gap-1.5">
-                <Zap className="w-4 h-4 text-red-500 fill-red-500" />
+          <section className="mx-4">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="flex items-center gap-1.5 text-base font-bold">
+                <Zap className="h-4 w-4 fill-red-500 text-red-500" />
                 급구 · 오늘 바로 근무
               </h2>
               <Link
                 href="/search?urgent=1"
-                className="text-xs text-brand font-medium"
+                className="text-xs font-medium text-brand"
               >
                 더보기 →
               </Link>
             </div>
-            <div className="flex gap-3 overflow-x-auto -mx-4 px-4 pb-2 snap-x snap-mandatory">
+            <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
               {urgentJobs.map((job) => (
                 <Link
                   key={job.id}
                   href={`/posts/${job.id}`}
-                  className="shrink-0 w-64 snap-start rounded-2xl border-2 border-red-500/30 bg-card p-4 hover:shadow-lg transition-all"
+                  className="w-64 shrink-0 snap-start rounded-2xl border-2 border-red-500/30 bg-card p-4 transition-all hover:shadow-lg"
                 >
-                  <div className="flex items-start gap-2 mb-2">
-                    <div className="w-10 h-10 rounded-lg bg-red-500/10 flex items-center justify-center text-lg">
+                  <div className="mb-2 flex items-start gap-2">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10 text-lg">
                       {job.business.logo}
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-[10px] text-muted-foreground truncate">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[10px] text-muted-foreground">
                         {job.business.name}
                       </p>
-                      <h3 className="font-bold text-sm line-clamp-1">
+                      <h3 className="line-clamp-1 text-sm font-bold">
                         {job.title}
                       </h3>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3 text-[10px] text-muted-foreground mb-2">
+                  <div className="mb-2 flex items-center gap-3 text-[10px] text-muted-foreground">
                     <div className="flex items-center gap-1">
-                      <Clock className="w-3 h-3" />
+                      <Clock className="h-3 w-3" />
                       {formatWorkDate(job.workDate)} {job.startTime}
                     </div>
                     <div className="flex items-center gap-1">
-                      <MapPin className="w-3 h-3" />
+                      <MapPin className="h-3 w-3" />
                       {formatDistance(job.distanceM)}
                     </div>
                   </div>
-                  <div className="pt-2 border-t border-border flex items-center justify-between">
+                  <div className="flex items-center justify-between border-t border-border pt-2">
                     <span className="text-[10px] text-muted-foreground">
                       시급 {formatMoney(job.hourlyPay)}
                     </span>
-                    <span className="font-bold text-red-600 text-sm">
+                    <span className="text-sm font-bold text-red-600">
                       {formatMoney(calculateEarnings(job))}
                     </span>
                   </div>
@@ -162,16 +240,21 @@ export default async function WorkerHomePage() {
           </section>
         )}
 
-        {/* Recommended — D-06 geolocation + distance sort via HomeJobList */}
+        {/* Recommended — Plan 04-07: HomeClient (list/map toggle + filters) */}
         <section>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-bold flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-brand" />내 주변 공고
+          <div className="mx-4 mb-3 flex items-center justify-between">
+            <h2 className="flex items-center gap-1.5 text-base font-bold">
+              <Sparkles className="h-4 w-4 text-brand" />내 주변 공고
             </h2>
           </div>
-          <HomeJobList
-            initialJobs={recommendedJobs}
-            initialCursor={recommendedCursor}
+          <HomeClient
+            initialJobs={nearby.jobs}
+            center={DEFAULT_CENTER}
+            radiusKm={filters.radiusKm}
+            currentPreset={filters.preset}
+            currentBuckets={filters.buckets}
+            currentView={filters.view}
+            kakaoAvailable={kakaoAvailable}
           />
         </section>
       </div>
