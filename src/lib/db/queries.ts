@@ -8,15 +8,14 @@
  * Design decisions:
  * - Uses simple prisma.findMany({ take: 50 }) — no pagination/filtering (Phase 3).
  * - lat/lng come from Decimal columns (no $queryRaw PostGIS needed for Phase 2).
- * - Fields not in the DB schema (duties, requirements, tags, etc.) return empty
- *   arrays / defaults — Phase 3 will add these columns.
- * - distanceM always 0 for now (PostGIS distance query is Phase 3 work).
+ * - Phase 3 (03-01) added duties/requirements/tags/dressCode/whatToBring/address
+ *   columns to the Job model — adaptJob now reads them directly.
+ * - distanceM always 0 for now (PostGIS distance query is 03-06 work).
  * - settlementStatus / settledAt not in DB schema — returned as null.
  * - getCurrentWorker() uses DAL verifySession, returns null if unauthenticated
  *   (does NOT redirect — caller decides whether to redirect).
  *
  * TODO Phase 3:
- * - Add duties/requirements/tags/dressCode/whatToBring columns to Job schema
  * - Add settlementStatus/settledAt to Application schema
  * - Implement real PostGIS distance query for distanceM
  * - Add pagination / cursor-based queries
@@ -76,11 +75,10 @@ function adaptJob(j: any): Job {
     title: j.title as string,
     category: j.category as JobCategory,
     description: j.description as string,
-    // TODO Phase 3: add these columns to the DB schema
-    duties: [],
-    requirements: [],
-    dressCode: "",
-    whatToBring: [],
+    duties: (j.duties as string[] | null) ?? [],
+    requirements: (j.requirements as string[] | null) ?? [],
+    dressCode: (j.dressCode as string | null) ?? "",
+    whatToBring: (j.whatToBring as string[] | null) ?? [],
     hourlyPay: j.hourlyPay as number,
     transportFee: j.transportFee as number,
     workDate: (j.workDate as Date).toISOString().slice(0, 10),
@@ -96,7 +94,7 @@ function adaptJob(j: any): Job {
         : false,
     distanceM: 0, // TODO Phase 3: PostGIS ST_Distance query
     appliedCount: j._count?.applications ?? 0,
-    tags: [],
+    tags: (j.tags as string[] | null) ?? [],
     nightShiftAllowance: j.nightShiftAllowance as boolean,
   };
 }
@@ -444,4 +442,34 @@ export async function getBusinessProfileById(id: string) {
   return prisma.businessProfile.findUnique({
     where: { id },
   });
+}
+
+// ============================================================================
+// Phase 3: Business-side job queries (POST-02)
+// ============================================================================
+
+/**
+ * Fetch all jobs across a set of BusinessProfile ids. Used by /biz/posts
+ * to list only the jobs owned by the current authenticated business user
+ * (whose user.id may own multiple BusinessProfiles per Phase 2 D-02 1:many).
+ *
+ * Does NOT call verifySession — caller must gate.
+ * Returns adapted Job[] (UI shape).
+ *
+ * Intentionally does NOT filter by status='active' — the biz dashboard must
+ * show expired/filled/active jobs alike.
+ */
+export async function getJobsByBusinessIds(
+  businessIds: string[],
+): Promise<Job[]> {
+  if (businessIds.length === 0) return [];
+  const rows = await prisma.job.findMany({
+    where: {
+      businessId: { in: businessIds },
+    },
+    include: JOB_INCLUDE,
+    orderBy: { createdAt: "desc" },
+    take: 100,
+  });
+  return rows.map(adaptJob);
 }
