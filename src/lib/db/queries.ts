@@ -24,6 +24,7 @@
 
 import "server-only";
 import { Prisma } from "@/generated/prisma/client";
+import type { ApplicationStatus as PrismaApplicationStatus } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { verifySession } from "@/lib/dal";
 import type {
@@ -732,4 +733,115 @@ function rawRowToJob(r: RawJobRow): Job {
     tags: (r.tags as string[] | null) ?? [],
     nightShiftAllowance: r.nightShiftAllowance as boolean,
   };
+}
+
+// ============================================================================
+// Phase 4 Plan 04 — Application bucket queries (APPL-02 / APPL-03)
+// ============================================================================
+
+/**
+ * UI bucket → ApplicationStatus filter map.
+ * Kept in sync with STATUS_TO_BUCKET in `src/lib/types/job.ts` — if a new
+ * status is added there, add it here too (tsc will not catch the mismatch
+ * automatically because this is a runtime mapping).
+ */
+const UPCOMING_STATUSES: PrismaApplicationStatus[] = ["pending", "confirmed"];
+const ACTIVE_STATUSES: PrismaApplicationStatus[] = ["in_progress"];
+// `cancelled` is intentionally excluded from the "done" bucket per list-worker
+// test — only `completed` apps show in the 완료 tab. Cancelled apps stay
+// visible in the UI elsewhere (notification center / history modal in Phase 5).
+const DONE_STATUSES: PrismaApplicationStatus[] = ["completed"];
+
+export type ApplicationBucket = "upcoming" | "active" | "done";
+
+/**
+ * APPL-02: Fetch a worker's applications, optionally filtered by UI bucket.
+ *
+ * bucket='upcoming' → pending + confirmed (대기 중, 수락됨)
+ * bucket='active'   → in_progress (근무 중)
+ * bucket='done'     → completed   (완료)
+ * bucket=undefined  → all statuses
+ *
+ * Returns raw Prisma rows (not adapted to UI shape) so that the caller
+ * can decide whether to adapt, aggregate earnings, etc. The tests
+ * in tests/applications/list-worker.test.ts assert on `row.status` directly.
+ */
+export async function getApplicationsByWorker(
+  workerId: string,
+  opts: { bucket?: ApplicationBucket } = {},
+) {
+  const statusFilter =
+    opts.bucket === "upcoming"
+      ? { in: UPCOMING_STATUSES }
+      : opts.bucket === "active"
+        ? { in: ACTIVE_STATUSES }
+        : opts.bucket === "done"
+          ? { in: DONE_STATUSES }
+          : undefined;
+
+  return prisma.application.findMany({
+    where: {
+      workerId,
+      ...(statusFilter ? { status: statusFilter } : {}),
+    },
+    include: {
+      job: { include: { business: true } },
+    },
+    orderBy: { appliedAt: "desc" },
+  });
+}
+
+/**
+ * APPL-03: Fetch all applications for a single job (Business view).
+ *
+ * Returns rows shaped for the Biz applicant list UI:
+ *   { id, status, appliedAt, worker: { id, name, ...profile }, workerProfile }
+ *
+ * Both `row.worker` (a flat object merging User + WorkerProfile basics)
+ * and `row.workerProfile` (the full profile row, including rating) are
+ * exposed so the /biz/posts/[id]/applicants page can render the applicant
+ * card without a second query. This dual-shape is asserted by
+ * tests/applications/list-biz.test.ts.
+ *
+ * Ordered by appliedAt ASC (FIFO fairness — Biz sees earliest applicants
+ * first, matching D-04's "first-come first-served" principle).
+ */
+export async function getApplicationsByJob(jobId: string) {
+  const rows = await prisma.application.findMany({
+    where: { jobId },
+    include: {
+      worker: {
+        include: { workerProfile: true },
+      },
+    },
+    orderBy: { appliedAt: "asc" },
+  });
+
+  return rows.map((row) => {
+    const profile = row.worker.workerProfile;
+    return {
+      id: row.id,
+      jobId: row.jobId,
+      workerId: row.workerId,
+      status: row.status,
+      appliedAt: row.appliedAt,
+      checkInAt: row.checkInAt,
+      checkOutAt: row.checkOutAt,
+      // Flat worker shape used by the Biz applicant card. `name` comes from
+      // WorkerProfile (the User row has no name column) — if a profile is
+      // missing (shouldn't happen in production but can during tests) we
+      // fall back to the user email so the UI always has something to show.
+      worker: {
+        id: row.worker.id,
+        email: row.worker.email,
+        name: profile?.name ?? row.worker.email ?? "익명",
+        nickname: profile?.nickname ?? null,
+        avatar: profile?.avatar ?? null,
+        badgeLevel: profile?.badgeLevel ?? "newbie",
+      },
+      // Full profile row (including rating, completionRate, etc.) passed
+      // through verbatim so the Biz side can rank/filter by these fields.
+      workerProfile: profile,
+    };
+  });
 }
