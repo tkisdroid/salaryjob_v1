@@ -461,6 +461,73 @@ From CONTEXT.md carry_forward: existing files with inline mocks to REMOVE:
 </task>
 
 <task type="auto">
+  <name>Task 3b: D-08 polling fallback — Worker applications-client</name>
+  <files>src/app/(worker)/my/applications/applications-client.tsx</files>
+  <read_first>
+    - src/app/(worker)/my/applications/applications-client.tsx (Task 3 결과물)
+    - src/lib/supabase/realtime.ts (Task 1 — subscribeApplicationsForWorker는 onStatusChange 3번째 인자 이미 지원)
+    - .planning/phases/04-db/04-CONTEXT.md D-08 (60초 polling fallback 결정)
+    - .planning/phases/04-db/04-RESEARCH.md "Open Questions (RESOLVED)" Q#4 (EXISTS JOIN Realtime 불확실성 + fallback 커밋)
+  </read_first>
+  <action>
+  Task 3에서 작성한 `applications-client.tsx`의 Realtime 구독을 **polling fallback과 결합**한다. D-08 "Realtime 실패시 60초 polling"을 JSDoc 주석이 아니라 실제 런타임 코드로 구현한다.
+
+  **변경 방식 — 3곳 수정:**
+
+  1. `useState` 추가:
+  ```typescript
+  const [pollingActive, setPollingActive] = useState(false)
+  ```
+
+  2. `subscribeApplicationsForWorker` 호출에 **3번째 인자 `onStatusChange` 콜백을 추가**하여 status 전이를 pollingActive로 매핑:
+  ```typescript
+  useEffect(() => {
+    const unsubscribe = subscribeApplicationsForWorker(
+      workerId,
+      (payload) => {
+        setIsStale(true)
+        router.refresh()
+      },
+      (status) => {
+        // D-08 fallback trigger
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          setPollingActive(true)
+        } else if (status === 'SUBSCRIBED') {
+          setPollingActive(false)
+        }
+      },
+    )
+    return unsubscribe
+  }, [workerId, router])
+  ```
+
+  3. `pollingActive`가 true이면 60초 간격으로 `router.refresh()` 호출:
+  ```typescript
+  useEffect(() => {
+    if (!pollingActive) return
+    const id = setInterval(() => router.refresh(), 60_000)
+    return () => clearInterval(id)
+  }, [pollingActive, router])
+  ```
+
+  **중요:**
+  - 이 task는 기존 Task 3 applications-client.tsx의 일부를 **수정**한다 (덮어쓰기 아님).
+  - `pollingActive` 상태 이름은 verify grep이 문자열 매칭하므로 변경하지 말 것.
+  - 기존 Realtime 구독은 그대로 유지 — polling은 **보조** 경로다. 정상 상태(`SUBSCRIBED`)로 복귀하면 setInterval이 cleanup 되어 polling 중단.
+  - RESEARCH.md Q#4 RESOLVED 결정에 따라 이 fallback은 MUST 구현이며, 없으면 Biz-side EXISTS JOIN Realtime이 조용히 실패할 경우 Worker UI가 갱신되지 않는 위험이 남는다.
+  </action>
+  <verify>
+    <automated>bash -c 'f="src/app/(worker)/my/applications/applications-client.tsx"; pct=$(grep -c "pollingActive" "$f"); si=$(grep -c "setInterval" "$f"); ce=$(grep -Ec "CHANNEL_ERROR|TIMED_OUT" "$f"); if [ "$pct" -ge 2 ] && [ "$si" -ge 1 ] && [ "$ce" -ge 1 ]; then echo "OK pollingActive=$pct setInterval=$si channel=$ce"; else echo "FAIL pollingActive=$pct setInterval=$si channel=$ce"; exit 1; fi'</automated>
+  </verify>
+  <done>
+    - applications-client.tsx에 pollingActive state 존재
+    - subscribeApplicationsForWorker의 3번째 인자로 onStatusChange 콜백 전달
+    - pollingActive === true일 때 60초 setInterval router.refresh
+    - CHANNEL_ERROR / TIMED_OUT 트리거 분기 존재
+  </done>
+</task>
+
+<task type="auto">
   <name>Task 4: QR Scanner wrapper + check-in-flow 통합</name>
   <files>src/components/worker/qr-scanner.tsx, src/app/(worker)/my/applications/[id]/check-in/check-in-flow.tsx, src/app/(worker)/my/applications/[id]/check-in/page.tsx</files>
   <read_first>

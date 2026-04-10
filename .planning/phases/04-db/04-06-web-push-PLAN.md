@@ -17,6 +17,7 @@ autonomous: true
 requirements:
   - APPL-01
   - APPL-04
+  - NOTIF-01
 
 must_haves:
   truths:

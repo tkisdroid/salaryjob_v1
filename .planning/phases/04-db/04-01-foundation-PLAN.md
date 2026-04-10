@@ -43,6 +43,9 @@ requirements:
   - SHIFT-01
   - SHIFT-02
   - SHIFT-03
+  - SEARCH-02
+  - SEARCH-03
+  - NOTIF-01
 
 must_haves:
   truths:

@@ -20,6 +20,9 @@ requirements:
   - SHIFT-01
   - SHIFT-02
   - SHIFT-03
+  - SEARCH-02
+  - SEARCH-03
+  - NOTIF-01
 
 must_haves:
   truths:
@@ -331,7 +334,9 @@ Output: GREEN test suite + 문서 업데이트 + UAT sign-off.
     1. **Check-out QR 카메라 스캔 풀 플로우** (SHIFT-02) — 모바일 HTTPS 필요
     2. **Web Push 구독 + 알림 + 클릭 + 410 cleanup** (NOTIF-01) — Chrome + 알림 권한
     3. **Kakao Maps 지도 + 필터** (SEARCH-02) — NEXT_PUBLIC_KAKAO_MAP_KEY 설정됨
-    4. **Realtime postgres_changes 두 탭** (APPL-04) — Worker + Biz 2계정
+    4. **Realtime + D-08 polling fallback 두 탭** (APPL-04) — Worker + Biz 2계정. **두 sub-scenario 모두 필수** (RESEARCH Q#4 RESOLVED):
+       - 4a. **정상 Realtime 경로:** Biz 탭에서 "수락" 버튼 클릭 → Worker 탭의 /my/applications가 **router.refresh 없이** 자동으로 "수락됨" 상태로 갱신 (`postgres_changes` dispatch 경로). 반대 방향도 검증: Worker가 원탭 지원 → Biz /biz/posts/[id]/applicants에 새 지원자 카드가 자동으로 추가됨.
+       - 4b. **polling fallback 경로:** Biz 탭에서 DevTools → Network → "Offline" 토글 OR Supabase WebSocket 연결을 강제 차단 → 10초 이내에 `CHANNEL_ERROR`/`TIMED_OUT` 상태 전이 → `pollingActive` true → 네트워크 복구 후 60초 이내에 `router.refresh()` 폴링으로 UI가 최신 상태로 복구. Worker 탭에서도 동일한 강제 종료 → 60초 복구 시나리오를 한 번 더 검증. 특히 **Biz-side(EXISTS JOIN SELECT RLS)에서 polling이 확실히 동작하는지** 확인 (RESEARCH Q#4에서 Realtime 경로 불확실성이 가장 큰 곳).
     5. **Geofence 실 GPS** (SHIFT-01) — 모바일 기기
 
     각 시나리오 완료시 04-HUMAN-UAT.md의 체크박스를 `[x]`로 업데이트.
@@ -340,7 +345,7 @@ Output: GREEN test suite + 문서 업데이트 + UAT sign-off.
     - 해당 시나리오에 "SKIPPED: reason"을 기록
     - Phase 5 시작시 재실행 필요 여부를 STATE.md에 TODO로 남김
 
-    **Phase 4 exit 기준:** 시나리오 1, 4 (QR, Realtime)는 반드시 PASS. 2, 3, 5는 skip 가능 (외부 설정 의존).
+    **Phase 4 exit 기준:** 시나리오 1, 4a, 4b (QR, Realtime 정상 경로, polling fallback 복구) 모두 반드시 PASS. 2, 3, 5는 skip 가능 (외부 설정 의존).
 
     Approve signal:
     - [ ] UAT 5/5 PASS → "approved"

@@ -3,7 +3,7 @@ phase: 04-db
 plan: 09
 type: execute
 wave: 5
-depends_on: [4, 5, 6]
+depends_on: [4, 5, 6, 8]
 files_modified:
   - src/app/biz/posts/[id]/applicants/page.tsx
   - src/app/biz/posts/[id]/applicants/applicants-client.tsx
@@ -41,6 +41,11 @@ must_haves:
 ---
 
 <objective>
+> **Wave 5 ordering constraint:** Plan 09 consumes `src/lib/supabase/realtime.ts`
+> created in Plan 08 Task 1. Orchestrator MUST start Plan 08 before Plan 09 within
+> Wave 5 (serial, not parallel). Task 1 gate below enforces this at runtime. `depends_on`
+> 배열에 `8`을 명시하여 의존 그래프에 고정되어 있다.
+
 Business 쪽 2개 화면 수정 + 1개 컴포넌트 신규 작성: 지원자 관리 Realtime + accept/reject, 공고 상세의 "퇴근 QR 열기" 모달. 인라인 APPLICANTS 상수 제거.
 
 Purpose: APPL-03/04 + SHIFT-02(Biz QR 발급) UX 충족. Worker 쪽 Plan 08과 동시 실행 가능 (같은 Wave 5, 다른 파일).
@@ -335,6 +340,79 @@ Note: files_modified 충돌 방지 체크: Plan 08은 `src/lib/supabase/realtime
   <done>
     - page.tsx에서 인라인 APPLICANTS 삭제
     - applicants-client.tsx: accept/reject + Realtime + 자동수락 타이머 progress
+  </done>
+</task>
+
+<task type="auto">
+  <name>Task 2b: D-08 polling fallback — Biz applicants-client</name>
+  <files>src/app/biz/posts/[id]/applicants/applicants-client.tsx</files>
+  <read_first>
+    - src/app/biz/posts/[id]/applicants/applicants-client.tsx (Task 2 결과물)
+    - src/lib/supabase/realtime.ts (Plan 08 Task 1 — subscribeApplicationsForJob는 onStatusChange 3번째 인자 이미 지원)
+    - .planning/phases/04-db/04-CONTEXT.md D-08 (60초 polling fallback 결정)
+    - .planning/phases/04-db/04-RESEARCH.md "Open Questions (RESOLVED)" Q#4 — EXISTS JOIN Realtime에 대한 RLS 평가 불확실성 때문에 Biz-side는 특히 polling fallback이 필수
+  </read_first>
+  <action>
+  Task 2에서 작성한 `applicants-client.tsx`의 Realtime 구독을 **polling fallback과 결합**한다. RESEARCH.md Q#4 RESOLVED 결정에 따라 Biz-side (EXISTS JOIN SELECT RLS)가 Realtime dispatch 시점에 JOIN 서브쿼리를 일관되게 평가한다는 보장이 없으므로, 이 plan은 **반드시** polling fallback을 구현해야 한다.
+
+  **변경 방식 — 3곳 수정:**
+
+  1. `useState` 추가:
+  ```typescript
+  const [pollingActive, setPollingActive] = useState(false)
+  ```
+
+  2. 기존 `subscribeApplicationsForJob(jobId, onChange)` 호출을 **3번째 인자 `onStatusChange` 콜백 포함**으로 교체:
+  ```typescript
+  useEffect(() => {
+    const unsub = subscribeApplicationsForJob(
+      jobId,
+      (payload) => {
+        startTransition(() => {
+          router.refresh()
+          if (payload.eventType === 'INSERT' && payload.new) {
+            setApps((prev) => [...prev, payload.new])
+            toast.info('새 지원자가 있습니다')
+          } else if (payload.eventType === 'UPDATE' && payload.new) {
+            setApps((prev) => prev.map((a) => a.id === payload.new.id ? { ...a, ...payload.new } : a))
+          }
+        })
+      },
+      (status) => {
+        // D-08 fallback trigger — EXISTS JOIN RLS 평가 실패 대비
+        if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+          setPollingActive(true)
+        } else if (status === 'SUBSCRIBED') {
+          setPollingActive(false)
+        }
+      },
+    )
+    return unsub
+  }, [jobId, router])
+  ```
+
+  3. `pollingActive`가 true이면 60초 간격으로 `router.refresh()`:
+  ```typescript
+  useEffect(() => {
+    if (!pollingActive) return
+    const id = setInterval(() => router.refresh(), 60_000)
+    return () => clearInterval(id)
+  }, [pollingActive, router])
+  ```
+
+  **중요:**
+  - 기존 Task 2의 applicants-client.tsx를 **수정**하는 task다 (덮어쓰기 아님).
+  - `pollingActive` 상태 이름 + `setInterval` + `CHANNEL_ERROR`/`TIMED_OUT` 키워드는 verify grep이 문자열 매칭하므로 변경 금지.
+  - Biz-side는 RESEARCH Q#4 리스크 때문에 Worker-side(Plan 08 Task 3b)보다 우선순위가 높다. Plan 10 HUMAN-UAT는 "channel 강제 종료 후 60초 내 Biz 화면 복구" 시나리오를 필수 검증 항목으로 포함한다.
+  </action>
+  <verify>
+    <automated>bash -c 'f="src/app/biz/posts/[id]/applicants/applicants-client.tsx"; pct=$(grep -c "pollingActive" "$f"); si=$(grep -c "setInterval" "$f"); ce=$(grep -Ec "CHANNEL_ERROR|TIMED_OUT" "$f"); if [ "$pct" -ge 2 ] && [ "$si" -ge 1 ] && [ "$ce" -ge 1 ]; then echo "OK pollingActive=$pct setInterval=$si channel=$ce"; else echo "FAIL pollingActive=$pct setInterval=$si channel=$ce"; exit 1; fi'</automated>
+  </verify>
+  <done>
+    - applicants-client.tsx에 pollingActive state 존재
+    - subscribeApplicationsForJob의 3번째 인자로 onStatusChange 콜백 전달
+    - pollingActive === true일 때 60초 setInterval router.refresh
+    - CHANNEL_ERROR / TIMED_OUT 트리거 분기 존재
   </done>
 </task>
 

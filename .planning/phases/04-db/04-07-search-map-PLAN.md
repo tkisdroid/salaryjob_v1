@@ -15,7 +15,8 @@ files_modified:
   - src/app/(worker)/home/home-client.tsx
 autonomous: true
 requirements:
-  - APPL-01
+  - SEARCH-02
+  - SEARCH-03
 
 must_haves:
   truths:

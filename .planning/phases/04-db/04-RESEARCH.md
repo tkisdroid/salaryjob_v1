@@ -1266,31 +1266,33 @@ export function calculateActualHours(checkIn: Date, checkOut: Date): number {
 
 **No assumptions table empty:** 12개 assumed claim 존재. 대부분 Wave 0 / Wave 1에서 자연스럽게 resolved (npm view, Kakao console, SQL idempotent ADD).
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> **Revision note:** 본 섹션의 5개 질문은 planner revision 단계에서 전부 RESOLVED 상태로 전환되었다. 각 항목의 `**RESOLVED:**` prefix가 Phase 4 plan에 반영될 최종 결정이다.
 
 1. **pg_cron에서 실제로 Push 발송은 불가능 (순수 SQL only)**
+   - **RESOLVED:** Phase 4 scope에서 "근무 1시간 전 리마인더"는 구현하지 않고 v2로 이월한다. 주 스코프인 "accept/reject 즉시 push"는 Server Action 내부 sendPushToUser 호출로 커버한다 (Plan 06). Planner는 CONTEXT.md D-20 해석을 "event-driven만 Phase 4, time-driven은 v2"로 고정한다.
    - 알고 있는 것: CONTEXT.md D-20 말미 "근무 1시간 전 리마인더 (pg_cron → Server Action → sendPushToUser)"
-   - 불명확한 것: pg_cron은 app code를 직접 호출 못 함. Vercel Cron / Supabase Edge Function / DB Trigger + HTTP webhook 중 어떤 방식?
-   - 권장: **Phase 4 scope에서 "근무 1시간 전 리마인더"는 소프트 스코프** — 구현하지 않고 v2로 이월. 주 스코프인 "accept/reject 즉시 push"는 Server Action 내부 sendPushToUser 호출로 완벽 커버. Planner가 CONTEXT.md D-20 해석을 "event-driven만 Phase 4, time-driven은 v2"로 좁혀야 함.
+   - 불명확했던 것: pg_cron은 app code를 직접 호출 못 함. Vercel Cron / Supabase Edge Function / DB Trigger + HTTP webhook 중 어떤 방식?
 
 2. **pg_cron의 no-show 감지가 BUSY 상황에서 정확히 5분 뒤에 돈다는 보장 없음**
+   - **RESOLVED:** no-show는 통계 용도이지 실시간 UX 차단 기준이 아니므로 5분 gap은 허용한다. UI는 DB 값 그대로 표시하며 runtime 재계산은 하지 않는다.
    - 알고 있는 것: Phase 3 `pg_cron_expire_jobs`가 5분 주기, `LAZY_FILTER_SQL`로 gap 방어.
-   - 불명확한 것: no-show 감지를 LAZY로 방어하려면 Worker가 `/my/applications/[id]` 를 볼 때도 status를 runtime 계산해야 함. 복잡도 증가.
-   - 권장: no-show는 통계 용도이지 실시간 UX 차단 기준이 아니므로 5-분 gap은 허용. UI는 DB 값 그대로 표시.
+   - 불명확했던 것: no-show 감지를 LAZY로 방어하려면 Worker가 `/my/applications/[id]` 를 볼 때도 status를 runtime 계산해야 함. 복잡도 증가.
 
 3. **Kakao Maps viewport 기반 marker 쿼리 vs 고정 반경 쿼리**
+   - **RESOLVED:** 거리 필터가 ground truth다. `getJobsByDistance({ radiusM })` 로 모든 마커 로드 (≤50) → panning은 지도 내부 이동만, 쿼리 재호출 없음. D-28 "limit 50 고정" 준수. Plan 07이 이 해석을 구현에 고정한다.
    - 알고 있는 것: D-25 "지도 viewport 내 marker" + D-27 "1/3/5/10km 거리 스테퍼".
-   - 불명확한 것: 사용자가 지도를 panning하면 viewport가 반경을 벗어남. viewport 변경마다 쿼리 재호출하는가? 아니면 거리 필터가 고정이고 panning은 클라이언트 가시화만?
-   - 권장: **거리 필터가 ground truth** → `getJobsByDistance({ radiusM })` 로 모든 마커 로드 (≤50) → panning은 지도 내부 이동만, 쿼리 재호출 없음. D-28이 "limit 50 고정" 명시. Planner가 이 해석을 plan에 명시.
+   - 불명확했던 것: 사용자가 지도를 panning하면 viewport가 반경을 벗어남. viewport 변경마다 쿼리 재호출하는가? 아니면 거리 필터가 고정이고 panning은 클라이언트 가시화만?
 
 4. **Biz-side applicants 페이지 Realtime이 RLS SELECT 정책과 JOIN을 통과하는가**
+   - **RESOLVED:** Supabase Realtime은 dispatch 시점에 SELECT RLS를 평가하지만, EXISTS JOIN 서브쿼리가 Realtime infra 버전 간에 일관되게 동작한다는 보장이 공식 문서에 없다. 따라서 Plans 08 + 09는 **D-08 polling fallback을 필수로 구현**한다 — `subscribeApplicationsForWorker` / `subscribeApplicationsForJob`이 `onStatusChange` 콜백으로 `CHANNEL_ERROR` 또는 `TIMED_OUT` 상태를 보고하면 클라이언트가 `setInterval(router.refresh, 60_000)` polling으로 전환한다. `SUBSCRIBED` 상태 복귀시 polling 중단. Plan 10 HUMAN-UAT는 두 가지 시나리오를 모두 검증한다: (a) "Biz가 accept 후 Worker 화면이 실시간으로 자동 업데이트되는지" (정상 Realtime 경로), (b) "Supabase channel을 강제 종료(네트워크 끊기 또는 devtools로 차단)한 뒤 60초 이내에 UI가 복구되는지" (polling fallback 경로).
    - 알고 있는 것: D-17 SELECT 정책 = `EXISTS jobs JOIN authorId=auth.uid()`.
-   - 불명확한 것: Supabase Realtime postgres_changes는 SELECT 정책을 평가할 때 EXISTS 서브쿼리를 지원하는가? 공식 문서 "simple eq. filters"만 보장.
-   - 권장: Wave 1 SQL 마이그레이션 적용 직후 **수동 검증 필수** — biz dev 계정으로 /biz/posts/[id]/applicants 열고 다른 계정에서 지원 발생 → Realtime 이벤트 수신되는지 Network WS 탭에서 확인. 실패하면 fallback으로 60초 polling만 사용하고 scope 축소 plan.
+   - 불명확했던 것: Supabase Realtime postgres_changes는 SELECT 정책을 평가할 때 EXISTS 서브쿼리를 지원하는가? 공식 문서 "simple eq. filters"만 보장.
 
 5. **Playwright E2E에서 카메라 / Push 권한 테스트 불가능**
+   - **RESOLVED:** E2E는 "버튼 클릭 → Server Action 호출 → DB 상태 변경" 레벨까지만 자동화한다. 카메라/푸시 자체는 Phase 4 HUMAN-UAT 문서의 수동 체크리스트로 분리한다 (04-HUMAN-UAT.md의 QR/Push 시나리오).
    - 알고 있는 것: Playwright는 `navigator.mediaDevices.getUserMedia` mock, `pushManager.subscribe` mock 모두 제한적.
-   - 권장: E2E는 "버튼 클릭 → Server Action 호출 → DB 상태 변경" 레벨까지 자동화. 카메라/푸시 자체는 Phase 4 HUMAN-UAT 문서에 수동 체크리스트로 분리.
 
 ## Environment Availability
 
