@@ -74,6 +74,19 @@ v1 = "Timee 모델의 한국 MVP" — Worker가 실제 DB로 탐색·지원·근
 - [ ] **SETL-02**: Business는 자신의 정산 히스토리(지급 완료/예정)를 볼 수 있다
 - [ ] **SETL-03**: 총수입, 이번 달 수입 집계가 실제 데이터로 계산되어 표시된다
 
+### Advanced Search (SEARCH)
+
+<!-- Phase 4 scope expansion (discuss-phase 2026-04-10): SEARCH-02 승격 + SEARCH-03 신설 -->
+
+- [ ] **SEARCH-02**: Worker는 /home에서 리스트/지도 토글로 공고를 탐색할 수 있고, 카카오맵에 viewport 내 공고 marker가 표시된다 (Phase 4, v2→v1 승격)
+- [ ] **SEARCH-03**: Worker는 날짜 프리셋(오늘/내일/이번주) + 시간대 버킷(오전/오후/저녁/야간) + 거리 스테퍼(1/3/5/10km)로 공고를 필터할 수 있다 (Phase 4, 신설)
+
+### Notifications (NOTIF) — partial v1
+
+<!-- Phase 4 scope expansion: NOTIF-01 (Web Push only) 부분 승격. 네이티브 FCM/SMS/알림톡은 여전히 v2. -->
+
+- [ ] **NOTIF-01**: Web Push 알림 (VAPID + Service Worker)이 Worker에게 수락/거절 이벤트를 전달한다. 네이티브 FCM/SMS/알림톡은 v2 (Phase 4, 부분)
+
 ## v2 Requirements
 
 v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
@@ -94,14 +107,18 @@ v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
 
 ### Notifications (NOTIF)
 
-- **NOTIF-01**: 새 지원/수락/거절이 실시간 push/SMS/카카오 알림톡으로 전달된다
+<!-- NOTIF-01 (Web Push only)은 Phase 4 scope 확장으로 v1 partial 승격됨 — v1 Notifications 섹션 참조 -->
+<!-- 여기 남은 항목은 v2 범위만 포함 -->
+
+- **NOTIF-01 (remaining v2 parts)**: SMS/카카오 알림톡/네이티브 FCM 채널 (Phase 4는 Web Push만 담당)
 - **NOTIF-02**: 근무 1시간 전 리마인더가 자동 발송된다
 - **NOTIF-03**: 긴급 공고는 위치 기반 near-workers 쿼리로 즉시 매칭 알림 발송
 
 ### Advanced Search (SEARCH)
 
-- **SEARCH-01**: Worker는 카테고리, 거리, 시급, 근무일 기준 고급 필터 검색이 가능하다
-- **SEARCH-02**: 카카오맵 연동으로 공고 위치가 지도 상에 표시된다
+<!-- SEARCH-02는 Phase 4로 승격됨 — v1 Advanced Search 섹션 참조 -->
+
+- **SEARCH-01**: Worker는 카테고리, 거리, 시급, 근무일 기준 고급 필터 검색이 가능하다 (여전히 v2 — Phase 4는 SEARCH-02/03만 담당)
 
 ### Chat (CHAT)
 
@@ -157,6 +174,9 @@ v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
 | SHIFT-01 | Phase 4 | Pending |
 | SHIFT-02 | Phase 4 | Pending |
 | SHIFT-03 | Phase 4 | Pending |
+| SEARCH-02 | Phase 4 | Pending (scope expansion: v2→v1) |
+| SEARCH-03 | Phase 4 | Pending (scope expansion: new) |
+| NOTIF-01 (partial) | Phase 4 | Pending (Web Push only; SMS/알림톡/FCM still v2) |
 | REV-01 | Phase 5 | Pending |
 | REV-02 | Phase 5 | Pending |
 | REV-03 | Phase 5 | Pending |
@@ -175,11 +195,11 @@ v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
 | Timee 스타일 UI 언어 (모바일 퍼스트 Worker, 데스크톱 Biz) | Phase 1 | Completed 2026-04-10 (`55790d1`) |
 
 **Coverage:**
-- v1 requirements: 40 total (AUTH 7 + DATA 5 + WORK 4 + BIZ 3 + POST 6 + APPL 5 + SHIFT 3 + REV 4 + SETL 3)
-- Mapped to phases: 40/40 (100%) ✓
+- v1 requirements: **43** total (AUTH 7 + DATA 5 + WORK 4 + BIZ 3 + POST 6 + APPL 5 + SHIFT 3 + REV 4 + SETL 3 + SEARCH 2 + NOTIF 1 partial)
+- Mapped to phases: 43/43 (100%) ✓
 - Unmapped: 0
 
-> Note: previous header recorded "39 total" — the accurate count from the category lists above is 40. Traceability table is authoritative.
+> Note: Phase 4 discuss-phase (2026-04-10) scope expansion added SEARCH-02 (v2→v1 승격), SEARCH-03 (신설), NOTIF-01 (Web Push partial v1). Previous count was 40 → now 43. Traceability table is authoritative.
 
 ---
 *Requirements defined: 2026-04-10*
