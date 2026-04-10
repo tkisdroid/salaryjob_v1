@@ -103,8 +103,8 @@ Plans:
 - [x] 04-05-shift-actions-PLAN.md — Wave 3: check-in/out Server Actions + night-shift/geofence/qr/shift-validation libs + generateCheckoutQrToken + SHIFT tests GREEN
 - [x] 04-06-web-push-PLAN.md — Wave 4: sendPushToUser + subscribe/unsubscribe Server Actions + sw.js + ServiceWorkerRegistrar + PushPermissionBanner + Plan 04 TODO wiring + legacy /api/push/register delete
 - [x] 04-07-search-map-PLAN.md — Wave 4: time-filters lib + queries time/bucket 파라미터 + Kakao ambient types + useKakaoMapsSDK hook + MapView + HomeFilterBar + /home 리스트/지도 토글
-- [ ] 04-08-worker-ui-wiring-PLAN.md — Wave 5: apply-confirm-flow + /my/applications Realtime + /check-in html5-qrcode + cancel 24h 모달 + PushPermissionBanner 렌더 + mock 제거
-- [ ] 04-09-biz-ui-wiring-PLAN.md — Wave 5: /biz applicants Realtime + accept/reject + 자동수락 progress + CheckoutQrModal + mock 제거
+- [x] 04-08-worker-ui-wiring-PLAN.md — Wave 5: apply-confirm-flow + /my/applications Realtime + /check-in html5-qrcode + cancel 24h 모달 + PushPermissionBanner 렌더 + mock 제거
+- [x] 04-09-biz-ui-wiring-PLAN.md — Wave 5: /biz applicants Realtime + accept/reject + 자동수락 progress + CheckoutQrModal + mock 제거
 - [ ] 04-10-e2e-verification-PLAN.md — Wave 6: 전체 test suite GREEN + build + HUMAN-UAT 5 시나리오 + STATE/REQUIREMENTS/ROADMAP 업데이트 + commit
 
 ---
