@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-last_updated: "2026-04-10T10:11:14.133Z"
+status: executing
+last_updated: "2026-04-10T14:24:05.595Z"
 progress:
   total_phases: 5
   completed_phases: 2
-  total_plans: 13
+  total_plans: 23
   completed_plans: 15
-  percent: 100
+  percent: 65
 ---
 
 # State: GigNow (NJob)
@@ -19,19 +19,19 @@ progress:
 ## Project Reference
 
 - **Core value:** 이력서·면접 제로. 탭 하나로 확정, 근무 후 즉시 정산.
-- **Current focus:** Phase 03 — db
+- **Current focus:** Phase 04 — db
 - **Exit criterion for current milestone:** `src/lib/mock-data.ts` 의존 경로 0개 (Phase 5 종료 시)
 
 ## Current Position
 
-Phase: 03 (db) — EXECUTING
-Plan: 1 of 6
+Phase: 04 (db) — EXECUTING
+Plan: 1 of 10
 
 - **Milestone:** v1 MVP
 - **Phase:** 4
 - **Plan:** Not started
 - **Node:** —
-- **Status:** Ready to plan
+- **Status:** Executing Phase 04
 - **Progress:** [#----] 1/5 phases (Phase 1 retroactively completed)
 
 ## Phase Progress
