@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Mail } from "lucide-react";
 import { signInWithPassword } from "./actions";
-import { signInWithGoogle, signInWithMagicLink } from "@/app/(auth)/signup/actions";
+import { signInWithGoogle, signInWithKakao, signInWithMagicLink } from "@/app/(auth)/signup/actions";
 
 function LoginErrorBanner() {
   const searchParams = useSearchParams();
@@ -86,6 +86,15 @@ function LoginForm() {
         <form action={signInWithGoogle}>
           <Button type="submit" variant="outline" className="w-full">
             Google로 로그인
+          </Button>
+        </form>
+        <form action={signInWithKakao}>
+          <Button
+            type="submit"
+            variant="outline"
+            className="w-full bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] border-[#FEE500]"
+          >
+            카카오로 로그인
           </Button>
         </form>
         <form action={signInWithMagicLink}>

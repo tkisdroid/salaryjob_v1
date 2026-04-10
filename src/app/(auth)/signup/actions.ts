@@ -59,3 +59,19 @@ export async function signInWithGoogle() {
   if (error) return { error: { form: [error.message] } }
   if (data.url) redirect(data.url)
 }
+
+// Phase 2 Wave 5 — Kakao built-in Supabase provider (RESEARCH.md §Key Finding #1)
+// Kakao is a built-in provider, NOT a custom OIDC. Just toggle on Supabase Dashboard.
+// Prerequisite: Supabase Dashboard → Authentication → Providers → Kakao → enable.
+export async function signInWithKakao() {
+  // Re-verify N/A: pre-session; OAuth redirect creates the session on callback.
+  const supabase = await createClient()
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'kakao',
+    options: {
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/role-select`,
+    },
+  })
+  if (error) return { error: { form: [error.message] } }
+  if (data.url) redirect(data.url)
+}

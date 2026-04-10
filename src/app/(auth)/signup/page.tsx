@@ -22,6 +22,7 @@ import {
   signUpWithPassword,
   signInWithMagicLink,
   signInWithGoogle,
+  signInWithKakao,
 } from "./actions";
 
 type Role = "worker" | "business";
@@ -157,6 +158,15 @@ function WorkerStep1({ onNext: _onNext }: StepProps) {
         <form action={signInWithGoogle}>
           <Button type="submit" variant="outline" className="w-full">
             Google로 계속하기
+          </Button>
+        </form>
+        <form action={signInWithKakao}>
+          <Button
+            type="submit"
+            variant="outline"
+            className="w-full bg-[#FEE500] hover:bg-[#FDD835] text-[#191919] border-[#FEE500]"
+          >
+            카카오로 시작하기
           </Button>
         </form>
         <form action={signInWithMagicLink}>
