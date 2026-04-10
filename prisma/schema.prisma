@@ -36,9 +36,10 @@ enum JobCategory {
 }
 
 enum ApplicationStatus {
+  pending // NEW Phase 4 — default state after one-tap apply (auto-accept timer or manual accept → confirmed)
   confirmed
   in_progress
-  checked_in
+  checked_in // deprecated - use in_progress (Phase 5 removal candidate)
   completed
   cancelled
 }
@@ -62,7 +63,7 @@ enum BadgeLevel {
 // ============================================================================
 
 model User {
-  id        String   @id @db.Uuid      // = auth.users.id (1:1 via trigger)
+  id        String   @id @db.Uuid // = auth.users.id (1:1 via trigger)
   email     String?  @unique
   phone     String?  @unique
   role      UserRole @default(WORKER)
@@ -72,94 +73,94 @@ model User {
   workerProfile    WorkerProfile?
   businessProfiles BusinessProfile[]
   jobsPosted       Job[]             @relation("BusinessJobs")
-  applications    Application[]     @relation("WorkerApps")
-  reviewsGiven    Review[]          @relation("ReviewerReviews")
-  reviewsReceived Review[]          @relation("RevieweeReviews")
+  applications     Application[]     @relation("WorkerApps")
+  reviewsGiven     Review[]          @relation("ReviewerReviews")
+  reviewsReceived  Review[]          @relation("RevieweeReviews")
 
   @@map("users")
 }
 
 model WorkerProfile {
-  id                  String      @id @default(uuid()) @db.Uuid
-  userId              String      @unique @db.Uuid
-  user                User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                  String        @id @default(uuid()) @db.Uuid
+  userId              String        @unique @db.Uuid
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   name                String
   nickname            String?
-  avatar              String?     // emoji or URL (URL upload in Phase 3)
-  bio                 String?     @db.VarChar(140)
+  avatar              String? // emoji or URL (URL upload in Phase 3)
+  bio                 String?       @db.VarChar(140)
   preferredCategories JobCategory[]
-  badgeLevel          BadgeLevel  @default(newbie)
-  rating              Decimal     @default(0) @db.Decimal(3, 2)
-  totalJobs           Int         @default(0)
-  completionRate      Int         @default(0)
-  createdAt           DateTime    @default(now())
-  updatedAt           DateTime    @updatedAt
+  badgeLevel          BadgeLevel    @default(newbie)
+  rating              Decimal       @default(0) @db.Decimal(3, 2)
+  totalJobs           Int           @default(0)
+  completionRate      Int           @default(0)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
 
   @@map("worker_profiles")
 }
 
 model BusinessProfile {
-  id             String      @id @default(uuid()) @db.Uuid
-  userId         String      @db.Uuid
-  user           User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String                                 @id @default(uuid()) @db.Uuid
+  userId         String                                 @db.Uuid
+  user           User                                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   name           String
   category       JobCategory
-  logo           String?     // emoji or URL
+  logo           String? // emoji or URL
   address        String
   addressDetail  String?
-  lat            Decimal     @db.Decimal(10, 7)
-  lng            Decimal     @db.Decimal(10, 7)
+  lat            Decimal                                @db.Decimal(10, 7)
+  lng            Decimal                                @db.Decimal(10, 7)
   // Geography column added via Supabase raw SQL migration (Prisma cannot natively declare)
   location       Unsupported("geography(Point, 4326)")?
-  rating         Decimal     @default(0) @db.Decimal(3, 2)
-  reviewCount    Int         @default(0)
-  completionRate Int         @default(0)
-  verified       Boolean     @default(false)
+  rating         Decimal                                @default(0) @db.Decimal(3, 2)
+  reviewCount    Int                                    @default(0)
+  completionRate Int                                    @default(0)
+  verified       Boolean                                @default(false)
   description    String?
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  createdAt      DateTime                               @default(now())
+  updatedAt      DateTime                               @updatedAt
 
-  jobs           Job[]
+  jobs Job[]
 
   @@index([userId])
   @@map("business_profiles")
 }
 
 model Job {
-  id             String      @id @default(uuid()) @db.Uuid
-  businessId     String      @db.Uuid
-  business       BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  authorId       String      @db.Uuid
-  author         User        @relation("BusinessJobs", fields: [authorId], references: [id], onDelete: Cascade)
-  title          String
-  category       JobCategory
-  description    String
-  hourlyPay      Int
-  transportFee   Int         @default(0)
-  workDate       DateTime    @db.Date
-  startTime      String      // "HH:MM"
-  endTime        String      // "HH:MM"
-  workHours      Decimal     @db.Decimal(4, 2)
-  headcount      Int
-  filled         Int         @default(0)
-  lat            Decimal     @db.Decimal(10, 7)
-  lng            Decimal     @db.Decimal(10, 7)
-  location       Unsupported("geography(Point, 4326)")?
-  status         String      @default("active")  // active | filled | expired
-  isUrgent       Boolean     @default(false)
-  nightShiftAllowance Boolean @default(false)
+  id                  String                                 @id @default(uuid()) @db.Uuid
+  businessId          String                                 @db.Uuid
+  business            BusinessProfile                        @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  authorId            String                                 @db.Uuid
+  author              User                                   @relation("BusinessJobs", fields: [authorId], references: [id], onDelete: Cascade)
+  title               String
+  category            JobCategory
+  description         String
+  hourlyPay           Int
+  transportFee        Int                                    @default(0)
+  workDate            DateTime                               @db.Date
+  startTime           String // "HH:MM"
+  endTime             String // "HH:MM"
+  workHours           Decimal                                @db.Decimal(4, 2)
+  headcount           Int
+  filled              Int                                    @default(0)
+  lat                 Decimal                                @db.Decimal(10, 7)
+  lng                 Decimal                                @db.Decimal(10, 7)
+  location            Unsupported("geography(Point, 4326)")?
+  status              String                                 @default("active") // active | filled | expired
+  isUrgent            Boolean                                @default(false)
+  nightShiftAllowance Boolean                                @default(false)
   // Phase 3: structured fields previously stubbed in queries.ts adaptJob
-  duties        String[]  @default([])
-  requirements  String[]  @default([])
-  dressCode     String?
-  whatToBring   String[]  @default([])
-  tags          String[]  @default([])
-  address       String?
-  addressDetail String?
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  duties              String[]                               @default([])
+  requirements        String[]                               @default([])
+  dressCode           String?
+  whatToBring         String[]                               @default([])
+  tags                String[]                               @default([])
+  address             String?
+  addressDetail       String?
+  createdAt           DateTime                               @default(now())
+  updatedAt           DateTime                               @updatedAt
 
-  applications   Application[]
+  applications Application[]
 
   @@index([category, workDate, status])
   @@index([businessId])
@@ -167,21 +168,21 @@ model Job {
 }
 
 model Application {
-  id              String             @id @default(uuid()) @db.Uuid
-  jobId           String             @db.Uuid
-  job             Job                @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  workerId        String             @db.Uuid
-  worker          User               @relation("WorkerApps", fields: [workerId], references: [id], onDelete: Cascade)
-  status          ApplicationStatus  @default(confirmed)
-  appliedAt       DateTime           @default(now())
-  checkInAt       DateTime?
-  checkOutAt      DateTime?
-  actualHours     Decimal?           @db.Decimal(5, 2)
-  earnings        Int?
-  reviewGiven     Boolean            @default(false)
-  reviewReceived  Boolean            @default(false)
+  id             String            @id @default(uuid()) @db.Uuid
+  jobId          String            @db.Uuid
+  job            Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  workerId       String            @db.Uuid
+  worker         User              @relation("WorkerApps", fields: [workerId], references: [id], onDelete: Cascade)
+  status         ApplicationStatus @default(pending)
+  appliedAt      DateTime          @default(now())
+  checkInAt      DateTime?
+  checkOutAt     DateTime?
+  actualHours    Decimal?          @db.Decimal(5, 2)
+  earnings       Int?
+  reviewGiven    Boolean           @default(false)
+  reviewReceived Boolean           @default(false)
 
-  reviews         Review[]
+  reviews Review[]
 
   @@unique([jobId, workerId])
   @@index([workerId, status])
@@ -198,12 +199,11 @@ model Review {
   revieweeId    String          @db.Uuid
   reviewee      User            @relation("RevieweeReviews", fields: [revieweeId], references: [id], onDelete: Cascade)
   direction     ReviewDirection
-  rating        Int             // 1-5
+  rating        Int // 1-5
   tags          String[]        @default([])
   comment       String?
   createdAt     DateTime        @default(now())
 
-  @@unique([applicationId, direction])  // Phase 5 will enforce review-once-per-direction
+  @@unique([applicationId, direction]) // Phase 5 will enforce review-once-per-direction
   @@map("reviews")
 }
-
