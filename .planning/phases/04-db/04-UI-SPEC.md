@@ -1,7 +1,9 @@
 ---
 phase: 4
 slug: 04-db
-status: draft
+status: approved
+reviewed_at: 2026-04-10
+reviewer: gsd-ui-checker
 shadcn_initialized: true
 preset: base-nova (components.json)
 created: 2026-04-10
