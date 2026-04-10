@@ -69,16 +69,32 @@ export interface Job {
   nightShiftAllowance: boolean;
 }
 
+// Phase 4 D-01 — UI-level ApplicationStatus union.
+// `checked_in` intentionally omitted from UI type — deprecated, see prisma schema comment.
+export type ApplicationStatus =
+  | "pending"
+  | "confirmed"
+  | "in_progress"
+  | "completed"
+  | "cancelled";
+
+// UI bucket mapping — D-01, UI-SPEC 6 상태 x 색 매핑
+export const STATUS_TO_BUCKET: Record<
+  ApplicationStatus,
+  "upcoming" | "active" | "done"
+> = {
+  pending: "upcoming", // "대기 중" - auto-accept timer running
+  confirmed: "upcoming", // "수락됨"
+  in_progress: "active", // "근무 중"
+  completed: "done", // "완료"
+  cancelled: "done", // "취소됨" - shown in done tab for history
+};
+
 export interface Application {
   id: string;
   jobId: string;
   job: Job;
-  status:
-    | "confirmed"
-    | "in_progress"
-    | "checked_in"
-    | "completed"
-    | "cancelled";
+  status: ApplicationStatus | "checked_in"; // checked_in accepted for legacy rows until Phase 5 removal
   appliedAt: string;
   checkInAt: string | null;
   checkOutAt: string | null;
