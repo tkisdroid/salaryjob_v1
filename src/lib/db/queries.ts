@@ -23,6 +23,7 @@
  */
 
 import "server-only";
+import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { verifySession } from "@/lib/dal";
 import type {
@@ -472,4 +473,263 @@ export async function getJobsByBusinessIds(
     take: 100,
   });
   return rows.map(adaptJob);
+}
+
+// ============================================================================
+// Phase 3 (03-06) — Cursor-based pagination + PostGIS distance sort
+// ============================================================================
+
+/**
+ * Lazy filter shared by getJobsPaginated + getJobsByDistance.
+ *
+ * Covers the up-to-5-minute gap between pg_cron runs (03-02 migration
+ * 20260411000003). The pg_cron schedule body uses the IDENTICAL expression,
+ * so the lazy filter guarantees users never see a job whose
+ * (workDate + startTime) has already passed — even if pg_cron has not yet
+ * swept the row to status='expired'.
+ *
+ * Threat T-03-06-08: if this expression drifts from the cron body, job-expiry
+ * tests will fail (tests/jobs/job-expiry.test.ts runs both paths).
+ */
+const LAZY_FILTER_SQL = Prisma.sql`
+  ("workDate"::timestamp + CAST("startTime" AS time))::timestamptz > now()
+`;
+
+/**
+ * Cursor format: {createdAtISO}_{uuid}
+ * ISO 8601 datetime is fixed 24 chars (2026-04-10T12:00:00.000Z), then
+ * underscore at position 24, then a UUID in positions 25..60.
+ */
+export function encodeJobCursor(job: {
+  createdAt: Date | string;
+  id: string;
+}): string {
+  const iso =
+    job.createdAt instanceof Date
+      ? job.createdAt.toISOString()
+      : job.createdAt;
+  return `${iso}_${job.id}`;
+}
+
+export function decodeJobCursor(
+  cursor: string,
+): { createdAt: Date; id: string } | null {
+  // Minimum cursor length: 24 (ISO) + 1 (_) + 36 (uuid) = 61
+  if (cursor.length < 26) return null;
+  if (cursor[24] !== "_") return null;
+  const iso = cursor.slice(0, 24);
+  const id = cursor.slice(25);
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return null;
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return null;
+  return { createdAt: d, id };
+}
+
+/**
+ * Paginated active job list with cursor-based ordering.
+ * Used by:
+ *   - /          (anonymous landing page)
+ *   - /home      (worker, when geolocation is unavailable / default)
+ *
+ * Applies LAZY_FILTER_SQL so past-dated jobs are excluded even before pg_cron
+ * marks them expired. Uses $queryRaw because Prisma findMany cannot express
+ * the tuple-cursor comparison + raw lazy filter in one query.
+ */
+export async function getJobsPaginated(opts: {
+  limit: number;
+  cursor?: string | null;
+  category?: JobCategory;
+}): Promise<{ jobs: Job[]; nextCursor: string | null }> {
+  const cursor = opts.cursor ? decodeJobCursor(opts.cursor) : null;
+
+  const categoryFilter = opts.category
+    ? Prisma.sql`AND j.category = ${opts.category}::"JobCategory"`
+    : Prisma.empty;
+
+  const cursorFilter = cursor
+    ? Prisma.sql`AND (j."createdAt", j.id) < (${cursor.createdAt}, ${cursor.id}::uuid)`
+    : Prisma.empty;
+
+  const rows = await prisma.$queryRaw<RawJobRow[]>`
+    SELECT
+      j.id, j."businessId", j."authorId", j.title, j.category, j.description,
+      j."hourlyPay", j."transportFee", j."workDate", j."startTime", j."endTime",
+      j."workHours", j.headcount, j.filled, j.lat, j.lng, j.status, j."isUrgent",
+      j."nightShiftAllowance", j.duties, j.requirements, j."dressCode",
+      j."whatToBring", j.tags, j.address, j."addressDetail", j."createdAt",
+      bp.id AS "business_id", bp.name AS "business_name", bp.category AS "business_category",
+      bp.logo AS "business_logo", bp.address AS "business_address",
+      bp."addressDetail" AS "business_addressDetail", bp.lat AS "business_lat",
+      bp.lng AS "business_lng", bp.rating AS "business_rating",
+      bp."reviewCount" AS "business_reviewCount",
+      bp."completionRate" AS "business_completionRate",
+      bp.verified AS "business_verified", bp.description AS "business_description",
+      (SELECT COUNT(*)::int FROM public.applications a WHERE a."jobId" = j.id) AS "applied_count"
+    FROM public.jobs j
+    LEFT JOIN public.business_profiles bp ON j."businessId" = bp.id
+    WHERE j.status = 'active'
+      AND ${LAZY_FILTER_SQL}
+      ${categoryFilter}
+      ${cursorFilter}
+    ORDER BY j."createdAt" DESC, j.id DESC
+    LIMIT ${opts.limit}
+  `;
+
+  const jobs = rows.map(rawRowToJob);
+  const nextCursor =
+    jobs.length === opts.limit && rows.length > 0
+      ? encodeJobCursor({
+          createdAt: rows[rows.length - 1].createdAt,
+          id: rows[rows.length - 1].id,
+        })
+      : null;
+
+  return { jobs, nextCursor };
+}
+
+/**
+ * PostGIS distance-sorted job list. Used on /home when the worker has
+ * granted geolocation permission.
+ *
+ * Uses ST_DWithin + ST_Distance against the geography(Point,4326) column
+ * `jobs.location`. Requires the GIST index from 03-02 migration
+ * 20260411000000 for performance (without it, ST_DWithin falls back to
+ * a sequential scan — still correct but slow).
+ *
+ * Also applies LAZY_FILTER_SQL (identical to getJobsPaginated) so past-dated
+ * jobs are hidden regardless of whether pg_cron has run.
+ *
+ * Populates Job.distanceM with real meters from ST_Distance.
+ */
+export async function getJobsByDistance(opts: {
+  userLat: number;
+  userLng: number;
+  radiusM: number;
+  limit: number;
+  cursor?: string | null;
+  category?: JobCategory;
+}): Promise<{ jobs: Job[]; nextCursor: string | null }> {
+  const cursor = opts.cursor ? decodeJobCursor(opts.cursor) : null;
+
+  const categoryFilter = opts.category
+    ? Prisma.sql`AND j.category = ${opts.category}::"JobCategory"`
+    : Prisma.empty;
+
+  const cursorFilter = cursor
+    ? Prisma.sql`AND (j."createdAt", j.id) < (${cursor.createdAt}, ${cursor.id}::uuid)`
+    : Prisma.empty;
+
+  const rows = await prisma.$queryRaw<(RawJobRow & { distance_m: number })[]>`
+    SELECT
+      j.id, j."businessId", j."authorId", j.title, j.category, j.description,
+      j."hourlyPay", j."transportFee", j."workDate", j."startTime", j."endTime",
+      j."workHours", j.headcount, j.filled, j.lat, j.lng, j.status, j."isUrgent",
+      j."nightShiftAllowance", j.duties, j.requirements, j."dressCode",
+      j."whatToBring", j.tags, j.address, j."addressDetail", j."createdAt",
+      bp.id AS "business_id", bp.name AS "business_name", bp.category AS "business_category",
+      bp.logo AS "business_logo", bp.address AS "business_address",
+      bp."addressDetail" AS "business_addressDetail", bp.lat AS "business_lat",
+      bp.lng AS "business_lng", bp.rating AS "business_rating",
+      bp."reviewCount" AS "business_reviewCount",
+      bp."completionRate" AS "business_completionRate",
+      bp.verified AS "business_verified", bp.description AS "business_description",
+      (SELECT COUNT(*)::int FROM public.applications a WHERE a."jobId" = j.id) AS "applied_count",
+      ST_Distance(
+        j.location,
+        ST_SetSRID(ST_MakePoint(${opts.userLng}, ${opts.userLat}), 4326)::geography
+      ) AS distance_m
+    FROM public.jobs j
+    LEFT JOIN public.business_profiles bp ON j."businessId" = bp.id
+    WHERE j.status = 'active'
+      AND j.location IS NOT NULL
+      AND ${LAZY_FILTER_SQL}
+      AND ST_DWithin(
+        j.location,
+        ST_SetSRID(ST_MakePoint(${opts.userLng}, ${opts.userLat}), 4326)::geography,
+        ${opts.radiusM}
+      )
+      ${categoryFilter}
+      ${cursorFilter}
+    ORDER BY distance_m ASC NULLS LAST, j."createdAt" DESC, j.id DESC
+    LIMIT ${opts.limit}
+  `;
+
+  const jobs = rows.map((r) => ({
+    ...rawRowToJob(r),
+    distanceM: Math.round(Number(r.distance_m ?? 0)),
+  }));
+
+  const nextCursor =
+    jobs.length === opts.limit && rows.length > 0
+      ? encodeJobCursor({
+          createdAt: rows[rows.length - 1].createdAt,
+          id: rows[rows.length - 1].id,
+        })
+      : null;
+
+  return { jobs, nextCursor };
+}
+
+// ----- Internal raw-row adapter (flat $queryRaw result → Job UI shape) -----
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type RawJobRow = any;
+
+/**
+ * Converts a flat $queryRaw row (with business_* prefixed JOIN columns) to
+ * the Job UI shape. Mirrors adaptJob() above but handles the flat column
+ * layout produced by the raw SQL JOIN (vs. Prisma's nested include result).
+ *
+ * All Decimal fields (hourlyPay, transportFee, workHours, rating, lat, lng)
+ * are coerced via Number() because pg driver returns them as strings.
+ */
+function rawRowToJob(r: RawJobRow): Job {
+  const business: Business = {
+    id: r.business_id as string,
+    name: r.business_name as string,
+    category: r.business_category as JobCategory,
+    logo: (r.business_logo as string | null) ?? "🏢",
+    address: r.business_address as string,
+    addressDetail: (r.business_addressDetail as string | null) ?? "",
+    lat: Number(r.business_lat),
+    lng: Number(r.business_lng),
+    rating: Number(r.business_rating),
+    reviewCount: Number(r.business_reviewCount),
+    completionRate: Number(r.business_completionRate),
+    photos: [],
+    verified: r.business_verified as boolean,
+    description: (r.business_description as string | null) ?? "",
+  };
+
+  const createdAt =
+    r.createdAt instanceof Date ? r.createdAt : new Date(r.createdAt);
+
+  return {
+    id: r.id as string,
+    businessId: r.businessId as string,
+    business,
+    title: r.title as string,
+    category: r.category as JobCategory,
+    description: r.description as string,
+    duties: (r.duties as string[] | null) ?? [],
+    requirements: (r.requirements as string[] | null) ?? [],
+    dressCode: (r.dressCode as string | null) ?? "",
+    whatToBring: (r.whatToBring as string[] | null) ?? [],
+    hourlyPay: Number(r.hourlyPay),
+    transportFee: Number(r.transportFee),
+    workDate: (r.workDate instanceof Date ? r.workDate : new Date(r.workDate))
+      .toISOString()
+      .slice(0, 10),
+    startTime: r.startTime as string,
+    endTime: r.endTime as string,
+    workHours: Number(r.workHours),
+    headcount: Number(r.headcount),
+    filled: Number(r.filled),
+    isUrgent: r.isUrgent as boolean,
+    isNew: Date.now() - createdAt.getTime() < 3 * 24 * 60 * 60 * 1000,
+    distanceM: 0,
+    appliedCount: Number(r.applied_count ?? 0),
+    tags: (r.tags as string[] | null) ?? [],
+    nightShiftAllowance: r.nightShiftAllowance as boolean,
+  };
 }
