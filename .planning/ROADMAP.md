@@ -98,7 +98,7 @@ Plans:
 Plans:
 - [x] 04-01-foundation-PLAN.md — Wave 1: 의존성 설치(jose/web-push/html5-qrcode/qrcode) + 문서 3개 scope 확장 [BLOCKING] + 21개 Wave 0 RED 테스트 + HUMAN-UAT 체크리스트 + .env.example 4개 키
 - [x] 04-02-schema-dal-PLAN.md — Wave 1: Prisma schema 확장 (ApplicationStatus.pending, WorkerProfile.noShowCount, PushSubscription) + dal.ts requireApplicationOwner/requireJobOwner + [BLOCKING prisma db push]
-- [ ] 04-03-supabase-migrations-PLAN.md — Wave 2: 4 SQL 마이그레이션 (applications RLS re-enable, realtime publication, auto-accept pg_cron, no-show detection pg_cron) + [BLOCKING apply]
+- [x] 04-03-supabase-migrations-PLAN.md — Wave 2: 4 SQL 마이그레이션 (applications RLS re-enable, realtime publication, auto-accept pg_cron, no-show detection pg_cron) + [BLOCKING apply]
 - [ ] 04-04-application-actions-PLAN.md — Wave 3: applyOneTap/accept/reject/cancel Server Actions + queries 확장 + APPL tests GREEN
 - [ ] 04-05-shift-actions-PLAN.md — Wave 3: check-in/out Server Actions + night-shift/geofence/qr/shift-validation libs + generateCheckoutQrToken + SHIFT tests GREEN
 - [ ] 04-06-web-push-PLAN.md — Wave 4: sendPushToUser + subscribe/unsubscribe Server Actions + sw.js + ServiceWorkerRegistrar + PushPermissionBanner + Plan 04 TODO wiring + legacy /api/push/register delete
