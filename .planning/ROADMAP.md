@@ -10,9 +10,9 @@
 ## Phases
 
 - [x] **Phase 1: 목업 UI 파운데이션** — Mock-data로 Worker·Business 양쪽 루프 E2E 완성 (완료 2026-04-10, commit `55790d1`)
-- [ ] **Phase 2: Supabase·Prisma·Auth 기반** — 실 DB 연결과 이중 역할 인증 기반 완성
-- [ ] **Phase 3: 프로필·공고 DB 연결** — Worker/Business 프로필과 공고 CRUD를 실 DB로 이관
-- [ ] **Phase 4: 지원·근무 라이프사이클 DB 연결** — 원탭 지원부터 체크인·체크아웃까지 실 DB 위에서 완주 (+ scope 확장: Kakao 지도 탐색, Web Push, 체크아웃 QR)
+- [x] **Phase 2: Supabase·Prisma·Auth 기반** — 실 DB 연결과 이중 역할 인증 기반 완성 (완료 2026-04-10, commit `fb06dfd`)
+- [x] **Phase 3: 프로필·공고 DB 연결** — Worker/Business 프로필과 공고 CRUD를 실 DB로 이관 (완료 2026-04-10, commit `087874e`)
+- [x] **Phase 4: 지원·근무 라이프사이클 DB 연결** — 원탭 지원부터 체크인·체크아웃까지 실 DB 위에서 완주 (+ scope 확장: Kakao 지도 탐색, Web Push, 체크아웃 QR) (완료 2026-04-11, commits `be311af → 864e4e5` + Plan 04-10)
 - [ ] **Phase 5: 리뷰·정산·목업 제거** — 양방향 리뷰와 정산을 실 데이터로 구동하고 mock-data.ts 완전 제거
 
 ---
@@ -81,8 +81,9 @@ Plans:
 
 ---
 
-### Phase 4: 지원·근무 라이프사이클 DB 연결 + 탐색 고도화
+### Phase 4: 지원·근무 라이프사이클 DB 연결 + 탐색 고도화 (완료 2026-04-11)
 **Goal**: Worker가 실 DB로 원탭 지원·수락·체크인·체크아웃까지 완주하고, Business는 지원자 상태를 실시간으로 관리한다. Scope 확장(discuss-phase 2026-04-10): Kakao 지도 탐색 + Web Push + 체크아웃 QR.
+**Status**: Completed 2026-04-11 (Plan 04-10 exit verification)
 **Depends on**: Phase 3
 **Requirements**: APPL-01, APPL-02, APPL-03, APPL-04, APPL-05, SHIFT-01, SHIFT-02, SHIFT-03, SEARCH-02, SEARCH-03, NOTIF-01(partial)
 **Success Criteria** (what must be TRUE):
@@ -105,7 +106,7 @@ Plans:
 - [x] 04-07-search-map-PLAN.md — Wave 4: time-filters lib + queries time/bucket 파라미터 + Kakao ambient types + useKakaoMapsSDK hook + MapView + HomeFilterBar + /home 리스트/지도 토글
 - [x] 04-08-worker-ui-wiring-PLAN.md — Wave 5: apply-confirm-flow + /my/applications Realtime + /check-in html5-qrcode + cancel 24h 모달 + PushPermissionBanner 렌더 + mock 제거
 - [x] 04-09-biz-ui-wiring-PLAN.md — Wave 5: /biz applicants Realtime + accept/reject + 자동수락 progress + CheckoutQrModal + mock 제거
-- [ ] 04-10-e2e-verification-PLAN.md — Wave 6: 전체 test suite GREEN + build + HUMAN-UAT 5 시나리오 + STATE/REQUIREMENTS/ROADMAP 업데이트 + commit
+- [x] 04-10-e2e-verification-PLAN.md — Wave 6: 전체 test suite GREEN + build + HUMAN-UAT 5 시나리오 + STATE/REQUIREMENTS/ROADMAP 업데이트 + commit
 
 ---
 
@@ -129,9 +130,9 @@ Plans:
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. 목업 UI 파운데이션 | N/A | Completed | 2026-04-10 |
-| 2. Supabase·Prisma·Auth 기반 | 0/6 | Planned | - |
-| 3. 프로필·공고 DB 연결 | 0/6 | Planned | - |
-| 4. 지원·근무 라이프사이클 DB 연결 | 0/10 | Planned | - |
+| 2. Supabase·Prisma·Auth 기반 | 9/9 | Completed | 2026-04-10 (commit `fb06dfd`) |
+| 3. 프로필·공고 DB 연결 | 6/6 | Completed | 2026-04-10 (commit `087874e`) |
+| 4. 지원·근무 라이프사이클 DB 연결 | 10/10 | Completed | 2026-04-11 (commits `be311af → 864e4e5` + Plan 04-10) |
 | 5. 리뷰·정산·목업 제거 | 0/? | Not started | - |
 
 ## Coverage Summary
