@@ -290,6 +290,59 @@ async function main() {
     console.log(`    Created: application ${mockApp.id} → job ${mockApp.jobId}`);
   }
 
+  // ── Step 7b: Phase 4 fixture applications (pending / in_progress / completed)
+  // Added in Plan 04-10 to exercise the lifecycle states that Phase 4 Server
+  // Actions (applyOneTap auto-accept timer, checkIn, checkOut + night premium)
+  // introduced. MOCK_APPLICATIONS already covers job-1..5 for kim-jihoon, so
+  // the Phase 4 fixtures use job-6/7/8 (distinct (jobId, workerId) unique).
+  console.log("  Step 7b: Creating 3 Phase 4 fixture applications...");
+  const nightShiftJobId = jobIdMap[MOCK_JOBS[5].id]; // job-6 (야간 22:00~06:00)
+  const pendingJobId = jobIdMap[MOCK_JOBS[6].id]; // job-7
+  const inProgressJobId = jobIdMap[MOCK_JOBS[7].id]; // job-8
+  const now = Date.now();
+
+  await prisma.application.create({
+    data: {
+      jobId: pendingJobId,
+      workerId: createdUsers["kim-jihoon"],
+      status: "pending", // auto-accept timer still running
+      appliedAt: new Date(now - 5 * 60 * 1000),
+      reviewGiven: false,
+      reviewReceived: false,
+    },
+  });
+  console.log("    Created: phase4-app-pending → MOCK_JOBS[6] (job-7)");
+
+  await prisma.application.create({
+    data: {
+      jobId: inProgressJobId,
+      workerId: createdUsers["kim-jihoon"],
+      status: "in_progress", // checked in but not out
+      appliedAt: new Date(now - 2 * 60 * 60 * 1000),
+      checkInAt: new Date(now - 30 * 60 * 1000),
+      reviewGiven: false,
+      reviewReceived: false,
+    },
+  });
+  console.log("    Created: phase4-app-in-progress → MOCK_JOBS[7] (job-8)");
+
+  await prisma.application.create({
+    data: {
+      jobId: nightShiftJobId,
+      workerId: createdUsers["kim-jihoon"],
+      status: "completed", // done, night premium applied
+      appliedAt: new Date(now - 24 * 60 * 60 * 1000),
+      checkInAt: new Date(now - 6 * 60 * 60 * 1000),
+      checkOutAt: new Date(now - 2 * 60 * 60 * 1000),
+      actualHours: 4,
+      // 13500 * 4 hours + 8000 transport + 27000 (50% night premium on 4h * 13500)
+      earnings: 89000,
+      reviewGiven: false,
+      reviewReceived: false,
+    },
+  });
+  console.log("    Created: phase4-app-completed → MOCK_JOBS[5] (job-6, 야간)");
+
   // ── Step 8: Reviews = empty (Phase 5 will populate) ───────────────────────
   // (no insert needed)
 
@@ -310,7 +363,7 @@ async function main() {
    worker_profiles   : ${workerCount} (expected 1)
    business_profiles : ${bizCount} (expected 8)
    jobs              : ${jobCount} (expected 8)
-   applications      : ${appCount} (expected 5)
+   applications      : ${appCount} (expected 8)
    reviews           : ${reviewCount} (expected 0)
   `);
 
@@ -319,7 +372,7 @@ async function main() {
     workerCount < 1 ||
     bizCount < 8 ||
     jobCount < 8 ||
-    appCount < 5 ||
+    appCount < 8 || // Phase 4-10: 5 Phase 2 apps + 3 Phase 4 lifecycle apps
     reviewCount !== 0
   ) {
     throw new Error("❌ Seed count mismatch — check output above");
