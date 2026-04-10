@@ -53,11 +53,18 @@ export async function createTestJob(input: CreateTestJobInput) {
 }
 
 /**
- * Clean up all test jobs created by createTestJob (title starts with "TEST_").
+ * Clean up test jobs with a title matching the given prefix. Required to avoid
+ * racing with other parallel test files that also write TEST_* rows — each
+ * suite must scope its cleanup to its own prefix.
  */
-export async function cleanupTestJobs() {
+export async function cleanupTestJobs(prefix: string) {
+  if (!prefix || !prefix.startsWith("TEST_")) {
+    throw new Error(
+      `cleanupTestJobs requires a prefix starting with "TEST_"; got "${prefix}"`,
+    );
+  }
   await prisma.job.deleteMany({
-    where: { title: { startsWith: "TEST_" } },
+    where: { title: { startsWith: prefix } },
   });
 }
 

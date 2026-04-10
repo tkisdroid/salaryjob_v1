@@ -38,7 +38,12 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await cleanupTestJobs();
+  // Scoped cleanup for each POST-01/02/03 prefix — avoids racing with
+  // postgis-distance (TEST_D06_) and job-expiry (TEST_POST06_) suites
+  // that run in parallel.
+  await cleanupTestJobs("TEST_POST01_");
+  await cleanupTestJobs("TEST_POST02_");
+  await cleanupTestJobs("TEST_POST03_");
   await prisma.$disconnect();
 });
 
