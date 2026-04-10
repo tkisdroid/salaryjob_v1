@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getBizApplicantById } from "@/lib/mock-data";
+import { getBizApplicantById } from "@/lib/db/queries";
 import { ReviewForm } from "@/components/shared/review-form";
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
 
 export default async function BizReviewPage({ params }: Props) {
   const { id, applicantId } = await params;
-  const applicant = getBizApplicantById(applicantId);
+  const applicant = await getBizApplicantById(id, applicantId);
   if (!applicant) notFound();
 
   const backHref = `/biz/posts/${id}/applicants`;

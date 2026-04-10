@@ -1,9 +1,6 @@
 import Link from "next/link";
-import {
-  MOCK_APPLICATIONS,
-  MOCK_CURRENT_WORKER,
-  calculateEarnings,
-} from "@/lib/mock-data";
+import { getApplications } from "@/lib/db/queries";
+import { calculateEarnings } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
 import {
   ArrowLeft,
@@ -30,10 +27,10 @@ function formatDate(iso: string): string {
   return `${d.getMonth() + 1}/${d.getDate()}`;
 }
 
-export default function WorkerSettlementsPage() {
-  const worker = MOCK_CURRENT_WORKER;
+export default async function WorkerSettlementsPage() {
+  const applications = await getApplications();
   // Settled and pending settlements
-  const allPastJobs = MOCK_APPLICATIONS.filter(
+  const allPastJobs = applications.filter(
     (a) => a.status === "completed"
   );
   const settled = allPastJobs.filter((a) => a.settlementStatus === "settled");

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { MOCK_APPLICATIONS } from "@/lib/mock-data";
+import { getApplicationById } from "@/lib/db/queries";
 import { ReviewForm } from "@/components/shared/review-form";
 
 interface Props {
@@ -8,7 +8,7 @@ interface Props {
 
 export default async function WorkerReviewPage({ params }: Props) {
   const { id } = await params;
-  const app = MOCK_APPLICATIONS.find((a) => a.id === id);
+  const app = await getApplicationById(id);
   if (!app) notFound();
 
   const { job } = app;

@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { cn } from "@/lib/utils";
-import { MOCK_JOBS, formatWorkDate, calculateEarnings } from "@/lib/mock-data";
+import { getJobs } from "@/lib/db/queries";
+import { formatWorkDate, calculateEarnings } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
 import {
   Clock,
@@ -18,8 +19,9 @@ import {
   MessageSquareQuote,
 } from "lucide-react";
 
-export default function LandingPage() {
-  const featuredJobs = MOCK_JOBS.slice(0, 3);
+export default async function LandingPage() {
+  const allJobs = await getJobs({ limit: 3 });
+  const featuredJobs = allJobs.slice(0, 3);
 
   return (
     <div className="min-h-screen">
