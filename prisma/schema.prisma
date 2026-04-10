@@ -148,6 +148,14 @@ model Job {
   status         String      @default("active")  // active | filled | expired
   isUrgent       Boolean     @default(false)
   nightShiftAllowance Boolean @default(false)
+  // Phase 3: structured fields previously stubbed in queries.ts adaptJob
+  duties        String[]  @default([])
+  requirements  String[]  @default([])
+  dressCode     String?
+  whatToBring   String[]  @default([])
+  tags          String[]  @default([])
+  address       String?
+  addressDetail String?
   createdAt      DateTime    @default(now())
   updatedAt      DateTime    @updatedAt
 
