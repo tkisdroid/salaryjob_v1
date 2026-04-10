@@ -2,7 +2,6 @@
 // REQ: SHIFT-02 — 체크아웃 QR payload는 jose HS256으로 서명되며 4가지 공격을 거부해야 한다.
 
 import { describe, it, expect, beforeAll } from "vitest";
-// @ts-expect-error — Plan 04-05 will create src/lib/qr.ts
 import { signCheckoutToken, verifyCheckoutToken } from "@/lib/qr";
 
 describe("SHIFT-02 checkout QR JWT (jose HS256)", () => {

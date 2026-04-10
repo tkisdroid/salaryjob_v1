@@ -37,14 +37,18 @@ async function resolveTestWorkerSession(): Promise<{
   email: string | null
   role: 'WORKER' | 'BOTH' | 'ADMIN'
 }> {
-  // Pick the oldest WORKER user that has the fewest pending applications.
-  // FOR UPDATE SKIP LOCKED lets concurrent callers each grab a distinct row.
+  // Phase 4-10: prefer @test.local workers over seed accounts.
+  // Phase 2 seed (prisma/seed.ts) creates worker@dev.gignow.com, which
+  // co-exists with Phase 4 fixture workers (createTestWorker → @test.local).
+  // The Phase 4 tests expect applyOneTap to pick the worker they just
+  // inserted, not the seed one. FOR UPDATE SKIP LOCKED still supports
+  // concurrent apply-race tests across distinct fixture workers.
   const rows = await prisma.$queryRaw<
     { id: string; email: string | null; role: string }[]
   >`
     SELECT id, email, role
     FROM public.users
-    WHERE role = 'WORKER'
+    WHERE role = 'WORKER' AND email LIKE '%@test.local'
     ORDER BY "createdAt" ASC, id ASC
     FOR UPDATE SKIP LOCKED
     LIMIT 1
@@ -56,24 +60,39 @@ async function resolveTestWorkerSession(): Promise<{
       role: rows[0].role as 'WORKER' | 'BOTH' | 'ADMIN',
     }
   }
-  // Fallback: every WORKER row is already locked by a sibling transaction.
-  // Return the oldest WORKER without the lock so the caller can still proceed
-  // (the application INSERT will hit ON CONFLICT and return 'already_applied',
-  // which is the correct behavior for the duplicate-apply test).
+  // Fallback: every @test.local WORKER row is already locked by a sibling
+  // transaction (apply-race with Promise.all). Return the oldest @test.local
+  // WORKER without the lock so the caller can still proceed (the application
+  // INSERT will hit ON CONFLICT and return 'already_applied', which is the
+  // correct behavior for the duplicate-apply test).
   const fallback = await prisma.user.findFirst({
+    where: { role: 'WORKER', email: { endsWith: '@test.local' } },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true, email: true, role: true },
+  })
+  if (fallback) {
+    return {
+      id: fallback.id,
+      email: fallback.email,
+      role: fallback.role as 'WORKER' | 'BOTH' | 'ADMIN',
+    }
+  }
+  // Final fallback: no @test.local worker exists — use any seeded WORKER so
+  // Phase 2/3 regression tests that don't create fixture workers still work.
+  const seedFallback = await prisma.user.findFirst({
     where: { role: 'WORKER' },
     orderBy: { createdAt: 'asc' },
     select: { id: true, email: true, role: true },
   })
-  if (!fallback) {
+  if (!seedFallback) {
     throw new Error(
       '[dal:test] resolveTestWorkerSession: no WORKER users in DB — did the test fixture call createTestWorker()?',
     )
   }
   return {
-    id: fallback.id,
-    email: fallback.email,
-    role: fallback.role as 'WORKER' | 'BOTH' | 'ADMIN',
+    id: seedFallback.id,
+    email: seedFallback.email,
+    role: seedFallback.role as 'WORKER' | 'BOTH' | 'ADMIN',
   }
 }
 
@@ -102,6 +121,19 @@ async function resolveTestBusinessSession(applicationId?: string): Promise<{
           role: owner.role as 'BUSINESS' | 'BOTH' | 'ADMIN',
         }
       }
+    }
+  }
+  // Prefer @test.local business over seed business (Phase 4-10).
+  const bizTest = await prisma.user.findFirst({
+    where: { role: 'BUSINESS', email: { endsWith: '@test.local' } },
+    orderBy: { createdAt: 'asc' },
+    select: { id: true, email: true, role: true },
+  })
+  if (bizTest) {
+    return {
+      id: bizTest.id,
+      email: bizTest.email,
+      role: bizTest.role as 'BUSINESS' | 'BOTH' | 'ADMIN',
     }
   }
   const biz = await prisma.user.findFirst({

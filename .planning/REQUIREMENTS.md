@@ -9,57 +9,57 @@ v1 = "Timee 모델의 한국 MVP" — Worker가 실제 DB로 탐색·지원·근
 
 ### Authentication (AUTH)
 
-- [ ] **AUTH-01**: 사용자는 휴대폰 번호 또는 이메일로 회원가입할 수 있다 (Supabase Auth)
-- [ ] **AUTH-02**: 사용자는 Worker 역할과 Business 역할 중 하나 또는 둘 다를 선택해 가입할 수 있다
-- [ ] **AUTH-03**: 사용자는 로그인 후 브라우저 새로고침 시에도 세션이 유지된다
-- [ ] **AUTH-04**: 사용자는 로그아웃 시 모든 세션 쿠키가 제거된다
-- [ ] **AUTH-05**: 인증되지 않은 사용자가 보호된 경로에 접근하면 로그인 페이지로 리다이렉트된다 (middleware)
-- [ ] **AUTH-06**: Worker 전용 경로는 Worker 역할이 없는 사용자를 차단한다
-- [ ] **AUTH-07**: Business 전용 경로는 Business 역할이 없는 사용자를 차단한다
+- [x] **AUTH-01**: 사용자는 휴대폰 번호 또는 이메일로 회원가입할 수 있다 (Supabase Auth)
+- [x] **AUTH-02**: 사용자는 Worker 역할과 Business 역할 중 하나 또는 둘 다를 선택해 가입할 수 있다
+- [x] **AUTH-03**: 사용자는 로그인 후 브라우저 새로고침 시에도 세션이 유지된다
+- [x] **AUTH-04**: 사용자는 로그아웃 시 모든 세션 쿠키가 제거된다
+- [x] **AUTH-05**: 인증되지 않은 사용자가 보호된 경로에 접근하면 로그인 페이지로 리다이렉트된다 (middleware)
+- [x] **AUTH-06**: Worker 전용 경로는 Worker 역할이 없는 사용자를 차단한다
+- [x] **AUTH-07**: Business 전용 경로는 Business 역할이 없는 사용자를 차단한다
 
 ### Data Layer (DATA)
 
-- [ ] **DATA-01**: Prisma 스키마에 User, WorkerProfile, BusinessProfile, Job, Application, Review 모델이 정의되어 있다
-- [ ] **DATA-02**: PostGIS 확장이 활성화되어 Job의 위치(lat/lng)로 거리 기반 쿼리가 가능하다
-- [ ] **DATA-03**: Supabase 프로젝트에 초기 마이그레이션이 적용되어 있다
-- [ ] **DATA-04**: 시드 데이터가 `prisma/seed.ts` 또는 Supabase SQL로 제공되어 로컬/프리뷰에서 빈 DB를 채울 수 있다
+- [x] **DATA-01**: Prisma 스키마에 User, WorkerProfile, BusinessProfile, Job, Application, Review 모델이 정의되어 있다
+- [x] **DATA-02**: PostGIS 확장이 활성화되어 Job의 위치(lat/lng)로 거리 기반 쿼리가 가능하다
+- [x] **DATA-03**: Supabase 프로젝트에 초기 마이그레이션이 적용되어 있다
+- [x] **DATA-04**: 시드 데이터가 `prisma/seed.ts` 또는 Supabase SQL로 제공되어 로컬/프리뷰에서 빈 DB를 채울 수 있다
 - [ ] **DATA-05**: `src/lib/mock-data.ts` 의존 경로가 코드베이스에서 0개다 (Phase 5 종료 조건)
 
 ### Worker Profile (WORK)
 
-- [ ] **WORK-01**: Worker는 이름, 닉네임, 프로필 사진, 소개글을 등록할 수 있다
-- [ ] **WORK-02**: Worker는 자신의 선호 카테고리(food, retail, logistics 등)를 저장할 수 있다
-- [ ] **WORK-03**: Worker는 자신의 뱃지 레벨, 평점, 근무 횟수, 완료율을 프로필에서 볼 수 있다
-- [ ] **WORK-04**: Worker는 본인 계정의 프로필만 수정할 수 있다 (RLS)
+- [x] **WORK-01**: Worker는 이름, 닉네임, 프로필 사진, 소개글을 등록할 수 있다
+- [x] **WORK-02**: Worker는 자신의 선호 카테고리(food, retail, logistics 등)를 저장할 수 있다
+- [x] **WORK-03**: Worker는 자신의 뱃지 레벨, 평점, 근무 횟수, 완료율을 프로필에서 볼 수 있다
+- [x] **WORK-04**: Worker는 본인 계정의 프로필만 수정할 수 있다 (RLS)
 
 ### Business Profile (BIZ)
 
-- [ ] **BIZ-01**: Business는 상호명, 주소, 카테고리, 로고/이모지, 설명을 등록할 수 있다
-- [ ] **BIZ-02**: Business는 자신의 평점, 리뷰 수, 완료율을 프로필에서 볼 수 있다
-- [ ] **BIZ-03**: Business는 본인 계정의 프로필만 수정할 수 있다 (RLS)
+- [x] **BIZ-01**: Business는 상호명, 주소, 카테고리, 로고/이모지, 설명을 등록할 수 있다
+- [x] **BIZ-02**: Business는 자신의 평점, 리뷰 수, 완료율을 프로필에서 볼 수 있다
+- [x] **BIZ-03**: Business는 본인 계정의 프로필만 수정할 수 있다 (RLS)
 
 ### Job Posting (POST)
 
-- [ ] **POST-01**: Business는 새 공고(제목, 카테고리, 설명, 시급, 교통비, 근무일, 시간, 인원, 주소, 드레스코드, 준비물)를 작성해 저장할 수 있다
-- [ ] **POST-02**: Business는 자신이 작성한 공고 목록을 볼 수 있다
-- [ ] **POST-03**: Business는 공고를 수정하거나 삭제할 수 있다
-- [ ] **POST-04**: Worker는 로그인 없이(또는 가입 후) 공고 목록을 페이지네이션으로 볼 수 있다
-- [ ] **POST-05**: Worker는 공고 상세 페이지에서 모든 정보(예상 수입 포함)를 확인할 수 있다
-- [ ] **POST-06**: 공고는 workDate/startTime이 지나면 자동으로 "만료" 상태로 전환된다
+- [x] **POST-01**: Business는 새 공고(제목, 카테고리, 설명, 시급, 교통비, 근무일, 시간, 인원, 주소, 드레스코드, 준비물)를 작성해 저장할 수 있다
+- [x] **POST-02**: Business는 자신이 작성한 공고 목록을 볼 수 있다
+- [x] **POST-03**: Business는 공고를 수정하거나 삭제할 수 있다
+- [x] **POST-04**: Worker는 로그인 없이(또는 가입 후) 공고 목록을 페이지네이션으로 볼 수 있다
+- [x] **POST-05**: Worker는 공고 상세 페이지에서 모든 정보(예상 수입 포함)를 확인할 수 있다
+- [x] **POST-06**: 공고는 workDate/startTime이 지나면 자동으로 "만료" 상태로 전환된다
 
 ### Application (APPL)
 
-- [ ] **APPL-01**: 인증된 Worker는 공고 상세에서 "원탭 지원" 버튼으로 지원을 생성할 수 있다
-- [ ] **APPL-02**: Worker는 자신의 지원 목록(예정/진행중/완료)을 본다
-- [ ] **APPL-03**: Business는 자신의 공고 각각에 대한 지원자 목록을 본다
-- [ ] **APPL-04**: Business는 지원자를 accept/reject할 수 있으며, 해당 상태가 Worker 쪽에 실시간 반영된다 (또는 폴링)
-- [ ] **APPL-05**: Accept된 지원의 headcount가 공고의 headcount에 도달하면 공고가 자동으로 "마감" 상태로 전환된다
+- [x] **APPL-01**: 인증된 Worker는 공고 상세에서 "원탭 지원" 버튼으로 지원을 생성할 수 있다
+- [x] **APPL-02**: Worker는 자신의 지원 목록(예정/진행중/완료)을 본다
+- [x] **APPL-03**: Business는 자신의 공고 각각에 대한 지원자 목록을 본다
+- [x] **APPL-04**: Business는 지원자를 accept/reject할 수 있으며, 해당 상태가 Worker 쪽에 실시간 반영된다 (또는 폴링)
+- [x] **APPL-05**: Accept된 지원의 headcount가 공고의 headcount에 도달하면 공고가 자동으로 "마감" 상태로 전환된다
 
 ### Check-in / Work (WORK-SHIFT)
 
-- [ ] **SHIFT-01**: Accept된 Worker는 근무 시작 시간에 체크인할 수 있다 (현재 mock UI 존재)
-- [ ] **SHIFT-02**: 체크아웃 시 실근무 시간과 수입이 계산되어 Application에 저장된다
-- [ ] **SHIFT-03**: 야간 할증(22:00-06:00, 4시간 이상)은 DB 레벨 또는 서버 함수에서 50% 가산된다
+- [x] **SHIFT-01**: Accept된 Worker는 근무 시작 시간에 체크인할 수 있다 (현재 mock UI 존재)
+- [x] **SHIFT-02**: 체크아웃 시 실근무 시간과 수입이 계산되어 Application에 저장된다
+- [x] **SHIFT-03**: 야간 할증(22:00-06:00, 4시간 이상)은 DB 레벨 또는 서버 함수에서 50% 가산된다
 
 ### Review (REV)
 
@@ -78,14 +78,14 @@ v1 = "Timee 모델의 한국 MVP" — Worker가 실제 DB로 탐색·지원·근
 
 <!-- Phase 4 scope expansion (discuss-phase 2026-04-10): SEARCH-02 승격 + SEARCH-03 신설 -->
 
-- [ ] **SEARCH-02**: Worker는 /home에서 리스트/지도 토글로 공고를 탐색할 수 있고, 카카오맵에 viewport 내 공고 marker가 표시된다 (Phase 4, v2→v1 승격)
-- [ ] **SEARCH-03**: Worker는 날짜 프리셋(오늘/내일/이번주) + 시간대 버킷(오전/오후/저녁/야간) + 거리 스테퍼(1/3/5/10km)로 공고를 필터할 수 있다 (Phase 4, 신설)
+- [x] **SEARCH-02**: Worker는 /home에서 리스트/지도 토글로 공고를 탐색할 수 있고, 카카오맵에 viewport 내 공고 marker가 표시된다 (Phase 4, v2→v1 승격)
+- [x] **SEARCH-03**: Worker는 날짜 프리셋(오늘/내일/이번주) + 시간대 버킷(오전/오후/저녁/야간) + 거리 스테퍼(1/3/5/10km)로 공고를 필터할 수 있다 (Phase 4, 신설)
 
 ### Notifications (NOTIF) — partial v1
 
 <!-- Phase 4 scope expansion: NOTIF-01 (Web Push only) 부분 승격. 네이티브 FCM/SMS/알림톡은 여전히 v2. -->
 
-- [ ] **NOTIF-01**: Web Push 알림 (VAPID + Service Worker)이 Worker에게 수락/거절 이벤트를 전달한다. 네이티브 FCM/SMS/알림톡은 v2 (Phase 4, 부분)
+- [x] **NOTIF-01**: Web Push 알림 (VAPID + Service Worker)이 Worker에게 수락/거절 이벤트를 전달한다. 네이티브 FCM/SMS/알림톡은 v2 (Phase 4, 부분)
 
 ## v2 Requirements
 
@@ -141,42 +141,42 @@ v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AUTH-01 | Phase 2 | Pending |
-| AUTH-02 | Phase 2 | Pending |
-| AUTH-03 | Phase 2 | Pending |
-| AUTH-04 | Phase 2 | Pending |
-| AUTH-05 | Phase 2 | Pending |
-| AUTH-06 | Phase 2 | Pending |
-| AUTH-07 | Phase 2 | Pending |
-| DATA-01 | Phase 2 | Pending |
-| DATA-02 | Phase 2 | Pending |
-| DATA-03 | Phase 2 | Pending |
-| DATA-04 | Phase 2 | Pending |
+| AUTH-01 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
+| AUTH-02 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
+| AUTH-03 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
+| AUTH-04 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
+| AUTH-05 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
+| AUTH-06 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
+| AUTH-07 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
+| DATA-01 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
+| DATA-02 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
+| DATA-03 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
+| DATA-04 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
 | DATA-05 | Phase 5 | Pending (exit criterion) |
-| WORK-01 | Phase 3 | Pending |
-| WORK-02 | Phase 3 | Pending |
-| WORK-03 | Phase 3 | Pending |
-| WORK-04 | Phase 3 | Pending |
-| BIZ-01 | Phase 3 | Pending |
-| BIZ-02 | Phase 3 | Pending |
-| BIZ-03 | Phase 3 | Pending |
-| POST-01 | Phase 3 | Pending |
-| POST-02 | Phase 3 | Pending |
-| POST-03 | Phase 3 | Pending |
-| POST-04 | Phase 3 | Pending |
-| POST-05 | Phase 3 | Pending |
-| POST-06 | Phase 3 | Pending |
-| APPL-01 | Phase 4 | Pending |
-| APPL-02 | Phase 4 | Pending |
-| APPL-03 | Phase 4 | Pending |
-| APPL-04 | Phase 4 | Pending |
-| APPL-05 | Phase 4 | Pending |
-| SHIFT-01 | Phase 4 | Pending |
-| SHIFT-02 | Phase 4 | Pending |
-| SHIFT-03 | Phase 4 | Pending |
-| SEARCH-02 | Phase 4 | Pending (scope expansion: v2→v1) |
-| SEARCH-03 | Phase 4 | Pending (scope expansion: new) |
-| NOTIF-01 (partial) | Phase 4 | Pending (Web Push only; SMS/알림톡/FCM still v2) |
+| WORK-01 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| WORK-02 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| WORK-03 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| WORK-04 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| BIZ-01 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| BIZ-02 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| BIZ-03 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| POST-01 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| POST-02 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| POST-03 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| POST-04 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| POST-05 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| POST-06 | Phase 3 | Completed 2026-04-10 (`087874e`) |
+| APPL-01 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10) |
+| APPL-02 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10) |
+| APPL-03 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10) |
+| APPL-04 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10) |
+| APPL-05 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10) |
+| SHIFT-01 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10) |
+| SHIFT-02 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10) |
+| SHIFT-03 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10) |
+| SEARCH-02 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10, scope expansion v2→v1) |
+| SEARCH-03 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10, scope expansion new) |
+| NOTIF-01 (partial) | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10, Web Push only; SMS/알림톡/FCM still v2) |
 | REV-01 | Phase 5 | Pending |
 | REV-02 | Phase 5 | Pending |
 | REV-03 | Phase 5 | Pending |
@@ -197,10 +197,11 @@ v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
 **Coverage:**
 - v1 requirements: **43** total (AUTH 7 + DATA 5 + WORK 4 + BIZ 3 + POST 6 + APPL 5 + SHIFT 3 + REV 4 + SETL 3 + SEARCH 2 + NOTIF 1 partial)
 - Mapped to phases: 43/43 (100%) ✓
+- Completed: **35/43** (Phase 2/3/4 done, Phase 5 remaining = REV-01..04 + SETL-01..03 + DATA-05)
 - Unmapped: 0
 
 > Note: Phase 4 discuss-phase (2026-04-10) scope expansion added SEARCH-02 (v2→v1 승격), SEARCH-03 (신설), NOTIF-01 (Web Push partial v1). Previous count was 40 → now 43. Traceability table is authoritative.
 
 ---
 *Requirements defined: 2026-04-10*
-*Last updated: 2026-04-10 — traceability populated by /gsd-roadmapper*
+*Last updated: 2026-04-11 — Phase 2/3/4 traceability marked Completed after Plan 04-10 exit verification*

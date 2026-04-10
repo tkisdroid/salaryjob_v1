@@ -2,7 +2,6 @@
 // REQ: SHIFT-02 — 수입 = (시급 × 실근무시간) + 교통비 + 야간할증.
 
 import { describe, it, expect } from "vitest";
-// @ts-expect-error — Plan 04-05 will extend job-utils.ts
 import { calculateEarnings } from "@/lib/job-utils";
 
 describe("SHIFT-02 calculateEarnings composition", () => {

@@ -30,5 +30,11 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts"
   ],
-  "exclude": ["node_modules", "src/_legacy/**"]
+  "exclude": [
+    "node_modules",
+    "src/_legacy/**",
+    "vitest.config.ts",
+    "tests/proxy/**",
+    "tests/storage/**"
+  ]
 }
