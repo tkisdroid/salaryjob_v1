@@ -8,7 +8,8 @@ import { z } from 'zod'
 
 const RoleSchema = z.enum(['WORKER', 'BUSINESS', 'BOTH'])
 
-export async function selectRole(formData: FormData) {
+// Direct form action — must return Promise<void>. Errors redirect to /auth/error.
+export async function selectRole(formData: FormData): Promise<void> {
   // Re-verify REQUIRED: this is a post-session mutation that writes to DB AND
   // calls the admin API. Per Next 16 data-security.md, Server Actions that mutate
   // state MUST re-verify. The other auth actions (signUp/signIn*/logout) are N/A
@@ -16,7 +17,9 @@ export async function selectRole(formData: FormData) {
   const session = await verifySession()
 
   const parsed = RoleSchema.safeParse(formData.get('role'))
-  if (!parsed.success) return { error: 'invalid_role' }
+  if (!parsed.success) {
+    redirect('/auth/error?reason=invalid_role')
+  }
 
   // Update Prisma row (public.users)
   await prisma.user.update({

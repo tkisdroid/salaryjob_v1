@@ -3,13 +3,17 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
+import type { AuthFormState } from '../types'
 
 const LoginSchema = z.object({
   email: z.email(),
   password: z.string().min(1),
 })
 
-export async function signInWithPassword(formData: FormData) {
+export async function signInWithPassword(
+  _prevState: AuthFormState,
+  formData: FormData,
+): Promise<AuthFormState> {
   // Re-verify N/A: pre-session; signIn creates the session.
   const parsed = LoginSchema.safeParse({
     email: formData.get('email'),
