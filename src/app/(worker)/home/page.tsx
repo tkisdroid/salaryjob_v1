@@ -29,7 +29,7 @@ export default async function WorkerHomePage() {
   ]);
 
   return (
-    <div className="bg-background">
+    <div className="bg-background min-h-screen">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
