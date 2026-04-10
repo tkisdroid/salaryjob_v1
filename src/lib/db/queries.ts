@@ -415,3 +415,33 @@ export async function getWorkerProfileByUserId(userId: string) {
     where: { userId },
   });
 }
+
+// ============================================================================
+// Phase 3: Business profile raw-row queries (for edit form prefill)
+// ============================================================================
+
+/**
+ * Fetch all BusinessProfile rows owned by a user. Supports the 1:many
+ * relationship fixed in Phase 2 D-02 (admin holds multiple profiles, others
+ * typically hold 1).
+ *
+ * Returns raw Prisma rows — caller converts Decimal to Number for UI.
+ * Does NOT call verifySession — caller is responsible for session gating.
+ */
+export async function getBusinessProfilesByUserId(userId: string) {
+  return prisma.businessProfile.findMany({
+    where: { userId },
+    orderBy: { createdAt: "asc" },
+  });
+}
+
+/**
+ * Fetch a single BusinessProfile by its own id (not userId).
+ * Returns null if not found. Raw Prisma row.
+ * Caller is responsible for ownership checks against session.id.
+ */
+export async function getBusinessProfileById(id: string) {
+  return prisma.businessProfile.findUnique({
+    where: { id },
+  });
+}
