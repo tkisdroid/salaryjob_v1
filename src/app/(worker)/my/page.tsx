@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCurrentWorker, getApplications } from "@/lib/db/queries";
 import { formatWorkDate } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
+import { logout } from "@/app/(auth)/login/actions";
 import {
   User,
   Clock,
@@ -18,6 +19,7 @@ import {
   Sparkles,
   TrendingUp,
   CheckCircle2,
+  LogOut,
 } from "lucide-react";
 
 const BADGE_LABELS: Record<string, { label: string; color: string }> = {
@@ -321,6 +323,19 @@ export default async function MyPage() {
             </div>
           </section>
         )}
+
+        {/* Logout */}
+        <section className="pt-2">
+          <form action={logout}>
+            <button
+              type="submit"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border text-sm font-medium text-muted-foreground hover:bg-muted/30 hover:text-foreground transition-colors"
+            >
+              <LogOut className="w-4 h-4" />
+              로그아웃
+            </button>
+          </form>
+        </section>
 
         {/* Info & settings */}
         <section className="pt-2 pb-6 text-center space-y-1.5">
