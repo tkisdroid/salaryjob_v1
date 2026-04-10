@@ -106,11 +106,30 @@ Checker: run these before `/gsd-verify-work` closure.
 
 ## Sign-Off
 
-- [ ] 1. QR 체크아웃 — Pass/Fail
-- [ ] 2. Web Push + 410 cleanup — Pass/Fail
-- [ ] 3. Kakao Maps + 필터 — Pass/Fail
-- [ ] 4. Realtime 두 탭 — Pass/Fail
-- [ ] 5. Geofence 실 GPS — Pass/Fail
+- [ ] 1. QR 체크아웃 — BLOCKED ON USER: 모바일 HTTPS(ngrok/배포) + 카메라 권한 필요. 서버 side QR 생성과 jose HS256 verify는 tests/shift/checkout-jwt.test.ts 4/4 PASS로 자동 검증됨.
+- [ ] 2. Web Push + 410 cleanup — BLOCKED ON USER: `.env.local`의 WEB_PUSH_VAPID_* 값이 Plan 04-10 실행 시 설정되어 있으나 수동 구독/알림 클릭/unsubscribe 흐름은 브라우저 세션 전환 필요. sendPushToUser 410 cleanup 경로는 tests/push/send-410-cleanup.test.ts로 자동 검증됨.
+- [ ] 3. Kakao Maps + 필터 — BLOCKED ON USER: `.env.local`의 `NEXT_PUBLIC_KAKAO_MAP_KEY`가 Plan 04-10 실행 시 **빈 문자열** 상태. Kakao Developers 앱 등록 후 키 발급 + `http://localhost:3000` 도메인 추가 필요. 빈 키에서도 graceful degradation은 확인됨 (MapView가 Alert로 "지도 키 미설정" 안내).
+- [ ] 4. Realtime 두 탭 — BLOCKED ON USER: Worker + Biz 2계정 동시 로그인 + 2 브라우저 탭 필요. 4a(postgres_changes 정상 경로) + 4b(polling fallback) 모두 수동. Plan 04-08/04-09 자동 테스트는 subscribe 함수가 subscribe()를 호출하는지만 확인하며, 실제 Realtime round-trip은 브라우저 환경에서만 검증 가능.
+- [ ] 5. Geofence 실 GPS — BLOCKED ON USER: 매장 반경 100m 안/300m 밖 두 물리 위치 필요. ST_DWithin 서버 로직은 tests/shift/geofence.test.ts로 자동 검증됨.
 
 **Checker:** _______________
 **Date:** _______________
+
+---
+
+## Plan 04-10 Auto-Gate Status (2026-04-11)
+
+Plan 04-10 (E2E verification) 실행 시점 자동 검증 결과 — HUMAN-UAT과 독립적으로 기록:
+
+| Check | Result | Evidence |
+|-------|--------|----------|
+| Vitest full suite | 34 files / 109 tests PASS (5 todo) | `npm test` log |
+| next build | 32/32 static pages + 모든 Phase 4 라우트 dynamic | `NODE_ENV=production npm run build` |
+| TypeScript (next build typecheck) | 0 errors | same run |
+| prisma/seed.ts | 8 applications (5 Phase 2 + 3 Phase 4 lifecycle) | `npx tsx prisma/seed.ts` |
+| Supabase RLS on applications | ENABLED (5 policies) | Plan 04-03 migration applied |
+| postgres_changes publication | applications 포함 | Plan 04-03 migration applied |
+| pg_cron auto-accept | every 1 min scheduled | Plan 04-03 migration applied |
+| pg_cron no-show detection | every 5 min scheduled | Plan 04-03 migration applied |
+
+**Phase 4 exit gate**: 자동 검증 기준 100% GREEN. HUMAN-UAT 5 시나리오는 외부 키/모바일/HTTPS 전제 조건으로 **user에게 위임**. Phase 5 시작 전 최소 **시나리오 1 (QR 체크아웃)**, **시나리오 4a/4b (Realtime + polling fallback)** 완료 권장.
