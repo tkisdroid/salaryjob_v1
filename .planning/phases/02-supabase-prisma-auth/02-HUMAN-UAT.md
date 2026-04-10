@@ -1,14 +1,18 @@
 ---
-status: partial
+status: testing
 phase: 02-supabase-prisma-auth
 source: [02-VERIFICATION.md]
 started: 2026-04-10T12:30:00Z
-updated: 2026-04-10T12:30:00Z
+updated: 2026-04-10T13:15:00Z
 ---
 
 ## Current Test
 
-[awaiting human testing]
+number: 1
+name: Email/Password 신규 가입 → role-select → /home 도달 확인
+expected: |
+  가입 후 이메일 인증 없이 (또는 인증 완료 후) role-select 페이지에서 WORKER 선택 시 /home으로 리다이렉트
+awaiting: user response
 
 ## Tests
 

@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import type { AuthFormState } from '../types'
@@ -31,7 +32,8 @@ export async function signInWithPassword(
   if (error) return { error: { form: [error.message] } }
 
   // Determine redirect by role (read from DB, NOT from session claims)
-  const { prisma } = await import('@/lib/db')
+  // Static import (not dynamic) — Turbopack 16.2 fails to resolve `@/generated/prisma/client`
+  // through `await import('@/lib/db')` even though static imports work fine.
   const dbUser = await prisma.user.findUnique({
     where: { id: data.user!.id },
     select: { role: true },
