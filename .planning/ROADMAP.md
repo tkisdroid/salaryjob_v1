@@ -12,7 +12,7 @@
 - [x] **Phase 1: 목업 UI 파운데이션** — Mock-data로 Worker·Business 양쪽 루프 E2E 완성 (완료 2026-04-10, commit `55790d1`)
 - [ ] **Phase 2: Supabase·Prisma·Auth 기반** — 실 DB 연결과 이중 역할 인증 기반 완성
 - [ ] **Phase 3: 프로필·공고 DB 연결** — Worker/Business 프로필과 공고 CRUD를 실 DB로 이관
-- [ ] **Phase 4: 지원·근무 라이프사이클 DB 연결** — 원탭 지원부터 체크인·체크아웃까지 실 DB 위에서 완주
+- [ ] **Phase 4: 지원·근무 라이프사이클 DB 연결** — 원탭 지원부터 체크인·체크아웃까지 실 DB 위에서 완주 (+ scope 확장: Kakao 지도 탐색, Web Push, 체크아웃 QR)
 - [ ] **Phase 5: 리뷰·정산·목업 제거** — 양방향 리뷰와 정산을 실 데이터로 구동하고 mock-data.ts 완전 제거
 
 ---
@@ -81,17 +81,31 @@ Plans:
 
 ---
 
-### Phase 4: 지원·근무 라이프사이클 DB 연결
-**Goal**: Worker가 실 DB로 원탭 지원·수락·체크인·체크아웃까지 완주하고, Business는 지원자 상태를 실시간으로 관리한다
+### Phase 4: 지원·근무 라이프사이클 DB 연결 + 탐색 고도화
+**Goal**: Worker가 실 DB로 원탭 지원·수락·체크인·체크아웃까지 완주하고, Business는 지원자 상태를 실시간으로 관리한다. Scope 확장(discuss-phase 2026-04-10): Kakao 지도 탐색 + Web Push + 체크아웃 QR.
 **Depends on**: Phase 3
-**Requirements**: APPL-01, APPL-02, APPL-03, APPL-04, APPL-05, SHIFT-01, SHIFT-02, SHIFT-03
+**Requirements**: APPL-01, APPL-02, APPL-03, APPL-04, APPL-05, SHIFT-01, SHIFT-02, SHIFT-03, SEARCH-02, SEARCH-03, NOTIF-01(partial)
 **Success Criteria** (what must be TRUE):
   1. 인증된 Worker가 공고 상세에서 "원탭 지원" 버튼 한 번으로 지원을 생성하고, 자기 지원 목록(예정/진행중/완료)에 즉시 반영된다
   2. Business가 공고별 지원자 목록을 보고 accept/reject하면 Worker 화면에 상태가 (실시간 또는 폴링으로) 반영된다
   3. Accept된 지원 수가 공고의 headcount에 도달하면 공고가 자동으로 "마감" 상태로 전환된다
   4. Accept된 Worker가 근무 시작 시간에 체크인하고 체크아웃하면 실근무 시간과 수입이 계산되어 Application에 저장된다
   5. 22:00–06:00 야간 시간대에 4시간 이상 근무한 경우 야간 할증 50%가 DB 또는 서버 함수에서 자동 가산되어 수입에 반영된다
-**Plans**: TBD
+  6. Worker는 /home에서 `[리스트|지도]` 토글로 공고를 탐색할 수 있고, 카카오맵에 현재 viewport 내 공고 marker가 표시되며, marker 클릭시 preview card/drawer가 열린다
+  7. Worker는 시간 프리셋(오늘/내일/이번주) + 시간대 버킷(오전/오후/저녁/야간) + 거리 스테퍼(1/3/5/10km)를 조합해 리스트/지도 모두 필터할 수 있다
+  8. Worker가 `/my`에서 Web Push 권한을 허용하면, Business가 수락/거절시 OS 알림이 표시되고 알림 클릭시 `/my/applications/[id]`로 이동한다
+**Plans**: 10 plans
+Plans:
+- [ ] 04-01-foundation-PLAN.md — Wave 1: 의존성 설치(jose/web-push/html5-qrcode/qrcode) + 문서 3개 scope 확장 [BLOCKING] + 21개 Wave 0 RED 테스트 + HUMAN-UAT 체크리스트 + .env.example 4개 키
+- [ ] 04-02-schema-dal-PLAN.md — Wave 1: Prisma schema 확장 (ApplicationStatus.pending, WorkerProfile.noShowCount, PushSubscription) + dal.ts requireApplicationOwner/requireJobOwner + [BLOCKING prisma db push]
+- [ ] 04-03-supabase-migrations-PLAN.md — Wave 2: 4 SQL 마이그레이션 (applications RLS re-enable, realtime publication, auto-accept pg_cron, no-show detection pg_cron) + [BLOCKING apply]
+- [ ] 04-04-application-actions-PLAN.md — Wave 3: applyOneTap/accept/reject/cancel Server Actions + queries 확장 + APPL tests GREEN
+- [ ] 04-05-shift-actions-PLAN.md — Wave 3: check-in/out Server Actions + night-shift/geofence/qr/shift-validation libs + generateCheckoutQrToken + SHIFT tests GREEN
+- [ ] 04-06-web-push-PLAN.md — Wave 4: sendPushToUser + subscribe/unsubscribe Server Actions + sw.js + ServiceWorkerRegistrar + PushPermissionBanner + Plan 04 TODO wiring + legacy /api/push/register delete
+- [ ] 04-07-search-map-PLAN.md — Wave 4: time-filters lib + queries time/bucket 파라미터 + Kakao ambient types + useKakaoMapsSDK hook + MapView + HomeFilterBar + /home 리스트/지도 토글
+- [ ] 04-08-worker-ui-wiring-PLAN.md — Wave 5: apply-confirm-flow + /my/applications Realtime + /check-in html5-qrcode + cancel 24h 모달 + PushPermissionBanner 렌더 + mock 제거
+- [ ] 04-09-biz-ui-wiring-PLAN.md — Wave 5: /biz applicants Realtime + accept/reject + 자동수락 progress + CheckoutQrModal + mock 제거
+- [ ] 04-10-e2e-verification-PLAN.md — Wave 6: 전체 test suite GREEN + build + HUMAN-UAT 5 시나리오 + STATE/REQUIREMENTS/ROADMAP 업데이트 + commit
 
 ---
 
@@ -117,25 +131,26 @@ Plans:
 | 1. 목업 UI 파운데이션 | N/A | Completed | 2026-04-10 |
 | 2. Supabase·Prisma·Auth 기반 | 0/6 | Planned | - |
 | 3. 프로필·공고 DB 연결 | 0/6 | Planned | - |
-| 4. 지원·근무 라이프사이클 DB 연결 | 0/? | Not started | - |
+| 4. 지원·근무 라이프사이클 DB 연결 | 0/10 | Planned | - |
 | 5. 리뷰·정산·목업 제거 | 0/? | Not started | - |
 
 ## Coverage Summary
 
-- **Total v1 requirements:** 40 (AUTH 7 + DATA 5 + WORK 4 + BIZ 3 + POST 6 + APPL 5 + SHIFT 3 + REV 4 + SETL 3)
-- **Mapped to phases:** 40/40 (100%)
+- **Total v1 requirements:** 40 (AUTH 7 + DATA 5 + WORK 4 + BIZ 3 + POST 6 + APPL 5 + SHIFT 3 + REV 4 + SETL 3) + **Phase 4 scope 확장 3** (SEARCH-02 v2→v1, SEARCH-03 new, NOTIF-01 partial) = **43**
+- **Mapped to phases:** 43/43 (100%)
 - **Orphaned:** 0
 - **Validated (Phase 1, retroactive):** 4 capability statements from PROJECT.md
 
-> Note: REQUIREMENTS.md header previously recorded "39 total"; actual count is 40. Traceability table below is authoritative.
+> Note: REQUIREMENTS.md header previously recorded "39 total"; actual count is 40. Phase 4 discuss-phase (2026-04-10) added 3 more via scope expansion. Traceability table in REQUIREMENTS.md is authoritative after that update.
 
 ## Out of Scope (do not plan)
 
 - AI 매칭 고도화 (AIMATCH-01..04) — v2
 - Toss Payments 실결제·원천징수 (PAY-01..04) — v2
-- Push/SMS/카카오 알림톡 (NOTIF-01..03) — v2
-- 고급 검색·카카오맵 (SEARCH-01..02) — v2
+- ~~Push/SMS/카카오 알림톡 (NOTIF-01..03)~~ **NOTIF-01 (Web Push) Phase 4로 부분 승격. 네이티브 FCM/SMS/알림톡은 여전히 v2**
+- ~~고급 검색·카카오맵 (SEARCH-01..02)~~ **SEARCH-02 (Kakao 지도) + SEARCH-03 (시간 필터) Phase 4로 승격. SEARCH-01 (고급 키워드 검색)은 여전히 v2**
 - 1:1 채팅 (CHAT-01..02) — v2
 
 ---
 *Roadmap created: 2026-04-10 by /gsd-new-project (brownfield — Phase 1 retroactive)*
+*Phase 4 plans generated: 2026-04-10 by /gsd-plan-phase 4 (10 plans, scope expanded per CONTEXT.md)*
