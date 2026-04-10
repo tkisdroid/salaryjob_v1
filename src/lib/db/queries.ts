@@ -397,3 +397,21 @@ export async function getBusinessById(id: string): Promise<Business | null> {
   if (!row) return null;
   return adaptBusiness(row);
 }
+
+// ============================================================================
+// Phase 3: Worker profile read (raw Prisma row for edit form prefill)
+// ============================================================================
+
+/**
+ * Fetch the raw WorkerProfile Prisma row by userId.
+ * Returns null if no profile exists yet.
+ * Caller is responsible for session verification — this function does NOT
+ * call verifySession, unlike getCurrentWorker which adapts to the UI shape.
+ *
+ * Used by Phase 3 /my/profile/edit page to prefill the form.
+ */
+export async function getWorkerProfileByUserId(userId: string) {
+  return prisma.workerProfile.findUnique({
+    where: { userId },
+  });
+}
