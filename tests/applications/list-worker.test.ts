@@ -39,7 +39,7 @@ describe.skipIf(skipIfNoSupabase())("APPL-02 list applications by worker bucket"
         { jobId: j1.id, workerId: worker.id, status: "pending" as never },
         { jobId: j2.id, workerId: worker.id, status: "confirmed" },
         { jobId: j3.id, workerId: worker.id, status: "in_progress" },
-        { jobId: j4.id, workerId: worker.id, status: "completed" },
+        { jobId: j4.id, workerId: worker.id, status: "settled" as never },
         { jobId: j5.id, workerId: worker.id, status: "cancelled" },
       ],
     });
@@ -61,6 +61,6 @@ describe.skipIf(skipIfNoSupabase())("APPL-02 list applications by worker bucket"
     expect(active.map((a: { status: string }) => a.status)).toEqual([
       "in_progress",
     ]);
-    expect(done.map((a: { status: string }) => a.status)).toEqual(["completed"]);
+    expect(done.map((a: { status: string }) => a.status)).toEqual(["settled"]);
   });
 });

@@ -118,8 +118,11 @@ function adaptApplication(a: any): Application {
     checkOutAt: a.checkOutAt ? (a.checkOutAt as Date).toISOString() : null,
     actualHours: a.actualHours !== null ? Number(a.actualHours) : null,
     earnings: (a.earnings as number | null) ?? null,
-    settlementStatus: null, // TODO Phase 3: add to DB schema
-    settledAt: null, // TODO Phase 3: add to DB schema
+    settlementStatus: a.status === "settled" ? "settled" : null,
+    settledAt:
+      a.status === "settled" && a.checkOutAt
+        ? (a.checkOutAt as Date).toISOString()
+        : null,
     reviewGiven: a.reviewGiven as boolean,
     reviewReceived: a.reviewReceived as boolean,
   };
@@ -841,7 +844,9 @@ const ACTIVE_STATUSES: PrismaApplicationStatus[] = ["in_progress"];
 // `cancelled` is intentionally excluded from the "done" bucket per list-worker
 // test — only `completed` apps show in the 완료 tab. Cancelled apps stay
 // visible in the UI elsewhere (notification center / history modal in Phase 5).
-const DONE_STATUSES: PrismaApplicationStatus[] = ["completed"];
+// Phase 5: include both 'settled' (new) and 'completed' (legacy) in the done bucket.
+// Legacy seed-produced rows may still be 'completed'; new checkouts produce 'settled'.
+const DONE_STATUSES: PrismaApplicationStatus[] = ["settled", "completed"];
 
 export type ApplicationBucket = "upcoming" | "active" | "done";
 

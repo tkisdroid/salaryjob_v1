@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
+import { safeRevalidate } from "@/lib/safe-revalidate";
 import { Prisma } from "@/generated/prisma/client";
 import { prisma } from "@/lib/db";
 import { requireApplicationOwner } from "@/lib/dal";
@@ -100,8 +100,8 @@ export async function checkIn(
       },
     });
 
-    revalidatePath(`/my/applications/${applicationId}`);
-    revalidatePath("/my/applications");
+    safeRevalidate(`/my/applications/${applicationId}`);
+    safeRevalidate("/my/applications");
     return { success: true };
   } catch (e) {
     if (e instanceof ApplicationError) {
@@ -209,15 +209,15 @@ export async function checkOut(
     await prisma.application.update({
       where: { id: applicationId },
       data: {
-        status: "completed",
+        status: "settled",
         checkOutAt,
         actualHours: new Prisma.Decimal(actualHours),
         earnings,
       },
     });
 
-    revalidatePath(`/my/applications/${applicationId}`);
-    revalidatePath("/my/applications");
+    safeRevalidate(`/my/applications/${applicationId}`);
+    safeRevalidate("/my/applications");
     return { success: true, actualHours, earnings, nightPremium };
   } catch (e) {
     if (e instanceof ApplicationError) {

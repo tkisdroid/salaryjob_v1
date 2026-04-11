@@ -35,7 +35,7 @@ describe.skipIf(skipIfNoSupabase())("APPL-03 list applications by biz job", () =
       data: [
         { jobId: job.id, workerId: w1.id, status: "pending" as never },
         { jobId: job.id, workerId: w2.id, status: "confirmed" },
-        { jobId: job.id, workerId: w3.id, status: "completed" },
+        { jobId: job.id, workerId: w3.id, status: "settled" as never },
       ],
     });
 

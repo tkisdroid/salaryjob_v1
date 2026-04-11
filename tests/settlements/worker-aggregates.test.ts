@@ -54,7 +54,7 @@ describe.skipIf(!process.env.DATABASE_URL)(
           data: {
             jobId: job.id,
             workerId: worker.id,
-            status: "completed", // Wave 0: 'settled' added in Plan 02
+            status: "settled",
             appliedAt: new Date(Date.now() - 24 * 3600 * 1000),
             checkInAt: new Date(Date.now() - 5 * 3600 * 1000),
             checkOutAt: new Date(Date.now() - 1 * 3600 * 1000),
