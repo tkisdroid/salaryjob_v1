@@ -983,3 +983,160 @@ export async function getReviewsForUser(
     take: opts.limit ?? 20,
   });
 }
+
+// ============================================================================
+// Phase 5 Plan 04 — Settlement queries (SETL-02 / SETL-03)
+// ============================================================================
+
+export type SettlementListOpts = { page?: number; limit?: number };
+
+export type WorkerSettlementTotals = {
+  allTimeTotal: number;
+  allTimeCount: number;
+  thisMonthTotal: number;
+  thisMonthCount: number;
+};
+
+export type BizSettlementTotals = {
+  allTimeTotal: number;
+  allTimeCount: number;
+  thisMonthTotal: number;
+  thisMonthCount: number;
+};
+
+/**
+ * SETL-03: Worker settlement totals with KST (Asia/Seoul) month boundary.
+ * Uses raw SQL because Prisma aggregate cannot express `AT TIME ZONE`.
+ * Korea has no DST → Asia/Seoul is a fixed UTC+9 offset (see night-shift.ts).
+ */
+export async function getWorkerSettlementTotals(
+  workerId: string,
+): Promise<WorkerSettlementTotals> {
+  const rows = await prisma.$queryRaw<
+    Array<{
+      all_time_total: bigint;
+      all_time_count: bigint;
+      this_month_total: bigint;
+      this_month_count: bigint;
+    }>
+  >`
+    SELECT
+      COALESCE(SUM(earnings), 0)::bigint AS all_time_total,
+      COUNT(*)::bigint AS all_time_count,
+      COALESCE(SUM(
+        CASE
+          WHEN date_trunc('month', "checkOutAt" AT TIME ZONE 'Asia/Seoul')
+               = date_trunc('month', now() AT TIME ZONE 'Asia/Seoul')
+          THEN earnings
+          ELSE 0
+        END
+      ), 0)::bigint AS this_month_total,
+      COUNT(*) FILTER (
+        WHERE date_trunc('month', "checkOutAt" AT TIME ZONE 'Asia/Seoul')
+            = date_trunc('month', now() AT TIME ZONE 'Asia/Seoul')
+      )::bigint AS this_month_count
+    FROM public.applications
+    WHERE "workerId" = ${workerId}::uuid
+      AND status = 'settled'::"ApplicationStatus"
+  `;
+  const r = rows[0]!;
+  return {
+    allTimeTotal: Number(r.all_time_total),
+    allTimeCount: Number(r.all_time_count),
+    thisMonthTotal: Number(r.this_month_total),
+    thisMonthCount: Number(r.this_month_count),
+  };
+}
+
+/**
+ * SETL-02 / SETL-03: Paginated list of worker's settled applications.
+ * Offset pagination (research recommendation for monthly-slice navigation).
+ */
+export async function getWorkerSettlements(
+  workerId: string,
+  opts: SettlementListOpts = {},
+) {
+  const page = Math.max(1, opts.page ?? 1);
+  const limit = Math.max(1, Math.min(100, opts.limit ?? 20));
+  return prisma.application.findMany({
+    where: {
+      workerId,
+      status: "settled",
+    },
+    include: {
+      job: { include: { business: true } },
+    },
+    orderBy: { checkOutAt: "desc" },
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+}
+
+/**
+ * SETL-02: Paginated list of settled applications for jobs authored by userId.
+ * Flat list (one row per worker-shift) per research Q7 recommendation.
+ */
+export async function getBizSettlements(
+  userId: string,
+  opts: SettlementListOpts = {},
+) {
+  const page = Math.max(1, opts.page ?? 1);
+  const limit = Math.max(1, Math.min(100, opts.limit ?? 20));
+  return prisma.application.findMany({
+    where: {
+      status: "settled",
+      job: { authorId: userId },
+    },
+    include: {
+      job: { include: { business: true } },
+      worker: { include: { workerProfile: true } },
+    },
+    orderBy: { checkOutAt: "desc" },
+    skip: (page - 1) * limit,
+    take: limit,
+  });
+}
+
+/**
+ * SETL-02/03: Business settlement totals for jobs authored by userId.
+ * Uses JOIN on jobs table to filter by authorId.
+ */
+export async function getBizSettlementTotals(
+  userId: string,
+): Promise<BizSettlementTotals> {
+  const rows = await prisma.$queryRaw<
+    Array<{
+      all_time_total: bigint;
+      all_time_count: bigint;
+      this_month_total: bigint;
+      this_month_count: bigint;
+    }>
+  >`
+    SELECT
+      COALESCE(SUM(a.earnings), 0)::bigint AS all_time_total,
+      COUNT(*)::bigint AS all_time_count,
+      COALESCE(SUM(
+        CASE
+          WHEN date_trunc('month', a."checkOutAt" AT TIME ZONE 'Asia/Seoul')
+               = date_trunc('month', now() AT TIME ZONE 'Asia/Seoul')
+          THEN a.earnings
+          ELSE 0
+        END
+      ), 0)::bigint AS this_month_total,
+      COUNT(*) FILTER (
+        WHERE date_trunc('month', a."checkOutAt" AT TIME ZONE 'Asia/Seoul')
+            = date_trunc('month', now() AT TIME ZONE 'Asia/Seoul')
+      )::bigint AS this_month_count
+    FROM public.applications a
+    INNER JOIN public.jobs j ON a."jobId" = j.id
+    WHERE j."authorId" = ${userId}::uuid
+      AND a.status = 'settled'::"ApplicationStatus"
+  `;
+  const r = rows[0]!;
+  return {
+    allTimeTotal: Number(r.all_time_total),
+    allTimeCount: Number(r.all_time_count),
+    thisMonthTotal: Number(r.this_month_total),
+    thisMonthCount: Number(r.this_month_count),
+  };
+}

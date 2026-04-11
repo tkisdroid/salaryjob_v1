@@ -33,7 +33,6 @@ describe.skipIf(!process.env.DATABASE_URL)(
         await createSettledApplication(prisma);
       await createSettledApplication(prisma); // biz2 — different business
 
-      // @ts-expect-error — symbol does not exist until Plan 04
       const { getBizSettlements } = await import("@/lib/db/queries");
       const result = await getBizSettlements(biz1.user.id);
 
@@ -45,7 +44,6 @@ describe.skipIf(!process.env.DATABASE_URL)(
       const { business: biz1, worker: worker1 } =
         await createSettledApplication(prisma);
 
-      // @ts-expect-error — symbol does not exist until Plan 04
       const { getBizSettlements } = await import("@/lib/db/queries");
       const result = await getBizSettlements(biz1.user.id);
 

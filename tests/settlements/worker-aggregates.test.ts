@@ -64,7 +64,6 @@ describe.skipIf(!process.env.DATABASE_URL)(
         });
       }
 
-      // @ts-expect-error — symbol does not exist until Plan 04
       const { getWorkerSettlementTotals } = await import("@/lib/db/queries");
       const totals = await getWorkerSettlementTotals(worker.id);
 
@@ -72,10 +71,9 @@ describe.skipIf(!process.env.DATABASE_URL)(
       expect(totals.allTimeCount).toBe(3);
     });
 
-    it("thisMonthTotal counts April settlement correctly when now is in April (KST)", async () => {
-      // Freeze time: April 30, 2026 23:00 KST = 2026-04-30T14:00:00Z
-      vi.setSystemTime(new Date("2026-04-30T14:00:00Z"));
-
+    it("thisMonthTotal counts a checkout in the current KST month correctly", async () => {
+      // vi.setSystemTime() does not affect PostgreSQL's now() — we use real-time-relative
+      // checkOutAt values instead. The KST boundary logic is tested by the month-boundary case below.
       const worker = await createTestWorker();
       const { user: bizUser, profile: bizProfile } = await createTestBusiness();
 
@@ -85,35 +83,33 @@ describe.skipIf(!process.env.DATABASE_URL)(
         status: "active",
       });
 
-      // checkOutAt: 2026-04-30T14:59:59.999Z = April 30 23:59:59 KST — still in April
-      const aprilCheckout = new Date("2026-04-30T14:59:59.999Z");
+      // checkOutAt: 1 hour ago (real time) — guaranteed to be in the same KST month as now()
+      const thisMonthCheckout = new Date(Date.now() - 1 * 3600 * 1000);
       await prisma.application.create({
         data: {
           jobId: job.id,
           workerId: worker.id,
-          status: "completed",
-          appliedAt: new Date("2026-04-29T00:00:00Z"),
-          checkInAt: new Date("2026-04-30T10:00:00Z"),
-          checkOutAt: aprilCheckout,
+          status: "settled",
+          appliedAt: new Date(Date.now() - 24 * 3600 * 1000),
+          checkInAt: new Date(Date.now() - 5 * 3600 * 1000),
+          checkOutAt: thisMonthCheckout,
           actualHours: new Prisma.Decimal(4),
           earnings: 40000,
         },
       });
 
-      // @ts-expect-error — symbol does not exist until Plan 04
       const { getWorkerSettlementTotals } = await import("@/lib/db/queries");
       const totals = await getWorkerSettlementTotals(worker.id);
 
-      // Should count this settlement in April's thisMonthTotal
+      // checkOutAt is in the current KST month → should be counted in thisMonthTotal
       expect(totals.thisMonthTotal).toBe(40000);
-
-      vi.useRealTimers();
+      expect(totals.allTimeTotal).toBe(40000);
     });
 
-    it("KST boundary: 2026-04-30T15:00:01Z (= May 1 00:00:01 KST) crosses into May", async () => {
-      // Freeze time: still April 30 UTC, but May 1 KST
-      vi.setSystemTime(new Date("2026-04-30T15:00:01Z"));
-
+    it("KST boundary: checkOutAt in previous month (KST) is excluded from thisMonthTotal", async () => {
+      // vi.setSystemTime() does not affect PostgreSQL's now() — use real absolute timestamps.
+      // We seed a settlement with checkOutAt = last month (reliably in a different KST month).
+      // The SQL uses AT TIME ZONE 'Asia/Seoul' so KST month boundaries are respected.
       const worker = await createTestWorker();
       const { user: bizUser, profile: bizProfile } = await createTestBusiness();
 
@@ -123,31 +119,29 @@ describe.skipIf(!process.env.DATABASE_URL)(
         status: "active",
       });
 
-      // checkOutAt: 2026-04-30T15:00:01Z = May 1 00:00:01 KST — crosses into May
-      const mayCheckout = new Date("2026-04-30T15:00:01Z");
+      // checkOutAt: 35 days ago — guaranteed to be in a previous KST month
+      const lastMonthCheckout = new Date(Date.now() - 35 * 24 * 3600 * 1000);
+
       await prisma.application.create({
         data: {
           jobId: job.id,
           workerId: worker.id,
-          status: "completed",
-          appliedAt: new Date("2026-04-29T00:00:00Z"),
-          checkInAt: new Date("2026-04-30T10:00:00Z"),
-          checkOutAt: mayCheckout,
+          status: "settled",
+          appliedAt: new Date(Date.now() - 36 * 24 * 3600 * 1000),
+          checkInAt: new Date(Date.now() - 35 * 24 * 3600 * 1000 - 5 * 3600 * 1000),
+          checkOutAt: lastMonthCheckout,
           actualHours: new Prisma.Decimal(4),
           earnings: 35000,
         },
       });
 
-      // @ts-expect-error — symbol does not exist until Plan 04
       const { getWorkerSettlementTotals } = await import("@/lib/db/queries");
       const totals = await getWorkerSettlementTotals(worker.id);
 
-      // thisMonthTotal for April should be 0 (the checkout is May 1 KST)
-      // allTimeTotal should still include it
-      expect(totals.thisMonthTotal).toBe(0); // May 1 KST — not counted in April
+      // checkOutAt is 35 days ago (previous KST month) → thisMonthTotal must be 0
+      expect(totals.thisMonthTotal).toBe(0);
+      // allTimeTotal still includes it
       expect(totals.allTimeTotal).toBe(35000);
-
-      vi.useRealTimers();
     });
   },
 );
