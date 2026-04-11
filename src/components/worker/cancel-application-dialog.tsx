@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { cloneElement, isValidElement, useState, type ReactElement } from "react";
 import { useRouter } from "next/navigation";
 import { AlertDialog } from "@base-ui/react/alert-dialog";
 import { AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
@@ -27,8 +27,12 @@ type Props = {
   applicationId: string;
   /** Shift start datetime — used for the client-side 24h check. */
   workDateStartAt: Date;
-  /** The element that opens the dialog (e.g. the 취소 button). */
-  trigger: ReactNode;
+  /**
+   * The element that opens the dialog. Must be a real `<button>` element so
+   * BaseUI's AlertDialog.Trigger can merge its native button semantics onto
+   * it. Passing a non-button element triggers BaseUI's nativeButton warning.
+   */
+  trigger: ReactElement;
 };
 
 type Phase = "idle" | "pending" | "success" | "error";
@@ -89,7 +93,14 @@ export function CancelApplicationDialog({
   return (
     <AlertDialog.Root open={open} onOpenChange={resetAndClose}>
       <AlertDialog.Trigger
-        render={(props) => <span {...props}>{trigger}</span>}
+        render={(props) =>
+          isValidElement(trigger)
+            ? cloneElement(
+                trigger as ReactElement<Record<string, unknown>>,
+                props as Record<string, unknown>,
+              )
+            : (trigger as ReactElement)
+        }
       />
       <AlertDialog.Portal>
         <AlertDialog.Backdrop className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[open]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[open]:fade-in-0" />

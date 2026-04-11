@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { Fragment, useState, useCallback } from "react";
 import Link from "next/link";
 import {
   Clock,
   Sparkles,
   ChevronLeft,
-  ChevronRight,
   RotateCcw,
 } from "lucide-react";
 import {
@@ -235,14 +234,12 @@ export default function AvailabilityPage() {
               );
             })}
 
-            {/* Time rows */}
+            {/* Time rows. Fragment needs an explicit key here — short-form
+                `<>` fragments cannot carry one, so we use Fragment. */}
             {HOURS.map((hour) => (
-              <>
+              <Fragment key={`row-${hour}`}>
                 {/* Time label */}
-                <div
-                  key={`label-${hour}`}
-                  className="h-8 flex items-center justify-end pr-2 text-[10px] text-muted-foreground"
-                >
+                <div className="h-8 flex items-center justify-end pr-2 text-[10px] text-muted-foreground">
                   {hour}시
                 </div>
 
@@ -267,7 +264,7 @@ export default function AvailabilityPage() {
                     />
                   );
                 })}
-              </>
+              </Fragment>
             ))}
           </div>
 
