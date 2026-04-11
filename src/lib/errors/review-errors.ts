@@ -14,6 +14,7 @@ export type ReviewErrorCode =
   | "not_settled"         // Application.status !== 'settled'
   | "already_reviewed"    // unique (applicationId, direction) violated (P2002)
   | "invalid_state"       // target row not found, etc.
+  | "unauthorized"        // caller does not own the job (biz side ownership failure)
   | "unknown";
 
 /**
@@ -42,6 +43,7 @@ export function reviewErrorToKorean(code: ReviewErrorCode): string {
     case "not_settled":      return "아직 정산이 완료되지 않은 지원은 리뷰할 수 없습니다";
     case "already_reviewed": return "이미 리뷰를 작성했습니다";
     case "invalid_state":    return "리뷰를 작성할 수 없는 상태입니다";
+    case "unauthorized":     return "이 지원에 대한 권한이 없습니다";
     case "unknown":          return "알 수 없는 오류가 발생했습니다. 잠시 후 다시 시도해주세요";
   }
 }
