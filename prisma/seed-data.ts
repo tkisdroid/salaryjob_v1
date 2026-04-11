@@ -1,6 +1,8 @@
-// Mock data for Phase 1 UI development
-// Will be replaced with actual Prisma queries in Phase 2
+// Phase 5 Plan 06 — extracted from src/lib/mock-data.ts to detach
+// prisma/seed.ts from the src/ mock-data module (DATA-05 exit gate).
+// This file is NOT imported from any src/ code — prisma seed only.
 
+// Type aliases to keep seed self-contained (no src/ dependency).
 export type JobCategory =
   | "food"
   | "retail"
@@ -11,7 +13,7 @@ export type JobCategory =
   | "education"
   | "tech";
 
-export interface MockBusiness {
+export interface SeedBusiness {
   id: string;
   name: string;
   category: JobCategory;
@@ -28,10 +30,10 @@ export interface MockBusiness {
   description: string;
 }
 
-export interface MockJob {
+export interface SeedJob {
   id: string;
   businessId: string;
-  business: MockBusiness;
+  business: SeedBusiness;
   title: string;
   category: JobCategory;
   description: string;
@@ -41,9 +43,9 @@ export interface MockJob {
   whatToBring: string[];
   hourlyPay: number;
   transportFee: number;
-  workDate: string; // ISO
-  startTime: string; // HH:MM
-  endTime: string; // HH:MM
+  workDate: string; // ISO date "YYYY-MM-DD"
+  startTime: string; // "HH:MM"
+  endTime: string; // "HH:MM"
   workHours: number;
   headcount: number;
   filled: number;
@@ -55,16 +57,11 @@ export interface MockJob {
   nightShiftAllowance: boolean;
 }
 
-export interface MockApplication {
+export interface SeedApplication {
   id: string;
   jobId: string;
-  job: MockJob;
-  status:
-    | "confirmed"
-    | "in_progress"
-    | "checked_in"
-    | "completed"
-    | "cancelled";
+  job: SeedJob;
+  status: "confirmed" | "in_progress" | "checked_in" | "completed" | "cancelled" | "settled";
   appliedAt: string;
   checkInAt: string | null;
   checkOutAt: string | null;
@@ -76,7 +73,7 @@ export interface MockApplication {
   reviewReceived: boolean;
 }
 
-export interface MockWorker {
+export interface SeedWorker {
   id: string;
   name: string;
   nickname: string;
@@ -95,32 +92,11 @@ export interface MockWorker {
   thisMonthEarnings: number;
 }
 
-export interface MockReview {
-  id: string;
-  reviewerName: string;
-  reviewerAvatar: string;
-  rating: number;
-  comment: string;
-  createdAt: string;
-  jobTitle: string;
-}
-
-export interface MockBizApplicant {
-  id: string;
-  postId: string;
-  workerName: string;
-  workerInitial: string; // single char for avatar fallback
-  rating: number;
-  completedJobs: number;
-  completionRate: number;
-  postTitle: string;
-}
-
 // ============================================================================
-// Sample businesses
+// Sample businesses (verbatim from former src/lib/mock-data.ts)
 // ============================================================================
 
-export const MOCK_BUSINESSES: MockBusiness[] = [
+export const MOCK_BUSINESSES: SeedBusiness[] = [
   {
     id: "biz-1",
     name: "스타벅스 역삼점",
@@ -252,28 +228,27 @@ export const MOCK_BUSINESSES: MockBusiness[] = [
   },
 ];
 
-// Helper: compute distance approximately (not needed for mock)
-function mockDistance(km: number): number {
-  return km * 1000;
-}
-
 // ============================================================================
-// Sample jobs
+// Date helpers (self-contained — no src/ imports)
 // ============================================================================
 
-const today = new Date();
-const tomorrow = new Date(today);
-tomorrow.setDate(today.getDate() + 1);
-const dayAfter = new Date(today);
-dayAfter.setDate(today.getDate() + 2);
-const nextWeek = new Date(today);
-nextWeek.setDate(today.getDate() + 7);
-
-function iso(date: Date): string {
+function isoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
-export const MOCK_JOBS: MockJob[] = [
+const _today = new Date();
+const _tomorrow = new Date(_today);
+_tomorrow.setDate(_today.getDate() + 1);
+const _dayAfter = new Date(_today);
+_dayAfter.setDate(_today.getDate() + 2);
+const _nextWeek = new Date(_today);
+_nextWeek.setDate(_today.getDate() + 7);
+
+// ============================================================================
+// Sample jobs (verbatim from former src/lib/mock-data.ts)
+// ============================================================================
+
+export const MOCK_JOBS: SeedJob[] = [
   {
     id: "job-1",
     businessId: "biz-1",
@@ -293,7 +268,7 @@ export const MOCK_JOBS: MockJob[] = [
     whatToBring: ["신분증", "마스크"],
     hourlyPay: 13000,
     transportFee: 3000,
-    workDate: iso(today),
+    workDate: isoDate(_today),
     startTime: "10:00",
     endTime: "15:00",
     workHours: 5,
@@ -301,7 +276,7 @@ export const MOCK_JOBS: MockJob[] = [
     filled: 0,
     isUrgent: true,
     isNew: true,
-    distanceM: mockDistance(0.8),
+    distanceM: 800,
     appliedCount: 3,
     tags: ["당일", "초보환영", "교통비별도"],
     nightShiftAllowance: false,
@@ -320,7 +295,7 @@ export const MOCK_JOBS: MockJob[] = [
     whatToBring: ["신분증", "장갑(지급 가능)"],
     hourlyPay: 12500,
     transportFee: 5000,
-    workDate: iso(tomorrow),
+    workDate: isoDate(_tomorrow),
     startTime: "09:00",
     endTime: "18:00",
     workHours: 8,
@@ -328,7 +303,7 @@ export const MOCK_JOBS: MockJob[] = [
     filled: 2,
     isUrgent: false,
     isNew: true,
-    distanceM: mockDistance(3.2),
+    distanceM: 3200,
     appliedCount: 8,
     tags: ["식사제공", "에어컨완비"],
     nightShiftAllowance: false,
@@ -346,7 +321,7 @@ export const MOCK_JOBS: MockJob[] = [
     whatToBring: ["신분증"],
     hourlyPay: 14000,
     transportFee: 3000,
-    workDate: iso(dayAfter),
+    workDate: isoDate(_dayAfter),
     startTime: "11:00",
     endTime: "17:00",
     workHours: 6,
@@ -354,7 +329,7 @@ export const MOCK_JOBS: MockJob[] = [
     filled: 1,
     isUrgent: false,
     isNew: false,
-    distanceM: mockDistance(2.5),
+    distanceM: 2500,
     appliedCount: 5,
     tags: ["시급높음", "주말"],
     nightShiftAllowance: false,
@@ -373,7 +348,7 @@ export const MOCK_JOBS: MockJob[] = [
     whatToBring: ["신분증", "검정 구두"],
     hourlyPay: 16000,
     transportFee: 5000,
-    workDate: iso(dayAfter),
+    workDate: isoDate(_dayAfter),
     startTime: "10:00",
     endTime: "16:00",
     workHours: 6,
@@ -381,7 +356,7 @@ export const MOCK_JOBS: MockJob[] = [
     filled: 5,
     isUrgent: false,
     isNew: false,
-    distanceM: mockDistance(4.1),
+    distanceM: 4100,
     appliedCount: 12,
     tags: ["고시급", "식사제공", "정장지급"],
     nightShiftAllowance: false,
@@ -399,7 +374,7 @@ export const MOCK_JOBS: MockJob[] = [
     whatToBring: ["신분증"],
     hourlyPay: 12500,
     transportFee: 2000,
-    workDate: iso(tomorrow),
+    workDate: isoDate(_tomorrow),
     startTime: "07:00",
     endTime: "12:00",
     workHours: 5,
@@ -407,7 +382,7 @@ export const MOCK_JOBS: MockJob[] = [
     filled: 0,
     isUrgent: true,
     isNew: true,
-    distanceM: mockDistance(5.8),
+    distanceM: 5800,
     appliedCount: 2,
     tags: ["당일", "초보환영"],
     nightShiftAllowance: false,
@@ -426,7 +401,7 @@ export const MOCK_JOBS: MockJob[] = [
     whatToBring: ["신분증"],
     hourlyPay: 13500,
     transportFee: 8000,
-    workDate: iso(tomorrow),
+    workDate: isoDate(_tomorrow),
     startTime: "22:00",
     endTime: "06:00",
     workHours: 8,
@@ -434,7 +409,7 @@ export const MOCK_JOBS: MockJob[] = [
     filled: 3,
     isUrgent: true,
     isNew: false,
-    distanceM: mockDistance(12.4),
+    distanceM: 12400,
     appliedCount: 7,
     tags: ["심야할증", "식사제공", "교통비"],
     nightShiftAllowance: true,
@@ -452,7 +427,7 @@ export const MOCK_JOBS: MockJob[] = [
     whatToBring: ["신분증"],
     hourlyPay: 12500,
     transportFee: 3000,
-    workDate: iso(nextWeek),
+    workDate: isoDate(_nextWeek),
     startTime: "13:00",
     endTime: "19:00",
     workHours: 6,
@@ -460,7 +435,7 @@ export const MOCK_JOBS: MockJob[] = [
     filled: 0,
     isUrgent: false,
     isNew: true,
-    distanceM: mockDistance(6.2),
+    distanceM: 6200,
     appliedCount: 1,
     tags: ["초보환영"],
     nightShiftAllowance: false,
@@ -478,7 +453,7 @@ export const MOCK_JOBS: MockJob[] = [
     whatToBring: ["신분증", "검정 구두"],
     hourlyPay: 15000,
     transportFee: 5000,
-    workDate: iso(nextWeek),
+    workDate: isoDate(_nextWeek),
     startTime: "09:00",
     endTime: "18:00",
     workHours: 8,
@@ -486,7 +461,7 @@ export const MOCK_JOBS: MockJob[] = [
     filled: 2,
     isUrgent: false,
     isNew: true,
-    distanceM: mockDistance(1.5),
+    distanceM: 1500,
     appliedCount: 4,
     tags: ["고시급", "식사제공"],
     nightShiftAllowance: false,
@@ -494,10 +469,10 @@ export const MOCK_JOBS: MockJob[] = [
 ];
 
 // ============================================================================
-// Sample worker profile (for my page)
+// Sample worker profile (for kim-jihoon seed account)
 // ============================================================================
 
-export const MOCK_CURRENT_WORKER: MockWorker = {
+export const MOCK_CURRENT_WORKER: SeedWorker = {
   id: "worker-me",
   name: "김지훈",
   nickname: "지훈",
@@ -517,10 +492,12 @@ export const MOCK_CURRENT_WORKER: MockWorker = {
 };
 
 // ============================================================================
-// Sample applications (my schedule)
+// Sample applications (kim-jihoon schedule)
+// Phase 5 Plan 06: past-job fixtures changed from 'completed' → 'settled'
+// to match Plan 02's ApplicationStatus.settled enum value.
 // ============================================================================
 
-export const MOCK_APPLICATIONS: MockApplication[] = [
+export const MOCK_APPLICATIONS: SeedApplication[] = [
   {
     id: "app-1",
     jobId: "job-1",
@@ -551,12 +528,12 @@ export const MOCK_APPLICATIONS: MockApplication[] = [
     reviewGiven: false,
     reviewReceived: false,
   },
-  // Past completed jobs
+  // Past completed jobs — status changed from 'completed' to 'settled' (Phase 5 Plan 06)
   {
     id: "app-past-1",
     jobId: "job-3",
     job: MOCK_JOBS[2],
-    status: "completed",
+    status: "settled",
     appliedAt: new Date(Date.now() - 7 * 24 * 3600000).toISOString(),
     checkInAt: new Date(Date.now() - 6 * 24 * 3600000).toISOString(),
     checkOutAt: new Date(Date.now() - 6 * 24 * 3600000 + 6 * 3600000).toISOString(),
@@ -571,7 +548,7 @@ export const MOCK_APPLICATIONS: MockApplication[] = [
     id: "app-past-2",
     jobId: "job-5",
     job: MOCK_JOBS[4],
-    status: "completed",
+    status: "settled",
     appliedAt: new Date(Date.now() - 14 * 24 * 3600000).toISOString(),
     checkInAt: new Date(Date.now() - 13 * 24 * 3600000).toISOString(),
     checkOutAt: new Date(Date.now() - 13 * 24 * 3600000 + 5 * 3600000).toISOString(),
@@ -586,7 +563,7 @@ export const MOCK_APPLICATIONS: MockApplication[] = [
     id: "app-past-3",
     jobId: "job-4",
     job: MOCK_JOBS[3],
-    status: "completed",
+    status: "settled",
     appliedAt: new Date(Date.now() - 21 * 24 * 3600000).toISOString(),
     checkInAt: new Date(Date.now() - 20 * 24 * 3600000).toISOString(),
     checkOutAt: new Date(Date.now() - 20 * 24 * 3600000 + 6 * 3600000).toISOString(),
@@ -598,169 +575,3 @@ export const MOCK_APPLICATIONS: MockApplication[] = [
     reviewReceived: true,
   },
 ];
-
-// ============================================================================
-// Sample reviews (for business page)
-// ============================================================================
-
-export const MOCK_REVIEWS: MockReview[] = [
-  {
-    id: "rev-1",
-    reviewerName: "박**",
-    reviewerAvatar: "😊",
-    rating: 5,
-    comment: "점장님이 정말 친절하셨어요. 업무도 어렵지 않고 또 하고 싶어요.",
-    createdAt: new Date(Date.now() - 2 * 24 * 3600000).toISOString(),
-    jobTitle: "주말 카페 바리스타 보조",
-  },
-  {
-    id: "rev-2",
-    reviewerName: "이**",
-    reviewerAvatar: "🙂",
-    rating: 4,
-    comment: "매장이 깔끔하고 분위기 좋아요. 첫 근무였는데 잘 챙겨주셨습니다.",
-    createdAt: new Date(Date.now() - 5 * 24 * 3600000).toISOString(),
-    jobTitle: "평일 오전 바리스타",
-  },
-  {
-    id: "rev-3",
-    reviewerName: "최**",
-    reviewerAvatar: "😃",
-    rating: 5,
-    comment: "시급도 제때 들어오고 급여 확인 바로 되어 좋았어요.",
-    createdAt: new Date(Date.now() - 10 * 24 * 3600000).toISOString(),
-    jobTitle: "주말 카페 바리스타 보조",
-  },
-];
-
-// ============================================================================
-// Sample biz-side applicants (for biz applicants list & review)
-// ============================================================================
-
-export const MOCK_BIZ_APPLICANTS: MockBizApplicant[] = [
-  {
-    id: "a1",
-    postId: "job-1",
-    workerName: "이준호",
-    workerInitial: "이",
-    rating: 4.9,
-    completedJobs: 23,
-    completionRate: 100,
-    postTitle: "주말 카페 바리스타 보조",
-  },
-  {
-    id: "a2",
-    postId: "job-1",
-    workerName: "박서연",
-    workerInitial: "박",
-    rating: 4.8,
-    completedJobs: 15,
-    completionRate: 98,
-    postTitle: "주말 카페 바리스타 보조",
-  },
-  {
-    id: "a3",
-    postId: "job-1",
-    workerName: "김동현",
-    workerInitial: "김",
-    rating: 4.5,
-    completedJobs: 8,
-    completionRate: 95,
-    postTitle: "주말 카페 바리스타 보조",
-  },
-  {
-    id: "a4",
-    postId: "job-1",
-    workerName: "정하늘",
-    workerInitial: "정",
-    rating: 4.2,
-    completedJobs: 3,
-    completionRate: 92,
-    postTitle: "주말 카페 바리스타 보조",
-  },
-];
-
-// ============================================================================
-// Helper functions
-// ============================================================================
-
-export function getJobById(id: string): MockJob | undefined {
-  return MOCK_JOBS.find((j) => j.id === id);
-}
-
-export function getBizApplicantById(
-  id: string
-): MockBizApplicant | undefined {
-  return MOCK_BIZ_APPLICANTS.find((a) => a.id === id);
-}
-
-export function getBusinessById(id: string): MockBusiness | undefined {
-  return MOCK_BUSINESSES.find((b) => b.id === id);
-}
-
-export function getJobsByCategory(category: JobCategory): MockJob[] {
-  return MOCK_JOBS.filter((j) => j.category === category);
-}
-
-export function getUrgentJobs(): MockJob[] {
-  return MOCK_JOBS.filter((j) => j.isUrgent);
-}
-
-export function getTodayJobs(): MockJob[] {
-  const todayStr = iso(new Date());
-  return MOCK_JOBS.filter((j) => j.workDate === todayStr);
-}
-
-export function calculateEarnings(job: MockJob): number {
-  let base = job.hourlyPay * job.workHours;
-  if (job.nightShiftAllowance && job.workHours >= 4) {
-    base = Math.floor(base * 1.5); // 야간 할증 50%
-  }
-  return base + job.transportFee;
-}
-
-export function categoryLabel(cat: JobCategory): string {
-  const map: Record<JobCategory, string> = {
-    food: "음식점·카페",
-    retail: "판매·유통",
-    logistics: "물류·배송",
-    office: "사무·행정",
-    event: "행사·이벤트",
-    cleaning: "청소·정리",
-    education: "교육·과외",
-    tech: "IT·디자인",
-  };
-  return map[cat];
-}
-
-export function categoryEmoji(cat: JobCategory): string {
-  const map: Record<JobCategory, string> = {
-    food: "☕",
-    retail: "🛍️",
-    logistics: "📦",
-    office: "💼",
-    event: "🎪",
-    cleaning: "✨",
-    education: "📚",
-    tech: "💻",
-  };
-  return map[cat];
-}
-
-export function formatWorkDate(iso: string): string {
-  const date = new Date(iso);
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-
-  const isSameDay = (a: Date, b: Date) =>
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate();
-
-  if (isSameDay(date, today)) return "오늘";
-  if (isSameDay(date, tomorrow)) return "내일";
-
-  const weekdays = ["일", "월", "화", "수", "목", "금", "토"];
-  return `${date.getMonth() + 1}/${date.getDate()} (${weekdays[date.getDay()]})`;
-}

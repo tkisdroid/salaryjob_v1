@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import type { MockJob } from "@/lib/types/job";
+import type { Job } from "@/lib/types/job";
 import { calculateEarnings, formatWorkDate } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
 import { applyOneTap } from "./actions";
@@ -23,7 +23,7 @@ import {
 
 type Step = "review" | "confirming" | "confirmed" | "error";
 
-export function ApplyConfirmFlow({ job }: { job: MockJob }) {
+export function ApplyConfirmFlow({ job }: { job: Job }) {
   const [step, setStep] = useState<Step>("review");
   const [agreed, setAgreed] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);

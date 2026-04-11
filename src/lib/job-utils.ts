@@ -1,6 +1,6 @@
 /**
- * Pure utility functions for job-related computations.
- * Copied (not moved) from mock-data.ts so that seed.ts keeps working.
+ * Job utility functions — earnings calculation, date formatting,
+ * category label mapping. Phase 4 added shift-form overloads.
  *
  * These functions have NO DB or network dependencies — safe to import anywhere.
  */

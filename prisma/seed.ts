@@ -5,7 +5,7 @@
 //            5 Application (kim-jihoon → various jobs), 0 Review (Phase 5)
 //
 // Design rules (D-04):
-//   1. mock-data.ts values transplanted exactly — no new fake data
+//   1. seed-data.ts values transplanted exactly — no new fake data
 //   2. @gignow.dev domain for test account identification
 //   3. NODE_ENV === 'production' → throws immediately
 //   4. Reverse-order deleteMany for idempotency
@@ -21,7 +21,7 @@ import {
   MOCK_JOBS,
   MOCK_APPLICATIONS,
   MOCK_CURRENT_WORKER,
-} from "../src/lib/mock-data";
+} from "./seed-data";
 import "dotenv/config";
 
 // ── Production guard (D-04 rule 3) ──────────────────────────────────────────
@@ -273,11 +273,13 @@ async function main() {
         jobId: jobDbId,
         workerId: createdUsers["kim-jihoon"],
         status: mockApp.status as
+          | "pending"
           | "confirmed"
           | "in_progress"
           | "checked_in"
           | "completed"
-          | "cancelled",
+          | "cancelled"
+          | "settled",
         appliedAt: new Date(mockApp.appliedAt),
         checkInAt: mockApp.checkInAt ? new Date(mockApp.checkInAt) : null,
         checkOutAt: mockApp.checkOutAt ? new Date(mockApp.checkOutAt) : null,

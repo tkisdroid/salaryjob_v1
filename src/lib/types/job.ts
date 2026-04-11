@@ -1,8 +1,6 @@
 /**
- * Shared job-related types for GigNow.
- * These are copied (not moved) from mock-data.ts so that:
- * - seed.ts and mock-data.ts continue to work unchanged
- * - Production code imports from here instead of mock-data
+ * Domain type definitions for GigNow Worker/Business entities.
+ * Consumed by pages, queries, and adapters throughout src/.
  *
  * Phase 3: replace remaining `distanceM` stub with real PostGIS distance query.
  */
@@ -148,14 +146,3 @@ export interface BizApplicant {
   completionRate: number;
   postTitle: string;
 }
-
-// ============================================================================
-// Backward-compat aliases (allow consumer files to still reference Mock* names)
-// ============================================================================
-
-export type MockJob = Job;
-export type MockApplication = Application;
-export type MockWorker = Worker;
-export type MockBusiness = Business;
-export type MockReview = Review;
-export type MockBizApplicant = BizApplicant;
