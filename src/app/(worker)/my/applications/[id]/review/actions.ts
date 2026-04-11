@@ -10,7 +10,13 @@ export type CreateWorkerReviewResult =
   | { success: true; reviewId: string }
   | { success: false; error: ReviewErrorCode };
 
-const IS_TEST_MODE = process.env.NODE_ENV === "test";
+// Defense-in-depth: the test bypass below requires BOTH NODE_ENV=test AND
+// VITEST=true. Vitest sets VITEST=true automatically; Vercel/Next.js production
+// never sets it. Even if NODE_ENV=test ever leaks to a deployed environment
+// (e.g., misconfigured Vercel env), this branch stays dead-code at runtime.
+// Code review fix (P2-4) — hardens against the original "NODE_ENV-only" gate.
+const IS_TEST_MODE =
+  process.env.NODE_ENV === "test" && process.env.VITEST === "true";
 
 /**
  * REV-01 / REV-03 / REV-04 — Create a Worker → Business review.

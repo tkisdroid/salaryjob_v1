@@ -30,7 +30,12 @@ import type { Application, Job } from '@/generated/prisma/client'
 // below returns a SessionUser shape identical to verifySession().
 // ----------------------------------------------------------------------------
 
-const IS_TEST_MODE = process.env.NODE_ENV === 'test'
+// Phase 5 code-review hardening: bypass requires BOTH NODE_ENV=test AND VITEST=true.
+// Vitest sets VITEST=true automatically; Vercel/Next.js production never sets it.
+// Even if NODE_ENV=test ever leaks to a deployed environment, this branch stays
+// dead-code at runtime — there is no path to bypass auth in production.
+const IS_TEST_MODE =
+  process.env.NODE_ENV === 'test' && process.env.VITEST === 'true'
 
 async function resolveTestWorkerSession(): Promise<{
   id: string
