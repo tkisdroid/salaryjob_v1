@@ -936,3 +936,45 @@ export async function getApplicationsByJob(jobId: string) {
     };
   });
 }
+
+// ============================================================================
+// Phase 5 Plan 03 — Review queries (REV-01..04)
+// ============================================================================
+
+import type { ReviewDirection } from "@/generated/prisma/client";
+
+/**
+ * Fetch an existing review for (applicationId, direction). Returns null if none.
+ * Uses the composite unique accessor generated from @@unique([applicationId, direction]).
+ * UI uses this to decide whether to render the form or a read-only summary.
+ */
+export async function getReviewByApplication(
+  applicationId: string,
+  direction: ReviewDirection,
+) {
+  return prisma.review.findUnique({
+    where: {
+      applicationId_direction: { applicationId, direction },
+    },
+    include: { reviewer: true, reviewee: true },
+  });
+}
+
+/**
+ * Fetch the most recent reviews received by a user (for profile pages).
+ * Ordered by createdAt desc, includes reviewer and the application's job.
+ */
+export async function getReviewsForUser(
+  revieweeId: string,
+  opts: { limit?: number } = {},
+) {
+  return prisma.review.findMany({
+    where: { revieweeId },
+    include: {
+      reviewer: true,
+      application: { include: { job: true } },
+    },
+    orderBy: { createdAt: "desc" },
+    take: opts.limit ?? 20,
+  });
+}
