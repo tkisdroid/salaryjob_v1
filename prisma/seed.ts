@@ -16,13 +16,16 @@
 import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { createClient } from "@supabase/supabase-js";
+import { config as loadEnv } from "dotenv";
 import {
   MOCK_BUSINESSES,
   MOCK_JOBS,
   MOCK_APPLICATIONS,
   MOCK_CURRENT_WORKER,
 } from "./seed-data";
-import "dotenv/config";
+
+loadEnv({ path: ".env.local" });
+loadEnv();
 
 // ── Production guard (D-04 rule 3) ──────────────────────────────────────────
 if (process.env.NODE_ENV === "production") {
@@ -332,18 +335,24 @@ async function main() {
     data: {
       jobId: nightShiftJobId,
       workerId: createdUsers["kim-jihoon"],
-      status: "completed", // done, night premium applied
+      // Phase 5 Plan 04 flipped the terminal check-out state from 'completed'
+      // to 'settled'. Fresh seed must match current runtime writes so the
+      // post-Phase-5 review flow (createWorkerReview gate on status==='settled')
+      // and /my/settlements listing work against seeded data.
+      status: "settled", // done, night premium applied
       appliedAt: new Date(now - 24 * 60 * 60 * 1000),
       checkInAt: new Date(now - 6 * 60 * 60 * 1000),
       checkOutAt: new Date(now - 2 * 60 * 60 * 1000),
       actualHours: 4,
       // 13500 * 4 hours + 8000 transport + 27000 (50% night premium on 4h * 13500)
       earnings: 89000,
+      // reviewGiven: false so the worker can exercise the Phase 5 review form
+      // at /my/applications/<id>/review on a freshly seeded DB.
       reviewGiven: false,
       reviewReceived: false,
     },
   });
-  console.log("    Created: phase4-app-completed → MOCK_JOBS[5] (job-6, 야간)");
+  console.log("    Created: phase4-app-settled → MOCK_JOBS[5] (job-6, 야간)");
 
   // ── Step 8: Reviews = empty (Phase 5 will populate) ───────────────────────
   // (no insert needed)

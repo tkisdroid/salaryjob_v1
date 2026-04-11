@@ -530,6 +530,11 @@ export const MOCK_APPLICATIONS: SeedApplication[] = [
   },
   // Past completed jobs — status changed from 'completed' to 'settled' (Phase 5 Plan 06)
   {
+    // Phase 5 review-flow sandbox: left un-reviewed so the worker can exercise
+    // the review form at /my/applications/<id>/review and the biz side can
+    // exercise /biz/posts/<jobId>/applicants/<appId>/review on a freshly
+    // seeded DB. The other two past apps (app-past-2, app-past-3) stay fully
+    // reviewed so the settlements list still shows a realistic mix.
     id: "app-past-1",
     jobId: "job-3",
     job: MOCK_JOBS[2],
@@ -541,8 +546,8 @@ export const MOCK_APPLICATIONS: SeedApplication[] = [
     earnings: 84000 + 3000,
     settlementStatus: "settled",
     settledAt: new Date(Date.now() - 6 * 24 * 3600000 + 7 * 3600000).toISOString(),
-    reviewGiven: true,
-    reviewReceived: true,
+    reviewGiven: false,
+    reviewReceived: false,
   },
   {
     id: "app-past-2",
