@@ -1165,36 +1165,47 @@ Phase 5 is **not** a rename/refactor phase in the traditional sense, but DATA-05
 
 ---
 
-## Open Questions
+## Open Questions (RESOLVED)
+
+> All 7 open questions were resolved during /gsd-plan-phase 5 revision 1 (2026-04-11).
+> The RESOLVED markers below document the actual decisions that landed in Plans 01-07.
+
 
 1. **Should we collapse `completed` → `settled` via one-time migration, or keep both enum values?**
    - Option A: Keep both (legacy `completed` treated same as `settled` in queries, new writes use `settled`). Simpler, but forever carries the duplicate.
    - Option B: `UPDATE applications SET status='settled' WHERE status='completed'` migration, then drop `completed` from enum after data migration. Cleaner, but requires two-step enum change (drop enum values in Postgres is painful — would need full enum recreate).
    - **Recommendation:** Option A for Phase 5 (v1 completeness > schema cleanliness). Revisit in v2.
+   - **RESOLVED:** Option A — keep both enum values; `DONE_STATUSES` in queries.ts includes both `completed` and `settled`; no data migration; Phase 5 writes only `settled` going forward (Plan 04 Task 1). Plan 02 Task 1 adds the `settled` enum value additively.
 
 2. **Does `checked_in` enum value have any existing rows?**
    - Phase 4 schema comment: "deprecated - use in_progress (Phase 5 removal candidate)". If the answer is "zero rows", Phase 5 can drop it via `ALTER TYPE`. If non-zero, leave alone.
    - **Planner action:** Run `SELECT COUNT(*) FROM applications WHERE status='checked_in'` in the first Phase 5 wave. If 0, include removal as cleanup task. If >0, defer to v2.
+   - **RESOLVED:** Deferred to v2. Phase 5 does not touch `checked_in`. Postgres `ALTER TYPE DROP VALUE` is not supported, and the cleanup is orthogonal to the v1 exit criterion.
 
 3. **Do we need a `ReviewForm` component in both `(worker)` and `biz` app groups, or a single shared component in `components/shared/`?**
    - CONTEXT says "new components: `review-form.tsx` in `src/components/worker/` and `src/components/biz/`" — 두 위치 명시. But the form shape (star + tags + textarea) is identical, only the tag set and direction differ.
    - **Recommendation:** One shared `src/components/shared/review-form.tsx` parameterized by `direction: 'worker_to_business' | 'business_to_worker'` and `tagSet: readonly string[]`. CONTEXT is non-binding on this — it's Claude's Discretion per UI-SPEC section.
+   - **RESOLVED:** Single shared `src/components/shared/review-form.tsx` parameterized by `direction` + `tagSet` holds the implementation. Thin re-export wrappers at `src/components/worker/review-form.tsx` and `src/components/biz/review-form.tsx` honor CONTEXT line 103 wording literally (Plan 05 Task 1, H4 fix in revision 1).
 
 4. **Should `DONE_STATUSES` in queries.ts include `cancelled`?**
    - Phase 4 deliberately excluded `cancelled` per list-worker test comment. Phase 5 may want /my/applications history tab to show cancellations. 
    - **Recommendation:** Leave Phase 4 behavior unchanged. Show cancelled in a separate section or let users see it via `/my/applications?bucket=all` if UX demands. Not a Phase 5 blocker.
+   - **RESOLVED:** No — `cancelled` stays excluded from DONE_STATUSES. Only `completed` + `settled` qualify for settlement aggregation. Cancellation UX is v2.
 
 5. **Seed.ts Phase 5 past-job fixtures: how many?**
    - Current seed has 5 MOCK_APPLICATIONS (3 completed past + 2 upcoming confirmed). /my/settlements with 3 past settlements is a thin demo.
    - **Recommendation:** Exit plan STEP 1 bumps past-settled count to ~6-8 so the demo page has visible totals for both "이번 달" and older months. Optional — aesthetic.
+   - **RESOLVED:** Plan 06 Task 1 bumps the past-settled count modestly based on existing seed content during execution (≤5 extra records). Discretion call at execution time — aesthetic improvement, not a gate.
 
 6. **Should Review insert trigger a Web Push notification to the reviewee?**
    - Phase 4 established push triggers on apply/accept/reject. Symmetry suggests "You received a review" push. CONTEXT doesn't mention it.
    - **Recommendation:** v1 = no push on review (keep Phase 5 scope tight). Add to v2 follow-up list.
+   - **RESOLVED:** Out of scope for v1. Phase 5 does not call `sendPushToUser` on review creation. Tracked for v2.
 
 7. **Biz settlement view — flat list or grouped by job?**
    - CONTEXT says "list grouped by job or flat paginated". Grouping adds UI complexity for marginal value (each job typically has 1-3 workers).
    - **Recommendation:** Flat paginated (worker + date + amount per row). Add grouping as v2 polish.
+   - **RESOLVED:** Flat paginated list, newest first. Matches worker settlement UX. Plan 04 Task 2 `getBizSettlements` implementation uses `orderBy: { checkOutAt: 'desc' }` + offset pagination.
 
 ---
 
