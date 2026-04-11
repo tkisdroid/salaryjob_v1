@@ -120,7 +120,15 @@ Plans:
   3. Business가 자기 정산 히스토리(지급 완료/예정)를 실 데이터로 확인할 수 있다
   4. `src/lib/mock-data.ts` 파일이 삭제되고 코드베이스 전체에서 해당 경로를 import하는 파일이 0개다 (grep으로 검증)
   5. "탐색 → 지원 → 근무 → 리뷰 → 정산 확인" 풀 루프가 실 Supabase DB 왕복으로도 1분 이내에 완주된다
-**Plans**: TBD
+**Plans**: 7 plans
+Plans:
+- [ ] 05-01-PLAN.md — Wave 1: Wave 0 RED test scaffolding (reviews/settlements/exit) + fixtures/phase5 + VALIDATION.md nyquist flip
+- [ ] 05-02-PLAN.md — Wave 2: [BLOCKING] ApplicationStatus.settled enum push + UI type union + review-errors/validations/tag-constants modules
+- [ ] 05-03-PLAN.md — Wave 3: createWorkerReview + createBusinessReview Server Actions with atomic rating aggregation (+ WorkerProfile.reviewCount schema add); 10 REV tests GREEN
+- [ ] 05-04-PLAN.md — Wave 3: SETL-01 checkOut literal flip + DONE_STATUSES + 4 settlement query helpers (worker/biz totals + lists) with Asia/Seoul month boundary; 7 settlement tests GREEN
+- [ ] 05-05-PLAN.md — Wave 4: UI primitives (star-rating-input, tag-chip-picker) + shared review-form + settlement-card + review-prompt-banner + 4 page rewrites/creates + human checkpoint
+- [ ] 05-06-PLAN.md — Wave 5: DATA-05 exit gate — prisma/seed.ts detach + delete src/lib/mock-data.ts + strip Mock* aliases + clean comment refs; exit-gate test GREEN
+- [ ] 05-07-PLAN.md — Wave 6: full vitest + next build + grep verification, 05-VERIFICATION.md + 05-HUMAN-UAT.md, STATE/REQUIREMENTS/ROADMAP updates, final v1 milestone checkpoint
 **UI hint**: yes
 
 ---
@@ -133,7 +141,7 @@ Plans:
 | 2. Supabase·Prisma·Auth 기반 | 9/9 | Completed | 2026-04-10 (commit `fb06dfd`) |
 | 3. 프로필·공고 DB 연결 | 6/6 | Completed | 2026-04-10 (commit `087874e`) |
 | 4. 지원·근무 라이프사이클 DB 연결 | 10/10 | Completed | 2026-04-11 (commits `be311af → 864e4e5` + Plan 04-10) |
-| 5. 리뷰·정산·목업 제거 | 0/? | Not started | - |
+| 5. 리뷰·정산·목업 제거 | 0/7 | Planned | - |
 
 ## Coverage Summary
 
