@@ -142,7 +142,7 @@ Plans:
 | 2. Supabase·Prisma·Auth 기반 | 9/9 | Completed | 2026-04-10 (commit `fb06dfd`) |
 | 3. 프로필·공고 DB 연결 | 6/6 | Completed | 2026-04-10 (commit `087874e`) |
 | 4. 지원·근무 라이프사이클 DB 연결 | 10/10 | Completed | 2026-04-11 (commits `be311af → 864e4e5` + Plan 04-10) |
-| 5. 리뷰·정산·목업 제거 | 7/7 | Completed (code) | 2026-04-11 (commit `d26e3bc` — HUMAN-UAT pending) |
+| 5. 리뷰·정산·목업 제거 | 7/7 | Complete   | 2026-04-11 |
 
 ## Coverage Summary
 
