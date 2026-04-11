@@ -1,5 +1,7 @@
-// GigNow web-push service worker.
+// 샐러리잡 web-push service worker. v2 — brand rename, cache bust.
 // Served from /sw.js at the root scope by Next.js via the public/ folder.
+
+const SW_VERSION = "salaryjob-v2";
 
 self.addEventListener("install", () => {
   self.skipWaiting();
@@ -12,7 +14,7 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("push", (event) => {
   /** @type {{ title: string; body: string; url?: string; type?: string }} */
   let payload = {
-    title: "GigNow",
+    title: "샐러리잡",
     body: "새 알림이 도착했습니다.",
     url: "/",
   };
