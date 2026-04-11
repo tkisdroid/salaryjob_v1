@@ -129,24 +129,69 @@ export function AvailabilityEditor({
   // Drag state lives in refs, NOT useState. Mobile touch drags fire
   // pointerdown and the first few pointermoves inside the same event
   // loop tick before React can re-render and hand us the post-update
-  // closure. Reading state via refs is synchronous, so the move handler
-  // always sees the latest drag mode and isDragging flag.
+  // closure. Reading state via refs is synchronous.
   const gridRef = useRef<HTMLDivElement | null>(null);
   const lastVisitedRef = useRef<SlotKey | null>(null);
-  const isDraggingRef = useRef(false);
   const dragModeRef = useRef<"add" | "remove">("add");
+  // A ref that reflects selectedSlots without forcing re-renders of the
+  // mousedown handler. We use this to decide the initial drag mode
+  // without re-binding the grid listeners on every selection change.
+  const selectedSlotsRef = useRef(selectedSlots);
+  useEffect(() => {
+    selectedSlotsRef.current = selectedSlots;
+  }, [selectedSlots]);
 
-  const applySlotAtPoint = useCallback(
+  const applySlotAtPoint = useCallback((clientX: number, clientY: number) => {
+    const el = document.elementFromPoint(clientX, clientY);
+    if (!el) return;
+    const cell = el.closest("[data-slot-key]") as HTMLElement | null;
+    if (!cell) return;
+    const slotKey = cell.dataset.slotKey as SlotKey | undefined;
+    if (!slotKey) return;
+    if (lastVisitedRef.current === slotKey) return;
+    lastVisitedRef.current = slotKey;
+    const mode = dragModeRef.current;
+    setSelectedSlots((prev) => {
+      const next = new Set(prev);
+      if (mode === "add") {
+        next.add(slotKey);
+      } else {
+        next.delete(slotKey);
+      }
+      return next;
+    });
+  }, []);
+
+  // Native window-level drag listeners. Attached lazily from
+  // pointerdown/touchstart and torn down on pointerup/touchend/cancel.
+  //
+  // Why native window listeners instead of React synthetic events on the
+  // grid div + setPointerCapture:
+  //   1. React 17+ uses event delegation — synthetic events don't always
+  //      play nice with setPointerCapture on currentTarget.
+  //   2. Mobile Safari and some mobile Chrome builds silently drop pointer
+  //      capture when the parent element has `overflow-x: auto` (the
+  //      CardContent that wraps our grid), because the browser reserves
+  //      the pointer for the scroller.
+  //   3. Touch events fire on their initial target for the full gesture
+  //      regardless of capture — using them directly is the most reliable
+  //      mobile path.
+  //
+  // We attach to window (not the grid) so the move listener keeps firing
+  // even if the finger drifts outside the grid card entirely.
+  const beginDrag = useCallback(
     (clientX: number, clientY: number) => {
       const el = document.elementFromPoint(clientX, clientY);
-      if (!el) return;
-      const cell = el.closest("[data-slot-key]") as HTMLElement | null;
-      if (!cell) return;
+      const cell = el?.closest("[data-slot-key]") as HTMLElement | null;
+      if (!cell) return false;
       const slotKey = cell.dataset.slotKey as SlotKey | undefined;
-      if (!slotKey) return;
-      if (lastVisitedRef.current === slotKey) return;
+      if (!slotKey) return false;
+
+      const mode: "add" | "remove" = selectedSlotsRef.current.has(slotKey)
+        ? "remove"
+        : "add";
+      dragModeRef.current = mode;
       lastVisitedRef.current = slotKey;
-      const mode = dragModeRef.current;
       setSelectedSlots((prev) => {
         const next = new Set(prev);
         if (mode === "add") {
@@ -156,67 +201,68 @@ export function AvailabilityEditor({
         }
         return next;
       });
+      return true;
     },
     [],
   );
 
-  const handleGridPointerDown = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      const el = document.elementFromPoint(e.clientX, e.clientY);
-      const cell = el?.closest("[data-slot-key]") as HTMLElement | null;
-      if (!cell) return;
-      const slotKey = cell.dataset.slotKey as SlotKey | undefined;
-      if (!slotKey) return;
+  const endDrag = useCallback(() => {
+    lastVisitedRef.current = null;
+  }, []);
 
-      // Prevent the browser from interpreting the touch as a scroll
-      // gesture on the horizontally-scrollable CardContent parent.
-      e.preventDefault();
-
-      // Capture the pointer on the grid so subsequent move events keep
-      // firing even when the finger leaves the initially-touched cell.
-      try {
-        e.currentTarget.setPointerCapture(e.pointerId);
-      } catch {
-        // setPointerCapture can throw if the target has already been
-        // detached (StrictMode double-invoke) — safe to ignore.
+  // Touch path — highest priority on mobile. preventDefault on
+  // touchmove is required to stop Chrome mobile from interpreting the
+  // drag as a horizontal scroll of the parent CardContent.
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      if (beginDrag(touch.clientX, touch.clientY)) {
+        e.preventDefault();
       }
-
-      // Flip refs synchronously so the very next pointermove event sees
-      // the right mode + dragging flag without waiting for React to
-      // re-render.
-      const mode: "add" | "remove" = selectedSlots.has(slotKey)
-        ? "remove"
-        : "add";
-      dragModeRef.current = mode;
-      isDraggingRef.current = true;
-      lastVisitedRef.current = slotKey;
-
-      setSelectedSlots((prev) => {
-        const next = new Set(prev);
-        if (mode === "add") {
-          next.add(slotKey);
-        } else {
-          next.delete(slotKey);
-        }
-        return next;
-      });
     },
-    [selectedSlots],
+    [beginDrag],
   );
 
-  const handleGridPointerMove = useCallback(
-    (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!isDraggingRef.current) return;
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent<HTMLDivElement>) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      // preventDefault is critical here — without it mobile Chrome
+      // interprets the drag as a scroll gesture and no subsequent
+      // touchmove events reach this handler.
       e.preventDefault();
-      applySlotAtPoint(e.clientX, e.clientY);
+      applySlotAtPoint(touch.clientX, touch.clientY);
     },
     [applySlotAtPoint],
   );
 
-  const handlePointerUp = useCallback(() => {
-    isDraggingRef.current = false;
-    lastVisitedRef.current = null;
-  }, []);
+  const handleTouchEnd = useCallback(() => {
+    endDrag();
+  }, [endDrag]);
+
+  // Mouse / pen path (desktop). Uses window-level listeners bound
+  // inside mousedown so we don't depend on React's delegation or
+  // setPointerCapture.
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent<HTMLDivElement>) => {
+      // Only primary button.
+      if (e.button !== 0) return;
+      if (!beginDrag(e.clientX, e.clientY)) return;
+
+      const onMove = (ev: MouseEvent) => {
+        applySlotAtPoint(ev.clientX, ev.clientY);
+      };
+      const onUp = () => {
+        endDrag();
+        window.removeEventListener("mousemove", onMove);
+        window.removeEventListener("mouseup", onUp);
+      };
+      window.addEventListener("mousemove", onMove);
+      window.addEventListener("mouseup", onUp);
+    },
+    [beginDrag, endDrag, applySlotAtPoint],
+  );
 
   const handleReset = useCallback(() => {
     setSelectedSlots(new Set());
@@ -237,12 +283,7 @@ export function AvailabilityEditor({
   }, [selectedSlots]);
 
   return (
-    <div
-      className="max-w-lg mx-auto px-4 py-6 pb-32 space-y-6"
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
-      onPointerLeave={handlePointerUp}
-    >
+    <div className="max-w-lg mx-auto px-4 py-6 pb-32 space-y-6">
       {/* Header */}
       <header className="space-y-1">
         <div className="flex items-center gap-2">
@@ -302,10 +343,11 @@ export function AvailabilityEditor({
               gridTemplateColumns: "48px repeat(7, 1fr)",
               minWidth: "480px",
             }}
-            onPointerDown={handleGridPointerDown}
-            onPointerMove={handleGridPointerMove}
-            onPointerUp={handlePointerUp}
-            onPointerCancel={handlePointerUp}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
+            onMouseDown={handleMouseDown}
           >
             {/* Header row */}
             <div className="h-8" />

@@ -80,48 +80,61 @@ test.describe("availability mobile drag + save", () => {
       expect(box).not.toBeNull();
     }
 
-    // Dispatch PointerEvents directly in the browser context. CDP's
-    // Input.dispatchTouchEvent fires TouchEvents but does not always
-    // synthesize the matching PointerEvents that our React handlers are
-    // listening for. Firing the PointerEvents ourselves exercises the
-    // exact code path a real mobile Chrome device would trigger when a
-    // finger drags across cells.
+    // Dispatch real TouchEvents in the browser context. React's
+    // onTouchStart/onTouchMove/onTouchEnd handlers listen for these
+    // exact events, which is the code path a real phone Chrome uses.
+    // Using TouchEvent here (not PointerEvent) exercises the mobile
+    // drag path end-to-end including e.preventDefault on touchmove.
     const points = boxes.map((b) => ({
       x: b!.x + b!.width / 2,
       y: b!.y + b!.height / 2,
     }));
     await page.evaluate((coords) => {
-      const gridCell = (xy: { x: number; y: number }) =>
-        document.elementFromPoint(xy.x, xy.y)!;
-      const makeEvent = (
-        type: string,
+      const targetAt = (xy: { x: number; y: number }) =>
+        document.elementFromPoint(xy.x, xy.y) as Element;
+      const makeTouch = (target: Element, xy: { x: number; y: number }) =>
+        new Touch({
+          identifier: 1,
+          target,
+          clientX: xy.x,
+          clientY: xy.y,
+          screenX: xy.x,
+          screenY: xy.y,
+          pageX: xy.x,
+          pageY: xy.y,
+          radiusX: 10,
+          radiusY: 10,
+          rotationAngle: 0,
+          force: 0.5,
+        });
+      const dispatch = (
+        type: "touchstart" | "touchmove" | "touchend",
+        target: Element,
         xy: { x: number; y: number },
-        pointerId: number,
-      ) =>
-        new PointerEvent(type, {
+      ) => {
+        const touch = makeTouch(target, xy);
+        const init: TouchEventInit = {
           bubbles: true,
           cancelable: true,
           composed: true,
-          pointerId,
-          pointerType: "touch",
-          isPrimary: true,
-          clientX: xy.x,
-          clientY: xy.y,
-          button: 0,
-          buttons: 1,
-        });
-      const pid = 1;
-      // pointerdown on first point
-      gridCell(coords[0]).dispatchEvent(makeEvent("pointerdown", coords[0], pid));
-      // pointermove across every remaining point
+          touches: type === "touchend" ? [] : [touch],
+          targetTouches: type === "touchend" ? [] : [touch],
+          changedTouches: [touch],
+        };
+        target.dispatchEvent(new TouchEvent(type, init));
+      };
+
+      const firstTarget = targetAt(coords[0]);
+      dispatch("touchstart", firstTarget, coords[0]);
+      // Touch events fire on the INITIAL target for the whole gesture
+      // (DOM touch target capture), so we keep dispatching on firstTarget
+      // even when the finger is over later cells. Our handler reads
+      // touch.clientX/clientY and uses elementFromPoint so the slot at
+      // the current coordinate flips, not the initial target.
       for (let i = 1; i < coords.length; i++) {
-        gridCell(coords[i]).dispatchEvent(
-          makeEvent("pointermove", coords[i], pid),
-        );
+        dispatch("touchmove", firstTarget, coords[i]);
       }
-      // pointerup at the last point
-      const last = coords[coords.length - 1];
-      gridCell(last).dispatchEvent(makeEvent("pointerup", last, pid));
+      dispatch("touchend", firstTarget, coords[coords.length - 1]);
     }, points);
 
     // Every cell the drag passed over must now be aria-pressed="true".
