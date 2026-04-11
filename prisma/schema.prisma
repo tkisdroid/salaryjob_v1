@@ -97,6 +97,12 @@ model WorkerProfile {
   reviewCount         Int           @default(0) // NEW Phase 5 — required by Plan 03 biz→worker rating aggregation
   completionRate      Int           @default(0)
   noShowCount         Int           @default(0) // Phase 4 D-22 — auto-incremented by pg_cron no-show detection
+  // Phase 5 post-review: persisted weekly availability slot keys, e.g.
+  // ["mon-9", "mon-10", "wed-14", ...] where the value is `${day}-${hour}`.
+  // Day is a 3-letter lowercase code (mon..sun) and hour is 0-23 local time.
+  // Stored as a plain string[] (Postgres text[]) — trivially serializable,
+  // size-capped to 168 entries (7 days x 24 hours) at the server action.
+  availabilitySlots   String[]      @default([])
   createdAt           DateTime      @default(now())
   updatedAt           DateTime      @updatedAt
 
