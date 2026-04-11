@@ -18,7 +18,17 @@ export async function updateSession(request: NextRequest) {
         getAll() {
           return request.cookies.getAll()
         },
-        setAll(cookiesToSet, headers) {
+        // @supabase/ssr's setAll callback accepts a single argument.
+        // Previously this code declared a second `headers` parameter and then
+        // called `Object.entries(headers).forEach(...)` on it. Because
+        // @supabase/ssr never passes a second argument, `headers` was
+        // undefined and `Object.entries(undefined)` threw a TypeError the
+        // moment Supabase tried to refresh an expiring access token.
+        // The crash killed the middleware request silently, the refreshed
+        // cookies never reached the browser, and the next navigation
+        // showed the user as logged out — observed as "worker가 원탭지원
+        // 누르면 다시 로그아웃된 상태로 로그인 페이지로 감".
+        setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
@@ -27,9 +37,6 @@ export async function updateSession(request: NextRequest) {
           })
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options)
-          )
-          Object.entries(headers).forEach(([key, value]) =>
-            supabaseResponse.headers.set(key, value)
           )
         },
       },
