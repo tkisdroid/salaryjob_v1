@@ -78,7 +78,7 @@ export default async function WorkerSettlementsPage({
               counterpartyName={s.job.business.name}
               checkOutAt={s.checkOutAt}
               earnings={s.earnings ?? 0}
-              settlementStatus={s.status === "settled" ? "settled" : null}
+              settlementStatus={s.status === "settled" || s.status === "completed" ? "settled" : null}
             />
           ))
         )}

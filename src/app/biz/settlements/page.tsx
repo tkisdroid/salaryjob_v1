@@ -66,7 +66,7 @@ export default async function BizSettlementsPage({
               }
               checkOutAt={s.checkOutAt}
               earnings={s.earnings ?? 0}
-              settlementStatus={s.status === "settled" ? "settled" : null}
+              settlementStatus={s.status === "settled" || s.status === "completed" ? "settled" : null}
             />
           ))
         )}

@@ -118,9 +118,12 @@ function adaptApplication(a: any): Application {
     checkOutAt: a.checkOutAt ? (a.checkOutAt as Date).toISOString() : null,
     actualHours: a.actualHours !== null ? Number(a.actualHours) : null,
     earnings: (a.earnings as number | null) ?? null,
-    settlementStatus: a.status === "settled" ? "settled" : null,
+    // Phase 5: 'settled' is the new terminal state; 'completed' is the legacy
+    // pre-Phase-5 terminal state. Both surface as settled in the UI.
+    settlementStatus:
+      a.status === "settled" || a.status === "completed" ? "settled" : null,
     settledAt:
-      a.status === "settled" && a.checkOutAt
+      (a.status === "settled" || a.status === "completed") && a.checkOutAt
         ? (a.checkOutAt as Date).toISOString()
         : null,
     reviewGiven: a.reviewGiven as boolean,
@@ -1037,7 +1040,7 @@ export async function getWorkerSettlementTotals(
       )::bigint AS this_month_count
     FROM public.applications
     WHERE "workerId" = ${workerId}::uuid
-      AND status = 'settled'::"ApplicationStatus"
+      AND status IN ('settled'::"ApplicationStatus", 'completed'::"ApplicationStatus")
   `;
   const r = rows[0]!;
   return {
@@ -1061,7 +1064,7 @@ export async function getWorkerSettlements(
   return prisma.application.findMany({
     where: {
       workerId,
-      status: "settled",
+      status: { in: DONE_STATUSES },
     },
     include: {
       job: { include: { business: true } },
@@ -1075,6 +1078,8 @@ export async function getWorkerSettlements(
 /**
  * SETL-02: Paginated list of settled applications for jobs authored by userId.
  * Flat list (one row per worker-shift) per research Q7 recommendation.
+ * Includes both 'settled' (new) and 'completed' (legacy) for backward compat —
+ * matches DONE_STATUSES used by application list buckets.
  */
 export async function getBizSettlements(
   userId: string,
@@ -1084,7 +1089,7 @@ export async function getBizSettlements(
   const limit = Math.max(1, Math.min(100, opts.limit ?? 20));
   return prisma.application.findMany({
     where: {
-      status: "settled",
+      status: { in: DONE_STATUSES },
       job: { authorId: userId },
     },
     include: {
@@ -1130,7 +1135,7 @@ export async function getBizSettlementTotals(
     FROM public.applications a
     INNER JOIN public.jobs j ON a."jobId" = j.id
     WHERE j."authorId" = ${userId}::uuid
-      AND a.status = 'settled'::"ApplicationStatus"
+      AND a.status IN ('settled'::"ApplicationStatus", 'completed'::"ApplicationStatus")
   `;
   const r = rows[0]!;
   return {
