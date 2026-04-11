@@ -129,7 +129,7 @@ export async function checkIn(
  *   - earnings = floor(actualHours * hourlyPay) + nightPremium + transportFee
  *
  * Then writes:
- *   - status → 'completed'
+ *   - status → 'settled'   (Phase 5 SETL-01 — was 'completed' pre-Phase-5)
  *   - checkOutAt → now()
  *   - actualHours, earnings
  */
