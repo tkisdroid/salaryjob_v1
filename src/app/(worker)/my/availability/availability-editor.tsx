@@ -109,8 +109,6 @@ export function AvailabilityEditor({
   const [savedSnapshot, setSavedSnapshot] = useState<string>(
     () => [...initialSlots].sort().join(","),
   );
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragMode, setDragMode] = useState<"add" | "remove">("add");
   const [status, setStatus] = useState<SaveStatus>({ kind: "idle" });
   const [isPending, startTransition] = useTransition();
 
@@ -128,12 +126,15 @@ export function AvailabilityEditor({
     return () => clearTimeout(t);
   }, [status]);
 
-  // Touch drag support needs elementFromPoint because mobile Chrome only
-  // fires pointerenter on the cell where the touch started, not on its
-  // neighbors during a drag. We keep the last visited cell in a ref so we
-  // don't retoggle on micro-movements inside the same cell.
+  // Drag state lives in refs, NOT useState. Mobile touch drags fire
+  // pointerdown and the first few pointermoves inside the same event
+  // loop tick before React can re-render and hand us the post-update
+  // closure. Reading state via refs is synchronous, so the move handler
+  // always sees the latest drag mode and isDragging flag.
   const gridRef = useRef<HTMLDivElement | null>(null);
   const lastVisitedRef = useRef<SlotKey | null>(null);
+  const isDraggingRef = useRef(false);
+  const dragModeRef = useRef<"add" | "remove">("add");
 
   const applySlotAtPoint = useCallback(
     (clientX: number, clientY: number) => {
@@ -145,9 +146,10 @@ export function AvailabilityEditor({
       if (!slotKey) return;
       if (lastVisitedRef.current === slotKey) return;
       lastVisitedRef.current = slotKey;
+      const mode = dragModeRef.current;
       setSelectedSlots((prev) => {
         const next = new Set(prev);
-        if (dragMode === "add") {
+        if (mode === "add") {
           next.add(slotKey);
         } else {
           next.delete(slotKey);
@@ -155,7 +157,7 @@ export function AvailabilityEditor({
         return next;
       });
     },
-    [dragMode],
+    [],
   );
 
   const handleGridPointerDown = useCallback(
@@ -166,6 +168,10 @@ export function AvailabilityEditor({
       const slotKey = cell.dataset.slotKey as SlotKey | undefined;
       if (!slotKey) return;
 
+      // Prevent the browser from interpreting the touch as a scroll
+      // gesture on the horizontally-scrollable CardContent parent.
+      e.preventDefault();
+
       // Capture the pointer on the grid so subsequent move events keep
       // firing even when the finger leaves the initially-touched cell.
       try {
@@ -174,10 +180,17 @@ export function AvailabilityEditor({
         // setPointerCapture can throw if the target has already been
         // detached (StrictMode double-invoke) — safe to ignore.
       }
-      const mode = selectedSlots.has(slotKey) ? "remove" : "add";
-      setDragMode(mode);
-      setIsDragging(true);
+
+      // Flip refs synchronously so the very next pointermove event sees
+      // the right mode + dragging flag without waiting for React to
+      // re-render.
+      const mode: "add" | "remove" = selectedSlots.has(slotKey)
+        ? "remove"
+        : "add";
+      dragModeRef.current = mode;
+      isDraggingRef.current = true;
       lastVisitedRef.current = slotKey;
+
       setSelectedSlots((prev) => {
         const next = new Set(prev);
         if (mode === "add") {
@@ -193,14 +206,15 @@ export function AvailabilityEditor({
 
   const handleGridPointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!isDragging) return;
+      if (!isDraggingRef.current) return;
+      e.preventDefault();
       applySlotAtPoint(e.clientX, e.clientY);
     },
-    [isDragging, applySlotAtPoint],
+    [applySlotAtPoint],
   );
 
   const handlePointerUp = useCallback(() => {
-    setIsDragging(false);
+    isDraggingRef.current = false;
     lastVisitedRef.current = null;
   }, []);
 
