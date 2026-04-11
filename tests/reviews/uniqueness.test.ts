@@ -73,7 +73,7 @@ describe.skipIf(!process.env.DATABASE_URL)(
       const bizResult = await createBusinessReview({
         applicationId: application.id,
         rating: 4,
-        tags: ["성실해요"],
+        tags: ["성실함"],
         __testSessionId: business.user.id,
       } as any);
       expect(bizResult).toMatchObject({ success: true });

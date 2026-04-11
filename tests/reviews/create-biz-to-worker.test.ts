@@ -37,7 +37,7 @@ describe.skipIf(!process.env.DATABASE_URL)(
       const result = await createBusinessReview({
         applicationId: application.id,
         rating: 4,
-        tags: ["성실해요"],
+        tags: ["성실함"],
         comment: "잘 해줬어요",
         __testSessionId: business.user.id, // test-mode ownership bypass
       } as any);
