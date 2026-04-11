@@ -4,6 +4,7 @@ import {
   Fragment,
   useCallback,
   useEffect,
+  useRef,
   useState,
   useTransition,
 } from "react";
@@ -127,31 +128,23 @@ export function AvailabilityEditor({
     return () => clearTimeout(t);
   }, [status]);
 
-  const toggleSlot = useCallback((slotKey: SlotKey) => {
-    setSelectedSlots((prev) => {
-      const next = new Set(prev);
-      if (next.has(slotKey)) {
-        next.delete(slotKey);
-      } else {
-        next.add(slotKey);
-      }
-      return next;
-    });
-  }, []);
+  // Touch drag support needs elementFromPoint because mobile Chrome only
+  // fires pointerenter on the cell where the touch started, not on its
+  // neighbors during a drag. We keep the last visited cell in a ref so we
+  // don't retoggle on micro-movements inside the same cell.
+  const gridRef = useRef<HTMLDivElement | null>(null);
+  const lastVisitedRef = useRef<SlotKey | null>(null);
 
-  const handlePointerDown = useCallback(
-    (slotKey: SlotKey) => {
-      setIsDragging(true);
-      const newMode = selectedSlots.has(slotKey) ? "remove" : "add";
-      setDragMode(newMode);
-      toggleSlot(slotKey);
-    },
-    [selectedSlots, toggleSlot],
-  );
-
-  const handlePointerEnter = useCallback(
-    (slotKey: SlotKey) => {
-      if (!isDragging) return;
+  const applySlotAtPoint = useCallback(
+    (clientX: number, clientY: number) => {
+      const el = document.elementFromPoint(clientX, clientY);
+      if (!el) return;
+      const cell = el.closest("[data-slot-key]") as HTMLElement | null;
+      if (!cell) return;
+      const slotKey = cell.dataset.slotKey as SlotKey | undefined;
+      if (!slotKey) return;
+      if (lastVisitedRef.current === slotKey) return;
+      lastVisitedRef.current = slotKey;
       setSelectedSlots((prev) => {
         const next = new Set(prev);
         if (dragMode === "add") {
@@ -162,11 +155,53 @@ export function AvailabilityEditor({
         return next;
       });
     },
-    [isDragging, dragMode],
+    [dragMode],
+  );
+
+  const handleGridPointerDown = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      const el = document.elementFromPoint(e.clientX, e.clientY);
+      const cell = el?.closest("[data-slot-key]") as HTMLElement | null;
+      if (!cell) return;
+      const slotKey = cell.dataset.slotKey as SlotKey | undefined;
+      if (!slotKey) return;
+
+      // Capture the pointer on the grid so subsequent move events keep
+      // firing even when the finger leaves the initially-touched cell.
+      try {
+        e.currentTarget.setPointerCapture(e.pointerId);
+      } catch {
+        // setPointerCapture can throw if the target has already been
+        // detached (StrictMode double-invoke) — safe to ignore.
+      }
+      const mode = selectedSlots.has(slotKey) ? "remove" : "add";
+      setDragMode(mode);
+      setIsDragging(true);
+      lastVisitedRef.current = slotKey;
+      setSelectedSlots((prev) => {
+        const next = new Set(prev);
+        if (mode === "add") {
+          next.add(slotKey);
+        } else {
+          next.delete(slotKey);
+        }
+        return next;
+      });
+    },
+    [selectedSlots],
+  );
+
+  const handleGridPointerMove = useCallback(
+    (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!isDragging) return;
+      applySlotAtPoint(e.clientX, e.clientY);
+    },
+    [isDragging, applySlotAtPoint],
   );
 
   const handlePointerUp = useCallback(() => {
     setIsDragging(false);
+    lastVisitedRef.current = null;
   }, []);
 
   const handleReset = useCallback(() => {
@@ -191,6 +226,7 @@ export function AvailabilityEditor({
     <div
       className="max-w-lg mx-auto px-4 py-6 pb-32 space-y-6"
       onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
       onPointerLeave={handlePointerUp}
     >
       {/* Header */}
@@ -246,11 +282,16 @@ export function AvailabilityEditor({
         </CardHeader>
         <CardContent className="overflow-x-auto -mx-4 px-4">
           <div
+            ref={gridRef}
             className="grid select-none touch-none"
             style={{
               gridTemplateColumns: "48px repeat(7, 1fr)",
               minWidth: "480px",
             }}
+            onPointerDown={handleGridPointerDown}
+            onPointerMove={handleGridPointerMove}
+            onPointerUp={handlePointerUp}
+            onPointerCancel={handlePointerUp}
           >
             {/* Header row */}
             <div className="h-8" />
@@ -282,6 +323,7 @@ export function AvailabilityEditor({
                   return (
                     <div
                       key={slotKey}
+                      data-slot-key={slotKey}
                       role="button"
                       aria-pressed={isSelected}
                       aria-label={`${DAYS[DAY_KEYS.indexOf(dayKey)]}요일 ${formatHour(hour)}`}
@@ -290,8 +332,6 @@ export function AvailabilityEditor({
                           ? "bg-brand/80 border-brand/60"
                           : "bg-background hover:bg-brand/10"
                       }`}
-                      onPointerDown={() => handlePointerDown(slotKey)}
-                      onPointerEnter={() => handlePointerEnter(slotKey)}
                     />
                   );
                 })}
