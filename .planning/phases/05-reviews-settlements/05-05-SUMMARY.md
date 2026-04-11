@@ -206,8 +206,16 @@ No new security-relevant surface introduced beyond what is covered by the plan's
 
 All 11 created/modified files verified present on disk. Both task commits verified in git log.
 
-Human-verify checkpoint (Task 3) pending — plan paused awaiting user approval:
-- Scenario A: Worker review + settlement flow
-- Scenario B: Biz review + settlement flow
-- Scenario C: Gate behaviour (negative tests)
-- Scenario D: Empty state
+**Human-verify checkpoint (Task 3): DEFERRED by user request on 2026-04-11.**
+
+Browser UAT (Scenarios A–D) was not executed during Phase 5 execution. User explicitly chose to continue with remaining plans (05-06 mock removal + 05-07 phase verification) and run UAT separately.
+
+- Deferred UAT captured as todo: `.planning/todos/pending/2026-04-11-phase-5-plan-05-05-browser-uat-review-settlement-flow.md`
+- Scenarios to run later:
+  - Scenario A: Worker review + settlement flow
+  - Scenario B: Biz review + settlement flow
+  - Scenario C: Gate behaviour (negative tests)
+  - Scenario D: Empty state
+- Automated test coverage for the underlying Server Actions + settlement queries remains 48/48 GREEN (Plans 03/04 Wave 3 regression).
+
+Plan 05-05 marked structurally complete; only manual UI verification remains outstanding.
