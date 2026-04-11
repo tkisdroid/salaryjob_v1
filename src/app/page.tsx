@@ -48,93 +48,113 @@ export default async function LandingPage() {
   const valueCards = [
     {
       icon: Clock,
-      title: "빠른 지원",
-      description: "이력서와 면접 없이, 한 번의 탭으로 지원이 끝납니다.",
+      title: "원탭 지원",
+      description:
+        "이력서도 면접도 없어요. 조건이 맞으면 버튼 한 번으로 지원이 끝납니다.",
     },
     {
       icon: MapPin,
-      title: "근처 일자리",
-      description: "내 위치 주변의 오늘/내일 가능한 일만 먼저 보여줍니다.",
+      title: "내 주변만",
+      description:
+        "위치 기반으로 걸어갈 수 있는 거리의 일만 골라서 보여드려요.",
     },
     {
       icon: Wallet,
-      title: "투명한 조건",
-      description: "시급, 근무 시간, 교통비가 공고 카드에 모두 명시됩니다.",
+      title: "즉시 정산",
+      description:
+        "근무가 끝나면 시급·교통비·야간 할증까지 계산해 바로 입금됩니다.",
     },
     {
       icon: ShieldCheck,
-      title: "믿을 수 있는 사업장",
-      description: "실근무 기반 평점과 리뷰로 안심하고 지원할 수 있어요.",
+      title: "검증된 사업장",
+      description:
+        "실제 근무한 사람들의 평점과 리뷰로 안심하고 지원할 수 있어요.",
     },
   ];
 
   const workerFlow = [
     {
       number: "01",
-      title: "근처 일자리 탐색",
-      description: "집 근처, 오늘 가능한 일부터 조건별로 바로 비교합니다.",
+      title: "내 주변 일자리 탐색",
+      description: "집에서 가까운 순서로, 오늘 가능한 일부터 먼저 보여드려요.",
       icon: Search,
     },
     {
       number: "02",
-      title: "조건 확인 후 빠른 지원",
-      description: "시급·시간·장소를 확인하고 한 번의 탭으로 지원을 마칩니다.",
+      title: "원탭으로 지원",
+      description: "시급과 근무 시간만 확인하면 끝. 서류 없이 바로 확정됩니다.",
       icon: Sparkles,
     },
     {
       number: "03",
-      title: "근무 진행",
-      description: "QR 체크인으로 출근을 기록하고 근무를 진행합니다.",
+      title: "근무는 QR 체크인",
+      description: "매장에서 QR만 찍으면 출근 인증. 복잡한 절차 없이 시작해요.",
       icon: Briefcase,
     },
     {
       number: "04",
-      title: "정산·리뷰 확인",
-      description: "근무가 끝나면 바로 정산 상태와 리뷰가 이어집니다.",
+      title: "끝나면 즉시 정산",
+      description: "시간과 금액이 자동 계산돼 계좌로 바로 입금됩니다.",
       icon: ReceiptText,
     },
   ];
 
   const workerValue = [
-    { label: "오늘 가능한 일", hint: "긴급 공고를 먼저 확인" },
-    { label: "집 가까운 일", hint: "도보 거리 기준으로 정렬" },
-    { label: "급여가 명확한 일", hint: "시급·교통비·정산 조건 표기" },
-    { label: "평판이 좋은 사업장", hint: "실근무 기반 리뷰 확인" },
+    {
+      label: "오늘 시작할 수 있는 일",
+      hint: "긴급 모집 공고부터 우선 노출",
+    },
+    {
+      label: "도보 10분 이내",
+      hint: "내 위치 기준 거리순 정렬",
+    },
+    {
+      label: "시급이 명확한 일",
+      hint: "시급·교통비·할증 모두 공개",
+    },
+    {
+      label: "리뷰가 좋은 매장",
+      hint: "실제 근무자 평점 기반 추천",
+    },
   ];
 
   const businessValue = [
     {
       icon: Users,
-      title: "빠른 인력 확보",
-      description: "지원·수락까지 평균 수 분. 긴급 공고도 바로 올립니다.",
+      title: "몇 분 안에 인력 확보",
+      description:
+        "공고 등록 후 평균 수 분 내 지원이 들어옵니다. 급할 때도 걱정 없어요.",
     },
     {
       icon: CheckCircle2,
-      title: "지원자 관리",
-      description: "누가 지원했는지, 누구를 확정했는지 한눈에 정리됩니다.",
+      title: "지원자 한눈에 관리",
+      description:
+        "누가 지원했고 누가 확정됐는지 카드 한 장으로 정리해 보여드려요.",
     },
     {
       icon: ReceiptText,
-      title: "근무·정산 관리",
-      description: "출근·퇴근 기록과 정산 상태가 자동으로 연결됩니다.",
+      title: "근태·정산 자동 연동",
+      description:
+        "체크인부터 정산까지 모든 기록이 자동으로 이어집니다.",
     },
     {
       icon: Sparkles,
-      title: "반복 채용 효율화",
-      description: "자주 쓰는 조건은 저장해두고, 다음 공고에 바로 재사용합니다.",
+      title: "반복 채용은 한 번에",
+      description:
+        "자주 쓰는 공고는 저장해두고 다음에도 탭 한 번으로 다시 올립니다.",
     },
   ];
 
   const trustStats = [
     {
       value: `${jobs.length}+`,
-      label: "현재 공개 공고",
-      hint: "오늘 기준 실시간 피드",
+      label: "실시간 공고",
+      hint: "지금 이 시간 모집 중",
     },
     {
       value: `${uniqueBusinesses}+`,
       label: "참여 사업장",
-      hint: "인증 후 등록된 매장",
+      hint: "인증 완료된 매장",
     },
     {
       value: averageHourlyPay > 0 ? formatWon(averageHourlyPay) : "—",
@@ -143,8 +163,8 @@ export default async function LandingPage() {
     },
     {
       value: "3분",
-      label: "지원까지 걸리는 시간",
-      hint: "탐색 → 원탭 지원 기준",
+      label: "지원까지",
+      hint: "탐색부터 원탭 지원까지",
     },
   ];
 
@@ -152,7 +172,7 @@ export default async function LandingPage() {
     <div className="min-h-screen bg-background text-foreground">
       {/* ─── Header ────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand text-white shadow-sm">
               <Leaf className="h-4 w-4" />
@@ -202,20 +222,24 @@ export default async function LandingPage() {
       <main>
         {/* ─── Hero ────────────────────────────────────────────────────── */}
         <section className="relative border-b border-border/60 bg-mint-bg/50">
-          <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-4 py-16 md:grid-cols-[1.15fr_0.85fr] md:py-24">
+          <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 sm:px-6 py-16 md:grid-cols-[1.15fr_0.85fr] md:py-24">
             <div className="max-w-2xl">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand-light px-4 py-1.5 text-xs font-semibold text-brand-deep">
                 <Sparkles className="h-3.5 w-3.5" />
                 샐러리처럼 산뜻한 로컬 잡 플랫폼
               </div>
 
-              <h1 className="text-[34px] font-bold leading-tight tracking-tight text-foreground sm:text-[42px] md:text-[56px]">
-                내 주변 일자리, 더 가볍고 빠르게
+              <h1 className="text-[32px] font-bold leading-[1.2] tracking-tight text-foreground sm:text-[42px] md:text-[56px]">
+                <span className="block">내 주변 일자리,</span>
+                <span className="block text-brand">더 가볍고 빠르게</span>
               </h1>
 
-              <p className="mt-5 max-w-xl text-sm leading-6 text-muted-foreground sm:text-base md:text-lg">
-                오늘 가능한 일부터 안정적인 근무까지. 이력서·면접 없이
-                한 번의 탭으로 지원하고, 근무가 끝나면 즉시 정산됩니다.
+              <p className="mt-5 max-w-xl text-[15px] leading-7 text-muted-foreground sm:text-base md:text-lg">
+                이력서도 면접도 필요 없어요.
+                <br className="hidden sm:block" />
+                오늘 가능한 일부터 안정적인 근무까지,
+                <br className="hidden sm:block" />
+                탭 한 번으로 지원하고 근무 후 바로 정산받으세요.
               </p>
 
               <div className="mt-7 flex w-full flex-col gap-2.5 sm:flex-row sm:gap-3">
@@ -330,7 +354,7 @@ export default async function LandingPage() {
         </section>
 
         {/* ─── 핵심 가치 카드 ──────────────────────────────────────────── */}
-        <section className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+        <section className="mx-auto max-w-6xl px-5 sm:px-6 py-14 md:py-20">
           <div className="max-w-2xl">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
               Why 샐러리잡
@@ -366,7 +390,7 @@ export default async function LandingPage() {
 
         {/* ─── 서비스 흐름 ─────────────────────────────────────────────── */}
         <section id="flow" className="border-y border-border/60 bg-mint-bg/50">
-          <div className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-14 md:py-20">
             <div className="max-w-2xl">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
                 How it works
@@ -407,7 +431,7 @@ export default async function LandingPage() {
         </section>
 
         {/* ─── 구직자 중심 섹션 ───────────────────────────────────────── */}
-        <section id="worker" className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+        <section id="worker" className="mx-auto max-w-6xl px-5 sm:px-6 py-14 md:py-20">
           <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr] md:items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
@@ -456,7 +480,7 @@ export default async function LandingPage() {
 
         {/* ─── 사업자 중심 섹션 ────────────────────────────────────────── */}
         <section id="business" className="border-y border-border/60 bg-card">
-          <div className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-14 md:py-20">
             <div className="max-w-2xl">
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
                 For businesses
@@ -506,7 +530,7 @@ export default async function LandingPage() {
         </section>
 
         {/* ─── 실제 공고 피드 (신뢰 지표) ────────────────────────────── */}
-        <section className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+        <section className="mx-auto max-w-6xl px-5 sm:px-6 py-14 md:py-20">
           <div className="mb-10 grid gap-6 md:grid-cols-[1fr_1.2fr] md:items-end">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.18em] text-brand">
@@ -549,7 +573,7 @@ export default async function LandingPage() {
 
         {/* ─── Final CTA ───────────────────────────────────────────────── */}
         <section className="border-t border-border/60 bg-brand-light">
-          <div className="mx-auto max-w-5xl px-4 py-16 text-center md:py-24">
+          <div className="mx-auto max-w-5xl px-5 sm:px-6 py-16 text-center md:py-24">
             <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand text-white">
               <Leaf className="h-5 w-5" />
             </div>
@@ -584,7 +608,7 @@ export default async function LandingPage() {
 
         {/* ─── Footer ──────────────────────────────────────────────────── */}
         <footer className="border-t border-border bg-card">
-          <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-4 py-10 md:flex-row md:items-center">
+          <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 sm:px-6 py-10 md:flex-row md:items-center">
             <div className="flex items-center gap-2">
               <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand text-white">
                 <Leaf className="h-3.5 w-3.5" />
