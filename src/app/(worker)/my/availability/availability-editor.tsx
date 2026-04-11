@@ -210,36 +210,51 @@ export function AvailabilityEditor({
     lastVisitedRef.current = null;
   }, []);
 
-  // Touch path — highest priority on mobile. preventDefault on
-  // touchmove is required to stop Chrome mobile from interpreting the
-  // drag as a horizontal scroll of the parent CardContent.
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent<HTMLDivElement>) => {
-      const touch = e.touches[0];
+  // Touch path — we attach native listeners via useEffect below instead
+  // of using React's onTouchStart/onTouchMove props. React 18+ registers
+  // all touch event listeners as PASSIVE by default (perf optimization
+  // for scroll jank), which means calling e.preventDefault() inside a
+  // React synthetic touch handler is silently ignored. Without
+  // preventDefault, mobile Chrome interprets the drag as a horizontal
+  // scroll of the parent overflow-x-auto CardContent and the very first
+  // touchmove after touchstart never reaches the handler — only the
+  // initial tap flips a cell, and the rest of the drag is lost.
+  //
+  // Binding addEventListener ourselves with { passive: false } is the
+  // only way to actually cancel the browser's default gesture handling.
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    const onTouchStart = (ev: TouchEvent) => {
+      const touch = ev.touches[0];
       if (!touch) return;
       if (beginDrag(touch.clientX, touch.clientY)) {
-        e.preventDefault();
+        ev.preventDefault();
       }
-    },
-    [beginDrag],
-  );
-
-  const handleTouchMove = useCallback(
-    (e: React.TouchEvent<HTMLDivElement>) => {
-      const touch = e.touches[0];
+    };
+    const onTouchMove = (ev: TouchEvent) => {
+      const touch = ev.touches[0];
       if (!touch) return;
-      // preventDefault is critical here — without it mobile Chrome
-      // interprets the drag as a scroll gesture and no subsequent
-      // touchmove events reach this handler.
-      e.preventDefault();
+      ev.preventDefault();
       applySlotAtPoint(touch.clientX, touch.clientY);
-    },
-    [applySlotAtPoint],
-  );
+    };
+    const onTouchEnd = () => {
+      endDrag();
+    };
 
-  const handleTouchEnd = useCallback(() => {
-    endDrag();
-  }, [endDrag]);
+    grid.addEventListener("touchstart", onTouchStart, { passive: false });
+    grid.addEventListener("touchmove", onTouchMove, { passive: false });
+    grid.addEventListener("touchend", onTouchEnd);
+    grid.addEventListener("touchcancel", onTouchEnd);
+
+    return () => {
+      grid.removeEventListener("touchstart", onTouchStart);
+      grid.removeEventListener("touchmove", onTouchMove);
+      grid.removeEventListener("touchend", onTouchEnd);
+      grid.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [beginDrag, applySlotAtPoint, endDrag]);
 
   // Mouse / pen path (desktop). Uses window-level listeners bound
   // inside mousedown so we don't depend on React's delegation or
@@ -343,10 +358,6 @@ export function AvailabilityEditor({
               gridTemplateColumns: "48px repeat(7, 1fr)",
               minWidth: "480px",
             }}
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-            onTouchCancel={handleTouchEnd}
             onMouseDown={handleMouseDown}
           >
             {/* Header row */}
