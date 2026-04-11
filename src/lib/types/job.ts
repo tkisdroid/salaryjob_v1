@@ -71,11 +71,13 @@ export interface Job {
 
 // Phase 4 D-01 — UI-level ApplicationStatus union.
 // `checked_in` intentionally omitted from UI type — deprecated, see prisma schema comment.
+// Phase 5 SETL-01: added 'settled' (new status for paid-out shifts); 'completed' kept for legacy rows.
 export type ApplicationStatus =
   | "pending"
   | "confirmed"
   | "in_progress"
-  | "completed"
+  | "settled"    // NEW Phase 5 — SETL-01
+  | "completed"  // legacy — historical rows
   | "cancelled";
 
 // UI bucket mapping — D-01, UI-SPEC 6 상태 x 색 매핑
@@ -83,11 +85,12 @@ export const STATUS_TO_BUCKET: Record<
   ApplicationStatus,
   "upcoming" | "active" | "done"
 > = {
-  pending: "upcoming", // "대기 중" - auto-accept timer running
-  confirmed: "upcoming", // "수락됨"
-  in_progress: "active", // "근무 중"
-  completed: "done", // "완료"
-  cancelled: "done", // "취소됨" - shown in done tab for history
+  pending: "upcoming",    // "대기 중" - auto-accept timer running
+  confirmed: "upcoming",  // "수락됨"
+  in_progress: "active",  // "근무 중"
+  settled: "done",        // NEW Phase 5 — "정산 완료"
+  completed: "done",      // legacy — "완료"
+  cancelled: "done",      // "취소됨" - shown in done tab for history
 };
 
 export interface Application {

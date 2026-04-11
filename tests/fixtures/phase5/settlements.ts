@@ -1,9 +1,8 @@
 // Phase 5 Wave 0 settlement fixtures
 //
-// Wave 0 note: factories use status='completed' because the 'settled' enum value
-// does NOT yet exist — it will be added by Plan 02 Task 1 (prisma db push).
-// Plan 04 Task 1 updates the factory to emit 'settled' after Plan 02 pushes the enum.
-// See Plan 01 frontmatter coupling note and 05-RESEARCH.md for details.
+// Plan 02 Task 2 update: factory now emits status='settled' following the enum addition
+// in Plan 02 Task 1 (prisma db push). The Wave 0 placeholder of status='completed' has
+// been flipped. See Plan 01 frontmatter coupling note and 05-RESEARCH.md for details.
 
 import type { PrismaClient } from "@/generated/prisma/client";
 import { Prisma } from "@/generated/prisma/client";
@@ -17,8 +16,8 @@ export interface CreateSettledApplicationOpts {
 
 /**
  * Creates a complete worker + business + job + application fixture with
- * realistic check-in/out times and earnings. Status is 'completed' in Wave 0
- * because 'settled' enum value is added in Plan 02; Plan 04 updates this literal.
+ * realistic check-in/out times and earnings. Status is 'settled' (Plan 02 Task 2
+ * flipped this from the Wave 0 'completed' placeholder after Plan 02 pushed the enum).
  *
  * Phase 4 factories (createTestWorker / createTestBusiness / createTestJob) use
  * the global @/lib/db prisma singleton internally — this factory receives its own
@@ -42,8 +41,7 @@ export async function createSettledApplication(
     authorId: bizUser.id,
   });
 
-  // Wave 0: use 'completed' because 'settled' enum value does not yet exist.
-  // Plan 04 migrates both the factory and the DONE_STATUSES constant.
+  // Plan 02 Task 2: use 'settled' — enum value added by Plan 02 Task 1 (prisma db push).
   const checkInAt = new Date(Date.now() - 5 * 3600 * 1000);
   const checkOutAt = new Date(Date.now() - 1 * 3600 * 1000);
 
@@ -51,7 +49,7 @@ export async function createSettledApplication(
     data: {
       jobId: job.id,
       workerId: worker.id,
-      status: "completed",
+      status: "settled",
       appliedAt: new Date(Date.now() - 24 * 3600 * 1000),
       checkInAt,
       checkOutAt,
