@@ -5,10 +5,11 @@ import { prisma } from '@/lib/db'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import type { AuthFormState } from '../types'
+import { supabaseAuthErrorToKorean } from '@/lib/errors/auth-errors'
 
 const LoginSchema = z.object({
-  email: z.email(),
-  password: z.string().min(1),
+  email: z.email('올바른 이메일 주소를 입력해주세요'),
+  password: z.string().min(1, '비밀번호를 입력해주세요'),
 })
 
 export async function signInWithPassword(
@@ -29,7 +30,9 @@ export async function signInWithPassword(
     email: parsed.data.email,
     password: parsed.data.password,
   })
-  if (error) return { error: { form: [error.message] } }
+  if (error) {
+    return { error: { form: [supabaseAuthErrorToKorean(error.message)] } }
+  }
 
   // Determine redirect by role (read from DB, NOT from session claims)
   // Static import (not dynamic) — Turbopack 16.2 fails to resolve `@/generated/prisma/client`
