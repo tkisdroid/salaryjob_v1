@@ -82,16 +82,15 @@ function getCategoryIcon(categoryLabel: string): LucideIcon {
   return CATEGORY_ICONS[categoryLabel] ?? Sparkles;
 }
 
-function getScoreColor(score: number): string {
-  if (score >= 80) return "text-green-600";
-  if (score >= 60) return "text-brand";
-  return "text-muted-foreground";
-}
-
 function getScoreBgColor(score: number): string {
   if (score >= 80) return "bg-green-100 text-green-700";
   if (score >= 60) return "bg-brand-light text-brand";
   return "bg-muted text-muted-foreground";
+}
+
+function renderCategoryIcon(categoryLabel: string, className: string) {
+  const Icon = getCategoryIcon(categoryLabel);
+  return <Icon className={className} />;
 }
 
 // ---------------------------------------------------------------------------
@@ -103,13 +102,11 @@ function ScheduleBlock({
 }: {
   readonly recommendation: ScheduleRecommendation;
 }) {
-  const Icon = getCategoryIcon(recommendation.category);
-
   return (
     <div className="flex items-start gap-3 rounded-lg border border-border p-3 hover:ring-1 hover:ring-brand/30 transition-all">
       {/* Category icon */}
       <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-brand-light shrink-0">
-        <Icon className="w-5 h-5 text-brand" />
+        {renderCategoryIcon(recommendation.category, "w-5 h-5 text-brand")}
       </div>
 
       {/* Details */}

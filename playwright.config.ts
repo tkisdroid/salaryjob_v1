@@ -1,9 +1,16 @@
+import { config as loadEnv } from 'dotenv';
 import { defineConfig, devices } from '@playwright/test';
+
+loadEnv({ path: '.env.local' });
+loadEnv();
 
 export default defineConfig({
   testDir: './tests/e2e',
   timeout: 30_000,
   fullyParallel: false,
+  // Supabase-backed auth E2E reuses shared seeded accounts. Run serially so
+  // concurrent logout/login tests do not invalidate each other's sessions.
+  workers: 1,
   retries: 0,
   reporter: [['list']],
   use: {

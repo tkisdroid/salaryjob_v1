@@ -38,4 +38,19 @@ describe.skipIf(skipIfNoSupabase())('AUTH-05 proxy redirect', () => {
     // /login is a public route — proxy should NOT intercept it
     expect(unstable_doesProxyMatch('/login')).toBe(false);
   });
+  it('does NOT match /sw.js so anonymous browsers can register the service worker', async () => {
+    let unstable_doesProxyMatch: ((path: string) => boolean) | undefined;
+    try {
+      const mod = await import('next/experimental/testing/server');
+      unstable_doesProxyMatch = mod.unstable_doesProxyMatch;
+    } catch {
+      // experimental API not available ??stub pending Plan 03
+    }
+
+    if (!unstable_doesProxyMatch) {
+      return;
+    }
+
+    expect(unstable_doesProxyMatch('/sw.js')).toBe(false);
+  });
 });

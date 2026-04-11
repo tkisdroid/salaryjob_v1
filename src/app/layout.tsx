@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { ServiceWorkerRegistrar } from "@/components/providers/service-worker-registrar";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistMono = Geist_Mono({
@@ -47,7 +46,18 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <ServiceWorkerRegistrar />
+        <script
+          id="service-worker-registrar"
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch((error) => {
+                  console.warn('[sw] registration failed:', error);
+                });
+              }
+            `,
+          }}
+        />
         {children}
         <Toaster position="top-center" />
       </body>

@@ -38,16 +38,37 @@ export function JobListInfinite({
   distanceMode = null,
   jobHrefBase = "/posts",
 }: Props) {
+  const distanceKey = distanceMode
+    ? `${distanceMode.userLat}:${distanceMode.userLng}:${distanceMode.radiusM}`
+    : "time";
+  const resetKey = [
+    jobHrefBase,
+    initialCursor ?? "end",
+    distanceKey,
+    initialJobs.map((job) => job.id).join(","),
+  ].join("|");
+
+  return (
+    <JobListInfiniteInner
+      key={resetKey}
+      initialJobs={initialJobs}
+      initialCursor={initialCursor}
+      distanceMode={distanceMode}
+      jobHrefBase={jobHrefBase}
+    />
+  );
+}
+
+function JobListInfiniteInner({
+  initialJobs,
+  initialCursor,
+  distanceMode,
+  jobHrefBase,
+}: Required<Props>) {
   const [jobs, setJobs] = useState<Job[]>(initialJobs);
   const [cursor, setCursor] = useState<string | null>(initialCursor);
   const [isPending, startTransition] = useTransition();
   const sentinelRef = useRef<HTMLDivElement>(null);
-
-  // Reset list when caller swaps initialJobs (e.g., category filter change).
-  useEffect(() => {
-    setJobs(initialJobs);
-    setCursor(initialCursor);
-  }, [initialJobs, initialCursor]);
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -75,7 +96,7 @@ export function JobListInfinite({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [cursor, isPending, distanceMode]);
+  }, [cursor, distanceMode, isPending]);
 
   return (
     <div className="space-y-3">
@@ -85,34 +106,34 @@ export function JobListInfinite({
         </p>
       )}
 
-      {jobs.map((j) => (
+      {jobs.map((job) => (
         <Link
-          key={j.id}
-          href={`${jobHrefBase}/${j.id}`}
+          key={job.id}
+          href={`${jobHrefBase}/${job.id}`}
           className="block rounded-lg border p-4 transition hover:shadow"
         >
           <div className="mb-1 flex items-start justify-between">
-            <h2 className="text-base font-semibold">{j.title}</h2>
-            {j.isUrgent && (
+            <h2 className="text-base font-semibold">{job.title}</h2>
+            {job.isUrgent && (
               <span className="rounded bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
                 긴급
               </span>
             )}
           </div>
           <p className="text-sm text-gray-600">
-            {j.business.logo} {j.business.name}
+            {job.business.logo} {job.business.name}
           </p>
           <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500">
-            <span>시급 {j.hourlyPay.toLocaleString()}원</span>
-            <span>{j.workDate}</span>
+            <span>시급 {job.hourlyPay.toLocaleString()}원</span>
+            <span>{job.workDate}</span>
             <span>
-              {j.startTime}~{j.endTime}
+              {job.startTime}~{job.endTime}
             </span>
             <span>
-              {j.filled}/{j.headcount}명
+              {job.filled}/{job.headcount}명
             </span>
-            {j.distanceM > 0 && (
-              <span>{(j.distanceM / 1000).toFixed(1)}km</span>
+            {job.distanceM > 0 && (
+              <span>{(job.distanceM / 1000).toFixed(1)}km</span>
             )}
           </div>
         </Link>

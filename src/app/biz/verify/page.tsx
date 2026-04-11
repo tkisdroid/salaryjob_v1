@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import Link from "next/link"
+import { useEffect, useState } from "react"
 import {
   Upload,
   FileCheck,
@@ -289,10 +290,10 @@ function StepOcrReview({
 function StepVerificationStatus({ onBack }: { onBack: () => void }) {
   const [verified, setVerified] = useState(false)
 
-  useState(() => {
+  useEffect(() => {
     const timer = setTimeout(() => setVerified(true), 3000)
     return () => clearTimeout(timer)
-  })
+  }, [])
 
   return (
     <Card>
@@ -324,10 +325,10 @@ function StepVerificationStatus({ onBack }: { onBack: () => void }) {
                 className="mt-8 bg-teal text-white hover:bg-teal/90"
                 asChild
               >
-                <a href="/biz/posts/new">
+                <Link href="/biz/posts/new">
                   첫 공고 등록하기
                   <ArrowRight className="w-4 h-4" />
-                </a>
+                </Link>
               </Button>
             </>
           ) : (

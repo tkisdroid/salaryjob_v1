@@ -20,7 +20,6 @@ vi.mock("web-push", () => ({
 }));
 
 import { sendPushToUser } from "@/lib/push";
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const webpush = (await import("web-push")) as unknown as {
   sendNotification: ReturnType<typeof vi.fn>;
 };

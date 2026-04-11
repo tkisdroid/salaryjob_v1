@@ -191,9 +191,7 @@ export async function generateWeeklySchedule(
       const isPeakHour = peakHoursInSlot.length > 0;
       const isCategoryMatch = workerPreferences.preferredCategories.includes(categoryId);
       const historyEntry = matchHistory.find((h) => h.category === categoryId);
-      const isWeekend = weekendDays.has(slot.day);
 
-      const estimatedPayAmount = estimatePay(demand.basePayPerHour, slotDuration, isPeakDay, isWeekend);
       const meetsMinPay = demand.basePayPerHour >= workerPreferences.minHourlyRate;
 
       const score = computeMatchScore({

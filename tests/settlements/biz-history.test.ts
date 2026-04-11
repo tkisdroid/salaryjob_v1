@@ -29,7 +29,7 @@ describe.skipIf(!process.env.DATABASE_URL)(
 
     it("returns only own biz settlements, not foreign biz settlements", async () => {
       // Seed biz1 + biz2, each with 1 job, each with 1 settled-style application
-      const { business: biz1, worker: worker1 } =
+      const { business: biz1 } =
         await createSettledApplication(prisma);
       await createSettledApplication(prisma); // biz2 — different business
 
@@ -41,7 +41,7 @@ describe.skipIf(!process.env.DATABASE_URL)(
     });
 
     it("result row includes job.business and worker.workerProfile nested relations", async () => {
-      const { business: biz1, worker: worker1 } =
+      const { business: biz1 } =
         await createSettledApplication(prisma);
 
       const { getBizSettlements } = await import("@/lib/db/queries");

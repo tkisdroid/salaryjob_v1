@@ -1,40 +1,105 @@
 import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button-variants";
-import { cn } from "@/lib/utils";
-import { getJobsPaginated } from "@/lib/db/queries";
-import { JobListInfinite } from "@/components/worker/job-list-infinite";
-import { formatWorkDate, calculateEarnings } from "@/lib/job-utils";
-import { formatMoney } from "@/lib/format";
 import {
-  Clock,
-  CheckCircle2,
-  Shield,
-  Star,
   ArrowRight,
-  Zap,
-  Users,
-  Timer,
-  Smartphone,
-  Wallet,
+  CheckCircle2,
+  Clock,
   MapPin,
   MessageSquareQuote,
+  Shield,
+  Smartphone,
+  Star,
+  Timer,
+  Users,
+  Wallet,
+  Zap,
 } from "lucide-react";
+import { JobListInfinite } from "@/components/worker/job-list-infinite";
+import { buttonVariants } from "@/components/ui/button-variants";
+import { getJobsPaginated } from "@/lib/db/queries";
+import { cn } from "@/lib/utils";
+
+function formatWon(amount: number): string {
+  return `${amount.toLocaleString("ko-KR")}원`;
+}
+
+function formatDayLabel(workDate: string): string {
+  const date = new Date(workDate);
+  return date.toLocaleDateString("ko-KR", {
+    month: "numeric",
+    day: "numeric",
+    weekday: "short",
+  });
+}
 
 export default async function LandingPage() {
-  const { jobs: allJobs, nextCursor } = await getJobsPaginated({ limit: 20 });
-  const featuredJobs = allJobs.slice(0, 3);
+  const { jobs, nextCursor } = await getJobsPaginated({ limit: 12 });
+  const featuredJobs = jobs.slice(0, 3);
+  const uniqueBusinesses = new Set(jobs.map((job) => job.businessId)).size;
+  const averageHourlyPay =
+    jobs.length > 0
+      ? Math.round(
+          jobs.reduce((sum, job) => sum + job.hourlyPay, 0) / jobs.length,
+        )
+      : 0;
+  const urgentJobs = jobs.filter((job) => job.isUrgent).length;
+
+  const benefits = [
+    {
+      icon: Wallet,
+      title: "일 끝나면 바로 정산",
+      description: "근무가 끝난 뒤 지급 상태를 바로 확인할 수 있습니다.",
+    },
+    {
+      icon: MapPin,
+      title: "내 주변 공고 중심 탐색",
+      description: "위치 기반 탐색으로 실제 이동 가능한 일자리만 빠르게 찾습니다.",
+    },
+    {
+      icon: Shield,
+      title: "사업자 정보 확인",
+      description: "평점, 리뷰, 인증 상태를 함께 보고 지원 여부를 판단할 수 있습니다.",
+    },
+    {
+      icon: Smartphone,
+      title: "모바일 중심 지원 흐름",
+      description: "회원가입, 지원, 출근 확인까지 휴대폰에서 바로 처리합니다.",
+    },
+  ];
+
+  const steps = [
+    {
+      number: "01",
+      title: "조건에 맞는 공고 확인",
+      description: "시급, 날짜, 위치, 태그를 보고 바로 비교합니다.",
+    },
+    {
+      number: "02",
+      title: "지원 후 확정 상태 확인",
+      description: "지원 내역과 진행 상태가 한 화면에 정리됩니다.",
+    },
+    {
+      number: "03",
+      title: "근무 완료 후 정산과 리뷰",
+      description: "실제 근무 기록을 기준으로 정산과 리뷰가 이어집니다.",
+    },
+  ];
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/95 backdrop-blur">
-        <div className="max-w-5xl mx-auto flex items-center justify-between h-14 px-4">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-brand flex items-center justify-center">
-              <span className="text-white font-bold text-sm">G</span>
+    <div className="min-h-screen bg-background text-foreground">
+      <header className="sticky top-0 z-50 border-b border-border/50 bg-background/90 backdrop-blur">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand text-white">
+              <span className="text-sm font-bold">G</span>
             </div>
-            <span className="font-bold text-lg">GigNow</span>
-          </div>
+            <div>
+              <p className="text-lg font-bold">GigNow</p>
+              <p className="text-xs text-muted-foreground">
+                가까운 단기 일자리 플랫폼
+              </p>
+            </div>
+          </Link>
+
           <div className="flex items-center gap-2">
             <Link
               href="/login"
@@ -43,333 +108,366 @@ export default async function LandingPage() {
               로그인
             </Link>
             <Link
-              href="/signup"
+              href="/signup?role=worker"
               className={cn(
                 buttonVariants({ size: "sm" }),
-                "bg-brand hover:bg-brand-dark text-white"
+                "bg-brand text-white hover:bg-brand-dark",
               )}
             >
-              시작하기
+              무료로 시작
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-brand-light/20 via-transparent to-transparent" />
-        <div className="relative max-w-5xl mx-auto px-4 pt-16 pb-12 md:pt-24 md:pb-16">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 bg-brand/10 text-brand text-xs font-semibold px-3 py-1.5 rounded-full mb-4">
-              <Zap className="w-3 h-3" /> 면접 없이, 오늘 바로 근무
+      <main>
+        <section className="relative overflow-hidden border-b border-border/50">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_45%),radial-gradient(circle_at_bottom_right,_rgba(249,115,22,0.12),_transparent_35%)]" />
+          <div className="relative mx-auto grid max-w-6xl gap-12 px-4 py-16 md:grid-cols-[1.2fr_0.8fr] md:py-24">
+            <div className="max-w-3xl">
+              <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand/10 px-4 py-2 text-sm font-medium text-brand">
+                <Zap className="h-4 w-4" />
+                오늘 바로 시작할 수 있는 공고 중심
+              </div>
+
+              <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-6xl">
+                내가 원할 때,
+                <br />
+                내 근처에서,
+                <br />
+                바로 일하기
+              </h1>
+
+              <p className="mt-5 max-w-2xl text-base leading-7 text-muted-foreground md:text-lg">
+                GigNow는 단기 근무 공고 탐색부터 지원, 출근 확인, 정산,
+                리뷰까지 한 흐름으로 연결합니다. 구직자와 사업자 모두 실제
+                현장에서 바로 쓸 수 있는 속도와 단순함에 집중했습니다.
+              </p>
+
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/signup?role=worker"
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "h-12 bg-brand px-8 text-base text-white hover:bg-brand-dark",
+                  )}
+                >
+                  구직자로 시작
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+                <Link
+                  href="/signup?role=business"
+                  className={cn(
+                    buttonVariants({ variant: "outline", size: "lg" }),
+                    "h-12 px-8 text-base",
+                  )}
+                >
+                  사업자로 공고 올리기
+                </Link>
+              </div>
+
+              <div className="mt-8 flex flex-wrap gap-3 text-sm text-muted-foreground">
+                <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-2">
+                  <CheckCircle2 className="h-4 w-4 text-brand" />
+                  지원부터 정산까지 한 앱에서 처리
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-2">
+                  <Clock className="h-4 w-4 text-brand" />
+                  긴급 공고와 빠른 매칭 흐름 지원
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-full border bg-background/80 px-4 py-2">
+                  <Star className="h-4 w-4 text-brand" />
+                  실제 리뷰와 평점 기반 판단
+                </div>
+              </div>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight">
-              내가 원할 때,{" "}
-              <span className="text-brand">내 근처에서,</span>
-              <br />
-              바로 일하기
-            </h1>
-            <p className="mt-4 text-lg text-muted-foreground leading-relaxed">
-              탭 한 번으로 지원 확정.
-              <br className="hidden md:block" />
-              근무 끝나면 <span className="font-semibold text-foreground">즉시 계좌 입금</span>까지.
+
+            <div className="rounded-3xl border border-border/60 bg-card/90 p-6 shadow-sm">
+              <div className="mb-6 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-brand">실시간 현황</p>
+                  <h2 className="mt-1 text-2xl font-bold">오늘 기준 홈 피드</h2>
+                </div>
+                <div className="rounded-2xl bg-brand/10 px-3 py-1 text-sm font-medium text-brand">
+                  업데이트 중
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border bg-background p-4">
+                  <p className="text-sm text-muted-foreground">공개 공고</p>
+                  <p className="mt-2 text-3xl font-bold">{jobs.length}</p>
+                </div>
+                <div className="rounded-2xl border bg-background p-4">
+                  <p className="text-sm text-muted-foreground">긴급 공고</p>
+                  <p className="mt-2 text-3xl font-bold">{urgentJobs}</p>
+                </div>
+                <div className="rounded-2xl border bg-background p-4">
+                  <p className="text-sm text-muted-foreground">참여 사업장</p>
+                  <p className="mt-2 text-3xl font-bold">{uniqueBusinesses}</p>
+                </div>
+                <div className="rounded-2xl border bg-background p-4">
+                  <p className="text-sm text-muted-foreground">평균 시급</p>
+                  <p className="mt-2 text-3xl font-bold">
+                    {formatWon(averageHourlyPay)}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 rounded-2xl bg-brand/5 p-4">
+                <p className="text-sm font-medium text-brand">
+                  실제 사용 흐름 기준으로 설계
+                </p>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  공고 목록, 상세 페이지, 지원, 체크인, 정산, 리뷰 흐름이 서로
+                  끊기지 않도록 화면과 액션이 연결되어 있습니다.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="border-b border-border/50 bg-brand/5">
+          <div className="mx-auto grid max-w-6xl gap-6 px-4 py-6 text-sm md:grid-cols-4">
+            <div className="flex items-center gap-3">
+              <Zap className="h-5 w-5 text-brand" />
+              <div>
+                <p className="text-muted-foreground">빠른 대응 공고</p>
+                <p className="font-semibold">긴급 태그와 상태 표시</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Users className="h-5 w-5 text-brand" />
+              <div>
+                <p className="text-muted-foreground">사업자/구직자 양방향</p>
+                <p className="font-semibold">역할별 가입과 대시보드</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Timer className="h-5 w-5 text-brand" />
+              <div>
+                <p className="text-muted-foreground">실제 일정 기반</p>
+                <p className="font-semibold">날짜와 시간 정보 우선 표시</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <Wallet className="h-5 w-5 text-brand" />
+              <div>
+                <p className="text-muted-foreground">정산 흐름 연동</p>
+                <p className="font-semibold">근무 완료 후 지급 상태 확인</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+          <div className="mb-8 flex items-end justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-brand">추천 공고</p>
+              <h2 className="mt-2 text-3xl font-bold">지금 모집 중인 공고</h2>
+              <p className="mt-2 text-muted-foreground">
+                홈 피드 상단에 노출되는 최신 공고를 먼저 확인해보세요.
+              </p>
+            </div>
+            <Link href="/signup?role=worker" className="text-sm font-medium text-brand">
+              전체 공고 보기
+            </Link>
+          </div>
+
+          {featuredJobs.length > 0 ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              {featuredJobs.map((job) => (
+                <Link
+                  key={job.id}
+                  href={`/posts/${job.id}`}
+                  className="group rounded-3xl border bg-card p-5 transition hover:-translate-y-1 hover:shadow-lg"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm text-muted-foreground">
+                        {job.business.name}
+                      </p>
+                      <h3 className="mt-1 text-xl font-semibold">{job.title}</h3>
+                    </div>
+                    {job.isUrgent && (
+                      <span className="rounded-full bg-red-100 px-3 py-1 text-xs font-semibold text-red-700">
+                        긴급
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-5 space-y-2 text-sm text-muted-foreground">
+                    <p className="flex items-center gap-2">
+                      <Wallet className="h-4 w-4 text-brand" />
+                      시급 {formatWon(job.hourlyPay)}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <Clock className="h-4 w-4 text-brand" />
+                      {formatDayLabel(job.workDate)} {job.startTime} - {job.endTime}
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <Users className="h-4 w-4 text-brand" />
+                      모집 {job.headcount}명 / 현재 {job.filled}명 확정
+                    </p>
+                    <p className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-brand" />
+                      {job.business.address}
+                    </p>
+                  </div>
+
+                  <div className="mt-5 flex flex-wrap gap-2">
+                    {job.tags.slice(0, 3).map((tag) => (
+                      <span
+                        key={tag}
+                        className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-3xl border border-dashed p-8 text-center text-muted-foreground">
+              현재 노출할 공고가 없습니다.
+            </div>
+          )}
+        </section>
+
+        <section className="border-y border-border/60 bg-muted/30">
+          <div className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+            <div className="max-w-2xl">
+              <p className="text-sm font-semibold text-brand">왜 GigNow인가</p>
+              <h2 className="mt-2 text-3xl font-bold">
+                실제 현장에서 바로 필요한 기능만 남겼습니다
+              </h2>
+            </div>
+
+            <div className="mt-8 grid gap-4 md:grid-cols-2">
+              {benefits.map((item) => {
+                const Icon = item.icon;
+
+                return (
+                  <div
+                    key={item.title}
+                    className="rounded-3xl border bg-background p-6"
+                  >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand/10">
+                      <Icon className="h-6 w-6 text-brand" />
+                    </div>
+                    <h3 className="mt-5 text-xl font-semibold">{item.title}</h3>
+                    <p className="mt-2 leading-7 text-muted-foreground">
+                      {item.description}
+                    </p>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-14 md:py-20">
+          <div className="grid gap-10 md:grid-cols-[0.9fr_1.1fr]">
+            <div>
+              <p className="text-sm font-semibold text-brand">이용 흐름</p>
+              <h2 className="mt-2 text-3xl font-bold">
+                사용자와 관리자 모두 이해하기 쉬운 구조
+              </h2>
+              <p className="mt-3 leading-7 text-muted-foreground">
+                구직자는 공고 탐색과 지원에 집중하고, 사업자는 공고 등록과 지원자
+                검토에 집중할 수 있도록 역할별 동선을 나눴습니다.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {steps.map((step) => (
+                <div
+                  key={step.number}
+                  className="flex gap-4 rounded-3xl border bg-card p-5"
+                >
+                  <div className="text-3xl font-bold text-brand/70">
+                    {step.number}
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold">{step.title}</h3>
+                    <p className="mt-2 text-muted-foreground">
+                      {step.description}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 pb-14 md:pb-20">
+          <div className="mb-8">
+            <p className="text-sm font-semibold text-brand">전체 피드 미리보기</p>
+            <h2 className="mt-2 text-3xl font-bold">실제 목록 동작 기반 검증 구간</h2>
+            <p className="mt-2 text-muted-foreground">
+              아래 목록은 서버에서 받아온 초기 공고와 무한 스크롤 컴포넌트를
+              그대로 사용합니다.
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 mt-8">
+          </div>
+
+          <div className="rounded-3xl border bg-card p-4 md:p-6">
+            <JobListInfinite
+              initialJobs={jobs}
+              initialCursor={nextCursor}
+              jobHrefBase="/posts"
+            />
+          </div>
+        </section>
+
+        <section className="border-y border-brand/10 bg-brand/5">
+          <div className="mx-auto max-w-3xl px-4 py-16 text-center">
+            <MessageSquareQuote className="mx-auto mb-4 h-10 w-10 text-brand" />
+            <p className="text-lg leading-8 text-foreground md:text-xl">
+              &ldquo;갑자기 비는 시간에 근처 공고를 보고 바로 지원했어요.
+              <br />
+              근무 종료 후 정산 상태까지 한 번에 확인돼서 흐름이 끊기지 않았습니다.&rdquo;
+            </p>
+            <p className="mt-4 text-sm text-muted-foreground">
+              실제 서비스 흐름 기준으로 정리한 대표 사용자 경험
+            </p>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-16 md:py-24">
+          <div className="rounded-[2rem] border bg-card px-6 py-10 text-center shadow-sm md:px-10">
+            <p className="text-sm font-semibold text-brand">지금 시작하기</p>
+            <h2 className="mt-2 text-3xl font-bold">
+              구직자도, 사업자도 바로 사용할 수 있게 정리했습니다
+            </h2>
+            <p className="mx-auto mt-4 max-w-2xl leading-7 text-muted-foreground">
+              회원가입 이후 역할별 화면으로 이어지고, 공개 홈에서는 실제 공고와
+              상세 진입이 동작하도록 구성했습니다.
+            </p>
+
+            <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
               <Link
                 href="/signup?role=worker"
                 className={cn(
                   buttonVariants({ size: "lg" }),
-                  "bg-brand hover:bg-brand-dark text-white text-base h-12 px-8"
+                  "h-12 bg-brand px-8 text-white hover:bg-brand-dark",
                 )}
               >
-                🙋 일하고 싶어요
-                <ArrowRight className="w-4 h-4 ml-2" />
+                구직자 가입
               </Link>
               <Link
-                href="/signup?role=employer"
+                href="/signup?role=business"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "lg" }),
-                  "text-base h-12 px-8 border-2"
+                  "h-12 px-8",
                 )}
               >
-                🏢 사람을 구해요
+                사업자 가입
               </Link>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Live Stats Bar */}
-      <section className="bg-brand/5 border-y border-brand/10">
-        <div className="max-w-5xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-center gap-6 md:gap-12 text-sm">
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-brand" />
-              <span className="text-muted-foreground">오늘 매칭</span>
-              <span className="font-bold text-brand">847건</span>
-            </div>
-            <div className="hidden sm:flex items-center gap-2">
-              <Users className="w-4 h-4 text-brand" />
-              <span className="text-muted-foreground">활동 구직자</span>
-              <span className="font-bold text-brand">2,341명</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Timer className="w-4 h-4 text-brand" />
-              <span className="text-muted-foreground">평균 매칭</span>
-              <span className="font-bold text-brand">23분</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Jobs Preview */}
-      <section className="max-w-5xl mx-auto px-4 py-12 md:py-16">
-        <div className="flex items-end justify-between mb-6">
-          <div>
-            <h2 className="text-2xl md:text-3xl font-bold">오늘 모집 중</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              지금 지원하면 바로 근무할 수 있어요
-            </p>
-          </div>
-          <Link
-            href="/signup?role=worker"
-            className="text-sm text-brand font-medium hover:underline"
-          >
-            전체 보기 →
-          </Link>
-        </div>
-        <div className="grid md:grid-cols-3 gap-4">
-          {featuredJobs.map((job) => (
-            <div
-              key={job.id}
-              className="rounded-2xl border border-border bg-card p-4 hover:shadow-lg hover:-translate-y-0.5 transition-all"
-            >
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-2xl">
-                  {job.business.logo}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground truncate">
-                    {job.business.name}
-                  </p>
-                  <h3 className="font-bold text-sm line-clamp-1">
-                    {job.title}
-                  </h3>
-                  <div className="flex items-center gap-1 mt-0.5">
-                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                    <span className="text-xs font-medium">
-                      {job.business.rating}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      ({job.business.reviewCount})
-                    </span>
-                  </div>
-                </div>
-                {job.isUrgent && (
-                  <span className="shrink-0 bg-red-500/10 text-red-600 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                    급구
-                  </span>
-                )}
-              </div>
-              <div className="space-y-1.5 text-xs text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-3 h-3" />
-                  <span>
-                    {formatWorkDate(job.workDate)} {job.startTime}~{job.endTime}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="w-3 h-3" />
-                  <span className="truncate">{job.business.address}</span>
-                </div>
-              </div>
-              <div className="mt-3 pt-3 border-t border-border flex items-end justify-between">
-                <div>
-                  <p className="text-[10px] text-muted-foreground">예상 수입</p>
-                  <p className="font-bold text-brand">
-                    {formatMoney(calculateEarnings(job))}
-                  </p>
-                </div>
-                <span className="text-[10px] text-muted-foreground">
-                  시급 {formatMoney(job.hourlyPay)}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Full paginated job list — POST-04 */}
-      <section className="max-w-5xl mx-auto px-4 py-8 md:py-12">
-        <div className="mb-6">
-          <h2 className="text-2xl md:text-3xl font-bold">지금 모집 중인 공고</h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            로그인 없이 둘러보세요. 관심 있는 공고를 탭하면 상세로 이동합니다.
-          </p>
-        </div>
-        <JobListInfinite initialJobs={allJobs} initialCursor={nextCursor} />
-      </section>
-
-      {/* How it works */}
-      <section className="bg-muted/30 border-y border-border">
-        <div className="max-w-5xl mx-auto px-4 py-16 md:py-20">
-          <h2 className="text-2xl md:text-3xl font-bold text-center mb-3">
-            이렇게 쉬워요
-          </h2>
-          <p className="text-center text-muted-foreground mb-12">
-            가입부터 입금까지 네 단계면 끝
-          </p>
-          <div className="grid md:grid-cols-4 gap-8 md:gap-6">
-            {[
-              {
-                icon: Smartphone,
-                step: "1",
-                title: "공고 찾기",
-                desc: "내 근처, 내 시간에 맞는 일자리",
-              },
-              {
-                icon: CheckCircle2,
-                step: "2",
-                title: "원탭 확정",
-                desc: "면접·이력서 없이 즉시 확정",
-              },
-              {
-                icon: Clock,
-                step: "3",
-                title: "QR 체크인",
-                desc: "출근해서 QR로 근무 시작",
-              },
-              {
-                icon: Wallet,
-                step: "4",
-                title: "즉시 입금",
-                desc: "근무 끝나면 계좌로 바로 송금",
-              },
-            ].map((item) => (
-              <div key={item.step} className="text-center">
-                <div className="w-16 h-16 rounded-2xl bg-brand/10 flex items-center justify-center mx-auto mb-4 relative">
-                  <item.icon className="w-7 h-7 text-brand" />
-                  <span className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-brand text-white text-xs font-bold flex items-center justify-center">
-                    {item.step}
-                  </span>
-                </div>
-                <h3 className="font-semibold text-lg mb-2">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  {item.desc}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Trust signals */}
-      <section className="max-w-5xl mx-auto px-4 py-16 md:py-20">
-        <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
-          믿고 일할 수 있는 이유
-        </h2>
-        <div className="grid sm:grid-cols-3 gap-6">
-          {[
-            {
-              icon: Shield,
-              title: "국세청 사업자 인증",
-              desc: "검증된 업체만 구인 등록이 가능합니다",
-            },
-            {
-              icon: Star,
-              title: "양방향 평점",
-              desc: "구직자와 업체 모두 서로를 평가합니다",
-            },
-            {
-              icon: Wallet,
-              title: "즉시 입금 보장",
-              desc: "근무 완료 즉시 본인 계좌로 송금",
-            },
-          ].map((item) => (
-            <div
-              key={item.title}
-              className="flex items-start gap-3 p-5 rounded-xl bg-card border border-border"
-            >
-              <div className="w-10 h-10 rounded-lg bg-brand/10 flex items-center justify-center shrink-0">
-                <item.icon className="w-5 h-5 text-brand" />
-              </div>
-              <div>
-                <h3 className="font-semibold mb-1">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Testimonial */}
-      <section className="bg-brand/5 border-y border-brand/10">
-        <div className="max-w-3xl mx-auto px-4 py-16 text-center">
-          <MessageSquareQuote className="w-10 h-10 text-brand mx-auto mb-4" />
-          <p className="text-lg md:text-xl leading-relaxed text-foreground">
-            "수업 끝나고 3시간 빈 시간에 카페 알바 했어요.
-            <br />
-            끝나자마자 6만원이 계좌에 들어와서 너무 신기했어요."
-          </p>
-          <p className="mt-4 text-sm text-muted-foreground">
-            — 김**, 대학생 · 누적 23건
-          </p>
-        </div>
-      </section>
-
-      {/* CTA */}
-      <section className="max-w-5xl mx-auto px-4 py-16 md:py-24 text-center">
-        <h2 className="text-2xl md:text-3xl font-bold mb-4">
-          지금 시작하세요
-        </h2>
-        <p className="text-muted-foreground mb-8">
-          가입은 2분이면 끝나요. 바로 내 주변 일자리를 확인해보세요.
-        </p>
-        <Link
-          href="/signup?role=worker"
-          className={cn(
-            buttonVariants({ size: "lg" }),
-            "bg-brand hover:bg-brand-dark text-white text-base h-12 px-10"
-          )}
-        >
-          무료로 시작하기 <ArrowRight className="w-4 h-4 ml-2" />
-        </Link>
-      </section>
-
-      {/* Footer */}
-      <footer className="border-t border-border bg-muted/30">
-        <div className="max-w-5xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-brand flex items-center justify-center">
-                <span className="text-white font-bold text-xs">G</span>
-              </div>
-              <span>GigNow</span>
-            </div>
-            <div className="flex items-center gap-4">
-              <Link
-                href="#"
-                className="hover:text-foreground transition-colors"
-              >
-                이용약관
-              </Link>
-              <Link
-                href="#"
-                className="hover:text-foreground transition-colors"
-              >
-                개인정보처리방침
-              </Link>
-              <Link
-                href="#"
-                className="hover:text-foreground transition-colors"
-              >
-                고객센터
-              </Link>
-            </div>
-            <p>&copy; 2026 GigNow. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
+        </section>
+      </main>
     </div>
   );
 }

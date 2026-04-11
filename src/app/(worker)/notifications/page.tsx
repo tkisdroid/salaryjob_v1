@@ -14,8 +14,6 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -88,7 +86,7 @@ const NOTIFICATION_GROUPS: NotificationGroup[] = [
         body: "GS25 역삼점에서 오늘 밤 대타를 급히 구하고 있어요.",
         time: "2시간 전",
         read: true,
-        link: "/posts/urg-1",
+        link: "/search?urgent=1",
       },
     ],
   },
@@ -102,7 +100,7 @@ const NOTIFICATION_GROUPS: NotificationGroup[] = [
         body: "쿠팡 풀필먼트 근무 정산이 완료되었습니다. 50,000원이 입금됩니다.",
         time: "오후 3:20",
         read: true,
-        link: "/my/settlement",
+        link: "/my/settlements",
       },
       {
         id: "n-5",
@@ -125,7 +123,7 @@ const NOTIFICATION_GROUPS: NotificationGroup[] = [
         body: "스타벅스 선릉점에서 근무 리뷰를 남겼습니다. 확인해보세요!",
         time: "3월 24일",
         read: true,
-        link: "/my/reviews",
+        link: "/my/settlements",
       },
       {
         id: "n-7",

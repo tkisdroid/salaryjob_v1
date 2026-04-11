@@ -49,6 +49,8 @@ export interface KakaoSdkState {
 const SCRIPT_ID = "kakao-maps-sdk";
 
 export function useKakaoMapsSDK(): KakaoSdkState {
+  const key = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY?.trim() ?? "";
+
   // SSR-safe initial state: on the server we can't know if the key is set
   // (NEXT_PUBLIC_ is inlined at build time but we still return a stable
   // "not ready" value so hydration matches). The useEffect fills in the
@@ -56,16 +58,11 @@ export function useKakaoMapsSDK(): KakaoSdkState {
   const [state, setState] = useState<KakaoSdkState>({
     ready: false,
     error: null,
-    // Optimistic hasKey: the effect overrides this on mount.
-    hasKey: true,
+    hasKey: key.length > 0,
   });
 
   useEffect(() => {
-    const key = process.env.NEXT_PUBLIC_KAKAO_MAP_KEY;
-    if (!key || key.trim() === "") {
-      setState({ ready: false, error: null, hasKey: false });
-      return;
-    }
+    if (!key) return;
 
     // Already loaded? (HMR reload, multi-consumer mount)
     if (
@@ -132,7 +129,7 @@ export function useKakaoMapsSDK(): KakaoSdkState {
       script.removeEventListener("load", handleLoad);
       script.removeEventListener("error", handleError);
     };
-  }, []);
+  }, [key]);
 
   return state;
 }

@@ -41,6 +41,11 @@ function computeRemaining(startTime: Date): {
   };
 }
 
+function getInitialTotalSeconds(startTime: Date): number {
+  const diff = startTime.getTime() - Date.now();
+  return Math.max(1, Math.floor(diff / 1000));
+}
+
 function buildKakaoMapUrl(lat: number, lng: number, name: string): string {
   // Kakao Map directions URL with destination coordinates
   return `https://map.kakao.com/link/to/${encodeURIComponent(name)},${lat},${lng}`;
@@ -118,10 +123,10 @@ export function CommuteTimer({
   const [remaining, setRemaining] = useState(() => computeRemaining(startTime));
 
   // Store initial total seconds for progress calculation
-  const initialTotalSeconds = useMemo(() => {
-    const diff = startTime.getTime() - Date.now();
-    return Math.max(1, Math.floor(diff / 1000));
-  }, [startTime]);
+  const initialTotalSeconds = useMemo(
+    () => getInitialTotalSeconds(startTime),
+    [startTime],
+  );
 
   useEffect(() => {
     const interval = setInterval(() => {

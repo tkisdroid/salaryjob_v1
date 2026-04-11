@@ -24,16 +24,24 @@ import { subscribePush } from "@/lib/actions/push-actions";
 
 const DISMISSED_KEY = "gignow.pushBannerDismissed";
 
+function shouldShowPushPermissionBanner(): boolean {
+  if (typeof window === "undefined") return false;
+  if (!("Notification" in window)) return false;
+  if (!("serviceWorker" in navigator)) return false;
+  if (Notification.permission !== "default") return false;
+  return !window.localStorage.getItem(DISMISSED_KEY);
+}
+
 export function PushPermissionBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
-    if (!("Notification" in window)) return;
-    if (!("serviceWorker" in navigator)) return;
-    if (Notification.permission !== "default") return;
-    if (window.localStorage.getItem(DISMISSED_KEY)) return;
-    setVisible(true);
+    if (!shouldShowPushPermissionBanner()) return;
+    const timeoutId = window.setTimeout(() => {
+      setVisible(true);
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   if (!visible) return null;

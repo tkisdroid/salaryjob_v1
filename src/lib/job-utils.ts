@@ -5,7 +5,7 @@
  * These functions have NO DB or network dependencies — safe to import anywhere.
  */
 
-import type { JobCategory, Job } from "@/lib/types/job";
+import type { JobCategory } from "@/lib/types/job";
 
 // ============================================================================
 // Earnings calculation

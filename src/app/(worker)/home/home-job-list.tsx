@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { Job } from "@/lib/types/job";
 import { useGeolocation, SEOUL_CITY_HALL } from "@/lib/hooks/use-geolocation";
 import { JobListInfinite } from "@/components/worker/job-list-infinite";
@@ -37,20 +36,16 @@ const DEFAULT_RADIUS_M = 10_000; // 10km default — D-06
  */
 export function HomeJobList({ initialJobs, initialCursor }: Props) {
   const { coords, denied, loading, requestLocation } = useGeolocation();
-  const [distanceMode, setDistanceMode] = useState<DistanceMode | null>(null);
-
-  // React to coords arriving (real or fallback) — flip distanceMode on.
-  // Uses effect so we don't trigger a state update during render.
-  useEffect(() => {
-    if (coords && !distanceMode) {
-      setDistanceMode({
+  const distanceMode: DistanceMode | null = coords
+    ? {
         userLat: coords.lat,
         userLng: coords.lng,
         radiusM: DEFAULT_RADIUS_M,
-      });
-    }
-  }, [coords, distanceMode]);
+      }
+    : null;
 
+  // React to coords arriving (real or fallback) — flip distanceMode on.
+  // Uses effect so we don't trigger a state update during render.
   const handleRequest = () => {
     requestLocation();
   };

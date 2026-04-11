@@ -1,541 +1,284 @@
 import Link from "next/link";
 import {
-  Plus,
-  Users,
-  TrendingUp,
-  Zap,
-  AlertCircle,
-  Clock,
-  Sparkles,
-  Star,
+  Building2,
   ChevronRight,
-  Eye,
-  CheckCircle2,
-  Activity,
-  Calendar,
-  UserCheck,
-  Hourglass,
+  FileText,
+  Plus,
+  Settings,
+  Users,
   Wallet,
-  MapPin,
-  BadgeCheck,
+  Zap,
 } from "lucide-react";
+import { requireBusiness } from "@/lib/dal";
+import {
+  getBusinessProfilesByUserId,
+  getJobsByBusinessIds,
+} from "@/lib/db/queries";
 import { formatMoney } from "@/lib/format";
+import type { Job } from "@/lib/types/job";
 
-const BUSINESS = {
-  name: "스타벅스 역삼점",
-  logo: "☕",
-  verified: true,
-  rating: 4.8,
-  reviewCount: 342,
-};
+function estimateJobBudget(job: Job) {
+  return job.headcount * (job.hourlyPay * job.workHours + job.transportFee);
+}
 
-const TODAY_STATS = {
-  activePosts: 3,
-  todayFilled: 4,
-  todayHeadcount: 5,
-  workingNow: 2,
-  newApplications: 8,
-  avgFillMinutes: 17,
-};
+function formatWorkSummary(job: Job) {
+  return `${job.workDate} · ${job.startTime}~${job.endTime}`;
+}
 
-const MONTH_SUMMARY = {
-  totalHires: 47,
-  totalPaid: 5_280_000,
-  avgRating: 4.8,
-  fillRate: 94,
-};
+export default async function BizDashboardPage() {
+  const session = await requireBusiness();
+  const profiles = await getBusinessProfilesByUserId(session.id);
+  const jobs = await getJobsByBusinessIds(profiles.map((profile) => profile.id));
+  const primaryProfile = profiles[0] ?? null;
 
-type WorkerShiftStatus = "confirmed" | "en_route" | "checked_in" | "completed";
+  if (!primaryProfile) {
+    return (
+      <div className="mx-auto max-w-5xl px-6 py-8">
+        <div className="rounded-3xl border border-dashed border-border bg-card p-8 text-center">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10">
+            <Building2 className="h-7 w-7 text-brand" />
+          </div>
+          <h1 className="text-2xl font-bold">사업자 프로필이 없습니다</h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            대시보드를 사용하려면 먼저 사업장 정보를 등록해야 합니다.
+          </p>
+          <Link
+            href="/biz/profile"
+            className="mt-5 inline-flex h-11 items-center justify-center rounded-xl bg-brand px-4 text-sm font-bold text-white transition-colors hover:bg-brand/90"
+          >
+            사업자 프로필 등록
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-const TODAY_SHIFTS: ReadonlyArray<{
-  id: string;
-  workerName: string;
-  workerInitial: string;
-  rating: number;
-  postTitle: string;
-  startTime: string;
-  endTime: string;
-  status: WorkerShiftStatus;
-  payout: number;
-}> = [
-  {
-    id: "s1",
-    workerName: "김지훈",
-    workerInitial: "김",
-    rating: 4.8,
-    postTitle: "주말 카페 바리스타 보조",
-    startTime: "10:00",
-    endTime: "15:00",
-    status: "checked_in",
-    payout: 68000,
-  },
-  {
-    id: "s2",
-    workerName: "박서연",
-    workerInitial: "박",
-    rating: 4.9,
-    postTitle: "주말 카페 바리스타 보조",
-    startTime: "10:00",
-    endTime: "15:00",
-    status: "en_route",
-    payout: 68000,
-  },
-  {
-    id: "s3",
-    workerName: "이민호",
-    workerInitial: "이",
-    rating: 4.6,
-    postTitle: "평일 오전 바리스타",
-    startTime: "07:00",
-    endTime: "12:00",
-    status: "confirmed",
-    payout: 65000,
-  },
-  {
-    id: "s4",
-    workerName: "최유나",
-    workerInitial: "최",
-    rating: 4.7,
-    postTitle: "평일 오전 바리스타",
-    startTime: "07:00",
-    endTime: "12:00",
-    status: "completed",
-    payout: 65000,
-  },
-];
+  const openJobs = jobs.filter((job) => job.filled < job.headcount);
+  const urgentJobs = jobs.filter((job) => job.isUrgent);
+  const totalHeadcount = jobs.reduce((sum, job) => sum + job.headcount, 0);
+  const totalFilled = jobs.reduce((sum, job) => sum + job.filled, 0);
+  const fillRate =
+    totalHeadcount === 0 ? 0 : Math.round((totalFilled / totalHeadcount) * 100);
+  const forecastBudget = jobs.reduce(
+    (sum, job) => sum + estimateJobBudget(job),
+    0,
+  );
+  const recentJobs = jobs.slice(0, 5);
 
-const STATUS_STYLE: Record<
-  WorkerShiftStatus,
-  { label: string; className: string; dot: string }
-> = {
-  confirmed: {
-    label: "확정",
-    className: "bg-blue-500/10 text-blue-600",
-    dot: "bg-blue-500",
-  },
-  en_route: {
-    label: "이동중",
-    className: "bg-amber-500/10 text-amber-600",
-    dot: "bg-amber-500",
-  },
-  checked_in: {
-    label: "근무중",
-    className: "bg-green-500/10 text-green-600",
-    dot: "bg-green-500 animate-pulse",
-  },
-  completed: {
-    label: "완료",
-    className: "bg-muted text-muted-foreground",
-    dot: "bg-muted-foreground",
-  },
-};
-
-const RECOMMENDED_WORKERS = [
-  {
-    id: "w1",
-    name: "장민석",
-    initial: "장",
-    rating: 4.9,
-    jobs: 34,
-    skills: ["카페", "POS", "바리스타"],
-    distance: "0.5km",
-    reason: "카페 34회 근무 · 근거리",
-  },
-  {
-    id: "w2",
-    name: "한지원",
-    initial: "한",
-    rating: 4.8,
-    jobs: 18,
-    skills: ["서빙", "에스프레소"],
-    distance: "1.2km",
-    reason: "평균 평점 4.8 · 즉시 가능",
-  },
-  {
-    id: "w3",
-    name: "오세림",
-    initial: "오",
-    rating: 4.7,
-    jobs: 12,
-    skills: ["카페", "주말"],
-    distance: "2.1km",
-    reason: "주말 근무 선호 · 노쇼 0",
-  },
-];
-
-const ACTIVE_POSTS = [
-  {
-    id: "p1",
-    title: "주말 카페 바리스타 보조",
-    workDate: "오늘",
-    startTime: "10:00",
-    endTime: "15:00",
-    filled: 2,
-    headcount: 2,
-    views: 128,
-    applications: 3,
-    status: "filled" as const,
-  },
-  {
-    id: "p2",
-    title: "평일 오전 바리스타",
-    workDate: "내일",
-    startTime: "07:00",
-    endTime: "12:00",
-    filled: 0,
-    headcount: 1,
-    views: 45,
-    applications: 2,
-    status: "matching" as const,
-  },
-  {
-    id: "p3",
-    title: "주말 마감 청소 도우미",
-    workDate: "4/13 (토)",
-    startTime: "21:00",
-    endTime: "23:00",
-    filled: 1,
-    headcount: 3,
-    views: 87,
-    applications: 1,
-    status: "matching" as const,
-  },
-];
-
-export default function BizDashboardPage() {
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8 space-y-8">
-      {/* Header */}
-      <header className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-3xl">
-            {BUSINESS.logo}
+    <div className="mx-auto max-w-5xl px-6 py-8">
+      <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="flex items-center gap-4">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10 text-3xl">
+            {primaryProfile.logo}
           </div>
           <div>
-            <div className="flex items-center gap-1.5">
-              <h1 className="text-xl md:text-2xl font-bold">{BUSINESS.name}</h1>
-              {BUSINESS.verified && (
-                <BadgeCheck className="w-5 h-5 text-brand" />
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold">{primaryProfile.name}</h1>
+              {primaryProfile.verified && (
+                <span className="rounded-full bg-brand/10 px-2 py-0.5 text-xs font-semibold text-brand">
+                  인증 완료
+                </span>
               )}
             </div>
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-              <span className="font-medium text-foreground">
-                {BUSINESS.rating}
-              </span>
-              <span>· 리뷰 {BUSINESS.reviewCount} · 완료율 98%</span>
-            </div>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {primaryProfile.address}
+            </p>
           </div>
         </div>
         <Link
           href="/biz/posts/new"
-          className="h-11 px-4 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center gap-1.5 shadow-lg shadow-brand/20 transition-colors"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-brand px-4 text-sm font-bold text-white transition-colors hover:bg-brand/90"
         >
-          <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">공고 등록</span>
+          <Plus className="h-4 w-4" />
+          공고 등록
         </Link>
       </header>
 
-      {/* Real-time KPI row */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <section className="mt-8 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs text-muted-foreground">오늘 근무중</p>
-            <Activity className="w-3.5 h-3.5 text-green-500" />
-          </div>
-          <p className="text-2xl font-bold">
-            {TODAY_STATS.workingNow}
-            <span className="text-sm font-normal text-muted-foreground">
-              {" "}
-              / {TODAY_STATS.todayHeadcount}명
-            </span>
-          </p>
-          <p className="text-[10px] text-muted-foreground mt-1">
-            충원율{" "}
-            {Math.round(
-              (TODAY_STATS.todayFilled / TODAY_STATS.todayHeadcount) * 100
-            )}
-            %
+          <p className="text-xs text-muted-foreground">전체 공고</p>
+          <p className="mt-2 text-3xl font-bold">{jobs.length}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            모집 중 {openJobs.length}건
           </p>
         </div>
-
         <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs text-muted-foreground">새 지원</p>
-            <Users className="w-3.5 h-3.5 text-brand" />
-          </div>
-          <p className="text-2xl font-bold text-brand">
-            {TODAY_STATS.newApplications}
+          <p className="text-xs text-muted-foreground">긴급 공고</p>
+          <p className="mt-2 text-3xl font-bold text-red-600">
+            {urgentJobs.length}
           </p>
-          <p className="text-[10px] text-muted-foreground mt-1">24시간 이내</p>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs text-muted-foreground">평균 매칭</p>
-            <Hourglass className="w-3.5 h-3.5 text-muted-foreground" />
-          </div>
-          <p className="text-2xl font-bold">
-            {TODAY_STATS.avgFillMinutes}
-            <span className="text-sm font-normal text-muted-foreground">분</span>
+          <p className="mt-1 text-xs text-muted-foreground">
+            즉시 확인이 필요한 공고
           </p>
-          <p className="text-[10px] text-muted-foreground mt-1">이번 달 평균</p>
         </div>
-
         <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center justify-between mb-1.5">
-            <p className="text-xs text-muted-foreground">진행중 공고</p>
-            <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-          </div>
-          <p className="text-2xl font-bold">{TODAY_STATS.activePosts}</p>
-          <p className="text-[10px] text-muted-foreground mt-1">활성 공고</p>
+          <p className="text-xs text-muted-foreground">충원율</p>
+          <p className="mt-2 text-3xl font-bold">{fillRate}%</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {totalFilled}/{totalHeadcount}명 매칭
+          </p>
+        </div>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <p className="text-xs text-muted-foreground">예상 총 지급</p>
+          <p className="mt-2 text-3xl font-bold">{formatMoney(forecastBudget)}</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            등록된 공고 기준 합계
+          </p>
         </div>
       </section>
 
-      {/* Quick action: urgent post */}
-      <section>
-        <Link
-          href="/biz/posts/new?urgent=1"
-          className="block rounded-2xl border-2 border-red-500/20 bg-gradient-to-r from-red-500/5 to-orange-500/5 p-5 hover:shadow-md hover:border-red-500/40 transition-all"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-red-500 flex items-center justify-center shrink-0">
-              <Zap className="w-6 h-6 text-white fill-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-bold text-red-600">
-                지금 당장 사람이 필요한가요?
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                급구 공고를 등록하면 평균 5분 내 매칭됩니다
-              </p>
-            </div>
-            <ChevronRight className="w-5 h-5 text-red-500" />
+      <section className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_1.8fr]">
+        <div className="rounded-3xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold">빠른 작업</h2>
+            <Settings className="h-4 w-4 text-muted-foreground" />
           </div>
-        </Link>
-      </section>
-
-      {/* Today's Shifts - Real-time */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Activity className="w-5 h-5 text-brand" />
-            <h2 className="text-lg font-bold">오늘의 근무 현황</h2>
-            <span className="text-[11px] font-bold bg-green-500/10 text-green-600 px-2 py-0.5 rounded-full flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-              LIVE
-            </span>
-          </div>
-          <Link
-            href="/biz/workers"
-            className="text-xs text-brand font-medium flex items-center gap-0.5"
-          >
-            전체 <ChevronRight className="w-3 h-3" />
-          </Link>
-        </div>
-
-        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
-          {TODAY_SHIFTS.map((shift) => {
-            const style = STATUS_STYLE[shift.status];
-            return (
-              <div
-                key={shift.id}
-                className="p-4 flex items-center gap-3 hover:bg-muted/30 transition-colors"
-              >
-                <div className="w-10 h-10 rounded-full bg-brand/10 text-brand font-bold flex items-center justify-center shrink-0">
-                  {shift.workerInitial}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-bold text-sm truncate">
-                      {shift.workerName}
-                    </p>
-                    <div className="flex items-center gap-0.5 text-[11px] text-muted-foreground">
-                      <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                      <span>{shift.rating}</span>
-                    </div>
-                  </div>
-                  <p className="text-[11px] text-muted-foreground truncate">
-                    {shift.postTitle} · {shift.startTime}~{shift.endTime}
-                  </p>
-                </div>
-                <div className="flex flex-col items-end gap-1 shrink-0">
-                  <span
-                    className={`text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1 ${style.className}`}
-                  >
-                    <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-                    {style.label}
-                  </span>
-                  <p className="text-[11px] font-bold text-muted-foreground">
-                    {formatMoney(shift.payout)}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* AI Recommended Workers */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-brand" />
-            <h2 className="text-lg font-bold">AI 추천 인재</h2>
-            <span className="text-[11px] text-muted-foreground">
-              활성 공고 기반
-            </span>
-          </div>
-          <Link
-            href="/biz/workers"
-            className="text-xs text-brand font-medium flex items-center gap-0.5"
-          >
-            더보기 <ChevronRight className="w-3 h-3" />
-          </Link>
-        </div>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {RECOMMENDED_WORKERS.map((w) => (
+          <div className="mt-4 grid gap-3">
             <Link
-              key={w.id}
-              href={`/biz/workers/${w.id}`}
-              className="rounded-2xl border border-border bg-card p-4 hover:border-brand/40 hover:shadow-md transition-all"
+              href="/biz/posts"
+              className="flex items-center justify-between rounded-2xl border border-border px-4 py-3 transition-colors hover:border-brand/40 hover:bg-muted/30"
             >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-11 h-11 rounded-full bg-brand/10 text-brand font-bold flex items-center justify-center shrink-0">
-                  {w.initial}
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10">
+                  <FileText className="h-5 w-5 text-brand" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm">{w.name}</p>
-                  <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium text-foreground">
-                      {w.rating}
-                    </span>
-                    <span>· {w.jobs}회</span>
-                    <span>·</span>
-                    <MapPin className="w-3 h-3" />
-                    <span>{w.distance}</span>
-                  </div>
+                <div>
+                  <p className="font-semibold">공고 관리</p>
+                  <p className="text-xs text-muted-foreground">
+                    등록한 공고와 지원자를 확인합니다.
+                  </p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-1 mb-2">
-                {w.skills.map((s) => (
-                  <span
-                    key={s}
-                    className="text-[10px] bg-muted px-1.5 py-0.5 rounded font-medium"
-                  >
-                    #{s}
-                  </span>
-                ))}
-              </div>
-              <div className="pt-2 border-t border-border flex items-center gap-1 text-[11px] text-brand font-medium">
-                <Zap className="w-3 h-3 fill-brand" />
-                {w.reason}
-              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </Link>
-          ))}
+            <Link
+              href="/biz/workers"
+              className="flex items-center justify-between rounded-2xl border border-border px-4 py-3 transition-colors hover:border-brand/40 hover:bg-muted/30"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10">
+                  <Users className="h-5 w-5 text-brand" />
+                </div>
+                <div>
+                  <p className="font-semibold">인재 탐색</p>
+                  <p className="text-xs text-muted-foreground">
+                    지원자와 추천 인재 프로필을 확인합니다.
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+            <Link
+              href="/biz/settlements"
+              className="flex items-center justify-between rounded-2xl border border-border px-4 py-3 transition-colors hover:border-brand/40 hover:bg-muted/30"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10">
+                  <Wallet className="h-5 w-5 text-brand" />
+                </div>
+                <div>
+                  <p className="font-semibold">정산 확인</p>
+                  <p className="text-xs text-muted-foreground">
+                    지급 현황과 정산 내역을 확인합니다.
+                  </p>
+                </div>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+          </div>
         </div>
-      </section>
 
-      {/* Active Posts */}
-      <section>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold">내 공고 현황</h2>
-          <Link
-            href="/biz/posts"
-            className="text-xs text-brand font-medium flex items-center gap-0.5"
-          >
-            전체 <ChevronRight className="w-3 h-3" />
-          </Link>
-        </div>
-        <div className="rounded-2xl border border-border bg-card divide-y divide-border overflow-hidden">
-          {ACTIVE_POSTS.map((post) => {
-            const fillPct = Math.round((post.filled / post.headcount) * 100);
-            const isFilled = post.status === "filled";
-            return (
+        <div className="rounded-3xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-lg font-bold">최근 공고</h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                대시보드에서 바로 상세와 지원자를 확인할 수 있습니다.
+              </p>
+            </div>
+            <Link
+              href="/biz/posts"
+              className="text-sm font-medium text-brand hover:underline"
+            >
+              전체 보기
+            </Link>
+          </div>
+
+          {recentJobs.length === 0 ? (
+            <div className="mt-6 rounded-2xl border border-dashed border-border p-6 text-center">
+              <p className="font-medium">등록된 공고가 없습니다.</p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                첫 공고를 등록하면 여기에서 바로 확인할 수 있습니다.
+              </p>
               <Link
-                key={post.id}
-                href={`/biz/posts/${post.id}`}
-                className="block p-4 hover:bg-muted/30 transition-colors"
+                href="/biz/posts/new"
+                className="mt-4 inline-flex h-10 items-center justify-center rounded-xl bg-brand px-4 text-sm font-bold text-white transition-colors hover:bg-brand/90"
               >
-                <div className="flex items-start justify-between gap-3 mb-2">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span
-                        className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                          isFilled
-                            ? "bg-brand/10 text-brand"
-                            : "bg-amber-500/10 text-amber-600"
-                        }`}
-                      >
-                        {isFilled ? "충원 완료" : "매칭 중"}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground">
-                        {post.workDate} · {post.startTime}~{post.endTime}
-                      </span>
-                    </div>
-                    <p className="font-bold text-sm truncate">{post.title}</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                </div>
-                <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                  <span className="flex items-center gap-0.5">
-                    <UserCheck className="w-3 h-3" />
-                    {post.filled}/{post.headcount}명
-                  </span>
-                  <span className="flex items-center gap-0.5">
-                    <Users className="w-3 h-3" />
-                    지원 {post.applications}
-                  </span>
-                  <span className="flex items-center gap-0.5">
-                    <Eye className="w-3 h-3" />
-                    조회 {post.views}
-                  </span>
-                </div>
-                <div className="mt-2 h-1.5 rounded-full bg-muted overflow-hidden">
-                  <div
-                    className={`h-full rounded-full transition-all ${
-                      isFilled ? "bg-brand" : "bg-amber-500"
-                    }`}
-                    style={{ width: `${fillPct}%` }}
-                  />
-                </div>
+                공고 작성하기
               </Link>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Monthly Summary */}
-      <section>
-        <div className="flex items-center gap-2 mb-4">
-          <TrendingUp className="w-5 h-5 text-brand" />
-          <h2 className="text-lg font-bold">이번 달 요약</h2>
-        </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">총 채용 인원</p>
-            <p className="text-2xl font-bold mt-1">{MONTH_SUMMARY.totalHires}명</p>
-          </div>
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">지급 인건비</p>
-            <p className="text-2xl font-bold mt-1">
-              {formatMoney(MONTH_SUMMARY.totalPaid)}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">평균 평점 받음</p>
-            <p className="text-2xl font-bold mt-1 flex items-center gap-1">
-              <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-              {MONTH_SUMMARY.avgRating}
-            </p>
-          </div>
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs text-muted-foreground">충원 성공률</p>
-            <p className="text-2xl font-bold mt-1 text-brand">
-              {MONTH_SUMMARY.fillRate}%
-            </p>
-          </div>
+            </div>
+          ) : (
+            <div className="mt-5 space-y-3">
+              {recentJobs.map((job) => {
+                const isFilled = job.filled >= job.headcount;
+                return (
+                  <div
+                    key={job.id}
+                    className="rounded-2xl border border-border p-4 transition-colors hover:border-brand/30"
+                  >
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                              isFilled
+                                ? "bg-muted text-muted-foreground"
+                                : "bg-brand/10 text-brand"
+                            }`}
+                          >
+                            {isFilled ? "충원 완료" : "모집 중"}
+                          </span>
+                          {job.isUrgent && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-semibold text-red-600">
+                              <Zap className="h-3 w-3 fill-red-600" />
+                              긴급
+                            </span>
+                          )}
+                        </div>
+                        <Link
+                          href={`/biz/posts/${job.id}`}
+                          className="mt-2 block truncate text-base font-semibold hover:text-brand"
+                        >
+                          {job.title}
+                        </Link>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          {formatWorkSummary(job)}
+                        </p>
+                      </div>
+                      <div className="shrink-0 text-sm text-muted-foreground">
+                        {job.filled}/{job.headcount}명 · 지원 {job.appliedCount}건
+                      </div>
+                    </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <Link
+                        href={`/biz/posts/${job.id}`}
+                        className="inline-flex h-9 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium transition-colors hover:bg-muted"
+                      >
+                        공고 상세
+                      </Link>
+                      <Link
+                        href={`/biz/posts/${job.id}/applicants`}
+                        className="inline-flex h-9 items-center justify-center rounded-lg bg-brand px-3 text-sm font-semibold text-white transition-colors hover:bg-brand/90"
+                      >
+                        지원자 보기
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
     </div>

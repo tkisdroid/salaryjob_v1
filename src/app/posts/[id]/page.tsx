@@ -12,6 +12,11 @@ interface Props {
   params: Promise<{ id: string }>;
 }
 
+function isJobExpired(workDate: string, startTime: string): boolean {
+  const workDateTime = new Date(`${workDate}T${startTime}:00`);
+  return workDateTime.getTime() < Date.now();
+}
+
 /**
  * Public job detail route — POST-04 + POST-05.
  *
@@ -33,8 +38,7 @@ export default async function PublicJobDetailPage({ params }: Props) {
   if (!job) notFound();
 
   // Render-time expiry check — independent of pg_cron sweep interval.
-  const workDateTime = new Date(`${job.workDate}T${job.startTime}:00`);
-  const isExpired = workDateTime.getTime() < Date.now();
+  const isExpired = isJobExpired(job.workDate, job.startTime);
   const earnings = calculateEarnings(job);
   const spotsLeft = Math.max(0, job.headcount - job.filled);
 

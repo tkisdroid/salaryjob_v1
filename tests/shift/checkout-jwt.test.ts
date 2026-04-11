@@ -40,10 +40,15 @@ describe("SHIFT-02 checkout QR JWT (jose HS256)", () => {
       nonce: "abc",
       ttlSeconds: 300,
     });
-    // Flip last char of signature segment
+    // Flip an early character of the signature segment. Mutating the final
+    // base64url character can still decode to the same bytes because of
+    // insignificant trailing bits on unpadded encodings.
     const parts = token.split(".");
     const sig = parts[2];
-    const flipped = sig.slice(0, -1) + (sig.slice(-1) === "A" ? "B" : "A");
+    const flipIndex = 5;
+    const replacement = sig[flipIndex] === "A" ? "B" : "A";
+    const flipped =
+      sig.slice(0, flipIndex) + replacement + sig.slice(flipIndex + 1);
     const tampered = `${parts[0]}.${parts[1]}.${flipped}`;
     await expect(verifyCheckoutToken(tampered)).rejects.toThrow();
   });

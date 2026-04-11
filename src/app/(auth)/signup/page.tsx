@@ -94,7 +94,7 @@ function RoleSelect({ onRoleSelect }: { onRoleSelect: (role: Role) => void }) {
   );
 }
 
-function WorkerStep1({ onNext: _onNext }: StepProps) {
+function WorkerStep1() {
   const [state, formAction, pending] = useActionState(signUpWithPassword, null);
 
   return (
@@ -324,7 +324,7 @@ function SignupFlow() {
   if (role === "worker") {
     switch (step) {
       case 1:
-        return <WorkerStep1 onNext={() => setStep(2)} />;
+        return <WorkerStep1 />;
       case 2:
         return <WorkerStep2 onNext={() => setStep(3)} onBack={() => setStep(1)} />;
       case 3:

@@ -8,7 +8,6 @@ import {
   MapPin,
   Calendar,
   Clock,
-  Shield,
   Award,
   ThumbsUp,
 } from "lucide-react"
@@ -120,13 +119,7 @@ function renderStars(rating: number) {
 
 /* ── Page ── */
 
-export default async function BizWorkerDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>
-}) {
-  const { id } = await params
-
+export default async function BizWorkerDetailPage() {
   return (
     <div className="max-w-5xl mx-auto px-6 py-8">
       {/* Header */}
