@@ -52,8 +52,8 @@ const NOTIFICATION_ICON_MAP: Record<
   recommendation: { icon: Sparkles, className: "text-brand" },
   urgent: { icon: Flame, className: "text-destructive" },
   payment: { icon: Wallet, className: "text-teal" },
-  review: { icon: Star, className: "text-yellow-500" },
-  chat: { icon: MessageCircle, className: "text-blue-500" },
+  review: { icon: Star, className: "text-brand" },
+  chat: { icon: MessageCircle, className: "text-brand-deep" },
   system: { icon: Info, className: "text-muted-foreground" },
 };
 

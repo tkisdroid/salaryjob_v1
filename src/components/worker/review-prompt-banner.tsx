@@ -16,8 +16,8 @@ export function ReviewPromptBanner({
   const [dismissed, setDismissed] = useState(false);
   if (unreviewedCount === 0 || !firstUnreviewedAppId || dismissed) return null;
   return (
-    <div className="relative mb-4 flex items-center gap-3 rounded-lg border border-yellow-300 bg-yellow-50 p-3">
-      <Star className="h-5 w-5 flex-shrink-0 text-yellow-500" />
+    <div className="relative mb-4 flex items-center gap-3 rounded-2xl border border-brand/30 bg-brand-light p-3">
+      <Star className="h-5 w-5 flex-shrink-0 fill-brand text-brand" />
       <p className="flex-1 text-sm">
         {unreviewedCount}건의 근무에 아직 리뷰를 작성하지 않았어요.{" "}
         <Link

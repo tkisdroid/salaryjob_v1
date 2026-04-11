@@ -227,7 +227,7 @@ export function ApplyConfirmFlow({ job }: { job: Job }) {
         </div>
 
         {/* Earnings */}
-        <div className="rounded-2xl bg-gradient-to-br from-brand to-brand-dark text-white p-5">
+        <div className="rounded-2xl bg-brand text-white p-5">
           <p className="text-xs opacity-90 mb-1">예상 수입 (교통비 포함)</p>
           <p className="text-3xl font-bold">{formatMoney(earnings)}</p>
           <p className="text-[11px] opacity-90 mt-2">
@@ -236,35 +236,35 @@ export function ApplyConfirmFlow({ job }: { job: Job }) {
         </div>
 
         {/* Important notices */}
-        <div className="rounded-2xl border-2 border-amber-500/30 bg-amber-500/5 p-4">
+        <div className="rounded-2xl border border-brand/30 bg-brand-light p-4">
           <div className="flex items-center gap-1.5 mb-3">
-            <AlertTriangle className="w-4 h-4 text-amber-600" />
-            <h3 className="text-sm font-bold text-amber-900 dark:text-amber-200">
+            <AlertTriangle className="w-4 h-4 text-brand-deep" />
+            <h3 className="text-sm font-bold text-brand-deep">
               꼭 확인해주세요
             </h3>
           </div>
-          <ul className="space-y-2 text-xs leading-relaxed">
+          <ul className="space-y-2 text-xs leading-relaxed text-foreground">
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-brand-deep shrink-0 mt-0.5" />
               <span>
                 <strong>노쇼(무단 불참) 시</strong> 평점이 크게 하락하고 이후
                 매칭이 제한됩니다.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-brand-deep shrink-0 mt-0.5" />
               <span>
                 근무 <strong>10분 전까지 도착</strong>하여 QR로 체크인해주세요.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-brand-deep shrink-0 mt-0.5" />
               <span>
                 취소는 <strong>근무 24시간 전까지</strong>만 무료로 가능합니다.
               </span>
             </li>
             <li className="flex items-start gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-brand-deep shrink-0 mt-0.5" />
               <span>
                 정확한 주소·담당자 연락처는 확정 직후 알림으로 전달됩니다.
               </span>

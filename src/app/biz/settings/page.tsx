@@ -115,7 +115,7 @@ export default function BizSettingsPage() {
 
       <div className="mt-8 text-center">
         <p className="text-xs text-muted-foreground">
-          GigNow for Business v1.0.0
+          샐러리잡 for Business v1.0.0
         </p>
         <div className="mt-2 flex items-center justify-center gap-3 text-xs text-muted-foreground">
           <Link href="/terms" className="transition-colors hover:text-foreground">

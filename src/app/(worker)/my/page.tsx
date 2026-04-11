@@ -20,12 +20,12 @@ import {
 } from "lucide-react";
 
 const BADGE_LABELS: Record<string, { label: string; color: string }> = {
-  newbie: { label: "새내기", color: "bg-gray-100 text-gray-700" },
-  bronze: { label: "브론즈", color: "bg-orange-100 text-orange-700" },
-  silver: { label: "실버", color: "bg-slate-200 text-slate-700" },
-  gold: { label: "골드", color: "bg-yellow-100 text-yellow-700" },
-  platinum: { label: "플래티넘", color: "bg-cyan-100 text-cyan-700" },
-  diamond: { label: "다이아", color: "bg-indigo-100 text-indigo-700" },
+  newbie: { label: "새내기", color: "bg-muted text-muted-foreground" },
+  bronze: { label: "브론즈", color: "bg-brand-light text-brand-deep" },
+  silver: { label: "실버", color: "bg-muted text-foreground" },
+  gold: { label: "골드", color: "bg-brand text-white" },
+  platinum: { label: "플래티넘", color: "bg-brand-deep text-white" },
+  diamond: { label: "다이아", color: "bg-brand-deep text-white" },
 };
 
 const QUICK_LINKS = [
@@ -244,7 +244,7 @@ export default async function MyPage() {
 
         <Link
           href="/my/schedule"
-          className="block rounded-2xl border border-brand/20 bg-gradient-to-br from-brand/10 to-brand/5 p-4 transition-shadow hover:shadow-md"
+          className="block rounded-2xl border border-brand/20 bg-brand-light p-4 transition-colors hover:bg-brand-light/80"
         >
           <div className="flex items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand">

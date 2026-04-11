@@ -605,7 +605,7 @@ function Step3Compensation({
         </div>
       </Field>
 
-      <div className="rounded-2xl bg-gradient-to-br from-brand to-brand-dark text-white p-5">
+      <div className="rounded-2xl bg-brand text-white p-5">
         <div className="flex items-center justify-between mb-3">
           <p className="text-xs opacity-90">예상 비용 (인당)</p>
           <TrendingUp className="w-4 h-4 opacity-80" />
@@ -796,7 +796,7 @@ function Step5Preview({
         </div>
       </div>
 
-      <div className="rounded-2xl bg-gradient-to-br from-brand to-brand-dark text-white p-5">
+      <div className="rounded-2xl bg-brand text-white p-5">
         <p className="text-xs opacity-90 mb-1">총 예상 비용 (원천징수 별도)</p>
         <p className="text-3xl font-bold">{formatMoney(totalCost)}</p>
         <p className="text-[11px] opacity-90 mt-2">

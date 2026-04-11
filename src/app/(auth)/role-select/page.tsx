@@ -11,7 +11,7 @@ export default async function RoleSelectPage() {
     <Card className="p-6 shadow-sm max-w-md mx-auto">
       <h1 className="text-2xl font-bold text-center mb-2">역할 선택</h1>
       <p className="text-sm text-muted-foreground text-center mb-6">
-        어떻게 GigNow을 사용하시나요?
+        샐러리잡을 어떻게 사용하실 건가요?
       </p>
       <div className="space-y-3">
         <form action={selectRole}>

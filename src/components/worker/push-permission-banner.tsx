@@ -100,20 +100,20 @@ export function PushPermissionBanner() {
   }
 
   return (
-    <div className="mx-4 my-3 flex items-center gap-3 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm">
-      <Bell className="h-5 w-5 text-amber-600 shrink-0" aria-hidden />
+    <div className="mx-4 my-3 flex items-center gap-3 rounded-2xl border border-brand/30 bg-brand-light p-3 text-sm">
+      <Bell className="h-5 w-5 text-brand-deep shrink-0" aria-hidden />
       <div className="flex-1">
-        <p className="font-medium text-amber-900">
+        <p className="font-semibold text-brand-deep">
           알림을 켜서 빠르게 수락 소식을 받아보세요
         </p>
-        <p className="mt-0.5 text-xs text-amber-800">
-          Business가 수락하면 OS 알림으로 즉시 안내드립니다.
+        <p className="mt-0.5 text-xs text-brand-deep/80">
+          사업장이 수락하면 OS 알림으로 즉시 안내드립니다.
         </p>
       </div>
       <button
         type="button"
         onClick={handleEnable}
-        className="rounded-md bg-amber-600 px-3 py-1.5 text-xs font-bold text-white hover:bg-amber-700"
+        className="rounded-full bg-brand px-3 py-1.5 text-xs font-bold text-white hover:bg-brand-dark"
       >
         켜기
       </button>
@@ -121,7 +121,7 @@ export function PushPermissionBanner() {
         type="button"
         onClick={handleDismiss}
         aria-label="닫기"
-        className="rounded-md p-1 text-amber-700 hover:bg-amber-100"
+        className="rounded-md p-1 text-brand-deep/70 hover:bg-brand/10"
       >
         <X className="h-4 w-4" />
       </button>

@@ -146,10 +146,10 @@ export function CancelApplicationDialog({
             <div className="space-y-4">
               <div className="flex items-start gap-3">
                 <div
-                  className={`w-10 h-10 rounded-full ${isLate ? "bg-amber-500/10" : "bg-muted"} flex items-center justify-center shrink-0`}
+                  className={`w-10 h-10 rounded-full ${isLate ? "bg-destructive/10" : "bg-muted"} flex items-center justify-center shrink-0`}
                 >
                   <AlertTriangle
-                    className={`w-5 h-5 ${isLate ? "text-amber-600" : "text-muted-foreground"}`}
+                    className={`w-5 h-5 ${isLate ? "text-destructive" : "text-muted-foreground"}`}
                   />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -183,7 +183,7 @@ export function CancelApplicationDialog({
                   type="button"
                   disabled={phase === "pending"}
                   onClick={handleConfirm}
-                  className={`h-9 px-4 rounded-lg text-xs font-bold text-white disabled:opacity-50 ${isLate ? "bg-amber-600 hover:bg-amber-700" : "bg-destructive hover:bg-destructive/90"}`}
+                  className="h-9 px-4 rounded-lg text-xs font-bold text-white disabled:opacity-50 bg-destructive hover:bg-destructive/90"
                 >
                   {phase === "pending"
                     ? "처리 중..."

@@ -493,7 +493,7 @@ export function AvailabilityEditor({
         <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between gap-3">
           <div className="min-w-0 flex-1">
             {isDirty ? (
-              <p className="text-[11px] text-amber-600 font-medium">
+              <p className="text-[11px] text-brand-deep font-semibold">
                 저장되지 않은 변경사항
               </p>
             ) : (

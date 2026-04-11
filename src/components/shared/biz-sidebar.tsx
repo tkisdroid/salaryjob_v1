@@ -60,12 +60,12 @@ export function BizSidebar() {
   return (
     <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-border bg-card md:flex">
       <div className="flex h-16 items-center gap-3 border-b border-border px-6">
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand">
+        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand shadow-sm">
           <Building2 className="h-5 w-5 text-white" />
         </div>
-        <div>
-          <p className="text-sm font-semibold">GigNow</p>
-          <p className="text-xs text-muted-foreground">사업자 관리</p>
+        <div className="leading-tight">
+          <p className="text-sm font-bold tracking-tight">샐러리잡</p>
+          <p className="text-[10px] text-muted-foreground">사업자 관리</p>
         </div>
       </div>
 

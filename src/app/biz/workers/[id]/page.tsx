@@ -90,11 +90,11 @@ const WORKER = {
 function badgeLevelColor(level: string) {
   switch (level) {
     case "골드":
-      return "bg-yellow-100 text-yellow-700 border-yellow-300"
+      return "bg-brand text-white border-brand-dark"
     case "실버":
-      return "bg-gray-100 text-gray-700 border-gray-300"
+      return "bg-muted text-foreground border-border"
     case "브론즈":
-      return "bg-orange-100 text-orange-700 border-orange-300"
+      return "bg-brand-light text-brand-deep border-brand/30"
     default:
       return "bg-muted text-muted-foreground"
   }

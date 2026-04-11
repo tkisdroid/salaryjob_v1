@@ -1,5 +1,6 @@
 import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
+import { getMissingEnvErrorMessage, hasDatabaseUrl } from "@/lib/env";
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
@@ -19,9 +20,26 @@ function createPrismaClient() {
   });
 }
 
-export const prisma = globalForPrisma.prisma ?? createPrismaClient();
+function createMissingPrismaClient(): PrismaClient {
+  const message = getMissingEnvErrorMessage();
 
-if (process.env.NODE_ENV !== "production") {
+  return new Proxy(
+    {},
+    {
+      get() {
+        throw new Error(message);
+      },
+    },
+  ) as PrismaClient;
+}
+
+const prismaClient =
+  globalForPrisma.prisma ??
+  (hasDatabaseUrl() ? createPrismaClient() : createMissingPrismaClient());
+
+export const prisma = prismaClient;
+
+if (process.env.NODE_ENV !== "production" && hasDatabaseUrl()) {
   globalForPrisma.prisma = prisma;
 }
 

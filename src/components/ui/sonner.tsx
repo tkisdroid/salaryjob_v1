@@ -140,20 +140,20 @@ function ToastRow({
           : Info;
   const colorClass =
     item.variant === "success"
-      ? "border-emerald-500/30 bg-emerald-50 text-emerald-900"
+      ? "border-brand/30 bg-brand-light text-brand-deep"
       : item.variant === "error"
-        ? "border-red-500/30 bg-red-50 text-red-900"
+        ? "border-destructive/30 bg-destructive/5 text-destructive"
         : item.variant === "warning"
-          ? "border-amber-500/30 bg-amber-50 text-amber-900"
-          : "border-blue-500/30 bg-blue-50 text-blue-900";
+          ? "border-brand/30 bg-brand-light text-brand-deep"
+          : "border-border bg-card text-foreground";
   const iconColor =
     item.variant === "success"
-      ? "text-emerald-600"
+      ? "text-brand"
       : item.variant === "error"
-        ? "text-red-600"
+        ? "text-destructive"
         : item.variant === "warning"
-          ? "text-amber-600"
-          : "text-blue-600";
+          ? "text-brand-deep"
+          : "text-muted-foreground";
 
   return (
     <div

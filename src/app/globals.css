@@ -4,6 +4,20 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * 샐러리잡 — design tokens.
+ *
+ * Palette is driven by SALARYJOB_DESIGN_BRIEF.md:
+ *   - 메인 색은 `셀러리처럼 신선한 초록색` (#41B66E)
+ *   - 전체 화면은 화이트 또는 아이보리 베이스 (#FFFDF8)
+ *   - 빨강/보라/강한 파랑은 경고 상황 외에는 사용하지 않음
+ *
+ * Everything below flows through `--brand`, `--background`, `--foreground`,
+ * `--border`, `--muted`, and friends, so changing these variables repaints
+ * every `bg-brand`, `text-brand`, `border-border`, etc. across the app in a
+ * single stroke. No per-component sweep required for the base palette.
+ */
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
@@ -11,25 +25,32 @@
   --font-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, monospace;
   --font-heading: var(--font-sans);
 
-  /* GigNow Brand Colors */
+  /* 샐러리잡 brand tokens */
   --color-brand: var(--brand);
   --color-brand-light: var(--brand-light);
   --color-brand-dark: var(--brand-dark);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-deep: var(--brand-deep);
+  --color-lime-accent: var(--lime-accent);
+  --color-ivory: var(--ivory);
+  --color-mint-bg: var(--mint-bg);
   --color-teal: var(--teal);
   --color-teal-light: var(--teal-light);
   --color-urgent: var(--urgent);
 
-  /* Category Colors */
-  --color-cat-food: #d97706;
-  --color-cat-retail: #7c3aed;
-  --color-cat-logistics: #0369a1;
-  --color-cat-office: #57534e;
-  --color-cat-event: #be185d;
-  --color-cat-cleaning: #0d9488;
-  --color-cat-education: #ca8a04;
-  --color-cat-tech: #4f46e5;
+  /* Category colors — tuned to green-adjacent hues so they do not clash with
+     the 브리프 rule against purples and strong blues. Warm categories keep
+     enough warmth to read clearly in a mint/ivory background. */
+  --color-cat-food: #ea8b1f;
+  --color-cat-retail: #a3893f;
+  --color-cat-logistics: #2f7a63;
+  --color-cat-office: #4d5b52;
+  --color-cat-event: #c98256;
+  --color-cat-cleaning: #1f9a7a;
+  --color-cat-education: #7f9d2a;
+  --color-cat-tech: #2b7a78;
 
-  /* shadcn tokens */
+  /* shadcn tokens — reuse the brand palette */
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -69,47 +90,52 @@
 }
 
 :root {
-  /* GigNow Brand */
-  --brand: oklch(0.65 0.19 45);
-  --brand-light: oklch(0.88 0.08 70);
-  --brand-dark: oklch(0.52 0.17 40);
-  --teal: oklch(0.52 0.1 180);
-  --teal-light: oklch(0.85 0.1 170);
-  --urgent: oklch(0.65 0.19 45);
+  /* 샐러리잡 primary palette — hex values straight from the brief */
+  --brand: #41b66e;            /* Primary */
+  --brand-light: #eaf8ee;      /* Primary Soft — used for badge/card hilites */
+  --brand-dark: #2f9e59;       /* Primary Hover */
+  --brand-soft: #eaf8ee;       /* alias, for semantics */
+  --brand-deep: #1e6f3d;       /* Primary Deep — for heavy accents */
+  --lime-accent: #b7d77a;      /* sub-accent, used sparingly */
+  --ivory: #fffdf8;            /* Warm Ivory background */
+  --mint-bg: #f5fbf6;          /* Mint Background — section fills */
+  --teal: #2f9e8f;             /* accent teal, harmonises with brand */
+  --teal-light: #d6f0eb;
+  --urgent: #ea8b1f;           /* reserved for 긴급 badges only */
 
-  /* shadcn light theme — warm stone palette */
-  --background: oklch(0.985 0.002 75);
-  --foreground: oklch(0.16 0.005 60);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.16 0.005 60);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.16 0.005 60);
-  --primary: oklch(0.65 0.19 45);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.96 0.003 75);
-  --secondary-foreground: oklch(0.16 0.005 60);
-  --muted: oklch(0.96 0.003 75);
-  --muted-foreground: oklch(0.52 0.01 60);
-  --accent: oklch(0.52 0.1 180);
-  --accent-foreground: oklch(1 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.91 0.004 75);
-  --input: oklch(0.91 0.004 75);
-  --ring: oklch(0.65 0.19 45);
-  --chart-1: oklch(0.65 0.19 45);
-  --chart-2: oklch(0.52 0.1 180);
-  --chart-3: oklch(0.60 0.15 300);
-  --chart-4: oklch(0.70 0.12 140);
-  --chart-5: oklch(0.55 0.18 350);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.98 0.002 75);
-  --sidebar-foreground: oklch(0.16 0.005 60);
-  --sidebar-primary: oklch(0.65 0.19 45);
-  --sidebar-primary-foreground: oklch(1 0 0);
-  --sidebar-accent: oklch(0.96 0.003 75);
-  --sidebar-accent-foreground: oklch(0.16 0.005 60);
-  --sidebar-border: oklch(0.91 0.004 75);
-  --sidebar-ring: oklch(0.65 0.19 45);
+  /* Neutrals — ivory base, text greens-neutral */
+  --background: #fffdf8;       /* Warm Ivory */
+  --foreground: #1e2a22;       /* Text Strong */
+  --card: #ffffff;
+  --card-foreground: #1e2a22;
+  --popover: #ffffff;
+  --popover-foreground: #1e2a22;
+  --primary: #41b66e;
+  --primary-foreground: #ffffff;
+  --secondary: #f5fbf6;        /* Mint Background */
+  --secondary-foreground: #1e6f3d;
+  --muted: #f5fbf6;
+  --muted-foreground: #4d5b52; /* Text Body */
+  --accent: #eaf8ee;
+  --accent-foreground: #1e6f3d;
+  --destructive: #d83b3b;       /* reserved — only for errors/cancellation */
+  --border: #dceadf;            /* Border Soft */
+  --input: #dceadf;
+  --ring: #41b66e;
+  --chart-1: #41b66e;
+  --chart-2: #2f9e8f;
+  --chart-3: #b7d77a;
+  --chart-4: #1e6f3d;
+  --chart-5: #eaf8ee;
+  --radius: 0.875rem;           /* rounder per 브리프: 카드 radius 20~28px */
+  --sidebar: #fffdf8;
+  --sidebar-foreground: #1e2a22;
+  --sidebar-primary: #41b66e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #eaf8ee;
+  --sidebar-accent-foreground: #1e6f3d;
+  --sidebar-border: #dceadf;
+  --sidebar-ring: #41b66e;
 }
 
 @layer base {
@@ -131,7 +157,7 @@
   }
 }
 
-/* Urgent pulse animation */
+/* Urgent pulse animation — used for 긴급 badges only */
 @keyframes urgent-pulse {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.7; }

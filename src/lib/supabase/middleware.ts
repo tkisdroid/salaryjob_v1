@@ -6,19 +6,25 @@ import {
   isPublicPath,
   type AppRole,
 } from '@/lib/auth/routing'
+import { getSupabasePublicEnv } from '@/lib/env'
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
 
+  const supabaseEnv = getSupabasePublicEnv()
+  if (!supabaseEnv) {
+    return supabaseResponse
+  }
+
   // With Fluid compute, don't put this client in a global environment
   // variable. Always create a new one on each request.
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    supabaseEnv.url,
     // CONTEXT.md D-07: primary key name is NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY.
     // Fallback to NEXT_PUBLIC_SUPABASE_ANON_KEY for .env.local compatibility.
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseEnv.publishableKey,
     {
       cookies: {
         getAll() {

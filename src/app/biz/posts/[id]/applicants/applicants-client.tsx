@@ -228,7 +228,7 @@ function ApplicantCard({
           <p className="font-bold text-sm truncate">{displayName}</p>
           <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
             <span className="flex items-center gap-0.5">
-              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+              <Star className="w-3 h-3 fill-brand text-brand" />
               {ratingNum.toFixed(1)}
             </span>
             <span>&#183;</span>
@@ -297,7 +297,7 @@ const STATUS_BADGE: Record<
 > = {
   pending: {
     label: "대기 중",
-    className: "bg-amber-500/10 text-amber-600",
+    className: "bg-muted text-muted-foreground",
     Icon: Hourglass,
   },
   confirmed: {

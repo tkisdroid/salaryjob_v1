@@ -39,9 +39,9 @@ const BADGE_LEVEL_CONFIG: Record<
   },
   gold: {
     label: "골드",
-    bgClass: "bg-amber-100",
-    textClass: "text-amber-700",
-    ringClass: "ring-amber-400",
+    bgClass: "bg-brand",
+    textClass: "text-white",
+    ringClass: "ring-brand-dark",
   },
   platinum: {
     label: "플래티넘",

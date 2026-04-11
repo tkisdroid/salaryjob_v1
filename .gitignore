@@ -22,6 +22,7 @@ tests/.supabase-connectivity.json
 
 # production
 /build
+/dist
 
 # misc
 .DS_Store

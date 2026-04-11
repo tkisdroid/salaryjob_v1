@@ -39,12 +39,24 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
   return (
     <Card className="p-6 shadow-sm">
       <div className="mb-6 text-center">
-        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-brand">
-          <span className="text-lg font-bold text-white">G</span>
+        <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand shadow-sm">
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 24 24"
+            className="h-5 w-5 text-white"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.5 2c.5 3 .5 6-2.5 11-2.5 4-5.5 5-6 6" />
+            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
+          </svg>
         </div>
         <h1 className="text-2xl font-bold">로그인</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          GigNow에 다시 돌아오신 것을 환영해요
+          샐러리잡에 다시 돌아오신 것을 환영해요
         </p>
       </div>
 

@@ -112,7 +112,7 @@ const STATUS_CONFIG: Record<
     label: "대기 중",
     icon: Hourglass,
     badgeVariant: "secondary",
-    accentClass: "text-amber-600",
+    accentClass: "text-muted-foreground",
   },
   confirmed: {
     label: "수락됨",

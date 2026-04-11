@@ -134,7 +134,7 @@ export default async function WorkerHomePage({
       <div className="mx-auto max-w-lg space-y-6 py-4">
         {/* Earnings Card */}
         <section className="mx-4">
-          <div className="rounded-2xl bg-gradient-to-br from-brand to-brand-dark p-5 text-white shadow-lg shadow-brand/20">
+          <div className="rounded-2xl bg-brand p-5 text-white">
             <div className="mb-3 flex items-center justify-between">
               <p className="text-sm opacity-90">이번 달 수입</p>
               <TrendingUp className="h-4 w-4 opacity-80" />

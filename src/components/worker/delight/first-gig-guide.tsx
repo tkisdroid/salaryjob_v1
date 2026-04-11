@@ -129,7 +129,7 @@ function TipSection({
         <div className="px-4 pb-4 space-y-2">
           {tips.map((tip) => (
             <div key={tip} className="flex items-start gap-2">
-              <Lightbulb className="w-3.5 h-3.5 text-amber-500 mt-0.5 shrink-0" />
+              <Lightbulb className="w-3.5 h-3.5 text-brand mt-0.5 shrink-0" />
               <p className="text-sm text-muted-foreground">{tip}</p>
             </div>
           ))}

@@ -3,6 +3,10 @@ import { Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { ServiceWorkerRegistrar } from "@/components/providers/service-worker-registrar";
+import {
+  getMissingRuntimeEnvKeys,
+  hasRequiredRuntimeEnv,
+} from "@/lib/env";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -11,12 +15,20 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "GigNow — 내가 원할 때, 내 근처에서, 바로 일하기",
-    template: "%s | GigNow",
+    default: "샐러리잡 — 내 주변 일자리, 더 가볍고 빠르게",
+    template: "%s | 샐러리잡",
   },
   description:
-    "시간제 초단기 아르바이트를 실시간 매칭. 빈 시간을 등록하면 AI가 맞춤 일자리를 찾아드려요.",
-  keywords: ["알바", "단기알바", "초단기", "아르바이트", "N잡", "긱워크", "매칭"],
+    "샐러리잡은 내 주변 일자리를 가장 쉽고 산뜻하게 연결하는 로컬 잡 플랫폼입니다. 이력서·면접 없이 바로 지원하고, 근무 후 즉시 정산받으세요.",
+  keywords: [
+    "샐러리잡",
+    "로컬 잡",
+    "내 주변 알바",
+    "단기 알바",
+    "당일 알바",
+    "즉시 정산",
+    "이력서 없는 알바",
+  ],
 };
 
 export const viewport: Viewport = {
@@ -32,6 +44,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const envReady = hasRequiredRuntimeEnv();
+  const missingKeys = getMissingRuntimeEnvKeys();
+
   return (
     <html
       lang="ko"
@@ -47,9 +62,82 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
-        <ServiceWorkerRegistrar />
-        {children}
-        <Toaster position="top-center" />
+        {envReady ? (
+          <>
+            <ServiceWorkerRegistrar />
+            {children}
+            <Toaster position="top-center" />
+          </>
+        ) : (
+          <main className="flex min-h-screen items-center justify-center bg-[#f5fbf6] px-6 py-16 text-slate-900">
+            <section className="w-full max-w-3xl rounded-[28px] border border-[#dceadf] bg-white p-8 sm:p-10">
+              <div className="inline-flex rounded-full border border-[#dceadf] bg-[#eaf8ee] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#1e6f3d]">
+                Lovable setup required
+              </div>
+              <h1 className="mt-5 text-3xl font-semibold tracking-tight sm:text-4xl">
+                Supabase and database variables are not configured yet.
+              </h1>
+              <p className="mt-4 text-sm leading-6 text-slate-600 sm:text-base">
+                This repo now contains the full Next.js app, but Lovable cannot
+                boot it until the required environment variables are added to
+                the project settings.
+              </p>
+              <div className="mt-8 grid gap-4 md:grid-cols-[1.1fr_0.9fr]">
+                <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5">
+                  <h2 className="text-sm font-semibold text-slate-900">
+                    Add these variables in Lovable
+                  </h2>
+                  <ul className="mt-4 space-y-2 text-sm text-slate-700">
+                    {missingKeys.map((key) => (
+                      <li
+                        key={key}
+                        className="rounded-2xl border border-slate-200 bg-white px-3 py-2 font-mono text-[13px]"
+                      >
+                        {key}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="rounded-3xl border border-[#dceadf] bg-[#eaf8ee] p-5">
+                  <h2 className="text-sm font-semibold text-slate-900">
+                    Where to get them
+                  </h2>
+                  <ol className="mt-4 space-y-3 text-sm leading-6 text-slate-700">
+                    <li>
+                      1. Open Supabase Dashboard → Project Settings → API.
+                    </li>
+                    <li>
+                      2. Copy the project URL and publishable key.
+                    </li>
+                    <li>
+                      3. Copy the service role key and database connection
+                      string.
+                    </li>
+                    <li>
+                      4. Paste them into Lovable environment variables, then
+                      reload the app.
+                    </li>
+                  </ol>
+                  <a
+                    href="https://supabase.com/dashboard/project/_/settings/api"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-5 inline-flex rounded-full bg-[#41b66e] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#2f9e59]"
+                  >
+                    Open Supabase API Settings
+                  </a>
+                </div>
+              </div>
+              <p className="mt-6 text-xs leading-5 text-slate-500">
+                Reference values and variable names are documented in
+                <code className="mx-1 rounded bg-slate-100 px-1.5 py-0.5 text-[11px]">
+                  .env.example
+                </code>
+                at the repo root.
+              </p>
+            </section>
+          </main>
+        )}
       </body>
     </html>
   );

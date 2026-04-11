@@ -62,7 +62,7 @@ export function HomeJobList({ initialJobs, initialCursor }: Props) {
     <div className="space-y-3">
       {/* Permission-denied banner with retry — D-06 fallback UX */}
       {usingFallback && (
-        <div className="rounded border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
+        <div className="rounded-2xl border border-brand/30 bg-brand-light p-3 text-sm text-brand-deep">
           <p className="mb-2">
             정확한 거리를 위해 위치 권한을 허용해 주세요. 현재는 서울시청
             기준으로 표시됩니다.
@@ -70,7 +70,7 @@ export function HomeJobList({ initialJobs, initialCursor }: Props) {
           <button
             type="button"
             onClick={handleRequest}
-            className="rounded bg-amber-600 px-3 py-1 text-xs font-semibold text-white"
+            className="rounded-full bg-brand px-3 py-1 text-xs font-semibold text-white hover:bg-brand-dark"
           >
             위치 권한 다시 요청
           </button>

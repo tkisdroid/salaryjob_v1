@@ -46,8 +46,8 @@ export function StarRatingInput({
               height={px}
               className={cn(
                 filled
-                  ? "fill-yellow-400 text-yellow-400"
-                  : "fill-transparent text-muted-foreground",
+                  ? "fill-brand text-brand"
+                  : "fill-transparent text-border",
               )}
             />
           </button>

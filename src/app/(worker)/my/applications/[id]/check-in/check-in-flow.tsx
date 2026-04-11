@@ -212,7 +212,7 @@ export function CheckInFlow({ application }: Props) {
             근무가 완료되었어요. 정산을 진행합니다.
           </p>
 
-          <div className="w-full max-w-sm rounded-2xl bg-gradient-to-br from-brand to-brand-dark text-white p-5 mb-4">
+          <div className="w-full max-w-sm rounded-2xl bg-brand text-white p-5 mb-4">
             <p className="text-xs opacity-90 mb-1">정산 금액</p>
             <p className="text-3xl font-bold">{formatMoney(earnings)}</p>
             {result && (
@@ -286,7 +286,7 @@ export function CheckInFlow({ application }: Props) {
             </div>
           )}
 
-          <div className="rounded-2xl bg-gradient-to-br from-brand to-brand-dark text-white p-6 text-center">
+          <div className="rounded-2xl bg-brand text-white p-6 text-center">
             <p className="text-xs opacity-90 mb-2">근무 중 경과 시간</p>
             <p className="text-5xl font-bold tabular-nums tracking-tight">
               {formatElapsed(elapsedMs)}
@@ -494,14 +494,14 @@ export function CheckInFlow({ application }: Props) {
           </div>
         </div>
 
-        <div className="rounded-xl bg-amber-500/5 border border-amber-500/30 p-4">
+        <div className="rounded-2xl border border-brand/30 bg-brand-light p-4">
           <div className="flex items-start gap-2 mb-2">
-            <Zap className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
-            <p className="text-xs font-bold text-amber-900 dark:text-amber-200">
+            <Zap className="w-4 h-4 text-brand-deep shrink-0 mt-0.5" />
+            <p className="text-xs font-bold text-brand-deep">
               체크인 안내
             </p>
           </div>
-          <ul className="space-y-1.5 text-[11px] text-amber-900/90 dark:text-amber-200/90 leading-relaxed">
+          <ul className="space-y-1.5 text-[11px] text-foreground/80 leading-relaxed">
             <li className="flex items-start gap-1.5">
               <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" />
               <span>
