@@ -43,6 +43,12 @@ test.describe("authenticated route smoke", () => {
       "/my/favorites",
       "/my/applications",
       "/my/settlements",
+      // /my/applications/<id> detail page — regression for 404 when tapping
+      // a confirmed-shift banner on /my. The detail route below is resolved
+      // dynamically by fetching the worker's first application id from the
+      // /my/applications list page, so there is no static id to include
+      // here. Coverage for the new detail page is in the E2E spec
+      // `authenticated-flows` step that navigates from /my.
       "/my/schedule",
       "/my/availability",
     ]) {
