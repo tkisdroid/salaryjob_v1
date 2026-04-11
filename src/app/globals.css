@@ -171,6 +171,21 @@
   }
 }
 
+/*
+ * Hide the horizontal scrollbar on filter rows (search page category
+ * chips, pay chips, distance chips). Browsers render a thin scrollbar
+ * under overflow-x-auto by default even on touch devices, which shows
+ * up as a stray bar right under the filter. .scrollbar-none removes it
+ * without losing the scroll-swipe ability.
+ */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Urgent pulse animation — used for 긴급 badges only */
 @keyframes urgent-pulse {
   0%, 100% { opacity: 1; }

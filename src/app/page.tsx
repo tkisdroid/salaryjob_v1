@@ -207,7 +207,7 @@ export default async function LandingPage() {
               로그인
             </Link>
             <Link
-              href="/signup?role=worker"
+              href="/login?next=/home"
               className={cn(
                 buttonVariants({ size: "sm" }),
                 "rounded-full bg-brand px-4 text-white shadow-sm hover:bg-brand-dark",
@@ -244,7 +244,7 @@ export default async function LandingPage() {
 
               <div className="mt-7 flex w-full flex-col gap-2.5 sm:flex-row sm:gap-3">
                 <Link
-                  href="/signup?role=worker"
+                  href="/login?next=/home"
                   className={cn(
                     buttonVariants({ size: "lg" }),
                     "h-12 w-full rounded-full bg-brand px-6 text-sm font-semibold text-white hover:bg-brand-dark sm:w-auto sm:text-base",
@@ -446,7 +446,7 @@ export default async function LandingPage() {
                 있어요.
               </p>
               <Link
-                href="/signup?role=worker"
+                href="/login?next=/home"
                 className={cn(
                   buttonVariants({ size: "lg" }),
                   "mt-7 h-12 rounded-full bg-brand px-6 text-white hover:bg-brand-dark",
@@ -585,7 +585,7 @@ export default async function LandingPage() {
             </p>
             <div className="mx-auto mt-8 flex w-full max-w-md flex-col justify-center gap-2.5 sm:max-w-none sm:flex-row sm:gap-3">
               <Link
-                href="/signup?role=worker"
+                href="/login?next=/home"
                 className={cn(
                   buttonVariants({ size: "lg" }),
                   "h-12 w-full rounded-full bg-brand px-6 text-sm font-semibold text-white hover:bg-brand-dark sm:w-auto sm:text-base",
