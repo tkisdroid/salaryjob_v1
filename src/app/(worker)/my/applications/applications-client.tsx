@@ -54,11 +54,19 @@ type AppRow = {
   id: string;
   jobId: string;
   workerId: string;
+  // Phase 5 added 'settled' as the new terminal state for checked-out
+  // applications. 'completed' is kept for legacy pre-Phase-5 rows that
+  // the data migration did not catch (rows with checkOutAt IS NULL, or
+  // partial states). STATUS_CONFIG must have an entry for every value
+  // here — when it didn't, rendering ApplicationCard for a settled row
+  // crashed because `STATUS_CONFIG[app.status].icon` blew up on
+  // undefined, and the 완료 tab silently showed nothing.
   status:
     | "pending"
     | "confirmed"
     | "in_progress"
     | "completed"
+    | "settled"
     | "cancelled";
   appliedAt: string;
   checkInAt: string | null;
@@ -123,6 +131,15 @@ const STATUS_CONFIG: Record<
     icon: CheckCheck,
     badgeVariant: "outline",
     accentClass: "text-muted-foreground",
+  },
+  // Phase 5 terminal state: checkOut now writes status='settled' instead
+  // of 'completed'. Rendered identically to 완료 but with a distinct
+  // label so the user knows their earnings landed.
+  settled: {
+    label: "정산 완료",
+    icon: CheckCheck,
+    badgeVariant: "outline",
+    accentClass: "text-brand",
   },
   cancelled: {
     label: "취소됨",
@@ -272,7 +289,11 @@ function ApplicationCard({ app }: { app: AppRow }) {
     app.status === "pending" || app.status === "confirmed";
   const canCheckIn = app.status === "confirmed";
   const isInProgress = app.status === "in_progress";
-  const isCompleted = app.status === "completed";
+  // Phase 5: both 'completed' (legacy) and 'settled' (new) are terminal
+  // states that should show the earnings card. Treating settled as a
+  // non-completed row hid the KRW payout from every post-Phase-5 shift.
+  const isCompleted =
+    app.status === "completed" || app.status === "settled";
 
   return (
     <article className="rounded-2xl border border-border bg-card p-4 space-y-3">
