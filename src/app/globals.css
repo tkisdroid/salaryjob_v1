@@ -144,6 +144,20 @@
   }
   body {
     @apply bg-background text-foreground;
+    /*
+     * Korean line-break rule: `keep-all` prevents mid-word breaks (Korean
+     * 한 줄 중간에 글자 단위로 쪼개지는 현상 방지), and `break-word` still
+     * allows very long words (links, emails) to wrap when absolutely
+     * necessary. Applied at the body level so every <p>, <h1>, <button>,
+     * etc. inherits the rule without per-component opt-in.
+     *
+     * Before this rule, sentences like '지원·수락까지 평균 수 분.' broke
+     * at character boundaries and stranded lone glyphs on their own line;
+     * after, the browser only breaks at whitespace and punctuation so
+     * each line holds a full Korean 의미 단위.
+     */
+    word-break: keep-all;
+    overflow-wrap: break-word;
   }
   html {
     @apply font-sans;
