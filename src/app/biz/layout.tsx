@@ -14,7 +14,7 @@ export default async function BizLayout({
   return (
     <div className="flex min-h-screen">
       <BizSidebar />
-      <main className="flex-1 pb-20 md:pb-0">{children}</main>
+      <main className="min-w-0 flex-1 pb-20 md:pb-0">{children}</main>
       <BizMobileNav />
     </div>
   );

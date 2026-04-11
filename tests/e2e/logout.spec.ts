@@ -24,7 +24,31 @@ test.describe("AUTH-04 logout", () => {
   test("business logout clears auth cookies", async ({ page, context }) => {
     await loginAs(page, "business2");
     await page.goto("/biz/settings");
-    await page.getByRole("button", { name: /^로그아웃$/ }).click();
+    await page.locator('form button[type="submit"]').last().click();
+    await page.waitForURL(/\/login/, { timeout: 10_000 });
+
+    const cookies = await context.cookies();
+    const authCookies = cookies.filter((cookie) =>
+      /^sb-.*-auth-token$/.test(cookie.name),
+    );
+
+    expect(authCookies).toHaveLength(0);
+  });
+
+  test("business mobile nav exposes settings so logout stays reachable", async ({
+    page,
+    context,
+  }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await loginAs(page, "business");
+    await page.goto("/biz/chat");
+
+    const settingsLink = page.locator('nav a[href="/biz/settings"]').last();
+    await expect(settingsLink).toBeVisible();
+    await settingsLink.click();
+
+    await page.waitForURL(/\/biz\/settings/, { timeout: 10_000 });
+    await page.locator('form button[type="submit"]').last().click();
     await page.waitForURL(/\/login/, { timeout: 10_000 });
 
     const cookies = await context.cookies();

@@ -1,6 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { resolveNextPath } from '@/lib/auth/routing'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import type { AuthFormState } from '../types'
@@ -55,11 +56,12 @@ export async function signUpWithPassword(
 export async function signInWithMagicLink(formData: FormData): Promise<void> {
   // Re-verify N/A: pre-session; magic link redirect creates the session on return.
   const email = formData.get('email') as string
+  const nextPath = resolveNextPath(formData.get('next')) ?? '/role-select'
   const supabase = await createClient()
   const { error } = await supabase.auth.signInWithOtp({
     email,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm?next=/role-select`,
+      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/confirm?next=${encodeURIComponent(nextPath)}`,
       shouldCreateUser: true,
     },
   })
@@ -72,13 +74,14 @@ export async function signInWithMagicLink(formData: FormData): Promise<void> {
 }
 
 // Direct form action — must return Promise<void>. Errors redirect to /auth/error.
-export async function signInWithGoogle(): Promise<void> {
+export async function signInWithGoogle(formData: FormData): Promise<void> {
   // Re-verify N/A: pre-session; OAuth redirect creates the session on callback.
+  const nextPath = resolveNextPath(formData.get('next')) ?? '/role-select'
   const supabase = await createClient()
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/role-select`,
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=${encodeURIComponent(nextPath)}`,
     },
   })
   if (error) {
@@ -96,13 +99,14 @@ export async function signInWithGoogle(): Promise<void> {
 // Phase 2 Wave 5 — Kakao built-in Supabase provider (RESEARCH.md §Key Finding #1)
 // Kakao is a built-in provider, NOT a custom OIDC. Just toggle on Supabase Dashboard.
 // Prerequisite: Supabase Dashboard → Authentication → Providers → Kakao → enable.
-export async function signInWithKakao(): Promise<void> {
+export async function signInWithKakao(formData: FormData): Promise<void> {
   // Re-verify N/A: pre-session; OAuth redirect creates the session on callback.
+  const nextPath = resolveNextPath(formData.get('next')) ?? '/role-select'
   const supabase = await createClient()
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'kakao',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=/role-select`,
+      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback?next=${encodeURIComponent(nextPath)}`,
     },
   })
   if (error) {

@@ -24,7 +24,7 @@ test.describe("POST-04 public landing page job list", () => {
       firstJob.click(),
     ]);
 
-    const applyLink = page.locator('a[href^="/login?next=/posts/"]');
+    const applyLink = page.locator('a[href^="/login?next=%2Fposts%2F"]');
     await expect(applyLink).toBeVisible();
   });
 

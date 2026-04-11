@@ -1,14 +1,8 @@
-import Link from "next/link"
-import {
-  MessageCircle,
-  Search,
-  ChevronRight,
-} from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Input } from "@/components/ui/input"
-
-/* ── Mock Data ── */
+import Link from "next/link";
+import { ChevronRight, MessageCircle, Search } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 const CHAT_ROOMS = [
   {
@@ -24,7 +18,8 @@ const CHAT_ROOMS = [
     id: "c2",
     workerName: "박서연",
     postTitle: "주말 카페 서빙 알바",
-    lastMessage: "안녕하세요, 지원한 박서연입니다. 근무 시간 조율 가능할까요?",
+    lastMessage:
+      "안녕하세요, 지원한 박서연입니다. 근무 시간 조율 가능할까요?",
     lastMessageAt: "1시간 전",
     unread: 1,
     isOnline: true,
@@ -60,42 +55,40 @@ const CHAT_ROOMS = [
     id: "c6",
     workerName: "오민석",
     postTitle: "이벤트 스태프 (3/29)",
-    lastMessage: "행사 장소 주소 한번 더 확인 부탁드립니다.",
+    lastMessage: "행사 장소 주소 한 번 더 확인 부탁드립니다.",
     lastMessageAt: "3일 전",
     unread: 0,
     isOnline: true,
   },
-] as const
-
-/* ── Empty State ── */
+] as const;
 
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-teal/10 mb-4">
-        <MessageCircle className="w-8 h-8 text-teal" />
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-teal/10">
+        <MessageCircle className="h-8 w-8 text-teal" />
       </div>
-      <h3 className="text-lg font-bold text-foreground mb-2">
+      <h3 className="mb-2 text-lg font-bold text-foreground">
         아직 대화가 없어요
       </h3>
-      <p className="text-sm text-muted-foreground max-w-sm">
-        지원자를 수락하면 채팅이 시작됩니다. 공고를 등록하고 인재를 만나보세요.
+      <p className="max-w-sm text-sm text-muted-foreground">
+        지원자를 수락하면 채팅이 시작됩니다. 공고를 등록하고 인재를
+        만나보세요.
       </p>
     </div>
-  )
+  );
 }
 
-/* ── Page ── */
-
 export default function BizChatPage() {
-  const hasChats = CHAT_ROOMS.length > 0
+  const hasChats = CHAT_ROOMS.length > 0;
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
-      {/* Header */}
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">채팅</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+    <div className="mx-auto w-full max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
+      <div className="mb-4 sm:mb-6">
+        <h1 className="text-[28px] font-bold leading-none text-foreground sm:text-2xl">
+          채팅
+        </h1>
+        <p className="mt-2 text-sm text-muted-foreground">
           지원자 및 근무자와 실시간으로 대화하세요.
         </p>
       </div>
@@ -104,60 +97,55 @@ export default function BizChatPage() {
         <EmptyState />
       ) : (
         <>
-          {/* Search */}
           <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="이름 또는 공고로 검색..."
-              className="pl-10"
+              className="h-11 rounded-xl pl-10"
             />
           </div>
 
-          {/* Chat List */}
-          <Card>
-            <CardContent className="divide-y divide-border">
+          <Card className="overflow-hidden rounded-2xl">
+            <CardContent className="divide-y divide-border px-0 sm:px-4">
               {CHAT_ROOMS.map((room) => (
                 <Link
                   key={room.id}
                   href={`/biz/chat/${room.id}`}
-                  className="flex items-center gap-3 py-3 -mx-4 px-4 hover:bg-muted/30 rounded-lg transition-colors"
+                  className="flex min-w-0 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30 sm:-mx-4 sm:rounded-lg sm:px-4"
                 >
-                  {/* Avatar with online indicator */}
-                  <div className="relative flex-shrink-0">
-                    <Avatar size="lg">
+                  <div className="relative shrink-0">
+                    <Avatar size="lg" className="size-10">
                       <AvatarFallback>{room.workerName[0]}</AvatarFallback>
                     </Avatar>
                     {room.isOnline && (
-                      <span className="absolute bottom-0 right-0 w-3 h-3 bg-teal rounded-full border-2 border-card" />
+                      <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-card bg-teal" />
                     )}
                   </div>
 
-                  {/* Content */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-0.5">
-                      <p className="text-sm font-semibold text-foreground">
+                  <div className="min-w-0 flex-1">
+                    <div className="mb-0.5 flex min-w-0 items-start justify-between gap-3">
+                      <p className="truncate text-sm font-semibold text-foreground">
                         {room.workerName}
                       </p>
-                      <span className="text-xs text-muted-foreground whitespace-nowrap ml-2">
+                      <span className="shrink-0 whitespace-nowrap text-[11px] text-muted-foreground">
                         {room.lastMessageAt}
                       </span>
                     </div>
-                    <p className="text-xs text-teal font-medium mb-0.5">
+                    <p className="mb-0.5 truncate text-xs font-medium text-teal">
                       {room.postTitle}
                     </p>
-                    <p className="text-sm text-muted-foreground truncate">
+                    <p className="truncate text-sm text-muted-foreground">
                       {room.lastMessage}
                     </p>
                   </div>
 
-                  {/* Unread Badge */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
+                  <div className="ml-2 flex shrink-0 items-center gap-1.5">
                     {room.unread > 0 && (
-                      <span className="flex items-center justify-center min-w-[20px] h-5 rounded-full bg-brand text-white text-xs font-semibold px-1.5">
+                      <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-brand px-1.5 text-xs font-semibold text-white">
                         {room.unread}
                       </span>
                     )}
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </div>
                 </Link>
               ))}
@@ -166,5 +154,5 @@ export default function BizChatPage() {
         </>
       )}
     </div>
-  )
+  );
 }

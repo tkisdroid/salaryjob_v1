@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { prisma } from "@/lib/db";
+import { buildLoginHref, canRoleAccessPath } from "@/lib/auth/routing";
 import { getJobById } from "@/lib/db/queries";
 import {
   calculateEarnings,
@@ -7,6 +9,7 @@ import {
   categoryLabel,
 } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
+import { createClient } from "@/lib/supabase/server";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -36,6 +39,24 @@ export default async function PublicJobDetailPage({ params }: Props) {
   const job = await getJobById(id);
 
   if (!job) notFound();
+
+  const applyHref = `/posts/${id}/apply`;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let applyCtaHref = buildLoginHref(applyHref);
+  if (user) {
+    const dbUser = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { role: true },
+    });
+
+    if (canRoleAccessPath(dbUser?.role, applyHref)) {
+      applyCtaHref = applyHref;
+    }
+  }
 
   // Render-time expiry check — independent of pg_cron sweep interval.
   const isExpired = isJobExpired(job.workDate, job.startTime);
@@ -191,7 +212,7 @@ export default async function PublicJobDetailPage({ params }: Props) {
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur">
           <div className="mx-auto max-w-2xl p-3">
             <Link
-              href={`/login?next=/posts/${job.id}`}
+              href={applyCtaHref}
               className="block w-full rounded-xl bg-brand p-3 text-center font-bold text-white shadow-lg shadow-brand/20 hover:bg-brand-dark"
             >
               원탭 지원하기

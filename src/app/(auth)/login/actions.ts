@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { prisma } from '@/lib/db'
+import { getPostAuthRedirectPath } from '@/lib/auth/routing'
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import type { AuthFormState } from '../types'
@@ -42,10 +43,7 @@ export async function signInWithPassword(
     select: { role: true },
   })
 
-  if (!dbUser) redirect('/role-select')
-  if (dbUser.role === 'BUSINESS' || dbUser.role === 'ADMIN') redirect('/biz')
-  if (dbUser.role === 'WORKER' || dbUser.role === 'BOTH') redirect('/home')
-  redirect('/role-select')
+  redirect(getPostAuthRedirectPath(dbUser?.role, formData.get('next')))
 }
 
 export async function logout() {
