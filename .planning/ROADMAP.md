@@ -122,7 +122,7 @@ Plans:
   5. "탐색 → 지원 → 근무 → 리뷰 → 정산 확인" 풀 루프가 실 Supabase DB 왕복으로도 1분 이내에 완주된다
 **Plans**: 7 plans
 Plans:
-- [ ] 05-01-PLAN.md — Wave 1: Wave 0 RED test scaffolding (reviews/settlements/exit) + fixtures/phase5 + VALIDATION.md nyquist flip
+- [x] 05-01-PLAN.md — Wave 1: Wave 0 RED test scaffolding (reviews/settlements/exit) + fixtures/phase5 + VALIDATION.md nyquist flip
 - [ ] 05-02-PLAN.md — Wave 2: [BLOCKING] ApplicationStatus.settled enum + WorkerProfile.reviewCount column push + UI type union + review-errors/validations/tag-constants modules
 - [ ] 05-03-PLAN.md — Wave 3: createWorkerReview + createBusinessReview Server Actions with atomic rating aggregation; 10 REV tests GREEN
 - [ ] 05-04-PLAN.md — Wave 3: SETL-01 checkOut literal flip + DONE_STATUSES + 4 settlement query helpers (worker/biz totals + lists) with Asia/Seoul month boundary; 7 settlement tests GREEN
