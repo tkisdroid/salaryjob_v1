@@ -19,8 +19,20 @@ const NAV_ITEMS: readonly { href: string; icon: typeof Home; label: string; isFa
   { href: "/my", icon: User, label: "MY" },
 ];
 
+// Routes that replace the bottom tab bar with their own focused action bar
+// (check-in flow with "체크인 시작" / "근무 종료 (QR)" buttons, QR scanner,
+// success screen). Keeping MobileTabBar visible there causes the two bottom
+// bars to stack and the brand nav hides the primary action button.
+const HIDE_TAB_BAR_PATTERNS: readonly RegExp[] = [
+  /^\/my\/applications\/[^/]+\/check-in$/,
+];
+
 export function MobileTabBar() {
   const pathname = usePathname();
+
+  if (HIDE_TAB_BAR_PATTERNS.some((re) => re.test(pathname))) {
+    return null;
+  }
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 pb-[env(safe-area-inset-bottom)]">
