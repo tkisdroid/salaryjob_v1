@@ -3,7 +3,7 @@ phase: 5
 slug: reviews-settlements
 status: active
 nyquist_compliant: true
-wave_0_complete: false
+wave_0_complete: true
 created: 2026-04-11
 revised: 2026-04-11
 ---
@@ -41,14 +41,16 @@ revised: 2026-04-11
 
 | Task ID | Plan | Wave | Requirement | Threat Ref | Secure Behavior | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|------------|-----------------|-----------|-------------------|-------------|--------|
-| 05-01-01 | 01 | 1 | (Wave 0 fixtures) | T-05-11 | Phase 5 fixtures isolated to @test.local users with abort-on-prod guard | unit | `npx tsc --noEmit tests/fixtures/phase5/index.ts tests/fixtures/phase5/settlements.ts` | ❌ W0 creates | ⬜ pending |
-| 05-01-02 | 01 | 1 | REV-01/REV-02/REV-03/REV-04 | T-05-02, T-05-03 | RED test scaffolds: 10 review test cases module-resolution fail | integration | `npx vitest run tests/reviews 2>&1` (expect RED) | ❌ W0 creates | ⬜ pending |
-| 05-01-03 | 01 | 1 | SETL-01/SETL-02/SETL-03/DATA-05 | T-05-10 | RED test scaffolds: 4 settlement+exit test files module-resolution fail; VALIDATION.md re-verification | integration | `npx vitest run tests/settlements tests/exit 2>&1` (expect RED) | ❌ W0 creates | ⬜ pending |
+| 05-01-01 | 01 | 1 | (Wave 0 fixtures) | T-05-11 | Phase 5 fixtures isolated to @test.local users with abort-on-prod guard | unit | `npx tsc --noEmit tests/fixtures/phase5/index.ts tests/fixtures/phase5/settlements.ts` | ✅ created W0 | ⬜ pending |
+| 05-01-02 | 01 | 1 | REV-01/REV-02/REV-03/REV-04 | T-05-02, T-05-03 | RED test scaffolds: 10 review test cases module-resolution fail | integration | `npx vitest run tests/reviews 2>&1` (expect RED) | ✅ created W0 | ⬜ pending |
+| 05-01-03 | 01 | 1 | SETL-01/SETL-02/SETL-03/DATA-05 | T-05-10 | RED test scaffolds: 4 settlement+exit test files module-resolution fail; VALIDATION.md re-verification | integration | `npx vitest run tests/settlements tests/exit 2>&1` (expect RED) | ✅ created W0 | ⬜ pending |
 | 05-03-01 | 03 | 3 | REV-01/REV-03/REV-04 | T-05-02, T-05-03 | createWorkerReview persists row once; atomic rating aggregation via $transaction+$executeRaw | integration | `npm test -- --run tests/reviews/create-worker-to-biz.test.ts tests/reviews/uniqueness.test.ts tests/reviews/aggregate.test.ts` | ✅ W0 | ⬜ pending |
 | 05-03-02 | 03 | 3 | REV-02/REV-03/REV-04 | T-05-01, T-05-02 | createBusinessReview persists row once; ownership gate via requireJobOwner; atomic rating aggregation | integration | `npm test -- --run tests/reviews/create-biz-to-worker.test.ts` | ✅ W0 | ⬜ pending |
 | 05-03-03 | 03 | 3 | REV-01/REV-02 | — | Review query helpers (getReviewByApplication, getReviewsForUser) | unit | `npx tsc --noEmit src/lib/db/queries.ts` | — | ⬜ pending |
+| 05-03-04 | 03 | 3 | REV-03/REV-04 | T-05-02 | Unique constraint @@unique([applicationId, direction]) maps to already_reviewed error | integration | `npm test -- --run tests/reviews/uniqueness.test.ts tests/reviews/aggregate.test.ts` | ✅ W0 | ⬜ pending |
 | 05-04-01 | 04 | 3 | SETL-01 | T-05-17 | checkOut flips status=settled in single txn + safeRevalidate migration + Phase 4 regression intact | integration | `npm test -- --run tests/applications tests/settlements/checkout-settled-transition.test.ts` | ✅ W0 | ⬜ pending |
 | 05-04-02 | 04 | 3 | SETL-02/SETL-03 | T-05-07, T-05-15 | Worker + biz settlement queries return correct aggregates with Asia/Seoul boundary | integration | `npm test -- --run tests/settlements/worker-aggregates.test.ts tests/settlements/biz-history.test.ts` | ✅ W0 | ⬜ pending |
+| 05-04-03 | 04 | 3 | SETL-02 | T-05-07 | getBizSettlements returns only own jobs' settled applications with correct worker+job shape | integration | `npm test -- --run tests/settlements/biz-history.test.ts` | ✅ W0 | ⬜ pending |
 | 05-06-01 | 06 | 5 | DATA-05 | T-05-10 | prisma/seed.ts detached from src/lib/mock-data via inlined/extracted seed-data | unit | `npx tsx prisma/seed.ts` (smoke) | — | ⬜ pending |
 | 05-06-02 | 06 | 5 | DATA-05 | T-05-10, T-05-23 | mock-data.ts absent + grep 0 matches + Mock* aliases stripped | unit | `npm test -- --run tests/exit/mock-removal.test.ts` | ✅ W0 | ⬜ pending |
 | 05-07-01 | 07 | 6 | REV-01..04, SETL-01..03, DATA-05 | T-05-25 | Full gate evidence captured in 05-VERIFICATION.md (no fabricated numbers) | e2e | `npx vitest run && NODE_ENV=production npx next build` | — | ⬜ pending |
@@ -61,15 +63,15 @@ revised: 2026-04-11
 
 Wave 0 (Plan 01) creates RED-state stubs for all the test files referenced above:
 
-- [ ] `tests/reviews/create-worker-to-biz.test.ts` — REV-01 happy path + error cases
-- [ ] `tests/reviews/create-biz-to-worker.test.ts` — REV-02 happy path + error cases
-- [ ] `tests/reviews/uniqueness.test.ts` — REV-03 duplicate guard under concurrency
-- [ ] `tests/reviews/aggregate.test.ts` — REV-04 atomic rating math + reviewCount increment
-- [ ] `tests/settlements/checkout-settled-transition.test.ts` — SETL-01 single-txn status flip (uses todo-then-promote pattern for enum safety; see H1 fix)
-- [ ] `tests/settlements/biz-history.test.ts` — SETL-02 RLS/ownership + result shape
-- [ ] `tests/settlements/worker-aggregates.test.ts` — SETL-03 sum/this-month KST boundary
-- [ ] `tests/exit/mock-removal.test.ts` — DATA-05 grep assertion, exit code gate
-- [ ] `tests/fixtures/phase5/index.ts` — shared fixtures (settled applications with earnings, past reviews)
+- [x] `tests/reviews/create-worker-to-biz.test.ts` — REV-01 happy path + error cases
+- [x] `tests/reviews/create-biz-to-worker.test.ts` — REV-02 happy path + error cases
+- [x] `tests/reviews/uniqueness.test.ts` — REV-03 duplicate guard under concurrency
+- [x] `tests/reviews/aggregate.test.ts` — REV-04 atomic rating math + reviewCount increment
+- [x] `tests/settlements/checkout-settled-transition.test.ts` — SETL-01 single-txn status flip (uses todo-then-promote pattern for enum safety; see H1 fix)
+- [x] `tests/settlements/biz-history.test.ts` — SETL-02 RLS/ownership + result shape
+- [x] `tests/settlements/worker-aggregates.test.ts` — SETL-03 sum/this-month KST boundary
+- [x] `tests/exit/mock-removal.test.ts` — DATA-05 grep assertion, exit code gate
+- [x] `tests/fixtures/phase5/index.ts` — shared fixtures (settled applications with earnings, past reviews)
 
 **Framework install:** None — Phase 4 Wave 0 already installed vitest + playwright + all test helpers. Phase 5 reuses the exact same test setup.
 
@@ -94,4 +96,36 @@ Wave 0 (Plan 01) creates RED-state stubs for all the test files referenced above
 - [x] Feedback latency < 90s quick / 180s full
 - [x] `nyquist_compliant: true` set in frontmatter (revision 1)
 
-**Approval:** populated by planner revision 1 (2026-04-11). Plan 01 Task 3 re-verifies this map is still populated after Wave 0 test file creation.
+**Approval:** populated by planner revision 1 (2026-04-11). Plan 01 Task 3 re-verified this map after Wave 0 test file creation — all rows point to files created in Plan 01.
+
+---
+
+## Wave 0 Completion Evidence
+
+**Plan 01 completed:** 2026-04-11
+
+### Files Created by Plan 01
+
+| File | Purpose | RED mechanism |
+|------|---------|---------------|
+| `tests/fixtures/phase5/index.ts` | Barrel re-export for phase5 fixtures | N/A (compiles) |
+| `tests/fixtures/phase5/settlements.ts` | `createSettledApplication`, `createReviewableApplication` factories | N/A (compiles) |
+| `tests/fixtures/phase5/reviews.ts` | Placeholder (`PHASE5_REVIEW_FIXTURES_VERSION`) | N/A (compiles) |
+| `tests/reviews/create-worker-to-biz.test.ts` | REV-01: 3 cases (happy path, not_settled, reviewGiven) | `Cannot find module @/app/(worker)/my/applications/[id]/review/actions` |
+| `tests/reviews/create-biz-to-worker.test.ts` | REV-02: 2 cases (happy path, ownership failure) | `Cannot find module @/app/biz/posts/[id]/applicants/[applicantId]/review/actions` |
+| `tests/reviews/uniqueness.test.ts` | REV-03: 2 cases (already_reviewed, opposite direction ok) | same module error |
+| `tests/reviews/aggregate.test.ts` | REV-04: 3 cases (count=0 edge, weighted avg, concurrent) | same module error |
+| `tests/settlements/checkout-settled-transition.test.ts` | SETL-01: it.todo() stubs (enum not yet added) | `todo` markers show RED |
+| `tests/settlements/biz-history.test.ts` | SETL-02: 2 cases (isolation, nested relations) | `Cannot find module @/lib/db/queries` — getBizSettlements |
+| `tests/settlements/worker-aggregates.test.ts` | SETL-03: 3 cases (all-time total, KST April, KST boundary) | `Cannot find module @/lib/db/queries` — getWorkerSettlementTotals |
+| `tests/exit/mock-removal.test.ts` | DATA-05: 3 assertions (file absent, grep 0, seed detached) | file still exists — all 3 RED |
+
+### Vitest Run Evidence (Wave 0)
+
+```
+tests/reviews/  — 4 FAIL (Cannot find module on action imports)
+tests/settlements/ — 3 FAIL (Cannot find module on query imports + todo markers)
+tests/exit/     — 1 FAIL (src/lib/mock-data.ts still exists)
+```
+
+All failures are expected RED state. Downstream plans (02-06) turn each file GREEN.
