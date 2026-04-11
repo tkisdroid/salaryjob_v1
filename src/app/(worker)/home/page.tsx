@@ -126,7 +126,7 @@ export default async function WorkerHomePage({
             className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted"
           >
             <Bell className="h-5 w-5" />
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-red-500" />
+            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive" />
           </Link>
         </div>
       </header>
@@ -186,7 +186,7 @@ export default async function WorkerHomePage({
           <section className="mx-4">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="flex items-center gap-1.5 text-base font-bold">
-                <Zap className="h-4 w-4 fill-red-500 text-red-500" />
+                <Zap className="h-4 w-4 fill-destructive text-destructive" />
                 급구 · 오늘 바로 근무
               </h2>
               <Link
@@ -196,7 +196,7 @@ export default async function WorkerHomePage({
                 더보기 →
               </Link>
             </div>
-            <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
+            <div className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
               {urgentJobs.map((job) => (
                 <Link
                   key={job.id}

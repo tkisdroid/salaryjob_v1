@@ -90,18 +90,24 @@
 }
 
 :root {
-  /* 샐러리잡 primary palette — hex values straight from the brief */
-  --brand: #41b66e;            /* Primary */
-  --brand-light: #eaf8ee;      /* Primary Soft — used for badge/card hilites */
-  --brand-dark: #2f9e59;       /* Primary Hover */
-  --brand-soft: #eaf8ee;       /* alias, for semantics */
-  --brand-deep: #1e6f3d;       /* Primary Deep — for heavy accents */
-  --lime-accent: #b7d77a;      /* sub-accent, used sparingly */
+  /*
+   * 샐러리잡 palette — adjusted from the brief's full-saturation #41B66E
+   * to a lighter, fresher (산뜻한) mint-forward green per user feedback.
+   * The brief's color is still available as --brand-deep for any spot
+   * that needs a stronger accent, but everyday CTA / badge / header
+   * uses the softer --brand below.
+   */
+  --brand: #5bc98a;            /* Primary — softer, fresher green */
+  --brand-light: #ecfaf0;      /* very light mint — badge/card hilites */
+  --brand-dark: #42b474;       /* hover — subtle deepening only */
+  --brand-soft: #ecfaf0;       /* alias, for semantics */
+  --brand-deep: #2b8a55;       /* heavy accents, outline text on light bg */
+  --lime-accent: #c7e295;      /* lighter lime sub-accent */
   --ivory: #fffdf8;            /* Warm Ivory background */
-  --mint-bg: #f5fbf6;          /* Mint Background — section fills */
-  --teal: #2f9e8f;             /* accent teal, harmonises with brand */
-  --teal-light: #d6f0eb;
-  --urgent: #ea8b1f;           /* reserved for 긴급 badges only */
+  --mint-bg: #f6fcf8;          /* Mint Background — section fills, a touch lighter */
+  --teal: #44b5a6;             /* accent teal, harmonises with fresher brand */
+  --teal-light: #dcf2ed;
+  --urgent: #ea8b1f;           /* reserved for 긴급 badges only (not used in UI) */
 
   /* Neutrals — ivory base, text greens-neutral */
   --background: #fffdf8;       /* Warm Ivory */
@@ -110,32 +116,32 @@
   --card-foreground: #1e2a22;
   --popover: #ffffff;
   --popover-foreground: #1e2a22;
-  --primary: #41b66e;
+  --primary: #5bc98a;
   --primary-foreground: #ffffff;
-  --secondary: #f5fbf6;        /* Mint Background */
-  --secondary-foreground: #1e6f3d;
-  --muted: #f5fbf6;
-  --muted-foreground: #4d5b52; /* Text Body */
-  --accent: #eaf8ee;
-  --accent-foreground: #1e6f3d;
+  --secondary: #f6fcf8;        /* Mint Background */
+  --secondary-foreground: #2b8a55;
+  --muted: #f6fcf8;
+  --muted-foreground: #556a5c; /* Text Body — slightly lifted */
+  --accent: #ecfaf0;
+  --accent-foreground: #2b8a55;
   --destructive: #d83b3b;       /* reserved — only for errors/cancellation */
-  --border: #dceadf;            /* Border Soft */
-  --input: #dceadf;
-  --ring: #41b66e;
-  --chart-1: #41b66e;
-  --chart-2: #2f9e8f;
-  --chart-3: #b7d77a;
-  --chart-4: #1e6f3d;
-  --chart-5: #eaf8ee;
+  --border: #e3efe7;            /* Border Soft — lighter */
+  --input: #e3efe7;
+  --ring: #5bc98a;
+  --chart-1: #5bc98a;
+  --chart-2: #44b5a6;
+  --chart-3: #c7e295;
+  --chart-4: #2b8a55;
+  --chart-5: #ecfaf0;
   --radius: 0.875rem;           /* rounder per 브리프: 카드 radius 20~28px */
   --sidebar: #fffdf8;
   --sidebar-foreground: #1e2a22;
-  --sidebar-primary: #41b66e;
+  --sidebar-primary: #5bc98a;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #eaf8ee;
-  --sidebar-accent-foreground: #1e6f3d;
-  --sidebar-border: #dceadf;
-  --sidebar-ring: #41b66e;
+  --sidebar-accent: #ecfaf0;
+  --sidebar-accent-foreground: #2b8a55;
+  --sidebar-border: #e3efe7;
+  --sidebar-ring: #5bc98a;
 }
 
 @layer base {
