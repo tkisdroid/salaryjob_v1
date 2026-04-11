@@ -127,7 +127,7 @@ Plans:
 - [x] 05-03-PLAN.md — Wave 3: createWorkerReview + createBusinessReview Server Actions with atomic rating aggregation; 10 REV tests GREEN
 - [x] 05-04-PLAN.md — Wave 3: SETL-01 checkOut literal flip + DONE_STATUSES + 4 settlement query helpers (worker/biz totals + lists) with Asia/Seoul month boundary; 7 settlement tests GREEN
 - [x] 05-05-PLAN.md — Wave 4: UI primitives (star-rating-input, tag-chip-picker) + shared review-form + settlement-card + review-prompt-banner + 4 page rewrites/creates + human checkpoint
-- [ ] 05-06-PLAN.md — Wave 5: DATA-05 exit gate — prisma/seed.ts detach + delete src/lib/mock-data.ts + strip Mock* aliases + clean comment refs; exit-gate test GREEN
+- [x] 05-06-PLAN.md — Wave 5: DATA-05 exit gate — prisma/seed.ts detach + delete src/lib/mock-data.ts + strip Mock* aliases + clean comment refs; exit-gate test GREEN
 - [ ] 05-07-PLAN.md — Wave 6: full vitest + next build + grep verification, 05-VERIFICATION.md + 05-HUMAN-UAT.md, STATE/REQUIREMENTS/ROADMAP updates, final v1 milestone checkpoint
 **UI hint**: yes
 
