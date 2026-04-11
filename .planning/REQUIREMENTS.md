@@ -23,7 +23,7 @@ v1 = "Timee 모델의 한국 MVP" — Worker가 실제 DB로 탐색·지원·근
 - [x] **DATA-02**: PostGIS 확장이 활성화되어 Job의 위치(lat/lng)로 거리 기반 쿼리가 가능하다
 - [x] **DATA-03**: Supabase 프로젝트에 초기 마이그레이션이 적용되어 있다
 - [x] **DATA-04**: 시드 데이터가 `prisma/seed.ts` 또는 Supabase SQL로 제공되어 로컬/프리뷰에서 빈 DB를 채울 수 있다
-- [ ] **DATA-05**: `src/lib/mock-data.ts` 의존 경로가 코드베이스에서 0개다 (Phase 5 종료 조건)
+- [x] **DATA-05**: `src/lib/mock-data.ts` 의존 경로가 코드베이스에서 0개다 (Phase 5 종료 조건)
 
 ### Worker Profile (WORK)
 
@@ -63,16 +63,16 @@ v1 = "Timee 모델의 한국 MVP" — Worker가 실제 DB로 탐색·지원·근
 
 ### Review (REV)
 
-- [ ] **REV-01**: 완료된 Application에 대해 Worker는 Business에 대한 리뷰(별점, 태그, 코멘트)를 작성할 수 있다
-- [ ] **REV-02**: 완료된 Application에 대해 Business는 Worker에 대한 평가(별점, 태그, 코멘트)를 작성할 수 있다
-- [ ] **REV-03**: 각 리뷰는 Application당 정확히 1회만 작성 가능하다 (uniqueness)
-- [ ] **REV-04**: 리뷰 제출 시 대상의 rating/reviewCount가 자동 업데이트된다
+- [x] **REV-01**: 완료된 Application에 대해 Worker는 Business에 대한 리뷰(별점, 태그, 코멘트)를 작성할 수 있다
+- [x] **REV-02**: 완료된 Application에 대해 Business는 Worker에 대한 평가(별점, 태그, 코멘트)를 작성할 수 있다
+- [x] **REV-03**: 각 리뷰는 Application당 정확히 1회만 작성 가능하다 (uniqueness)
+- [x] **REV-04**: 리뷰 제출 시 대상의 rating/reviewCount가 자동 업데이트된다
 
 ### Settlement (SETL)
 
-- [ ] **SETL-01**: 완료된 Application은 pending → settled 상태로 전환되어 Worker의 정산 목록에 표시된다 (mock 즉시 정산 시뮬레이션)
-- [ ] **SETL-02**: Business는 자신의 정산 히스토리(지급 완료/예정)를 볼 수 있다
-- [ ] **SETL-03**: 총수입, 이번 달 수입 집계가 실제 데이터로 계산되어 표시된다
+- [x] **SETL-01**: 완료된 Application은 pending → settled 상태로 전환되어 Worker의 정산 목록에 표시된다 (mock 즉시 정산 시뮬레이션)
+- [x] **SETL-02**: Business는 자신의 정산 히스토리(지급 완료/예정)를 볼 수 있다
+- [x] **SETL-03**: 총수입, 이번 달 수입 집계가 실제 데이터로 계산되어 표시된다
 
 ### Advanced Search (SEARCH)
 
@@ -152,7 +152,7 @@ v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
 | DATA-02 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
 | DATA-03 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
 | DATA-04 | Phase 2 | Completed 2026-04-10 (`fb06dfd`) |
-| DATA-05 | Phase 5 | Pending (exit criterion) |
+| DATA-05 | Phase 5 | Completed 2026-04-11 (`6e94385`) |
 | WORK-01 | Phase 3 | Completed 2026-04-10 (`087874e`) |
 | WORK-02 | Phase 3 | Completed 2026-04-10 (`087874e`) |
 | WORK-03 | Phase 3 | Completed 2026-04-10 (`087874e`) |
@@ -177,13 +177,13 @@ v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
 | SEARCH-02 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10, scope expansion v2→v1) |
 | SEARCH-03 | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10, scope expansion new) |
 | NOTIF-01 (partial) | Phase 4 | Completed 2026-04-11 (`864e4e5` + Plan 04-10, Web Push only; SMS/알림톡/FCM still v2) |
-| REV-01 | Phase 5 | Pending |
-| REV-02 | Phase 5 | Pending |
-| REV-03 | Phase 5 | Pending |
-| REV-04 | Phase 5 | Pending |
-| SETL-01 | Phase 5 | Pending |
-| SETL-02 | Phase 5 | Pending |
-| SETL-03 | Phase 5 | Pending |
+| REV-01 | Phase 5 | Completed 2026-04-11 (`bd822a1`) |
+| REV-02 | Phase 5 | Completed 2026-04-11 (`5f52e40`) |
+| REV-03 | Phase 5 | Completed 2026-04-11 (`bd822a1` + `5f52e40`) |
+| REV-04 | Phase 5 | Completed 2026-04-11 (`bd822a1` + `5f52e40`) |
+| SETL-01 | Phase 5 | Completed 2026-04-11 (`c23abf3`) |
+| SETL-02 | Phase 5 | Completed 2026-04-11 (`b4165ae` + `fa8a3fb`) |
+| SETL-03 | Phase 5 | Completed 2026-04-11 (`b4165ae` + `fa8a3fb`) |
 
 **Validated (Phase 1, retroactive — PROJECT.md):**
 
@@ -197,11 +197,12 @@ v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
 **Coverage:**
 - v1 requirements: **43** total (AUTH 7 + DATA 5 + WORK 4 + BIZ 3 + POST 6 + APPL 5 + SHIFT 3 + REV 4 + SETL 3 + SEARCH 2 + NOTIF 1 partial)
 - Mapped to phases: 43/43 (100%) ✓
-- Completed: **35/43** (Phase 2/3/4 done, Phase 5 remaining = REV-01..04 + SETL-01..03 + DATA-05)
+- Completed: **43/43 ✓ (all v1 requirements — Phase 5 code complete 2026-04-11)**
 - Unmapped: 0
 
 > Note: Phase 4 discuss-phase (2026-04-10) scope expansion added SEARCH-02 (v2→v1 승격), SEARCH-03 (신설), NOTIF-01 (Web Push partial v1). Previous count was 40 → now 43. Traceability table is authoritative.
+> Phase 5 (2026-04-11) completed REV-01..04, SETL-01..03, DATA-05 — all remaining Phase 5 requirements satisfied. Human-UAT (3 scenarios) deferred by user request.
 
 ---
 *Requirements defined: 2026-04-10*
-*Last updated: 2026-04-11 — Phase 2/3/4 traceability marked Completed after Plan 04-10 exit verification*
+*Last updated: 2026-04-11 — Phase 5 traceability marked Completed (43/43 v1 requirements done)*

@@ -3,7 +3,7 @@
 **Core Value:** 이력서·면접 제로. 탭 하나로 확정, 근무 후 즉시 정산.
 **Created:** 2026-04-10
 **Granularity:** standard (5 phases)
-**Coverage:** 40/40 v1 requirements mapped
+**Coverage:** 43/43 v1 requirements mapped and completed
 
 ---
 
@@ -13,7 +13,7 @@
 - [x] **Phase 2: Supabase·Prisma·Auth 기반** — 실 DB 연결과 이중 역할 인증 기반 완성 (완료 2026-04-10, commit `fb06dfd`)
 - [x] **Phase 3: 프로필·공고 DB 연결** — Worker/Business 프로필과 공고 CRUD를 실 DB로 이관 (완료 2026-04-10, commit `087874e`)
 - [x] **Phase 4: 지원·근무 라이프사이클 DB 연결** — 원탭 지원부터 체크인·체크아웃까지 실 DB 위에서 완주 (+ scope 확장: Kakao 지도 탐색, Web Push, 체크아웃 QR) (완료 2026-04-11, commits `be311af → 864e4e5` + Plan 04-10)
-- [ ] **Phase 5: 리뷰·정산·목업 제거** — 양방향 리뷰와 정산을 실 데이터로 구동하고 mock-data.ts 완전 제거
+- [x] **Phase 5: 리뷰·정산·목업 제거** — 양방향 리뷰와 정산을 실 데이터로 구동하고 mock-data.ts 완전 제거 (코드 완료 2026-04-11, commit `d26e3bc` — HUMAN-UAT 3 시나리오 대기)
 
 ---
 
@@ -110,16 +110,17 @@ Plans:
 
 ---
 
-### Phase 5: 리뷰·정산·목업 제거
+### Phase 5: 리뷰·정산·목업 제거 (코드 완료 2026-04-11)
 **Goal**: 완료된 근무에 대한 양방향 리뷰와 정산이 실 데이터로 구동되고, `src/lib/mock-data.ts` 의존이 코드베이스에서 완전히 사라진다
+**Status**: Code Complete 2026-04-11 (Plan 05-07 verification pass — HUMAN-UAT 3 scenarios deferred)
 **Depends on**: Phase 4
 **Requirements**: REV-01, REV-02, REV-03, REV-04, SETL-01, SETL-02, SETL-03, DATA-05
-**Success Criteria** (what must be TRUE):
-  1. 완료된 Application에 대해 Worker↔Business 양방향 리뷰(별점·태그·코멘트)가 각각 Application당 정확히 1회만 작성되고, 제출 즉시 대상의 rating/reviewCount가 자동 업데이트된다
-  2. 근무 완료 시 Application이 pending → settled로 전환되어 Worker 정산 목록에 표시되고, 총수입·이번 달 수입이 실 데이터로 집계된다
-  3. Business가 자기 정산 히스토리(지급 완료/예정)를 실 데이터로 확인할 수 있다
-  4. `src/lib/mock-data.ts` 파일이 삭제되고 코드베이스 전체에서 해당 경로를 import하는 파일이 0개다 (grep으로 검증)
-  5. "탐색 → 지원 → 근무 → 리뷰 → 정산 확인" 풀 루프가 실 Supabase DB 왕복으로도 1분 이내에 완주된다
+**Success Criteria** (what is TRUE — automated gates passed):
+  1. ✅ 완료된 Application에 대해 Worker↔Business 양방향 리뷰(별점·태그·코멘트)가 각각 Application당 정확히 1회만 작성되고, 제출 즉시 대상의 rating/reviewCount가 자동 업데이트된다
+  2. ✅ 근무 완료 시 Application이 pending → settled로 전환되어 Worker 정산 목록에 표시되고, 총수입·이번 달 수입이 실 데이터로 집계된다
+  3. ✅ Business가 자기 정산 히스토리(지급 완료/예정)를 실 데이터로 확인할 수 있다
+  4. ✅ `src/lib/mock-data.ts` 파일이 삭제되고 코드베이스 전체에서 해당 경로를 import하는 파일이 0개다 (grep exit code 1)
+  5. ⏳ "탐색 → 지원 → 근무 → 리뷰 → 정산 확인" 풀 루프가 실 Supabase DB 왕복으로도 1분 이내에 완주된다— HUMAN-UAT 대기
 **Plans**: 7 plans
 Plans:
 - [x] 05-01-PLAN.md — Wave 1: Wave 0 RED test scaffolding (reviews/settlements/exit) + fixtures/phase5 + VALIDATION.md nyquist flip
@@ -128,7 +129,7 @@ Plans:
 - [x] 05-04-PLAN.md — Wave 3: SETL-01 checkOut literal flip + DONE_STATUSES + 4 settlement query helpers (worker/biz totals + lists) with Asia/Seoul month boundary; 7 settlement tests GREEN
 - [x] 05-05-PLAN.md — Wave 4: UI primitives (star-rating-input, tag-chip-picker) + shared review-form + settlement-card + review-prompt-banner + 4 page rewrites/creates + human checkpoint
 - [x] 05-06-PLAN.md — Wave 5: DATA-05 exit gate — prisma/seed.ts detach + delete src/lib/mock-data.ts + strip Mock* aliases + clean comment refs; exit-gate test GREEN
-- [ ] 05-07-PLAN.md — Wave 6: full vitest + next build + grep verification, 05-VERIFICATION.md + 05-HUMAN-UAT.md, STATE/REQUIREMENTS/ROADMAP updates, final v1 milestone checkpoint
+- [x] 05-07-PLAN.md — Wave 6: full vitest (238 passing) + next build (37 routes, 0 errors) + grep exit-1 + 05-VERIFICATION.md + 05-HUMAN-UAT.md + STATE/REQUIREMENTS/ROADMAP updates
 **UI hint**: yes
 
 ---
@@ -141,16 +142,18 @@ Plans:
 | 2. Supabase·Prisma·Auth 기반 | 9/9 | Completed | 2026-04-10 (commit `fb06dfd`) |
 | 3. 프로필·공고 DB 연결 | 6/6 | Completed | 2026-04-10 (commit `087874e`) |
 | 4. 지원·근무 라이프사이클 DB 연결 | 10/10 | Completed | 2026-04-11 (commits `be311af → 864e4e5` + Plan 04-10) |
-| 5. 리뷰·정산·목업 제거 | 0/7 | Planned | - |
+| 5. 리뷰·정산·목업 제거 | 7/7 | Completed (code) | 2026-04-11 (commit `d26e3bc` — HUMAN-UAT pending) |
 
 ## Coverage Summary
 
 - **Total v1 requirements:** 40 (AUTH 7 + DATA 5 + WORK 4 + BIZ 3 + POST 6 + APPL 5 + SHIFT 3 + REV 4 + SETL 3) + **Phase 4 scope 확장 3** (SEARCH-02 v2→v1, SEARCH-03 new, NOTIF-01 partial) = **43**
 - **Mapped to phases:** 43/43 (100%)
+- **Completed:** 43/43 (100%) ✓ — Phase 5 code complete 2026-04-11
 - **Orphaned:** 0
 - **Validated (Phase 1, retroactive):** 4 capability statements from PROJECT.md
 
 > Note: REQUIREMENTS.md header previously recorded "39 total"; actual count is 40. Phase 4 discuss-phase (2026-04-10) added 3 more via scope expansion. Traceability table in REQUIREMENTS.md is authoritative after that update.
+> Phase 5 (2026-04-11) completed remaining 8 requirements (REV-01..04, SETL-01..03, DATA-05). All 43/43 v1 requirements now satisfied at code level.
 
 ## Out of Scope (do not plan)
 
@@ -163,3 +166,4 @@ Plans:
 ---
 *Roadmap created: 2026-04-10 by /gsd-new-project (brownfield — Phase 1 retroactive)*
 *Phase 4 plans generated: 2026-04-10 by /gsd-plan-phase 4 (10 plans, scope expanded per CONTEXT.md)*
+*Phase 5 plans generated: 2026-04-11 by /gsd-plan-phase 5 (7 plans) — code complete 2026-04-11*
