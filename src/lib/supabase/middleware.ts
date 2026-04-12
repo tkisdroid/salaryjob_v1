@@ -64,6 +64,14 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // Logged-in users hitting the landing page → redirect to worker/biz home.
+  if (user && path === '/') {
+    const url = request.nextUrl.clone()
+    const r = user.app_metadata?.role as AppRole | undefined
+    url.pathname = r === 'BUSINESS' || r === 'BOTH' ? '/biz' : '/home'
+    return NextResponse.redirect(url)
+  }
+
   const role = user?.app_metadata?.role as AppRole | undefined
   const requirement = getRouteRequirement(path)
 
