@@ -7,6 +7,7 @@ import { calculateEarnings, formatWorkDate } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
 import { applyOneTap } from "./actions";
 import { applicationErrorToKorean } from "@/lib/errors/application-errors";
+import { BackButton } from "@/components/shared/back-button";
 import {
   ArrowLeft,
   Zap,
@@ -167,13 +168,13 @@ export function ApplyConfirmFlow({ job }: { job: Job }) {
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
-          <Link
-            href={`/posts/${job.id}`}
-            aria-label="뒤로"
+          <BackButton
+            fallbackHref={`/posts/${job.id}`}
+            ariaLabel="뒤로"
             className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted"
           >
             <ArrowLeft className="h-5 w-5" />
-          </Link>
+          </BackButton>
           <p className="text-sm font-bold flex-1">지원 확정</p>
         </div>
       </header>

@@ -64,8 +64,10 @@ export type SerializedApplication = {
   status:
     | "pending"
     | "confirmed"
+    | "checked_in"
     | "in_progress"
     | "completed"
+    | "settled"
     | "cancelled";
   appliedAt: string;
   checkInAt: string | null;

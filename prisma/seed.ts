@@ -17,6 +17,7 @@ import { PrismaClient } from "../src/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { createClient } from "@supabase/supabase-js";
 import { config as loadEnv } from "dotenv";
+import { pathToFileURL } from "node:url";
 import {
   MOCK_BUSINESSES,
   MOCK_JOBS,
@@ -82,7 +83,7 @@ const BIZ_OWNERSHIP: Record<string, string> = {
 };
 
 // ── Main seed function ────────────────────────────────────────────────────────
-async function main() {
+export async function seedDatabase() {
   console.log("🌱 GigNow Phase 2 seed starting...");
 
   // ── Step 1: Reverse-order deleteMany (FK-safe, idempotent) ─────────────────
@@ -141,6 +142,9 @@ async function main() {
       userId: createdUsers["kim-jihoon"],
       name: MOCK_CURRENT_WORKER.name,
       nickname: MOCK_CURRENT_WORKER.nickname,
+      birthDate: MOCK_CURRENT_WORKER.birthDate
+        ? new Date(`${MOCK_CURRENT_WORKER.birthDate}T00:00:00.000Z`)
+        : null,
       avatar: MOCK_CURRENT_WORKER.avatar,
       bio: MOCK_CURRENT_WORKER.bio,
       preferredCategories:
@@ -390,11 +394,21 @@ async function main() {
   }
 }
 
-main()
-  .catch((e) => {
-    console.error(e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
+export async function disconnectSeedPrisma() {
+  await prisma.$disconnect();
+}
+
+const isDirectExecution =
+  typeof process.argv[1] === "string" &&
+  pathToFileURL(process.argv[1]).href === import.meta.url;
+
+if (isDirectExecution) {
+  seedDatabase()
+    .catch((e) => {
+      console.error(e);
+      process.exit(1);
+    })
+    .finally(async () => {
+      await disconnectSeedPrisma();
+    });
+}

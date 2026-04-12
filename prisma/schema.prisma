@@ -88,6 +88,7 @@ model WorkerProfile {
   user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   name                String
   nickname            String?
+  birthDate           DateTime?     @db.Date
   avatar              String? // emoji or URL (URL upload in Phase 3)
   bio                 String?       @db.VarChar(140)
   preferredCategories JobCategory[]

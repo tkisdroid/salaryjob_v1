@@ -980,7 +980,7 @@ export async function getReviewsForUser(
     where: { revieweeId },
     include: {
       reviewer: true,
-      application: { include: { job: true } },
+      application: { include: { job: { include: { business: true } } } },
     },
     orderBy: { createdAt: "desc" },
     take: opts.limit ?? 20,

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -220,26 +221,31 @@ function ApplicantCard({
 
   return (
     <li className="rounded-2xl border border-border bg-card p-4 space-y-3">
-      <div className="flex items-start gap-3">
-        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl shrink-0">
-          {avatar}
-        </div>
-        <div className="flex-1 min-w-0">
-          <p className="font-bold text-sm truncate">{displayName}</p>
-          <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
-            <span className="flex items-center gap-0.5">
-              <Star className="w-3 h-3 fill-brand text-brand" />
-              {ratingNum.toFixed(1)}
-            </span>
-            <span>&#183;</span>
-            <span className="flex items-center gap-0.5">
-              <Briefcase className="w-3 h-3" />
-              완료 {totalJobs}회
-            </span>
+      <Link
+        href={`/biz/posts/${app.jobId}/applicants/${app.id}`}
+        className="block rounded-xl transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30"
+      >
+        <div className="flex items-start gap-3 p-1">
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl shrink-0">
+            {avatar}
           </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-bold text-sm truncate">{displayName}</p>
+            <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
+              <span className="flex items-center gap-0.5">
+                <Star className="w-3 h-3 fill-brand text-brand" />
+                {ratingNum.toFixed(1)}
+              </span>
+              <span>&#183;</span>
+              <span className="flex items-center gap-0.5">
+                <Briefcase className="w-3 h-3" />
+                완료 {totalJobs}회
+              </span>
+            </div>
+          </div>
+          <StatusBadge status={app.status} />
         </div>
-        <StatusBadge status={app.status} />
-      </div>
+      </Link>
 
       {showAutoAcceptTimer && (
         <div>
@@ -305,6 +311,11 @@ const STATUS_BADGE: Record<
     className: "bg-teal/10 text-teal",
     Icon: CheckCircle2,
   },
+  checked_in: {
+    label: "체크인",
+    className: "bg-sky-500/10 text-sky-700",
+    Icon: CheckCircle2,
+  },
   in_progress: {
     label: "근무 중",
     className: "bg-emerald-500/10 text-emerald-700",
@@ -313,6 +324,11 @@ const STATUS_BADGE: Record<
   completed: {
     label: "완료",
     className: "bg-muted text-muted-foreground",
+    Icon: CheckCheck,
+  },
+  settled: {
+    label: "정산 완료",
+    className: "bg-brand/10 text-brand-deep",
     Icon: CheckCheck,
   },
   cancelled: {

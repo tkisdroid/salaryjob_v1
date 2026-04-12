@@ -23,6 +23,7 @@ export default async function WorkerProfileEditPage() {
     userId: session.id,
     name: "",
     nickname: null,
+    birthDate: null,
     avatar: null,
     bio: null,
     preferredCategories: [] as JobCategoryLiteral[],
@@ -40,6 +41,11 @@ export default async function WorkerProfileEditPage() {
       <WorkerProfileEditForm
         initialName={initialProfile.name}
         initialNickname={initialProfile.nickname ?? ""}
+        initialBirthDate={
+          initialProfile.birthDate
+            ? new Date(initialProfile.birthDate).toISOString().slice(0, 10)
+            : ""
+        }
         initialBio={initialProfile.bio ?? ""}
         initialAvatar={initialProfile.avatar ?? null}
         initialPreferredCategories={

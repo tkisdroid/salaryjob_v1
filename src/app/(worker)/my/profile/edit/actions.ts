@@ -23,6 +23,11 @@ type JobCategoryLiteral = (typeof JOB_CATEGORIES)[number];
 const ProfileSchema = z.object({
   name: z.string().min(1, "이름은 필수입니다").max(50, "이름은 50자 이하여야 합니다"),
   nickname: z.string().max(30, "닉네임은 30자 이하여야 합니다").optional().or(z.literal("")),
+  birthDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "생년월일 형식이 올바르지 않습니다")
+    .optional()
+    .or(z.literal("")),
   bio: z.string().max(140, "소개글은 140자 이하여야 합니다").optional().or(z.literal("")),
   preferredCategories: z.array(z.enum(JOB_CATEGORIES)).default([]),
 });
@@ -46,6 +51,7 @@ export async function updateWorkerProfile(
   const raw = {
     name: (formData.get("name") ?? "") as string,
     nickname: (formData.get("nickname") ?? "") as string,
+    birthDate: (formData.get("birthDate") ?? "") as string,
     bio: (formData.get("bio") ?? "") as string,
     preferredCategories: formData.getAll("preferredCategories") as string[],
   };
@@ -62,7 +68,10 @@ export async function updateWorkerProfile(
     return { error: firstError, fieldErrors };
   }
 
-  const { name, nickname, bio, preferredCategories } = parsed.data;
+  const { name, nickname, birthDate, bio, preferredCategories } = parsed.data;
+  const normalizedBirthDate = birthDate
+    ? new Date(`${birthDate}T00:00:00.000Z`)
+    : null;
 
   try {
     // Upsert handles both "profile exists" and "first edit after signup" paths
@@ -72,12 +81,14 @@ export async function updateWorkerProfile(
         userId: session.id,
         name,
         nickname: nickname || null,
+        birthDate: normalizedBirthDate,
         bio: bio || null,
         preferredCategories: preferredCategories as JobCategoryLiteral[],
       },
       update: {
         name,
         nickname: nickname || null,
+        birthDate: normalizedBirthDate,
         bio: bio || null,
         preferredCategories: preferredCategories as JobCategoryLiteral[],
       },

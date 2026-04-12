@@ -40,6 +40,7 @@ test.describe("authenticated route smoke", () => {
       "/my",
       "/my/profile",
       "/my/profile/edit",
+      "/my/settings",
       "/my/favorites",
       "/my/applications",
       "/my/settlements",
@@ -67,6 +68,7 @@ test.describe("authenticated route smoke", () => {
     for (const path of [
       "/biz",
       "/biz/posts",
+      "/biz/posts/new",
       "/biz/settlements",
       "/biz/chat",
       "/biz/chat/c1",
@@ -90,6 +92,16 @@ test.describe("authenticated route smoke", () => {
     await loginAs(page, "admin");
 
     for (const path of ["/biz", "/biz/posts", "/biz/settings"]) {
+      await expectRouteOk(page, path);
+    }
+
+    expect(pageErrors).toEqual([]);
+  });
+
+  test("public informational routes render without errors", async ({ page }) => {
+    const pageErrors = trackPageErrors(page);
+
+    for (const path of ["/terms", "/privacy", "/licenses"]) {
       await expectRouteOk(page, path);
     }
 

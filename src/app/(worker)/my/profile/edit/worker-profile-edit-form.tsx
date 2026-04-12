@@ -7,6 +7,7 @@ import type { ProfileFormState, AvatarFormState } from "@/lib/form-state";
 interface Props {
   initialName: string;
   initialNickname: string;
+  initialBirthDate: string;
   initialBio: string;
   initialAvatar: string | null;
   initialPreferredCategories: string[];
@@ -161,6 +162,32 @@ export function WorkerProfileEditForm(props: Props) {
             defaultValue={props.initialNickname}
             className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
+        </div>
+
+        <div>
+          <label
+            htmlFor="birthDate"
+            className="mb-1 block text-sm font-medium"
+          >
+            생년월일
+          </label>
+          <input
+            id="birthDate"
+            name="birthDate"
+            type="date"
+            defaultValue={props.initialBirthDate}
+            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            사업자에게는 지원자 상세에서 만 나이로 표시됩니다.
+          </p>
+          {profileState &&
+            "error" in profileState &&
+            profileState.fieldErrors?.birthDate && (
+              <p className="mt-1 text-xs text-destructive">
+                {profileState.fieldErrors.birthDate}
+              </p>
+            )}
         </div>
 
         <div>

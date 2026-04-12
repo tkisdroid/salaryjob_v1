@@ -14,6 +14,7 @@ export interface CreateTestWorkerOpts {
   email?: string;
   name?: string;
   noShowCount?: number;
+  birthDate?: Date;
 }
 
 export async function createTestWorker(opts: CreateTestWorkerOpts = {}) {
@@ -26,6 +27,7 @@ export async function createTestWorker(opts: CreateTestWorkerOpts = {}) {
     data: {
       userId: id,
       name: opts.name ?? `Worker ${id.slice(0, 4)}`,
+      birthDate: opts.birthDate ?? null,
       preferredCategories: ["food", "retail"],
       // noShowCount field added in Plan 04-02. Using raw field name via any-cast
       // so the fixture compiles even before schema migration runs.

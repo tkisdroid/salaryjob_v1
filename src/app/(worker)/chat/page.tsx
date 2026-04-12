@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -87,11 +87,7 @@ function getReadRooms(): Set<string> {
 // ---------------------------------------------------------------------------
 
 export default function ChatListPage() {
-  const [readRooms, setReadRooms] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    setReadRooms(getReadRooms());
-  }, []);
+  const [readRooms] = useState<Set<string>>(() => getReadRooms());
 
   const rooms = CHAT_ROOMS.map((room) => ({
     ...room,

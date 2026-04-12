@@ -1,8 +1,14 @@
 // REQ: DATA-04 — Seed populates: 6 users, 1 worker_profile (kim-jihoon), 8 business_profiles, 8 jobs, 5 applications, 0 reviews
-import { describe, it, expect } from 'vitest';
+import { beforeAll, describe, it, expect } from 'vitest';
 import { skipIfNoSupabase } from '../helpers/skip-if-no-supabase';
 
 describe.skipIf(skipIfNoSupabase())('DATA-04 seed data', () => {
+  beforeAll(async () => {
+    const { disconnectSeedPrisma, seedDatabase } = await import('../../prisma/seed');
+    await seedDatabase();
+    await disconnectSeedPrisma();
+  }, 120_000);
+
   it('has 6 seeded users in public.users', async () => {
     // Dynamic import so Prisma client is not initialized before env vars are loaded
     const { default: prisma } = await import('@/lib/db');

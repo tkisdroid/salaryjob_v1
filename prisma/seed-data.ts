@@ -77,6 +77,7 @@ export interface SeedWorker {
   id: string;
   name: string;
   nickname: string;
+  birthDate: string | null;
   avatar: string;
   badgeLevel: "newbie" | "bronze" | "silver" | "gold" | "platinum" | "diamond";
   rating: number;
@@ -476,6 +477,7 @@ export const MOCK_CURRENT_WORKER: SeedWorker = {
   id: "worker-me",
   name: "김지훈",
   nickname: "지훈",
+  birthDate: "1996-04-18",
   avatar: "🙂",
   badgeLevel: "silver",
   rating: 4.8,

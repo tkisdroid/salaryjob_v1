@@ -67,7 +67,11 @@ export default async function PublicJobDetailPage({ params }: Props) {
   return (
     <main className="mx-auto max-w-2xl p-4 pb-32">
       <nav className="mb-4">
-        <BackButton className="text-sm text-brand hover:underline">
+        <BackButton
+          className="text-sm text-brand hover:underline"
+          fallbackHref="/"
+          ariaLabel="공고 목록으로 돌아가기"
+        >
           ← 뒤로
         </BackButton>
       </nav>

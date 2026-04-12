@@ -211,7 +211,7 @@ function NewPostFlow({
   // Step form
   // ------------------------------------------------------------------------
   return (
-    <div className="min-h-screen bg-background pb-28">
+    <div className="min-h-screen bg-background pb-[calc(9rem+env(safe-area-inset-bottom))] md:pb-28">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
         <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
@@ -308,11 +308,12 @@ function NewPostFlow({
       </div>
 
       {/* Sticky CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-border">
+      <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur md:bottom-0">
         <div className="max-w-2xl mx-auto px-4 py-3">
           {step < 5 ? (
             <button
               type="button"
+              data-testid="job-form-next-button"
               disabled={!canProceed(step)}
               onClick={() => setStep((step + 1) as Step)}
               className="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-brand/20 transition-colors disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed"
@@ -322,6 +323,7 @@ function NewPostFlow({
           ) : (
             <button
               type="button"
+              data-testid="job-form-publish-button"
               disabled={!canProceed(5) || isPending}
               onClick={handlePublish}
               className="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-brand/20 transition-colors disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed"
@@ -381,6 +383,7 @@ function Step1Basic({
       <Field label="공고 제목" required hint="10자 이내로 핵심만">
         <input
           type="text"
+          data-testid="job-title-input"
           value={form.title}
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           placeholder="예: 주말 카페 바리스타 보조"
@@ -395,6 +398,7 @@ function Step1Basic({
             <button
               key={c.id}
               type="button"
+              data-testid={`job-category-${c.id}`}
               onClick={() => setForm({ ...form, category: c.id })}
               className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
                 form.category === c.id
@@ -411,6 +415,7 @@ function Step1Basic({
 
       <Field label="업무 소개" required hint="업무 내용, 분위기 등 자유롭게">
         <textarea
+          data-testid="job-description-input"
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           placeholder="예: 주문 받기, 음료 제조 보조, 매장 정리를 함께 해주실 분을 찾습니다."

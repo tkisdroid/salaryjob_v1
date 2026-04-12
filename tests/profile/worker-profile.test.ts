@@ -43,6 +43,7 @@ describe("Phase 3 — Worker Profile CRUD (WORK-01..04)", () => {
           data: {
             name: "테스트 김지훈",
             nickname: "testnick",
+            birthDate: new Date("1998-07-15T00:00:00.000Z"),
             bio: "테스트 소개글입니다",
             preferredCategories: ["food", "retail", "logistics"],
           },
@@ -52,6 +53,9 @@ describe("Phase 3 — Worker Profile CRUD (WORK-01..04)", () => {
         expect(reloaded).not.toBeNull();
         expect(reloaded!.name).toBe("테스트 김지훈");
         expect(reloaded!.nickname).toBe("testnick");
+        expect(new Date(reloaded!.birthDate!).toISOString().slice(0, 10)).toBe(
+          "1998-07-15",
+        );
         expect(reloaded!.bio).toBe("테스트 소개글입니다");
         expect(reloaded!.preferredCategories).toEqual(
           expect.arrayContaining(["food", "retail", "logistics"]),
@@ -64,6 +68,7 @@ describe("Phase 3 — Worker Profile CRUD (WORK-01..04)", () => {
           data: {
             name: original.name,
             nickname: original.nickname,
+            birthDate: original.birthDate,
             bio: original.bio,
             preferredCategories: original.preferredCategories,
           },
