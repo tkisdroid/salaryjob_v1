@@ -10,6 +10,7 @@ import {
 } from "@/lib/job-utils";
 import { formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
+import { BackButton } from "@/components/shared/back-button";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -66,9 +67,9 @@ export default async function PublicJobDetailPage({ params }: Props) {
   return (
     <main className="mx-auto max-w-2xl p-4 pb-32">
       <nav className="mb-4">
-        <Link href="/" className="text-sm text-brand hover:underline">
-          ← 목록으로
-        </Link>
+        <BackButton className="text-sm text-brand hover:underline">
+          ← 뒤로
+        </BackButton>
       </nav>
 
       {isExpired && (

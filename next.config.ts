@@ -2,6 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   distDir: "dist",
+  async redirects() {
+    return [
+      { source: "/post", destination: "/home", permanent: false },
+      { source: "/posts", destination: "/home", permanent: false },
+    ];
+  },
   experimental: {
     serverActions: {
       bodySizeLimit: "5mb",

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft, MessageCircle } from "lucide-react";
+import { MarkChatRead } from "./mark-read";
 
 const THREADS = {
   "chat-1": {
@@ -57,6 +58,7 @@ export default async function WorkerChatDetailPage({
 
   return (
     <div className="mx-auto flex min-h-screen max-w-lg flex-col px-4 py-6">
+      <MarkChatRead roomId={id} />
       <Link
         href="/chat"
         className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"

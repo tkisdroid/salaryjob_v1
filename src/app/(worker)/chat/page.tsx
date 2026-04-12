@@ -1,15 +1,15 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
 // ---------------------------------------------------------------------------
-// Mock Data
+// Mock Data (Phase 5: replace with real DB queries)
 // ---------------------------------------------------------------------------
 
 interface ChatRoom {
@@ -70,19 +70,42 @@ const CHAT_ROOMS: ChatRoom[] = [
   },
 ];
 
+const STORAGE_KEY = "gignow.chat.readRooms";
+
+function getReadRooms(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export default function ChatListPage() {
-  const totalUnread = CHAT_ROOMS.reduce((sum, r) => sum + r.unreadCount, 0);
+  const [readRooms, setReadRooms] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    setReadRooms(getReadRooms());
+  }, []);
+
+  const rooms = CHAT_ROOMS.map((room) => ({
+    ...room,
+    unreadCount: readRooms.has(room.id) ? 0 : room.unreadCount,
+  }));
+
+  const totalUnread = rooms.reduce((sum, r) => sum + r.unreadCount, 0);
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
+    <div className="mx-auto max-w-lg space-y-5 px-4 py-6">
       <header>
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
-            <MessageCircle className="w-5 h-5 text-brand" />
+          <h1 className="flex items-center gap-2 text-xl font-bold tracking-tight">
+            <MessageCircle className="h-5 w-5 text-brand" />
             채팅
           </h1>
           {totalUnread > 0 && (
@@ -93,13 +116,13 @@ export default function ChatListPage() {
         </div>
       </header>
 
-      {CHAT_ROOMS.length === 0 ? (
+      {rooms.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
-          <MessageCircle className="w-12 h-12 text-muted-foreground/40 mb-4" />
-          <p className="text-muted-foreground font-medium">
+          <MessageCircle className="mb-4 h-12 w-12 text-muted-foreground/40" />
+          <p className="font-bold text-muted-foreground">
             아직 채팅이 없어요
           </p>
-          <p className="text-sm text-muted-foreground/70 mt-1">
+          <p className="mt-1 text-sm text-muted-foreground/70">
             공고에 지원하면 사업주와 채팅을 시작할 수 있어요
           </p>
           <Button variant="outline" className="mt-4" asChild>
@@ -108,37 +131,37 @@ export default function ChatListPage() {
         </div>
       ) : (
         <div className="space-y-2">
-          {CHAT_ROOMS.map((room) => (
+          {rooms.map((room) => (
             <Link key={room.id} href={`/chat/${room.id}`}>
               <Card
                 size="sm"
-                className="hover:ring-brand/30 transition-shadow"
+                className="transition-shadow hover:ring-brand/30"
               >
                 <CardContent className="flex items-center gap-3">
                   <Avatar>
-                    <AvatarFallback className="text-[10px] font-semibold bg-muted">
+                    <AvatarFallback className="bg-muted text-[10px] font-bold">
                       {room.initials}
                     </AvatarFallback>
                   </Avatar>
 
-                  <div className="flex-1 min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="font-medium text-sm truncate">
+                      <span className="truncate text-sm font-bold">
                         {room.company}
                       </span>
-                      <span className="text-[10px] text-muted-foreground shrink-0">
+                      <span className="shrink-0 text-[10px] text-muted-foreground">
                         {room.time}
                       </span>
                     </div>
-                    <p className="text-[10px] text-brand mb-0.5">
+                    <p className="mb-0.5 text-[10px] text-brand">
                       {room.postTitle}
                     </p>
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs text-muted-foreground truncate">
+                      <p className="truncate text-xs text-muted-foreground">
                         {room.lastMessage}
                       </p>
                       {room.unreadCount > 0 && (
-                        <span className="flex items-center justify-center w-5 h-5 rounded-full bg-brand text-white text-[10px] font-bold shrink-0">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand text-[10px] font-bold text-white">
                           {room.unreadCount}
                         </span>
                       )}
