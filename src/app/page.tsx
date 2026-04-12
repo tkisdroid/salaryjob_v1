@@ -180,7 +180,7 @@ export default async function LandingPage() {
                 샐러리잡
               </p>
               <p className="text-[10px] text-muted-foreground">
-                산뜻한 또 하나의 샐러리
+                내 주변 로컬 잡
               </p>
             </div>
           </Link>
@@ -224,18 +224,18 @@ export default async function LandingPage() {
             <div className="max-w-2xl">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand-light px-4 py-1.5 text-xs font-semibold text-brand-deep">
                 <Sparkles className="h-3.5 w-3.5" />
-                셀러리처럼 산뜻한 또 하나의 샐러리
+                샐러리처럼 산뜻한 로컬 잡 플랫폼
               </div>
 
               <h1 className="text-[32px] font-bold leading-[1.2] tracking-tight text-foreground sm:text-[42px] md:text-[56px]">
-                <span className="block">퇴근 후에도, 은퇴 후에도</span>
-                <span className="block text-brand">산뜻한 샐러리</span>
+                <span className="block">내 주변 일자리,</span>
+                <span className="block text-brand">더 가볍고 빠르게</span>
               </h1>
 
               <p className="mt-5 max-w-xl text-[15px] leading-7 text-muted-foreground sm:text-base md:text-lg">
                 이력서도 면접도 필요 없어요.
                 <br className="hidden sm:block" />
-                내 주변, 내가 원하는 시간에 딱 맞는 일을 골라
+                오늘 가능한 일부터 안정적인 근무까지,
                 <br className="hidden sm:block" />
                 탭 한 번으로 지원하고 근무 후 바로 정산받으세요.
               </p>
@@ -358,11 +358,11 @@ export default async function LandingPage() {
               Why 샐러리잡
             </p>
             <h2 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-[28px] md:text-[34px]">
-              매일의 일상에 샐러리 한 움큼
+              복잡하지 않게, 필요한 일만 빠르게
             </h2>
             <p className="mt-3 text-muted-foreground">
-              퇴근 후 몇 시간, 주말 한나절, 은퇴 후 하루 — 부담 없이
-              나에게 맞는 일만 골라 추가 수입을 만듭니다.
+              이력서·면접 없이 탭 한 번으로 지원하고, 근무가 끝나면
+              바로 정산까지. 긴 절차 없이 필요한 일만 빠르게 연결합니다.
             </p>
           </div>
 
@@ -437,12 +437,12 @@ export default async function LandingPage() {
                 For workers
               </p>
               <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-[28px] md:text-[34px]">
-                직장인에게도, 은퇴자에게도 꼭 맞는 일
+                가까운 일자리부터 바로 확인하세요
               </h2>
               <p className="mt-3 leading-7 text-muted-foreground">
-                퇴근길, 주말 오전, 여유 있는 오후 — 비어 있는 시간에
-                딱 맞는 일만 골라 추가 샐러리를 챙기세요.
-                이력서 없이 한 번의 탭으로 지원할 수 있어요.
+                위치 기반으로 걸어갈 수 있는 일부터 먼저 보여드려요.
+                이력서 없이 한 번의 탭으로 지원하고,
+                근무가 끝나면 바로 정산까지 받을 수 있어요.
               </p>
               <Link
                 href="/login?next=/home"
@@ -575,11 +575,11 @@ export default async function LandingPage() {
           <div className="mx-auto max-w-5xl px-5 sm:px-6 py-16 text-center md:py-24">
             <CeleryMark className="mx-auto h-16 w-16" />
             <h2 className="mt-6 text-2xl font-bold tracking-tight sm:text-[28px] md:text-[38px]">
-              나에게 꼭 맞는 샐러리, 오늘부터
+              지금 샐러리잡 시작하기
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:text-base">
-              셀러리처럼 산뜻하게, 샐러리는 바로바로.
-              이력서도 면접도 긴 대기도 없이 시작하세요.
+              이력서도 면접도 긴 대기도 없이, 탭 한 번으로 지원하고
+              근무 후 바로 정산까지. 오늘 가능한 일부터 확인해 보세요.
             </p>
             <div className="mx-auto mt-8 flex w-full max-w-md flex-col justify-center gap-2.5 sm:max-w-none sm:flex-row sm:gap-3">
               <Link

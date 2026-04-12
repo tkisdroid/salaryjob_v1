@@ -24,6 +24,7 @@ import {
   signInWithGoogle,
   signInWithKakao,
 } from "./actions";
+import { CeleryMark } from "@/components/brand/celery-mark";
 
 type Role = "worker" | "business";
 
@@ -36,21 +37,7 @@ function RoleSelect({ onRoleSelect }: { onRoleSelect: (role: Role) => void }) {
   return (
     <Card className="p-6 shadow-sm">
       <div className="text-center mb-6">
-        <div className="w-12 h-12 rounded-2xl bg-brand flex items-center justify-center mx-auto mb-3 shadow-sm">
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            className="h-5 w-5 text-white"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19.5 2c.5 3 .5 6-2.5 11-2.5 4-5.5 5-6 6" />
-            <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-          </svg>
-        </div>
+        <CeleryMark className="mx-auto mb-3 h-14 w-14" />
         <h1 className="text-2xl font-bold">회원가입</h1>
         <p className="text-sm text-muted-foreground mt-1">
           샐러리잡을 어떻게 사용하실 건가요?
@@ -287,9 +274,7 @@ function BusinessSignupForm() {
 
   return (
     <Card className="p-6 shadow-sm text-center">
-      <div className="w-12 h-12 rounded-xl bg-teal flex items-center justify-center mx-auto mb-3">
-        <span className="text-white font-bold text-lg">G</span>
-      </div>
+      <CeleryMark className="mx-auto mb-3 h-14 w-14" />
       <h2 className="text-xl font-bold mb-2">업체 회원가입</h2>
       <p className="text-sm text-muted-foreground mb-6">
         사업자 인증 후 구인 공고를 등록할 수 있어요
