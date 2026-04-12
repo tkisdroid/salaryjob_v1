@@ -167,8 +167,11 @@ export async function getJobs(
   return rows.map(adaptJob);
 }
 
-/** Fetch a single job by ID. Returns null if not found. */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Fetch a single job by ID. Returns null if not found or ID is invalid. */
 export async function getJobById(id: string): Promise<Job | null> {
+  if (!UUID_RE.test(id)) return null;
   const row = await prisma.job.findUnique({
     where: { id },
     include: JOB_INCLUDE,
