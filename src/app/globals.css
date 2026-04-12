@@ -91,57 +91,84 @@
 
 :root {
   /*
-   * 샐러리잡 palette — adjusted from the brief's full-saturation #41B66E
-   * to a lighter, fresher (산뜻한) mint-forward green per user feedback.
-   * The brief's color is still available as --brand-deep for any spot
-   * that needs a stronger accent, but everyday CTA / badge / header
-   * uses the softer --brand below.
+   * 샐러리잡 palette — OKLCH.
+   *
+   * Why OKLCH: it's perceptually uniform, so equal steps in L read as
+   * equal steps in lightness to the eye, which lets us tint neutrals
+   * toward brand with confidence (subtle mint hue in border/bg/card
+   * stays subtle instead of shifting into grey at some sizes).
+   *
+   * Hue is locked near 152° across the green family so 브랜드의 산뜻한
+   * 초록 톤이 neutral surface 와 자연스럽게 이어지고, Pure white/black
+   * 은 전혀 쓰지 않는다 (자연에 순백은 없다는 원칙).
+   *
+   * Ivory 는 의도적으로 hue 95° (warm) 로 두어 mint neutral 과 온도
+   * 대비를 만든다 — 한 화면 안에서 ivory background + mint section
+   * 이 "같은 초록이지만 다른 온도" 로 읽혀야 Toss 같은 가벼움이 나옴.
    */
-  --brand: #5bc98a;            /* Primary — softer, fresher green */
-  --brand-light: #ecfaf0;      /* very light mint — badge/card hilites */
-  --brand-dark: #42b474;       /* hover — subtle deepening only */
-  --brand-soft: #ecfaf0;       /* alias, for semantics */
-  --brand-deep: #2b8a55;       /* heavy accents, outline text on light bg */
-  --lime-accent: #c7e295;      /* lighter lime sub-accent */
-  --ivory: #fffdf8;            /* Warm Ivory background */
-  --mint-bg: #f6fcf8;          /* Mint Background — section fills, a touch lighter */
-  --teal: #44b5a6;             /* accent teal, harmonises with fresher brand */
-  --teal-light: #dcf2ed;
-  --urgent: #ea8b1f;           /* reserved for 긴급 badges only (not used in UI) */
 
-  /* Neutrals — ivory base, text greens-neutral */
-  --background: #fffdf8;       /* Warm Ivory */
-  --foreground: #1e2a22;       /* Text Strong */
-  --card: #ffffff;
-  --card-foreground: #1e2a22;
-  --popover: #ffffff;
-  --popover-foreground: #1e2a22;
-  --primary: #5bc98a;
-  --primary-foreground: #ffffff;
-  --secondary: #f6fcf8;        /* Mint Background */
-  --secondary-foreground: #2b8a55;
-  --muted: #f6fcf8;
-  --muted-foreground: #556a5c; /* Text Body — slightly lifted */
-  --accent: #ecfaf0;
-  --accent-foreground: #2b8a55;
-  --destructive: #d83b3b;       /* reserved — only for errors/cancellation */
-  --border: #e3efe7;            /* Border Soft — lighter */
-  --input: #e3efe7;
-  --ring: #5bc98a;
-  --chart-1: #5bc98a;
-  --chart-2: #44b5a6;
-  --chart-3: #c7e295;
-  --chart-4: #2b8a55;
-  --chart-5: #ecfaf0;
-  --radius: 0.875rem;           /* rounder per 브리프: 카드 radius 20~28px */
-  --sidebar: #fffdf8;
-  --sidebar-foreground: #1e2a22;
-  --sidebar-primary: #5bc98a;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #ecfaf0;
-  --sidebar-accent-foreground: #2b8a55;
-  --sidebar-border: #e3efe7;
-  --sidebar-ring: #5bc98a;
+  /* Brand family — all hue ≈ 152° (fresh mint green) */
+  --brand:        oklch(0.776 0.149 152);  /* Primary — softer, fresher green */
+  --brand-light:  oklch(0.978 0.027 151);  /* very light mint — badge/card hilites */
+  --brand-dark:   oklch(0.675 0.153 153);  /* hover — subtle deepening only */
+  --brand-soft:   oklch(0.978 0.027 151);  /* alias, for semantics */
+  --brand-deep:   oklch(0.518 0.128 152);  /* heavy accents, outline text on light bg */
+  --lime-accent:  oklch(0.871 0.090 115);  /* lighter lime sub-accent, warmer side */
+
+  /* Paired teal accent — harmonises with fresher brand */
+  --teal:         oklch(0.670 0.084 184);
+  --teal-light:   oklch(0.949 0.024 185);
+
+  /* Backgrounds — warm ivory (main) + cool mint (section fill) */
+  --ivory:        oklch(0.991 0.008 95);   /* Warm Ivory — app background */
+  --mint-bg:      oklch(0.986 0.011 147);  /* Mint Background — section fills */
+
+  /* Reserved accents */
+  --urgent:       oklch(0.726 0.152 58);   /* 긴급 — warm amber, distinct from destructive */
+
+  /* ---- shadcn token layer ---- */
+
+  /* Surfaces — neutrals slightly mint-tinted so the green spine runs
+     through the chrome without ever reading as coloured. Chroma stays
+     ≤ 0.013 which is below typical JND for large surfaces. */
+  --background:         oklch(0.991 0.008 95);   /* = ivory */
+  --foreground:         oklch(0.259 0.013 160);  /* near-black, faint green */
+  --card:               oklch(0.995 0.003 150);  /* just-off-white mint (was #ffffff) */
+  --card-foreground:    oklch(0.259 0.013 160);
+  --popover:            oklch(0.995 0.003 150);
+  --popover-foreground: oklch(0.259 0.013 160);
+
+  --primary:            oklch(0.776 0.149 152);  /* = brand */
+  --primary-foreground: oklch(0.995 0.003 150);  /* not pure white — tinted card */
+  --secondary:          oklch(0.986 0.011 147);  /* = mint-bg */
+  --secondary-foreground: oklch(0.518 0.128 152); /* = brand-deep */
+  --muted:              oklch(0.986 0.011 147);
+  --muted-foreground:   oklch(0.474 0.020 154);  /* Text Body — slightly lifted */
+  --accent:             oklch(0.978 0.027 151);  /* = brand-light */
+  --accent-foreground:  oklch(0.518 0.128 152);  /* = brand-deep */
+
+  --destructive:        oklch(0.576 0.208 28);   /* reserved — errors/cancellation */
+
+  --border:             oklch(0.940 0.013 152);
+  --input:              oklch(0.940 0.013 152);
+  --ring:               oklch(0.776 0.149 152);
+
+  --chart-1:            oklch(0.776 0.149 152);
+  --chart-2:            oklch(0.670 0.084 184);
+  --chart-3:            oklch(0.871 0.090 115);
+  --chart-4:            oklch(0.518 0.128 152);
+  --chart-5:            oklch(0.978 0.027 151);
+
+  --radius: 0.875rem;   /* 카드 radius 20~28px */
+
+  --sidebar:                    oklch(0.991 0.008 95);
+  --sidebar-foreground:         oklch(0.259 0.013 160);
+  --sidebar-primary:            oklch(0.776 0.149 152);
+  --sidebar-primary-foreground: oklch(0.995 0.003 150);
+  --sidebar-accent:             oklch(0.978 0.027 151);
+  --sidebar-accent-foreground:  oklch(0.518 0.128 152);
+  --sidebar-border:             oklch(0.940 0.013 152);
+  --sidebar-ring:               oklch(0.776 0.149 152);
 }
 
 @layer base {
