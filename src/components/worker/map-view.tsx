@@ -117,16 +117,17 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
   // Graceful: no Kakao key → render placeholder, never inject the script.
   if (!hasKey) {
     return (
-      <div className="px-4 py-6">
-        <Alert>
-          <AlertDescription>
-            지도 키가 설정되지 않았습니다. 관리자에게 문의하거나
-            <code className="mx-1 rounded bg-muted px-1 text-xs">
-              NEXT_PUBLIC_KAKAO_MAP_KEY
-            </code>
-            환경변수를 설정하세요.
-          </AlertDescription>
-        </Alert>
+      <div className="px-1 py-6">
+        <div className="flex h-[60vh] min-h-[400px] w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-mint-bg/40 p-6 text-center">
+          <p className="text-sm font-semibold text-foreground">
+            지도 보기는 곧 제공됩니다
+          </p>
+          <p className="max-w-xs text-xs leading-5 text-muted-foreground">
+            현재는 리스트로만 확인할 수 있어요.
+            <br />
+            리스트 탭으로 돌아가 내 주변 공고를 살펴보세요.
+          </p>
+        </div>
       </div>
     );
   }

@@ -31,6 +31,11 @@ interface Props {
   currentPreset?: TimePreset;
   currentBuckets: TimeBucket[];
   currentView: "list" | "map";
+  /**
+   * Reserved for future UX signal (e.g. badge). The 지도 toggle itself is
+   * always clickable — if the Kakao key is missing, MapView renders a
+   * friendly placeholder instead of silently dying under a disabled button.
+   */
   kakaoAvailable: boolean;
 }
 
@@ -43,7 +48,7 @@ export function HomeFilterBar({
   currentPreset,
   currentBuckets,
   currentView,
-  kakaoAvailable,
+  kakaoAvailable: _kakaoAvailable,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();
@@ -80,16 +85,7 @@ export function HomeFilterBar({
           <ToggleGroupItem value="list" aria-label="리스트 보기">
             리스트
           </ToggleGroupItem>
-          <ToggleGroupItem
-            value="map"
-            aria-label="지도 보기"
-            disabled={!kakaoAvailable}
-            title={
-              kakaoAvailable
-                ? "지도로 보기"
-                : "지도 기능 사용 불가 — NEXT_PUBLIC_KAKAO_MAP_KEY 미설정"
-            }
-          >
+          <ToggleGroupItem value="map" aria-label="지도 보기" title="지도로 보기">
             지도
           </ToggleGroupItem>
         </ToggleGroup>
