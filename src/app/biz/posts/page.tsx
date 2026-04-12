@@ -37,14 +37,14 @@ function PostCard({ job }: { job: Job }) {
                 {badge.label}
               </span>
               {job.isUrgent && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-red-500/20 bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-600">
-                  <Zap className="h-3 w-3 fill-red-600" />
+                <span className="inline-flex items-center gap-1 rounded-full border border-[color:var(--urgent)]/20 bg-[color:var(--urgent)]/10 px-2 py-0.5 text-xs font-bold text-[color:var(--urgent)]">
+                  <Zap className="h-3 w-3 fill-[color:var(--urgent)]" />
                   긴급
                 </span>
               )}
               <Link
                 href={`/biz/posts/${job.id}`}
-                className="text-sm font-semibold text-foreground transition-colors hover:text-teal"
+                className="text-sm font-bold tracking-tight text-foreground transition-colors hover:text-teal"
               >
                 {job.title}
               </Link>

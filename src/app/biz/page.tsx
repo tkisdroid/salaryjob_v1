@@ -105,7 +105,7 @@ export default async function BizDashboardPage() {
         </div>
         <div className="rounded-2xl border border-border bg-card p-4">
           <p className="text-xs text-muted-foreground">긴급 공고</p>
-          <p className="mt-2 text-3xl font-bold text-red-600">
+          <p className="mt-2 text-3xl font-bold text-[color:var(--urgent)]">
             {urgentJobs.length}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">
@@ -131,60 +131,60 @@ export default async function BizDashboardPage() {
       <section className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_1.8fr]">
         <div className="rounded-3xl border border-border bg-card p-5">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-bold">빠른 작업</h2>
+            <h2 className="text-lg font-bold tracking-tight">빠른 작업</h2>
             <Settings className="h-4 w-4 text-muted-foreground" />
           </div>
-          <div className="mt-4 grid gap-3">
+          <div className="mt-4 -mx-2 flex flex-col">
             <Link
               href="/biz/posts"
-              className="flex items-center justify-between rounded-2xl border border-border px-4 py-3 transition-colors hover:border-brand/40 hover:bg-muted/30"
+              className="group flex items-center justify-between gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-mint-bg"
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10">
                   <FileText className="h-5 w-5 text-brand" />
                 </div>
                 <div>
-                  <p className="font-semibold">공고 관리</p>
+                  <p className="font-bold">공고 관리</p>
                   <p className="text-xs text-muted-foreground">
                     등록한 공고와 지원자를 확인합니다.
                   </p>
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="/biz/workers"
-              className="flex items-center justify-between rounded-2xl border border-border px-4 py-3 transition-colors hover:border-brand/40 hover:bg-muted/30"
+              className="group flex items-center justify-between gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-mint-bg"
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10">
                   <Users className="h-5 w-5 text-brand" />
                 </div>
                 <div>
-                  <p className="font-semibold">인재 탐색</p>
+                  <p className="font-bold">인재 탐색</p>
                   <p className="text-xs text-muted-foreground">
                     지원자와 추천 인재 프로필을 확인합니다.
                   </p>
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
             </Link>
             <Link
               href="/biz/settlements"
-              className="flex items-center justify-between rounded-2xl border border-border px-4 py-3 transition-colors hover:border-brand/40 hover:bg-muted/30"
+              className="group flex items-center justify-between gap-3 rounded-2xl px-3 py-3 transition-colors hover:bg-mint-bg"
             >
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10">
                   <Wallet className="h-5 w-5 text-brand" />
                 </div>
                 <div>
-                  <p className="font-semibold">정산 확인</p>
+                  <p className="font-bold">정산 확인</p>
                   <p className="text-xs text-muted-foreground">
                     지급 현황과 정산 내역을 확인합니다.
                   </p>
                 </div>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
             </Link>
           </div>
         </div>
@@ -192,63 +192,60 @@ export default async function BizDashboardPage() {
         <div className="rounded-3xl border border-border bg-card p-5">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold">최근 공고</h2>
+              <h2 className="text-lg font-bold tracking-tight">최근 공고</h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 대시보드에서 바로 상세와 지원자를 확인할 수 있습니다.
               </p>
             </div>
             <Link
               href="/biz/posts"
-              className="text-sm font-medium text-brand hover:underline"
+              className="text-sm font-bold text-brand hover:underline"
             >
               전체 보기
             </Link>
           </div>
 
           {recentJobs.length === 0 ? (
-            <div className="mt-6 rounded-2xl border border-dashed border-border p-6 text-center">
-              <p className="font-medium">등록된 공고가 없습니다.</p>
+            <div className="mt-6 rounded-2xl border border-dashed border-border p-8 text-center">
+              <p className="font-bold">등록된 공고가 없습니다.</p>
               <p className="mt-1 text-sm text-muted-foreground">
                 첫 공고를 등록하면 여기에서 바로 확인할 수 있습니다.
               </p>
               <Link
                 href="/biz/posts/new"
-                className="mt-4 inline-flex h-10 items-center justify-center rounded-xl bg-brand px-4 text-sm font-bold text-white transition-colors hover:bg-brand/90"
+                className="mt-4 inline-flex h-11 items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white transition-colors hover:bg-brand-dark"
               >
                 공고 작성하기
               </Link>
             </div>
           ) : (
-            <div className="mt-5 space-y-3">
+            <ul className="mt-4 divide-y divide-border">
               {recentJobs.map((job) => {
                 const isFilled = job.filled >= job.headcount;
                 return (
-                  <div
-                    key={job.id}
-                    className="rounded-2xl border border-border p-4 transition-colors hover:border-brand/30"
-                  >
+                  <li key={job.id} className="py-4 first:pt-2 last:pb-0">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
                           <span
-                            className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                            className={`rounded-full px-2 py-0.5 text-[11px] font-bold ${
                               isFilled
                                 ? "bg-muted text-muted-foreground"
-                                : "bg-brand/10 text-brand"
+                                : "bg-brand/10 text-brand-deep"
                             }`}
                           >
                             {isFilled ? "충원 완료" : "모집 중"}
                           </span>
                           {job.isUrgent && (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-semibold text-red-600">
-                              <Zap className="h-3 w-3 fill-red-600" />
+                            <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--urgent)]/10 px-2 py-0.5 text-[11px] font-bold text-[color:var(--urgent)]">
+                              <Zap className="h-3 w-3 fill-[color:var(--urgent)]" />
                               긴급
                             </span>
                           )}
                         </div>
                         <Link
                           href={`/biz/posts/${job.id}`}
-                          className="mt-2 block truncate text-base font-semibold hover:text-brand"
+                          className="mt-2 block truncate text-base font-bold tracking-tight hover:text-brand"
                         >
                           {job.title}
                         </Link>
@@ -260,24 +257,24 @@ export default async function BizDashboardPage() {
                         {job.filled}/{job.headcount}명 · 지원 {job.appliedCount}건
                       </div>
                     </div>
-                    <div className="mt-4 flex flex-wrap gap-2">
+                    <div className="mt-3 flex flex-wrap gap-2">
                       <Link
                         href={`/biz/posts/${job.id}`}
-                        className="inline-flex h-9 items-center justify-center rounded-lg border border-border px-3 text-sm font-medium transition-colors hover:bg-muted"
+                        className="inline-flex h-11 items-center justify-center rounded-lg border border-border px-4 text-xs font-medium transition-colors hover:bg-muted"
                       >
                         공고 상세
                       </Link>
                       <Link
                         href={`/biz/posts/${job.id}/applicants`}
-                        className="inline-flex h-9 items-center justify-center rounded-lg bg-brand px-3 text-sm font-semibold text-white transition-colors hover:bg-brand/90"
+                        className="inline-flex h-11 items-center justify-center rounded-lg bg-brand px-4 text-xs font-bold text-white transition-colors hover:bg-brand-dark"
                       >
                         지원자 보기
                       </Link>
                     </div>
-                  </div>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           )}
         </div>
       </section>
