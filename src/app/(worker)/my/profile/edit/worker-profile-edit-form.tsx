@@ -68,11 +68,11 @@ export function WorkerProfileEditForm(props: Props) {
     <div className="space-y-8">
       {/* Avatar upload — separate form so it can submit independently */}
       <section aria-labelledby="avatar-section">
-        <h2 id="avatar-section" className="mb-2 text-sm font-semibold">
+        <h2 id="avatar-section" className="mb-2 text-sm font-bold">
           프로필 사진
         </h2>
         <form action={avatarAction} className="flex items-center gap-4">
-          <div className="h-20 w-20 overflow-hidden rounded-full bg-gray-100">
+          <div className="h-20 w-20 overflow-hidden rounded-full bg-muted">
             {displayAvatar ? (
               displayAvatar.startsWith("http") || displayAvatar.startsWith("blob:") ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -105,7 +105,7 @@ export function WorkerProfileEditForm(props: Props) {
             <button
               type="submit"
               disabled={isAvatarPending}
-              className="mt-2 rounded bg-blue-600 px-3 py-1 text-sm text-white disabled:opacity-50"
+              className="mt-2 inline-flex h-11 items-center justify-center rounded-lg bg-brand px-4 text-sm font-bold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
             >
               {isAvatarPending ? "업로드 중..." : "업로드"}
             </button>
@@ -115,13 +115,13 @@ export function WorkerProfileEditForm(props: Props) {
           <p
             role="alert"
             aria-live="polite"
-            className="mt-2 text-sm text-red-600"
+            className="mt-2 text-sm text-destructive"
           >
             {avatarState.error}
           </p>
         )}
         {avatarState && "success" in avatarState && (
-          <p role="status" className="mt-2 text-sm text-green-600">
+          <p role="status" className="mt-2 text-sm text-brand-deep">
             {avatarState.message}
           </p>
         )}
@@ -139,12 +139,12 @@ export function WorkerProfileEditForm(props: Props) {
             type="text"
             required
             defaultValue={props.initialName}
-            className="w-full rounded border p-2"
+            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
           {profileState &&
             "error" in profileState &&
             profileState.fieldErrors?.name && (
-              <p className="mt-1 text-xs text-red-600">
+              <p className="mt-1 text-xs text-destructive">
                 {profileState.fieldErrors.name}
               </p>
             )}
@@ -159,7 +159,7 @@ export function WorkerProfileEditForm(props: Props) {
             name="nickname"
             type="text"
             defaultValue={props.initialNickname}
-            className="w-full rounded border p-2"
+            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
         </div>
 
@@ -173,12 +173,12 @@ export function WorkerProfileEditForm(props: Props) {
             rows={3}
             maxLength={140}
             defaultValue={props.initialBio}
-            className="w-full rounded border p-2"
+            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
           {profileState &&
             "error" in profileState &&
             profileState.fieldErrors?.bio && (
-              <p className="mt-1 text-xs text-red-600">
+              <p className="mt-1 text-xs text-destructive">
                 {profileState.fieldErrors.bio}
               </p>
             )}
@@ -194,7 +194,7 @@ export function WorkerProfileEditForm(props: Props) {
                   key={c.value}
                   type="button"
                   onClick={() => toggleCategory(c.value)}
-                  className={`rounded border p-2 text-sm ${selected ? "border-blue-600 bg-blue-50" : "border-gray-200"}`}
+                  className={`rounded-xl border p-3 text-sm transition-colors ${selected ? "border-brand bg-brand-light text-brand-deep" : "border-border hover:border-brand/40"}`}
                   aria-pressed={selected}
                 >
                   <div className="text-xl">{c.emoji}</div>
@@ -211,7 +211,7 @@ export function WorkerProfileEditForm(props: Props) {
         {/* Read-only WORK-03 display — NOT in form, NOT submitted */}
         <section
           aria-label="읽기 전용 지표"
-          className="rounded border border-dashed border-gray-300 p-3 text-sm text-gray-600"
+          className="rounded-xl border border-dashed border-border bg-mint-bg/30 p-4 text-sm text-muted-foreground"
         >
           <div>뱃지: {props.badgeLevel}</div>
           <div>평점: {props.rating.toFixed(2)} ⭐</div>
@@ -222,7 +222,7 @@ export function WorkerProfileEditForm(props: Props) {
         <button
           type="submit"
           disabled={isProfilePending}
-          className="w-full rounded bg-blue-600 p-3 font-semibold text-white disabled:opacity-50"
+          className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-brand text-sm font-bold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
         >
           {isProfilePending ? "저장 중..." : "저장"}
         </button>
@@ -233,13 +233,13 @@ export function WorkerProfileEditForm(props: Props) {
             <p
               role="alert"
               aria-live="polite"
-              className="text-sm text-red-600"
+              className="text-sm text-destructive"
             >
               {profileState.error}
             </p>
           )}
         {profileState && "success" in profileState && (
-          <p role="status" className="text-sm text-green-600">
+          <p role="status" className="text-sm text-brand-deep">
             {profileState.message}
           </p>
         )}

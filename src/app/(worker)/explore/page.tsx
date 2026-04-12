@@ -168,7 +168,7 @@ export default function ExploreHubPage() {
                   <CardContent>
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0 flex-1">
-                        <h3 className="font-medium truncate">{post.title}</h3>
+                        <h3 className="truncate text-sm font-bold tracking-tight">{post.title}</h3>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {post.company}
                         </p>
@@ -205,7 +205,7 @@ export default function ExploreHubPage() {
         <TabsContent value="tags" className="space-y-6 pt-4">
           {TAG_GROUPS.map((group) => (
             <div key={group.category}>
-              <h3 className="text-sm font-semibold text-muted-foreground mb-2">
+              <h3 className="mb-2 text-xs font-bold text-muted-foreground">
                 {group.category}
               </h3>
               <div className="flex flex-wrap gap-2">

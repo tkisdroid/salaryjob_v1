@@ -29,7 +29,7 @@ export function SettlementCard({
       <CardContent className="p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <h3 className="truncate text-sm font-semibold">{jobTitle}</h3>
+            <h3 className="truncate text-sm font-bold tracking-tight">{jobTitle}</h3>
             <p className="text-xs text-muted-foreground">
               {side === "worker" ? counterpartyName : `근무자: ${counterpartyName}`}
             </p>
@@ -42,7 +42,7 @@ export function SettlementCard({
               {earnings.toLocaleString("ko-KR")}원
             </p>
             {settlementStatus === "settled" && (
-              <span className="inline-block rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-medium text-green-700">
+              <span className="inline-block rounded-full bg-brand-light px-2 py-0.5 text-[10px] font-bold text-brand-deep">
                 정산 완료
               </span>
             )}

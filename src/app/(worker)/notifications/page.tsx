@@ -187,7 +187,7 @@ export default function NotificationsPage() {
         <div className="space-y-6">
           {NOTIFICATION_GROUPS.map((group) => (
             <section key={group.date}>
-              <h2 className="text-sm font-semibold text-muted-foreground mb-3">
+              <h2 className="mb-3 text-xs font-bold text-muted-foreground">
                 {group.date}
               </h2>
               <div className="space-y-2">

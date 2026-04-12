@@ -22,14 +22,14 @@ export default async function BizProfilePage() {
 
   return (
     <main className="mx-auto max-w-3xl p-6 pb-24">
-      <h1 className="mb-4 text-2xl font-bold">사업장 프로필</h1>
-      <p className="mb-6 text-sm text-gray-600">
+      <h1 className="mb-4 text-2xl font-extrabold tracking-tight">사업장 프로필</h1>
+      <p className="mb-6 text-sm text-muted-foreground">
         {profiles.length}개의 사업장 프로필이 등록되어 있습니다.
       </p>
       <div className="space-y-8">
         {profiles.map((p) => (
-          <section key={p.id} className="rounded-lg border p-4">
-            <h2 className="mb-4 text-lg font-semibold">
+          <section key={p.id} className="rounded-2xl border border-border bg-card p-4">
+            <h2 className="mb-4 text-lg font-bold tracking-tight">
               {p.logo ?? "🏢"} {p.name}
             </h2>
             <BizProfileEditForm

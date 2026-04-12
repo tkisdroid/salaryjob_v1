@@ -64,18 +64,18 @@ export function ReviewForm({
       className="flex flex-col gap-6"
     >
       <section>
-        <h2 className="mb-3 text-sm font-semibold">별점</h2>
+        <h2 className="mb-3 text-sm font-bold">별점</h2>
         <StarRatingInput value={rating} onChange={setRating} size="lg" />
       </section>
       <section>
-        <h2 className="mb-3 text-sm font-semibold">
+        <h2 className="mb-3 text-sm font-bold">
           어떤 점이{" "}
           {direction === "worker_to_business" ? "좋았나요" : "인상적이었나요"}?
         </h2>
         <TagChipPicker options={tagSet} value={tags} onChange={setTags} max={8} />
       </section>
       <section>
-        <h2 className="mb-3 text-sm font-semibold">코멘트 (선택)</h2>
+        <h2 className="mb-3 text-sm font-bold">코멘트 (선택)</h2>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}

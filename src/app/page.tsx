@@ -227,7 +227,7 @@ export default async function LandingPage() {
                 샐러리처럼 산뜻한 로컬 잡 플랫폼
               </div>
 
-              <h1 className="text-[32px] font-bold leading-[1.2] tracking-tight text-foreground sm:text-[42px] md:text-[56px]">
+              <h1 className="text-[32px] font-extrabold leading-[1.15] tracking-tight text-foreground sm:text-[42px] md:text-[56px]">
                 <span className="block">내 주변 일자리,</span>
                 <span className="block text-brand">더 가볍고 빠르게</span>
               </h1>
@@ -574,7 +574,7 @@ export default async function LandingPage() {
         <section className="border-t border-border/60 bg-brand-light">
           <div className="mx-auto max-w-5xl px-5 sm:px-6 py-16 text-center md:py-24">
             <CeleryMark className="mx-auto h-16 w-16" />
-            <h2 className="mt-6 text-2xl font-bold tracking-tight sm:text-[28px] md:text-[38px]">
+            <h2 className="mt-6 text-2xl font-extrabold tracking-tight sm:text-[28px] md:text-[38px]">
               지금 샐러리잡 시작하기
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:text-base">

@@ -186,7 +186,7 @@ export default async function WorkerHomePage({
           <section className="mx-4">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="flex items-center gap-1.5 text-base font-bold">
-                <Zap className="h-4 w-4 fill-destructive text-destructive" />
+                <Zap className="h-4 w-4 fill-[color:var(--urgent)] text-[color:var(--urgent)]" />
                 급구 · 오늘 바로 근무
               </h2>
               <Link
@@ -201,10 +201,10 @@ export default async function WorkerHomePage({
                 <Link
                   key={job.id}
                   href={`/posts/${job.id}`}
-                  className="w-64 shrink-0 snap-start rounded-2xl border-2 border-red-500/30 bg-card p-4 transition-all hover:shadow-lg"
+                  className="w-64 shrink-0 snap-start rounded-2xl border-2 border-[color:var(--urgent)]/30 bg-card p-4 transition-all hover:shadow-lg"
                 >
                   <div className="mb-2 flex items-start gap-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-red-500/10 text-lg">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--urgent)]/10 text-lg">
                       {job.business.logo}
                     </div>
                     <div className="min-w-0 flex-1">
@@ -230,7 +230,7 @@ export default async function WorkerHomePage({
                     <span className="text-[10px] text-muted-foreground">
                       시급 {formatMoney(job.hourlyPay)}
                     </span>
-                    <span className="text-sm font-bold text-red-600">
+                    <span className="text-sm font-bold text-[color:var(--urgent)]">
                       {formatMoney(calculateEarnings(job))}
                     </span>
                   </div>

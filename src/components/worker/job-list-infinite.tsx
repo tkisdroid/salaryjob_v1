@@ -101,7 +101,7 @@ function JobListInfiniteInner({
   return (
     <div className="space-y-3">
       {jobs.length === 0 && (
-        <p className="p-4 text-center text-sm text-gray-500">
+        <p className="p-4 text-center text-sm text-muted-foreground">
           아직 공고가 없습니다.
         </p>
       )}
@@ -110,20 +110,22 @@ function JobListInfiniteInner({
         <Link
           key={job.id}
           href={`${jobHrefBase}/${job.id}`}
-          className="block rounded-lg border p-4 transition hover:shadow"
+          className="block rounded-2xl border border-border bg-card p-4 transition hover:border-brand/40 hover:shadow-sm"
         >
-          <div className="mb-1 flex items-start justify-between">
-            <h2 className="text-base font-semibold">{job.title}</h2>
+          <div className="mb-1 flex items-start justify-between gap-2">
+            <h2 className="line-clamp-1 text-base font-bold tracking-tight">
+              {job.title}
+            </h2>
             {job.isUrgent && (
-              <span className="rounded bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
+              <span className="shrink-0 rounded-full bg-[color:var(--urgent)]/15 px-2 py-0.5 text-[10px] font-bold text-[color:var(--urgent)]">
                 긴급
               </span>
             )}
           </div>
-          <p className="text-sm text-gray-600">
+          <p className="text-xs text-muted-foreground">
             {job.business.logo} {job.business.name}
           </p>
-          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500">
+          <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
             <span>시급 {job.hourlyPay.toLocaleString()}원</span>
             <span>{job.workDate}</span>
             <span>
@@ -142,7 +144,7 @@ function JobListInfiniteInner({
       {cursor && (
         <div
           ref={sentinelRef}
-          className="flex h-12 items-center justify-center text-sm text-gray-400"
+          className="flex h-12 items-center justify-center text-xs text-muted-foreground"
           aria-busy={isPending}
         >
           {isPending ? "불러오는 중..." : "스크롤해서 더 보기"}
