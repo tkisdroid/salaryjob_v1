@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import { BackButton } from "@/components/shared/back-button";
 import {
   Bell,
   CheckCircle2,
@@ -161,10 +163,19 @@ export default function NotificationsPage() {
     <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
       <header>
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
-            <Bell className="w-5 h-5 text-brand" />
-            알림
-          </h1>
+          <div className="flex items-center gap-2">
+            <BackButton
+              fallbackHref="/home"
+              ariaLabel="뒤로"
+              className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </BackButton>
+            <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
+              <Bell className="w-5 h-5 text-brand" />
+              알림
+            </h1>
+          </div>
           {unreadCount > 0 && (
             <Badge variant="default" className="bg-brand">
               {unreadCount}개 새 알림

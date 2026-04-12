@@ -1,9 +1,11 @@
 import { redirect } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { requireApplicationOwner } from "@/lib/dal";
 import { getReviewByApplication } from "@/lib/db/queries";
 import { createWorkerReview } from "./actions";
 import { ReviewForm } from "@/components/shared/review-form";
 import { WORKER_TO_BIZ_TAGS } from "@/lib/constants/review-tags";
+import { BackButton } from "@/components/shared/back-button";
 
 export default async function WorkerReviewPage({
   params,
@@ -23,7 +25,12 @@ export default async function WorkerReviewPage({
 
   return (
     <main className="mx-auto max-w-lg p-4 pb-24">
-      <h1 className="mb-6 text-xl font-bold">사업장 리뷰 작성</h1>
+      <div className="mb-6 flex items-center gap-2">
+        <BackButton fallbackHref={`/my/applications/${id}`} ariaLabel="뒤로" className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted">
+          <ArrowLeft className="h-5 w-5" />
+        </BackButton>
+        <h1 className="text-xl font-bold">사업장 리뷰 작성</h1>
+      </div>
       <ReviewForm
         applicationId={id}
         direction="worker_to_business"

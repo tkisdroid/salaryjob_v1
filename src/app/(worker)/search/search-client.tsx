@@ -4,6 +4,7 @@ import { useMemo, useState, useEffect } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
+  ArrowLeft,
   Search as SearchIcon,
   X,
   MapPin,
@@ -11,6 +12,7 @@ import {
   Inbox,
   Flame,
 } from "lucide-react";
+import { BackButton } from "@/components/shared/back-button";
 import type { JobCategory } from "@/lib/types/job";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -103,6 +105,14 @@ export function SearchClient({ jobs }: { jobs: SearchJob[] }) {
 
   return (
     <div className="max-w-lg mx-auto px-5 sm:px-6 py-6 space-y-5">
+      {/* Header with back */}
+      <div className="flex items-center gap-2">
+        <BackButton fallbackHref="/explore" ariaLabel="뒤로" className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted">
+          <ArrowLeft className="h-5 w-5" />
+        </BackButton>
+        <h1 className="text-lg font-bold">검색</h1>
+      </div>
+
       {/* Search input */}
       <div className="relative">
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />

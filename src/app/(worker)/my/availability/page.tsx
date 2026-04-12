@@ -1,5 +1,7 @@
+import { ArrowLeft } from "lucide-react";
 import { loadAvailability } from "./actions";
 import { AvailabilityEditor } from "./availability-editor";
+import { BackButton } from "@/components/shared/back-button";
 
 /**
  * /my/availability — weekly availability editor.
@@ -13,5 +15,15 @@ import { AvailabilityEditor } from "./availability-editor";
  */
 export default async function AvailabilityPage() {
   const initialSlots = await loadAvailability();
-  return <AvailabilityEditor initialSlots={initialSlots} />;
+  return (
+    <div className="mx-auto max-w-lg">
+      <div className="flex items-center gap-2 px-4 pt-4">
+        <BackButton fallbackHref="/my" ariaLabel="뒤로" className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted">
+          <ArrowLeft className="h-5 w-5" />
+        </BackButton>
+        <h1 className="text-lg font-bold">시간 등록</h1>
+      </div>
+      <AvailabilityEditor initialSlots={initialSlots} />
+    </div>
+  );
 }

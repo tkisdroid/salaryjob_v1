@@ -1,14 +1,20 @@
 import Link from "next/link";
-import { Heart, Search } from "lucide-react";
+import { ArrowLeft, Heart, Search } from "lucide-react";
+import { BackButton } from "@/components/shared/back-button";
 
 export default function WorkerFavoritesPage() {
   return (
     <div className="mx-auto max-w-lg px-4 py-6">
+      <div className="mb-4 flex items-center gap-2">
+        <BackButton fallbackHref="/my" ariaLabel="뒤로" className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted">
+          <ArrowLeft className="h-5 w-5" />
+        </BackButton>
+        <h1 className="text-lg font-bold">찜한 공고</h1>
+      </div>
       <div className="rounded-3xl border border-border bg-card p-6 text-center">
         <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10">
           <Heart className="h-7 w-7 text-brand" />
         </div>
-        <h1 className="text-xl font-bold">찜한 공고</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           저장한 공고 목록 UI는 준비 중입니다. 지금은 공고 탐색 화면으로 바로
           이동할 수 있습니다.

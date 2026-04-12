@@ -1,6 +1,8 @@
+import { ArrowLeft } from "lucide-react";
 import { requireWorker } from "@/lib/dal";
 import { getWorkerProfileByUserId } from "@/lib/db/queries";
 import { WorkerProfileEditForm } from "./worker-profile-edit-form";
+import { BackButton } from "@/components/shared/back-button";
 
 type JobCategoryLiteral =
   | "food"
@@ -37,7 +39,12 @@ export default async function WorkerProfileEditPage() {
 
   return (
     <main className="mx-auto max-w-md p-4 pb-24">
-      <h1 className="mb-4 text-2xl font-bold">프로필 편집</h1>
+      <div className="mb-4 flex items-center gap-2">
+        <BackButton fallbackHref="/my" ariaLabel="뒤로" className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted">
+          <ArrowLeft className="h-5 w-5" />
+        </BackButton>
+        <h1 className="text-2xl font-bold">프로필 편집</h1>
+      </div>
       <WorkerProfileEditForm
         initialName={initialProfile.name}
         initialNickname={initialProfile.nickname ?? ""}
