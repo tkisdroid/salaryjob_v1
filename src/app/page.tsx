@@ -4,7 +4,6 @@ import {
   Briefcase,
   CheckCircle2,
   Clock,
-  Leaf,
   MapPin,
   ReceiptText,
   Search,
@@ -14,6 +13,7 @@ import {
   Users,
   Wallet,
 } from "lucide-react";
+import { CeleryMark } from "@/components/brand/celery-mark";
 import { JobListInfinite } from "@/components/worker/job-list-infinite";
 import { buttonVariants } from "@/components/ui/button-variants";
 import { getJobsPaginated } from "@/lib/db/queries";
@@ -174,9 +174,7 @@ export default async function LandingPage() {
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand text-white shadow-sm">
-              <Leaf className="h-4 w-4" />
-            </div>
+            <CeleryMark className="h-10 w-10" />
             <div className="leading-tight">
               <p className="text-base font-bold tracking-tight text-foreground">
                 샐러리잡
@@ -575,9 +573,7 @@ export default async function LandingPage() {
         {/* ─── Final CTA ───────────────────────────────────────────────── */}
         <section className="border-t border-border/60 bg-brand-light">
           <div className="mx-auto max-w-5xl px-5 sm:px-6 py-16 text-center md:py-24">
-            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-brand text-white">
-              <Leaf className="h-5 w-5" />
-            </div>
+            <CeleryMark className="mx-auto h-16 w-16" />
             <h2 className="mt-6 text-2xl font-bold tracking-tight sm:text-[28px] md:text-[38px]">
               나에게 꼭 맞는 샐러리, 오늘부터
             </h2>
@@ -612,9 +608,7 @@ export default async function LandingPage() {
         <footer className="border-t border-border bg-card">
           <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-6 px-5 sm:px-6 py-10 md:flex-row md:items-center">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-brand text-white">
-                <Leaf className="h-3.5 w-3.5" />
-              </div>
+              <CeleryMark className="h-9 w-9" />
               <div>
                 <p className="text-sm font-bold">샐러리잡</p>
                 <p className="text-[11px] text-muted-foreground">

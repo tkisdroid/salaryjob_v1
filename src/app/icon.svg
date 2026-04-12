@@ -1,0 +1,36 @@
+<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ecfaf0" />
+      <stop offset="100%" stop-color="#c8eed5" />
+    </linearGradient>
+    <linearGradient id="stalk" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#42b474" />
+      <stop offset="45%" stop-color="#88e0a8" />
+      <stop offset="100%" stop-color="#42b474" />
+    </linearGradient>
+    <linearGradient id="leaf" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#a8e8c0" />
+      <stop offset="100%" stop-color="#5bc98a" />
+    </linearGradient>
+    <radialGradient id="hi" cx="35%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.55" />
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="64" height="64" rx="14" fill="url(#bg)" />
+  <ellipse cx="32" cy="56" rx="14" ry="2.2" fill="#1e6f3d" opacity="0.12" />
+  <path d="M22 54 L20 30 Q20 22, 28 22 L36 22 Q44 22, 44 30 L42 54 Q42 58, 38 58 L26 58 Q22 58, 22 54 Z" fill="url(#stalk)" />
+  <path d="M28 24 L28 56" stroke="#2b8a55" stroke-width="1.1" stroke-linecap="round" opacity="0.45" />
+  <path d="M32 22 L32 58" stroke="#2b8a55" stroke-width="1.2" stroke-linecap="round" opacity="0.5" />
+  <path d="M36 24 L36 56" stroke="#2b8a55" stroke-width="1.1" stroke-linecap="round" opacity="0.45" />
+  <path d="M24 28 L24 52" stroke="#ffffff" stroke-width="1.6" stroke-linecap="round" opacity="0.55" />
+  <circle cx="22" cy="20" r="8" fill="url(#leaf)" />
+  <circle cx="32" cy="13" r="9.5" fill="url(#leaf)" />
+  <circle cx="42" cy="20" r="8" fill="url(#leaf)" />
+  <circle cx="22" cy="20" r="8" fill="url(#hi)" />
+  <circle cx="32" cy="13" r="9.5" fill="url(#hi)" />
+  <circle cx="42" cy="20" r="8" fill="url(#hi)" />
+  <circle cx="46" cy="14" r="1.2" fill="#ffffff" opacity="0.85" />
+  <circle cx="49" cy="16.5" r="0.7" fill="#ffffff" opacity="0.7" />
+</svg>
