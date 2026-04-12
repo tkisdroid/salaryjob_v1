@@ -43,6 +43,12 @@ yarn-error.log*
 # claude code worktrees scratch dir (gsd workflow temp)
 .claude/
 
+# impeccable/skills runner mirrors — canonical location is .agents/skills/.
+# Claude Code and OpenClaw read from /skills via symlink; on Windows git
+# dereferences symlinks into duplicate files, so we ignore the mirror.
+/skills/
+skills-lock.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
