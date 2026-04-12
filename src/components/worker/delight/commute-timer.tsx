@@ -102,7 +102,7 @@ function ProgressRing({
         strokeDashoffset={offset}
         className={cn(
           "transition-[stroke-dashoffset] duration-1000",
-          progress > 0.3 ? "text-green-500" : "text-brand"
+          progress > 0.3 ? "text-brand" : "text-[color:var(--urgent)]",
         )}
       />
     </svg>
@@ -171,7 +171,7 @@ export function CommuteTimer({
         ) : (
           <p className="text-sm text-muted-foreground">
             출발까지{" "}
-            <span className="font-semibold text-foreground">
+            <span className="font-bold text-foreground">
               {remaining.hours > 0 && `${remaining.hours}시간 `}
               {remaining.minutes}분
             </span>
@@ -180,7 +180,7 @@ export function CommuteTimer({
 
         {/* Company info */}
         <div className="w-full space-y-1 text-center">
-          <p className="font-semibold text-sm">{companyName}</p>
+          <p className="font-bold text-sm">{companyName}</p>
           <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
             <MapPin className="w-3 h-3 shrink-0" />
             {address}
@@ -189,7 +189,7 @@ export function CommuteTimer({
 
         {/* Kakao Map button */}
         <Button
-          className="w-full bg-[#FEE500] text-[#3C1E1E] hover:bg-[#FDD835] font-semibold"
+          className="w-full bg-[#FEE500] text-[#3C1E1E] hover:bg-[#FDD835] font-bold"
           asChild
         >
           <a href={kakaoUrl} target="_blank" rel="noopener noreferrer">

@@ -474,8 +474,8 @@ export function AvailabilityEditor({
 
       {/* Save status banner */}
       {status.kind === "saved" && (
-        <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/5 px-3 py-2 text-xs text-green-700 dark:text-green-300">
-          <Check className="w-4 h-4" />
+        <div className="flex items-center gap-2 rounded-lg border border-brand/30 bg-brand/5 px-3 py-2 text-xs font-bold text-brand-deep">
+          <Check className="h-4 w-4" />
           저장되었어요 ({status.count}개 슬롯)
         </div>
       )}

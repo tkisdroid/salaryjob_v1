@@ -9,9 +9,9 @@ export default async function BizProfilePage() {
   if (profiles.length === 0) {
     return (
       <main className="mx-auto max-w-3xl p-6">
-        <h1 className="mb-4 text-2xl font-bold">사업장 프로필</h1>
-        <div className="rounded border border-dashed border-gray-300 p-8 text-center text-gray-600">
-          <p className="mb-2">등록된 사업장이 없습니다.</p>
+        <h1 className="mb-4 text-2xl font-extrabold tracking-tight">사업장 프로필</h1>
+        <div className="rounded-2xl border border-dashed border-border p-8 text-center text-muted-foreground">
+          <p className="mb-2 font-bold text-foreground">등록된 사업장이 없습니다.</p>
           <p className="text-sm">
             Phase 2 seed 계정으로 로그인하거나 관리자에게 문의하세요.
           </p>

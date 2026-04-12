@@ -60,10 +60,10 @@ export function BizProfileEditForm(props: Props) {
           type="text"
           required
           defaultValue={props.initialName}
-          className="w-full rounded border p-2"
+          className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
         {err?.fieldErrors?.name && (
-          <p className="mt-1 text-xs text-red-600">{err.fieldErrors.name}</p>
+          <p className="mt-1 text-xs text-destructive">{err.fieldErrors.name}</p>
         )}
       </div>
 
@@ -79,7 +79,7 @@ export function BizProfileEditForm(props: Props) {
           name="category"
           required
           defaultValue={props.initialCategory}
-          className="w-full rounded border p-2"
+          className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         >
           {CATEGORIES.map((c) => (
             <option key={c.value} value={c.value}>
@@ -88,7 +88,7 @@ export function BizProfileEditForm(props: Props) {
           ))}
         </select>
         {err?.fieldErrors?.category && (
-          <p className="mt-1 text-xs text-red-600">
+          <p className="mt-1 text-xs text-destructive">
             {err.fieldErrors.category}
           </p>
         )}
@@ -108,7 +108,7 @@ export function BizProfileEditForm(props: Props) {
           maxLength={10}
           placeholder="🏢"
           defaultValue={props.initialLogo}
-          className="w-24 rounded border p-2 text-center text-xl"
+          className="w-24 rounded-lg border border-border bg-background p-3 text-center text-xl focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
       </div>
 
@@ -125,10 +125,10 @@ export function BizProfileEditForm(props: Props) {
           type="text"
           required
           defaultValue={props.initialAddress}
-          className="w-full rounded border p-2"
+          className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
         {err?.fieldErrors?.address && (
-          <p className="mt-1 text-xs text-red-600">{err.fieldErrors.address}</p>
+          <p className="mt-1 text-xs text-destructive">{err.fieldErrors.address}</p>
         )}
       </div>
 
@@ -144,7 +144,7 @@ export function BizProfileEditForm(props: Props) {
           name="addressDetail"
           type="text"
           defaultValue={props.initialAddressDetail}
-          className="w-full rounded border p-2"
+          className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
       </div>
 
@@ -162,10 +162,10 @@ export function BizProfileEditForm(props: Props) {
             type="number"
             step="0.0000001"
             defaultValue={props.initialLat}
-            className="w-full rounded border p-2"
+            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
           {err?.fieldErrors?.lat && (
-            <p className="mt-1 text-xs text-red-600">{err.fieldErrors.lat}</p>
+            <p className="mt-1 text-xs text-destructive">{err.fieldErrors.lat}</p>
           )}
         </div>
         <div>
@@ -181,10 +181,10 @@ export function BizProfileEditForm(props: Props) {
             type="number"
             step="0.0000001"
             defaultValue={props.initialLng}
-            className="w-full rounded border p-2"
+            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
           {err?.fieldErrors?.lng && (
-            <p className="mt-1 text-xs text-red-600">{err.fieldErrors.lng}</p>
+            <p className="mt-1 text-xs text-destructive">{err.fieldErrors.lng}</p>
           )}
         </div>
       </div>
@@ -202,14 +202,14 @@ export function BizProfileEditForm(props: Props) {
           rows={3}
           maxLength={500}
           defaultValue={props.initialDescription}
-          className="w-full rounded border p-2"
+          className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
       </div>
 
       {/* Read-only BIZ-02 display — NOT submitted with the form */}
       <section
         aria-label="읽기 전용 지표"
-        className="rounded border border-dashed border-gray-300 p-3 text-sm text-gray-600"
+        className="rounded-xl border border-dashed border-border bg-mint-bg/30 p-4 text-sm text-muted-foreground"
       >
         <div>
           평점: {props.rating.toFixed(2)} ⭐ ({props.reviewCount}개 리뷰)
@@ -221,18 +221,18 @@ export function BizProfileEditForm(props: Props) {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full rounded bg-blue-600 p-3 font-semibold text-white disabled:opacity-50"
+        className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-brand text-sm font-bold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
       >
         {isPending ? "저장 중..." : "저장"}
       </button>
 
       {err && !err.fieldErrors && (
-        <p role="alert" aria-live="polite" className="text-sm text-red-600">
+        <p role="alert" aria-live="polite" className="text-sm text-destructive">
           {err.error}
         </p>
       )}
       {ok && (
-        <p role="status" className="text-sm text-green-600">
+        <p role="status" className="text-sm font-bold text-brand-deep">
           {ok.message}
         </p>
       )}

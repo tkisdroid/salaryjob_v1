@@ -141,7 +141,12 @@ export function EarningsDashboard({
   const stats = useMemo(() => computeStats(earnings, prevTotal), [earnings, prevTotal]);
 
   const TrendIcon = stats.diff > 0 ? TrendingUp : stats.diff < 0 ? TrendingDown : Minus;
-  const trendColor = stats.diff > 0 ? "text-green-600" : stats.diff < 0 ? "text-red-500" : "text-muted-foreground";
+  const trendColor =
+    stats.diff > 0
+      ? "text-brand-deep"
+      : stats.diff < 0
+        ? "text-destructive"
+        : "text-muted-foreground";
 
   return (
     <Card>

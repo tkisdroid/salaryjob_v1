@@ -120,8 +120,8 @@ export default async function ApplicationDetailPage({
                   isCancelled
                     ? "bg-muted text-muted-foreground"
                     : isFinished
-                      ? "bg-green-500/10 text-green-700 dark:text-green-300"
-                      : "bg-brand/10 text-brand"
+                      ? "bg-brand-light text-brand-deep"
+                      : "bg-brand/10 text-brand-deep"
                 }`}
               >
                 {statusLabel[status] ?? status}

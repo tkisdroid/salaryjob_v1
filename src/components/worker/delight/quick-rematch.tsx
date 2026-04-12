@@ -88,7 +88,7 @@ function EmployerCard({
       className={cn(
         "flex flex-col items-center gap-2 min-w-[140px] rounded-xl border border-border p-4",
         "bg-card transition-all shrink-0",
-        rematchState === "submitted" && "ring-2 ring-green-500/50"
+        rematchState === "submitted" && "ring-2 ring-brand/50"
       )}
     >
       <Avatar className="w-12 h-12">
@@ -98,7 +98,7 @@ function EmployerCard({
       </Avatar>
 
       <div className="text-center">
-        <p className="text-sm font-medium leading-tight line-clamp-1">
+        <p className="line-clamp-1 text-sm font-bold leading-tight tracking-tight">
           {employer.companyName}
         </p>
         <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-0.5 mt-0.5">
@@ -135,7 +135,7 @@ function EmployerCard({
           지원 중...
         </Button>
       ) : rematchState === "submitted" ? (
-        <p className="text-xs font-medium text-green-600">지원 완료!</p>
+        <p className="text-xs font-bold text-brand-deep">지원 완료!</p>
       ) : (
         <Button
           size="sm"

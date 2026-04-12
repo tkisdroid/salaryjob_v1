@@ -72,16 +72,16 @@ export default async function PublicJobDetailPage({ params }: Props) {
       </nav>
 
       {isExpired && (
-        <div className="mb-3 rounded border border-gray-300 bg-gray-100 p-3 text-center text-sm font-semibold text-gray-700">
+        <div className="mb-3 rounded-xl border border-dashed border-border bg-muted p-3 text-center text-sm font-bold text-muted-foreground">
           만료된 공고입니다
         </div>
       )}
 
       <header className="mb-5">
         <div className="mb-2 flex items-start justify-between gap-3">
-          <h1 className="text-2xl font-bold leading-tight">{job.title}</h1>
+          <h1 className="text-2xl font-extrabold leading-tight tracking-tight">{job.title}</h1>
           {job.isUrgent && !isExpired && (
-            <span className="shrink-0 rounded bg-red-100 px-2 py-1 text-xs font-bold text-red-700">
+            <span className="shrink-0 rounded-full bg-[color:var(--urgent)]/10 px-2.5 py-1 text-xs font-bold text-[color:var(--urgent)]">
               급구
             </span>
           )}
@@ -106,25 +106,25 @@ export default async function PublicJobDetailPage({ params }: Props) {
       <section className="mb-6 grid grid-cols-2 gap-3">
         <div className="rounded-lg border border-border p-3">
           <div className="text-xs text-muted-foreground">근무일</div>
-          <div className="text-sm font-semibold">
+          <div className="text-sm font-bold tracking-tight">
             {formatWorkDate(job.workDate)}
           </div>
         </div>
         <div className="rounded-lg border border-border p-3">
           <div className="text-xs text-muted-foreground">근무 시간</div>
-          <div className="text-sm font-semibold">
+          <div className="text-sm font-bold tracking-tight">
             {job.startTime}~{job.endTime} ({job.workHours}h)
           </div>
         </div>
         <div className="rounded-lg border border-border p-3">
           <div className="text-xs text-muted-foreground">모집 인원</div>
-          <div className="text-sm font-semibold">
+          <div className="text-sm font-bold tracking-tight">
             {spotsLeft}명 남음 / {job.headcount}명
           </div>
         </div>
         <div className="rounded-lg border border-border p-3">
           <div className="text-xs text-muted-foreground">교통비</div>
-          <div className="text-sm font-semibold">
+          <div className="text-sm font-bold tracking-tight">
             {formatMoney(job.transportFee)}
           </div>
         </div>

@@ -207,8 +207,8 @@ export function FirstGigGuide({ category, isFirstGig }: FirstGigGuideProps) {
         {/* Feedback button */}
         <div className="pt-2">
           {feedbackGiven ? (
-            <p className="text-sm text-green-600 font-medium flex items-center gap-1.5">
-              <ThumbsUp className="w-4 h-4" />
+            <p className="flex items-center gap-1.5 text-sm font-bold text-brand-deep">
+              <ThumbsUp className="h-4 w-4" />
               감사합니다! 피드백이 반영됐어요
             </p>
           ) : (

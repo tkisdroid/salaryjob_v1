@@ -272,8 +272,8 @@ export function CheckInFlow({ application }: Props) {
               <ArrowLeft className="h-5 w-5" />
             </Link>
             <p className="text-sm font-bold flex-1">근무 중</p>
-            <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-green-500/10 text-green-600 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+            <span className="flex items-center gap-1 rounded-full bg-brand/10 px-2 py-1 text-[10px] font-bold text-brand-deep">
+              <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand" />
               LIVE
             </span>
           </div>
@@ -316,12 +316,12 @@ export function CheckInFlow({ application }: Props) {
             </div>
           </div>
 
-          <div className="rounded-xl bg-blue-500/5 border border-blue-500/20 p-4">
+          <div className="rounded-xl border border-teal/20 bg-teal/5 p-4">
             <div className="flex items-start gap-2">
-              <ShieldCheck className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
-              <div className="text-xs leading-relaxed text-blue-900 dark:text-blue-100">
-                <p className="font-bold mb-1">근무 중 안내</p>
-                <p className="text-blue-800/80 dark:text-blue-200/80">
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
+              <div className="text-xs leading-relaxed text-foreground">
+                <p className="mb-1 font-bold">근무 중 안내</p>
+                <p className="text-muted-foreground">
                   근무를 마치면 매장 담당자에게 체크아웃 QR을 요청해주세요.
                 </p>
               </div>
@@ -337,9 +337,9 @@ export function CheckInFlow({ application }: Props) {
                 setError(null);
                 setPhase("scanning");
               }}
-              className="w-full h-12 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold flex items-center justify-center gap-1.5 shadow-lg transition-colors"
+              className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-brand font-bold text-white shadow-lg shadow-brand/20 transition-colors hover:bg-brand-dark"
             >
-              <LogOut className="w-4 h-4" /> 근무 종료 (QR 체크아웃)
+              <LogOut className="h-4 w-4" /> 근무 종료 (QR 체크아웃)
             </button>
           </div>
         </div>
@@ -378,8 +378,8 @@ export function CheckInFlow({ application }: Props) {
             }}
           />
           {error && (
-            <div className="rounded-lg bg-red-500/20 border border-red-500/40 p-3 text-xs text-red-200 flex items-start gap-2 max-w-sm">
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="flex max-w-sm items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/20 p-3 text-xs text-white">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}

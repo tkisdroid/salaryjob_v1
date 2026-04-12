@@ -108,12 +108,12 @@ export default async function BizPostDetailPage({
               {badge.label}
             </span>
             {job.isUrgent && (
-              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-red-500/10 text-red-600">
-                <Zap className="w-3 h-3 fill-red-600" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--urgent)]/10 px-2 py-0.5 text-xs font-bold text-[color:var(--urgent)]">
+                <Zap className="h-3 w-3 fill-[color:var(--urgent)]" />
                 급구
               </span>
             )}
-            <h1 className="text-2xl font-bold text-foreground">{job.title}</h1>
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">{job.title}</h1>
           </div>
           <p className="text-sm text-muted-foreground">
             {job.business.logo} {job.business.name}

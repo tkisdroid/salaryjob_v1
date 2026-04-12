@@ -27,27 +27,27 @@ const BADGE_LEVEL_CONFIG: Record<
 > = {
   bronze: {
     label: "브론즈",
-    bgClass: "bg-stone-200",
-    textClass: "text-stone-700",
-    ringClass: "ring-stone-300",
+    bgClass: "bg-muted",
+    textClass: "text-muted-foreground",
+    ringClass: "ring-border",
   },
   silver: {
     label: "실버",
-    bgClass: "bg-gray-200",
-    textClass: "text-gray-700",
-    ringClass: "ring-gray-400",
+    bgClass: "bg-mint-bg",
+    textClass: "text-muted-foreground",
+    ringClass: "ring-border",
   },
   gold: {
     label: "골드",
-    bgClass: "bg-brand",
-    textClass: "text-white",
-    ringClass: "ring-brand-dark",
+    bgClass: "bg-brand-light",
+    textClass: "text-brand-deep",
+    ringClass: "ring-brand/40",
   },
   platinum: {
     label: "플래티넘",
-    bgClass: "bg-brand-light",
-    textClass: "text-brand",
-    ringClass: "ring-brand",
+    bgClass: "bg-brand",
+    textClass: "text-white",
+    ringClass: "ring-brand-dark",
   },
 };
 

@@ -83,8 +83,8 @@ function getCategoryIcon(categoryLabel: string): LucideIcon {
 }
 
 function getScoreBgColor(score: number): string {
-  if (score >= 80) return "bg-green-100 text-green-700";
-  if (score >= 60) return "bg-brand-light text-brand";
+  if (score >= 80) return "bg-brand text-white";
+  if (score >= 60) return "bg-brand-light text-brand-deep";
   return "bg-muted text-muted-foreground";
 }
 

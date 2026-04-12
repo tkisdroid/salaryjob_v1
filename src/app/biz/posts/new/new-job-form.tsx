@@ -236,8 +236,8 @@ function NewPostFlow({
             <p className="text-sm font-bold truncate">{STEP_TITLES[step]}</p>
           </div>
           {form.isUrgent && (
-            <span className="shrink-0 bg-red-500/10 text-red-600 text-[10px] font-bold px-2 py-1 rounded-full flex items-center gap-1">
-              <Zap className="w-3 h-3 fill-red-600" /> 급구
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--urgent)]/10 px-2 py-1 text-[10px] font-bold text-[color:var(--urgent)]">
+              <Zap className="h-3 w-3 fill-[color:var(--urgent)]" /> 급구
             </span>
           )}
         </div>
@@ -300,7 +300,7 @@ function NewPostFlow({
           <div
             role="alert"
             aria-live="polite"
-            className="rounded-xl bg-red-500/10 border border-red-500/20 p-3 text-xs text-red-600"
+            className="rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive"
           >
             {error}
           </div>
@@ -354,7 +354,7 @@ function Field({
     <div className="space-y-1.5">
       <label className="text-xs font-bold flex items-center gap-1">
         {label}
-        {required && <span className="text-red-500">*</span>}
+        {required && <span className="text-destructive">*</span>}
       </label>
       {children}
       {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
@@ -505,37 +505,39 @@ function Step2Schedule({
         <button
           type="button"
           onClick={() => setForm({ ...form, isUrgent: !form.isUrgent })}
-          className={`w-full p-4 rounded-xl border-2 flex items-center gap-3 transition-all ${
+          className={`flex w-full items-center gap-3 rounded-xl border-2 p-4 transition-all ${
             form.isUrgent
-              ? "border-red-500 bg-red-500/5"
-              : "border-border hover:border-red-500/40"
+              ? "border-[color:var(--urgent)] bg-[color:var(--urgent)]/5"
+              : "border-border hover:border-[color:var(--urgent)]/40"
           }`}
         >
           <div
-            className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
-              form.isUrgent ? "bg-red-500" : "bg-muted"
+            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+              form.isUrgent ? "bg-[color:var(--urgent)]" : "bg-muted"
             }`}
           >
             <Zap
-              className={`w-5 h-5 ${
+              className={`h-5 w-5 ${
                 form.isUrgent
-                  ? "text-white fill-white"
+                  ? "fill-white text-white"
                   : "text-muted-foreground"
               }`}
             />
           </div>
           <div className="flex-1 text-left">
-            <p className="font-bold text-sm">급구로 등록</p>
+            <p className="text-sm font-bold">급구로 등록</p>
             <p className="text-[11px] text-muted-foreground">
               평균 5분 내 매칭, 상단 노출
             </p>
           </div>
           <div
-            className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-              form.isUrgent ? "border-red-500 bg-red-500" : "border-border"
+            className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+              form.isUrgent
+                ? "border-[color:var(--urgent)] bg-[color:var(--urgent)]"
+                : "border-border"
             }`}
           >
-            {form.isUrgent && <Check className="w-3 h-3 text-white" />}
+            {form.isUrgent && <Check className="h-3 w-3 text-white" />}
           </div>
         </button>
       </Field>
@@ -583,7 +585,7 @@ function Step3Compensation({
           />
         </div>
         {form.hourlyPay < MINIMUM_WAGE && form.hourlyPay > 0 && (
-          <p className="text-[10px] text-red-500">
+          <p className="text-[10px] font-bold text-destructive">
             최저시급({formatMoney(MINIMUM_WAGE)}) 이상이어야 합니다
           </p>
         )}
