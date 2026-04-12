@@ -169,9 +169,10 @@ export function ApplyConfirmFlow({ job }: { job: Job }) {
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
           <Link
             href={`/posts/${job.id}`}
-            className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center"
+            aria-label="뒤로"
+            className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
           </Link>
           <p className="text-sm font-bold flex-1">지원 확정</p>
         </div>

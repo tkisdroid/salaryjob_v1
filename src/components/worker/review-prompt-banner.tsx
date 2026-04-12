@@ -31,8 +31,9 @@ export function ReviewPromptBanner({
         type="button"
         aria-label="배너 닫기"
         onClick={() => setDismissed(true)}
+        className="-mr-1 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-muted-foreground hover:bg-brand/10"
       >
-        <X className="h-4 w-4 text-muted-foreground" />
+        <X className="h-4 w-4" />
       </button>
     </div>
   );

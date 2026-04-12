@@ -347,17 +347,17 @@ function ApplicationCard({ app }: { app: AppRow }) {
           {canCheckIn && (
             <Link
               href={`/my/applications/${app.id}/check-in`}
-              className="flex-1 h-9 rounded-lg bg-brand/10 hover:bg-brand/20 text-brand font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+              className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-lg bg-brand/10 text-xs font-bold text-brand transition-colors hover:bg-brand/20"
             >
-              <QrCode className="w-3.5 h-3.5" /> 체크인
+              <QrCode className="h-4 w-4" /> 체크인
             </Link>
           )}
           {isInProgress && (
             <Link
               href={`/my/applications/${app.id}/check-in`}
-              className="flex-1 h-9 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-600 font-bold text-xs flex items-center justify-center gap-1.5 transition-colors"
+              className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-lg bg-destructive/10 text-xs font-bold text-destructive transition-colors hover:bg-destructive/20"
             >
-              <Zap className="w-3.5 h-3.5" /> 체크아웃
+              <Zap className="h-4 w-4" /> 체크아웃
             </Link>
           )}
           {canCancel && (
@@ -367,7 +367,7 @@ function ApplicationCard({ app }: { app: AppRow }) {
               trigger={
                 <button
                   type="button"
-                  className="h-9 px-3 rounded-lg border border-border hover:bg-muted text-xs font-medium text-muted-foreground transition-colors"
+                  className="inline-flex h-11 items-center justify-center rounded-lg border border-border px-4 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted"
                 >
                   취소
                 </button>

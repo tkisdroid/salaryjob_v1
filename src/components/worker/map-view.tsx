@@ -171,7 +171,7 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
             <button
               type="button"
               aria-label="미리보기 닫기"
-              className="text-muted-foreground hover:text-foreground"
+              className="-mr-2 -mt-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl leading-none text-muted-foreground hover:bg-muted hover:text-foreground"
               onClick={() => setSelectedJob(null)}
             >
               ×

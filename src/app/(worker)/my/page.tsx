@@ -57,7 +57,8 @@ export default async function MyPage() {
           <p className="text-sm font-bold">MY</p>
           <Link
             href="/my/settings"
-            className="flex h-9 w-9 items-center justify-center rounded-full hover:bg-muted"
+            aria-label="설정"
+            className="flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted"
           >
             <Settings className="h-5 w-5" />
           </Link>
@@ -98,7 +99,8 @@ export default async function MyPage() {
 
             <Link
               href="/my/profile"
-              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full hover:bg-muted"
+              aria-label="프로필 수정"
+              className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-muted"
             >
               <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </Link>
@@ -206,14 +208,14 @@ export default async function MyPage() {
                   <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
                     <Link
                       href={`/my/applications/${application.id}/check-in`}
-                      className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-lg bg-brand/10 text-xs font-bold text-brand transition-colors hover:bg-brand/20"
+                      className="flex h-11 flex-1 items-center justify-center gap-1.5 rounded-lg bg-brand/10 text-xs font-bold text-brand transition-colors hover:bg-brand/20"
                     >
-                      <QrCode className="h-3.5 w-3.5" />
+                      <QrCode className="h-4 w-4" />
                       QR 체크인
                     </Link>
                     <Link
                       href={`/posts/${application.job.id}`}
-                      className="flex h-9 items-center justify-center rounded-lg border border-border px-3 text-xs font-medium transition-colors hover:bg-muted"
+                      className="flex h-11 items-center justify-center rounded-lg border border-border px-4 text-xs font-medium transition-colors hover:bg-muted"
                     >
                       공고 보기
                     </Link>

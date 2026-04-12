@@ -266,9 +266,10 @@ export function CheckInFlow({ application }: Props) {
           <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
             <Link
               href="/my/applications"
-              className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center"
+              aria-label="뒤로"
+              className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
             </Link>
             <p className="text-sm font-bold flex-1">근무 중</p>
             <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-green-500/10 text-green-600 flex items-center gap-1">
@@ -356,10 +357,11 @@ export function CheckInFlow({ application }: Props) {
           <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
             <button
               type="button"
+              aria-label="뒤로"
               onClick={() => setPhase("working")}
-              className="w-9 h-9 rounded-full hover:bg-white/10 flex items-center justify-center"
+              className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-white/10"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
             </button>
             <p className="text-sm font-bold flex-1">체크아웃 QR 스캔</p>
           </div>
@@ -432,9 +434,10 @@ export function CheckInFlow({ application }: Props) {
         <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
           <Link
             href="/my/applications"
-            className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center"
+            aria-label="뒤로"
+            className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="h-5 w-5" />
           </Link>
           <p className="text-sm font-bold flex-1">체크인</p>
         </div>

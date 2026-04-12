@@ -56,7 +56,7 @@ const ToggleGroupItem = React.forwardRef<
       ref={ref}
       className={cn(
         // base
-        "inline-flex h-9 items-center justify-center whitespace-nowrap rounded-md px-3 text-sm font-medium transition-colors",
+        "inline-flex h-11 items-center justify-center whitespace-nowrap rounded-md px-4 text-sm font-medium transition-colors",
         // interaction
         "hover:bg-muted hover:text-foreground",
         // state
