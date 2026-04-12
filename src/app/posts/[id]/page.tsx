@@ -222,9 +222,11 @@ export default async function PublicJobDetailPage({ params }: Props) {
             >
               원탭 지원하기
             </Link>
-            <p className="mt-1 text-center text-xs text-muted-foreground">
-              로그인 후 즉시 확정됩니다
-            </p>
+            {!user && (
+              <p className="mt-1 text-center text-xs text-muted-foreground">
+                로그인 후 즉시 확정됩니다
+              </p>
+            )}
           </div>
         </div>
       )}

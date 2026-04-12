@@ -10,6 +10,7 @@ export default async function ExplorePage() {
     id: job.id,
     title: job.title,
     businessName: job.business.name,
+    category: job.category,
     hourlyPay: job.hourlyPay,
     tags: job.tags,
     address: job.business.address,

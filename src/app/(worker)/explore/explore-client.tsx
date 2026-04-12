@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
-import { MapPin, Search, SlidersHorizontal, Map } from "lucide-react";
+import { MapPin, Search, Map, Inbox } from "lucide-react";
 import {
   Tabs,
   TabsList,
@@ -13,20 +13,35 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format";
+import type { JobCategory } from "@/lib/types/job";
 
 export interface ExploreJob {
   id: string;
   title: string;
   businessName: string;
+  category: JobCategory;
   hourlyPay: number;
   tags: string[];
   address: string;
 }
 
-const FILTER_CHIPS = [
-  { key: "category", label: "카테고리" },
-  { key: "distance", label: "거리" },
-  { key: "pay", label: "시급" },
+const CATEGORIES: Array<{ key: "all" | JobCategory; label: string }> = [
+  { key: "all", label: "전체" },
+  { key: "food", label: "음식" },
+  { key: "retail", label: "유통" },
+  { key: "logistics", label: "물류" },
+  { key: "office", label: "사무" },
+  { key: "event", label: "행사" },
+  { key: "cleaning", label: "청소" },
+  { key: "education", label: "교육" },
+  { key: "tech", label: "기술" },
+];
+
+const PAY_TIERS = [
+  { label: "전체", value: 0 },
+  { label: "1만원+", value: 10000 },
+  { label: "1.2만원+", value: 12000 },
+  { label: "1.5만원+", value: 15000 },
 ] as const;
 
 const TAG_GROUPS = [
@@ -49,16 +64,16 @@ const TAG_GROUPS = [
 ];
 
 export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
-  const [activeFilters, setActiveFilters] = useState<Set<string>>(new Set());
+  const [category, setCategory] = useState<"all" | JobCategory>("all");
+  const [minPay, setMinPay] = useState(0);
 
-  function toggleFilter(key: string) {
-    setActiveFilters((prev) => {
-      const next = new Set(prev);
-      if (next.has(key)) next.delete(key);
-      else next.add(key);
-      return next;
+  const filtered = useMemo(() => {
+    return jobs.filter((job) => {
+      if (category !== "all" && job.category !== category) return false;
+      if (job.hourlyPay < minPay) return false;
+      return true;
     });
-  }
+  }, [jobs, category, minPay]);
 
   return (
     <div className="mx-auto max-w-lg space-y-5 px-4 py-6">
@@ -84,31 +99,63 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
         </TabsList>
 
         <TabsContent value="list" className="space-y-4 pt-4">
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-            {FILTER_CHIPS.map((chip) => (
+          {/* Category filter */}
+          <div className="scrollbar-none -mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1">
+            {CATEGORIES.map((cat) => (
               <Button
-                key={chip.key}
-                variant={activeFilters.has(chip.key) ? "default" : "outline"}
+                key={cat.key}
+                variant={category === cat.key ? "default" : "outline"}
                 size="sm"
-                onClick={() => toggleFilter(chip.key)}
-                className="shrink-0"
+                onClick={() => setCategory(cat.key)}
+                className="shrink-0 rounded-full"
               >
-                <SlidersHorizontal className="h-3 w-3" />
-                {chip.label}
+                {cat.label}
               </Button>
             ))}
           </div>
 
-          {jobs.length === 0 ? (
+          {/* Pay filter */}
+          <div className="scrollbar-none -mx-4 flex gap-1.5 overflow-x-auto px-4 pb-1">
+            {PAY_TIERS.map((opt) => (
+              <Button
+                key={opt.label}
+                variant={minPay === opt.value ? "default" : "outline"}
+                size="sm"
+                onClick={() => setMinPay(opt.value)}
+                className="shrink-0 rounded-full"
+              >
+                {opt.label}
+              </Button>
+            ))}
+          </div>
+
+          {/* Result count */}
+          <p className="text-xs text-muted-foreground">
+            검색 결과{" "}
+            <span className="font-bold text-foreground">{filtered.length}건</span>
+          </p>
+
+          {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
-              <p className="font-bold text-muted-foreground">아직 공고가 없어요</p>
+              <Inbox className="mb-4 h-12 w-12 text-muted-foreground/40" />
+              <p className="font-bold text-muted-foreground">조건에 맞는 공고가 없어요</p>
               <p className="mt-1 text-sm text-muted-foreground/70">
-                새 공고가 등록되면 여기에 표시됩니다
+                필터를 조금 넓혀 보세요
               </p>
+              <Button
+                variant="outline"
+                className="mt-4 rounded-full"
+                onClick={() => {
+                  setCategory("all");
+                  setMinPay(0);
+                }}
+              >
+                필터 초기화
+              </Button>
             </div>
           ) : (
             <div className="space-y-3">
-              {jobs.map((job) => (
+              {filtered.map((job) => (
                 <Link key={job.id} href={`/posts/${job.id}`}>
                   <Card className="transition-shadow hover:ring-brand/30">
                     <CardContent>
