@@ -123,16 +123,16 @@ export default async function BizPostDetailPage({
 
       {/* Actions */}
       <div className="flex flex-wrap gap-2 mb-6">
-        <form action={handleDelete}>
-          <Button
-            variant="outline"
-            type="submit"
-            className="text-destructive border-destructive/30 hover:bg-destructive/5"
-          >
-            <Trash2 className="w-4 h-4" />
-            삭제
-          </Button>
-        </form>
+        {/* 1. Primary: 지원자 보기 */}
+        <Button className="bg-teal text-white hover:bg-teal/90" asChild>
+          <Link href={`/biz/posts/${id}/applicants`}>
+            <Users className="w-4 h-4" />
+            지원자 보기 ({job.appliedCount})
+            <ChevronRight className="w-4 h-4" />
+          </Link>
+        </Button>
+
+        {/* 2. Secondary: 퇴근 QR */}
         <CheckoutQrModal
           jobId={job.id}
           trigger={
@@ -145,16 +145,18 @@ export default async function BizPostDetailPage({
             </button>
           }
         />
-        <Button
-          className="bg-teal text-white hover:bg-teal/90 ml-auto"
-          asChild
-        >
-          <Link href={`/biz/posts/${id}/applicants`}>
-            <Users className="w-4 h-4" />
-            지원자 보기 ({job.appliedCount})
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </Button>
+
+        {/* 3. Destructive (far right): 삭제 */}
+        <form action={handleDelete} className="ml-auto">
+          <Button
+            variant="outline"
+            type="submit"
+            className="text-destructive border-destructive/30 hover:bg-destructive/5"
+          >
+            <Trash2 className="w-4 h-4" />
+            삭제
+          </Button>
+        </form>
       </div>
 
       {/* Body */}
