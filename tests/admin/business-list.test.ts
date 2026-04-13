@@ -29,14 +29,12 @@ import {
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
-describe.skip(
-  // TODO(wave-5): flip describe.skip → describe.skipIf(!process.env.DATABASE_URL)
-  // once Plan 06-05 ships getBusinessesPaginated at src/lib/db/admin-queries.ts
+describe.skipIf(!process.env.DATABASE_URL)(
+  // Wave-5 flip: describe.skip → describe.skipIf(!process.env.DATABASE_URL)
+  // getBusinessesPaginated is now implemented at src/lib/db/admin-queries.ts
   "D-40..43: Admin business list — search / filter / sort / cursor pagination",
   () => {
-    // Import lazily so test collection doesn't fail pre-Wave 5
-    // (admin-queries.ts doesn't exist yet)
-    // @ts-expect-error wave-5-not-yet-implemented
+    // Wave-5: admin-queries.ts now exists — import directly with types
     let getBusinessesPaginated: typeof import("@/lib/db/admin-queries").getBusinessesPaginated;
 
     const adminIds: string[] = [];
@@ -44,7 +42,6 @@ describe.skip(
     beforeAll(async () => {
       await cleanupPhase6Fixtures();
 
-      // @ts-expect-error wave-5-not-yet-implemented
       const module = await import("@/lib/db/admin-queries");
       getBusinessesPaginated = module.getBusinessesPaginated;
     });
