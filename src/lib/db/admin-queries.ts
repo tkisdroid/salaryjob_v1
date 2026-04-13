@@ -32,11 +32,15 @@ export type BusinessListArgs = {
 // ============================================================================
 // Cursor encode / decode
 //
-// Format: "{createdAtISO}_{uuid}"
+// created_* sorts — format: "{createdAtISO}_{uuid}"
 // e.g.   "2026-04-13T08:00:00.000Z_550e8400-e29b-41d4-a716-446655440000"
 //
-// Used for both created_* sorts and rate_* sorts (rate ties are rare; we
-// always cursor on createdAt+id for stability — RESEARCH §Pattern 2).
+// rate_* sorts — format: "r:{rateOrNULL}_{createdAtISO}_{uuid}"
+// e.g.   "r:0.0500_2026-04-13T08:00:00.000Z_550e8400-e29b-41d4-a716-446655440000"
+//      or "r:NULL_2026-04-13T08:00:00.000Z_550e8400-e29b-41d4-a716-446655440000"
+//
+// rate_* sorts use composite (commissionRate, createdAt, id) cursor; created_* sorts
+// use (createdAt, id). Encoder/decoder selected by sort type.
 // ============================================================================
 
 function encodeCursor(row: { createdAt: Date; id: string }): string {
@@ -54,6 +58,45 @@ function decodeCursor(cursor: string): { createdAt: Date; id: string } | null {
   if (isNaN(d.getTime())) return null
   if (!/^[0-9a-f-]{36}$/i.test(id)) return null
   return { createdAt: d, id }
+}
+
+// Composite cursor for rate_* sorts: rate (Decimal | null) + createdAt + id
+function encodeRateCursor(row: {
+  commissionRate: Prisma.Decimal | null
+  createdAt: Date
+  id: string
+}): string {
+  const rateStr = row.commissionRate === null ? 'NULL' : row.commissionRate.toString()
+  return `r:${rateStr}_${row.createdAt.toISOString()}_${row.id}`
+}
+
+function decodeRateCursor(cursor: string): {
+  commissionRate: Prisma.Decimal | null
+  createdAt: Date
+  id: string
+} | null {
+  if (!cursor.startsWith('r:')) return null
+  const body = cursor.slice(2)
+  // Find the FIRST underscore (separates rate from createdAtISO).
+  // Rate is either 'NULL' or a decimal like '0.0500' — neither contains underscore.
+  const firstUnderscore = body.indexOf('_')
+  if (firstUnderscore === -1) return null
+  const ratePart = body.slice(0, firstUnderscore)
+  const rest = body.slice(firstUnderscore + 1)
+  // Reuse decodeCursor logic for the createdAt+id portion
+  const restDecoded = decodeCursor(rest)
+  if (!restDecoded) return null
+  let commissionRate: Prisma.Decimal | null
+  if (ratePart === 'NULL') {
+    commissionRate = null
+  } else {
+    try {
+      commissionRate = new Prisma.Decimal(ratePart)
+    } catch {
+      return null
+    }
+  }
+  return { commissionRate, createdAt: restDecoded.createdAt, id: restDecoded.id }
 }
 
 // ============================================================================
@@ -116,31 +159,79 @@ export async function getBusinessesPaginated(
   // ------------------------------------------------------------------
   // Build cursor filter
   //
-  // For desc sorts: items BEFORE cursor (tuple < cursor means older)
-  //   createdAt < cursorDate  OR  (createdAt = cursorDate AND id < cursorId)
-  // For asc sorts: items AFTER cursor (tuple > cursor means newer)
-  //   createdAt > cursorDate  OR  (createdAt = cursorDate AND id > cursorId)
+  // For desc sorts: items BEFORE cursor (tuple < cursor means older/smaller)
+  // For asc sorts: items AFTER cursor (tuple > cursor means newer/larger)
   //
-  // rate_* sorts still cursor on createdAt+id for stability (D-43 RESEARCH §Pattern 2)
+  // rate_* sorts use composite (commissionRate, createdAt, id) cursor;
+  // created_* sorts use (createdAt, id). Encoder/decoder selected by sort type.
   // ------------------------------------------------------------------
-  const decoded = args.cursor ? decodeCursor(args.cursor) : null
+  const isRateSort = sort === 'rate_desc' || sort === 'rate_asc'
+  const isAsc = sort === 'created_asc' || sort === 'rate_asc'
+
   let cursorWhere: Prisma.BusinessProfileWhereInput | undefined
 
-  if (decoded) {
-    const isAsc = sort === 'created_asc' || sort === 'rate_asc'
-    if (isAsc) {
-      cursorWhere = {
-        OR: [
-          { createdAt: { gt: decoded.createdAt } },
-          { createdAt: decoded.createdAt, id: { gt: decoded.id } },
-        ],
+  if (args.cursor) {
+    if (isRateSort) {
+      const dec = decodeRateCursor(args.cursor)
+      if (dec) {
+        // ORDER BY commissionRate {sort} NULLS LAST, createdAt {sort}, id {sort}
+        // NULLS LAST means nulls sort after all non-null values regardless of asc/desc.
+        //   - If cursor's rate is non-null:
+        //       desc: next page = (rate < cursorRate) OR (rate = cursorRate AND tuple<) OR (rate IS NULL)
+        //       asc : next page = (rate > cursorRate) OR (rate = cursorRate AND tuple>) OR (rate IS NULL)
+        //   - If cursor's rate is null (we're already in the NULL-tail page):
+        //       both: next page = (rate IS NULL) AND tuple comparison
+        if (dec.commissionRate === null) {
+          // We're in the NULL tail — paginate by (createdAt, id) only, within nulls
+          cursorWhere = {
+            commissionRate: null,
+            OR: isAsc
+              ? [
+                  { createdAt: { gt: dec.createdAt } },
+                  { createdAt: dec.createdAt, id: { gt: dec.id } },
+                ]
+              : [
+                  { createdAt: { lt: dec.createdAt } },
+                  { createdAt: dec.createdAt, id: { lt: dec.id } },
+                ],
+          }
+        } else {
+          const rateCmp = isAsc ? { gt: dec.commissionRate } : { lt: dec.commissionRate }
+          const tupleCmp = isAsc
+            ? [
+                { createdAt: { gt: dec.createdAt } },
+                { createdAt: dec.createdAt, id: { gt: dec.id } },
+              ]
+            : [
+                { createdAt: { lt: dec.createdAt } },
+                { createdAt: dec.createdAt, id: { lt: dec.id } },
+              ]
+          cursorWhere = {
+            OR: [
+              { commissionRate: rateCmp },
+              { commissionRate: dec.commissionRate, OR: tupleCmp },
+              { commissionRate: null }, // NULLS LAST → always after non-null pages
+            ],
+          }
+        }
       }
+      // malformed rate cursor (no 'r:' prefix or decode failure) → no cursorWhere → first page
     } else {
-      cursorWhere = {
-        OR: [
-          { createdAt: { lt: decoded.createdAt } },
-          { createdAt: decoded.createdAt, id: { lt: decoded.id } },
-        ],
+      const dec = decodeCursor(args.cursor)
+      if (dec) {
+        cursorWhere = isAsc
+          ? {
+              OR: [
+                { createdAt: { gt: dec.createdAt } },
+                { createdAt: dec.createdAt, id: { gt: dec.id } },
+              ],
+            }
+          : {
+              OR: [
+                { createdAt: { lt: dec.createdAt } },
+                { createdAt: dec.createdAt, id: { lt: dec.id } },
+              ],
+            }
       }
     }
   }
@@ -212,7 +303,9 @@ export async function getBusinessesPaginated(
 
   const nextCursor =
     hasMore && items.length > 0
-      ? encodeCursor(items[items.length - 1])
+      ? (isRateSort
+          ? encodeRateCursor(items[items.length - 1])
+          : encodeCursor(items[items.length - 1]))
       : null
 
   return { items, nextCursor }
