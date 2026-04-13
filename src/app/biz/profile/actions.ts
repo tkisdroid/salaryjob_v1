@@ -5,6 +5,11 @@ import { revalidatePath } from "next/cache";
 import { requireBusiness } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import type { ProfileFormState } from "@/lib/form-state";
+import {
+  RegNumberSchema,
+  OwnerPhoneSchema,
+  normalizeRegNumber,
+} from "@/lib/validations/business";
 
 const JOB_CATEGORIES = [
   "food",
@@ -53,6 +58,10 @@ const BizProfileSchema = z.object({
     .max(500, "설명은 500자 이하여야 합니다")
     .optional()
     .or(z.literal("")),
+  // D-30 / D-37: optional business registration fields
+  businessRegNumber: RegNumberSchema.optional().or(z.literal("")),
+  ownerName: z.string().max(100, "대표자명은 100자 이하여야 합니다").optional().or(z.literal("")),
+  ownerPhone: OwnerPhoneSchema.optional().or(z.literal("")),
 });
 
 /**
@@ -83,6 +92,9 @@ export async function updateBusinessProfile(
     lat: (formData.get("lat") ?? "") as string,
     lng: (formData.get("lng") ?? "") as string,
     description: (formData.get("description") ?? "") as string,
+    businessRegNumber: (formData.get("businessRegNumber") ?? "") as string,
+    ownerName: (formData.get("ownerName") ?? "") as string,
+    ownerPhone: (formData.get("ownerPhone") ?? "") as string,
   };
 
   const parsed = BizProfileSchema.safeParse(raw);
@@ -116,6 +128,25 @@ export async function updateBusinessProfile(
   }
 
   try {
+    // D-30: Determine verified state based on regNumber presence and validity.
+    // If regNumber is provided and format-valid → verified=true (auto-approve).
+    // If regNumber is cleared (empty string) → verified=false (per Pitfall 3).
+    // If regNumber field absent from FormData → leave verified unchanged (undefined = no-op).
+    let verifiedUpdate: boolean | undefined = undefined
+    let normalizedRegNumber: string | null | undefined = undefined
+
+    const rawReg = d.businessRegNumber
+    if (rawReg && rawReg.trim() !== '') {
+      // RegNumberSchema already validated the format — safe to normalize
+      normalizedRegNumber = normalizeRegNumber(rawReg)
+      verifiedUpdate = true // D-30 auto-approve
+    } else if (rawReg === '') {
+      // Explicitly cleared — revoke verified status
+      normalizedRegNumber = null
+      verifiedUpdate = false
+    }
+    // If rawReg is undefined (field not in FormData) — leave both unchanged
+
     // Step 1: Update scalar columns via Prisma.
     await prisma.businessProfile.update({
       where: { id: d.profileId },
@@ -128,6 +159,11 @@ export async function updateBusinessProfile(
         lat: d.lat,
         lng: d.lng,
         description: d.description || null,
+        // D-37: optional business registration fields
+        ...(normalizedRegNumber !== undefined && { businessRegNumber: normalizedRegNumber }),
+        ...(d.ownerName !== undefined && { ownerName: d.ownerName || null }),
+        ...(d.ownerPhone !== undefined && { ownerPhone: d.ownerPhone || null }),
+        ...(verifiedUpdate !== undefined && { verified: verifiedUpdate }),
       },
     });
 

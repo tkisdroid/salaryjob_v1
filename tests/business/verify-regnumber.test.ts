@@ -53,10 +53,6 @@ describe.skipIf(skipIfNoSupabase())(
     });
 
     it("valid format '123-45-67890' → writes digit-only regNumber AND sets verified=true", async () => {
-      // TODO(wave-6-plan-06-06-task1): import verifyBusinessRegNumber from
-      // '@/app/biz/signup/actions' (or biz/verify/actions) once Plan 06-06 Task 1 lands.
-      // For now the import will throw → RED signal.
-      // @ts-expect-error wave-6-not-yet-implemented
       const { verifyBusinessRegNumber } = await import(
         "@/app/biz/signup/actions"
       );
@@ -85,7 +81,6 @@ describe.skipIf(skipIfNoSupabase())(
     });
 
     it("invalid format 'abc-12-34567' → returns field error, no DB write, verified stays false", async () => {
-      // @ts-expect-error wave-6-not-yet-implemented
       const { verifyBusinessRegNumber } = await import(
         "@/app/biz/signup/actions"
       );
@@ -103,7 +98,7 @@ describe.skipIf(skipIfNoSupabase())(
 
       const result = await verifyBusinessRegNumber(formData);
       expect(result.success).toBe(false);
-      expect(result.error).toBeTruthy(); // some field error message
+      expect('error' in result && result.error).toBeTruthy(); // some field error message
 
       const row = await prisma.$queryRawUnsafe<
         { businessRegNumber: string | null; verified: boolean }[]
@@ -116,7 +111,6 @@ describe.skipIf(skipIfNoSupabase())(
     });
 
     it("duplicate format-valid regNumber across distinct businesses → both accepted (no uniqueness per D-30)", async () => {
-      // @ts-expect-error wave-6-not-yet-implemented
       const { verifyBusinessRegNumber } = await import(
         "@/app/biz/signup/actions"
       );
@@ -156,7 +150,7 @@ describe.skipIf(skipIfNoSupabase())(
 // (Wave 2 schema must have regNumberOcrMismatched column; Wave 4 has uploadBusinessRegImage action)
 // ---------------------------------------------------------------------------
 
-describe.skip(
+describe(
   "D-33: OCR mismatch — image still saved, regNumberOcrMismatched flag written",
   () => {
     // Mock the OCR module before imports resolve
@@ -206,7 +200,7 @@ describe.skip(
 
       const result = await uploadBusinessRegImage(formData);
       expect(result.ok).toBe(true);
-      expect(result.ocr).toBe("mismatched");
+      expect(result.ok && result.ocr).toBe("mismatched");
 
       // Reload via raw SQL — column may not be in Prisma types pre-Wave 2 regen
       const rows = await prisma.$queryRawUnsafe<
@@ -254,7 +248,7 @@ describe.skip(
 
       const result = await uploadBusinessRegImage(formData);
       expect(result.ok).toBe(true);
-      expect(result.ocr).toBe("matched");
+      expect(result.ok && result.ocr).toBe("matched");
 
       const rows = await prisma.$queryRawUnsafe<
         {

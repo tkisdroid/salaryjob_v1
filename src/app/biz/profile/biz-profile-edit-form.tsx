@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useRef } from "react";
 import { updateBusinessProfile } from "./actions";
+import { formatRegNumber } from "@/lib/validations/business";
 import type { ProfileFormState } from "@/lib/form-state";
 
 interface Props {
@@ -14,6 +15,10 @@ interface Props {
   initialLat: number;
   initialLng: number;
   initialDescription: string;
+  // D-37: optional business registration fields
+  initialBusinessRegNumber?: string | null;
+  initialOwnerName?: string | null;
+  initialOwnerPhone?: string | null;
   // Read-only BIZ-02 display fields — NOT in form, NOT in FormData
   rating: number;
   reviewCount: number;
@@ -37,9 +42,16 @@ export function BizProfileEditForm(props: Props) {
     updateBusinessProfile,
     null,
   );
+  const regNumberRef = useRef<HTMLInputElement>(null);
 
   const err = state && "error" in state ? state : null;
   const ok = state && "success" in state ? state : null;
+
+  function handleRegNumberBlur() {
+    if (regNumberRef.current) {
+      regNumberRef.current.value = formatRegNumber(regNumberRef.current.value);
+    }
+  }
 
   return (
     <form action={action} className="space-y-4">
@@ -205,6 +217,90 @@ export function BizProfileEditForm(props: Props) {
           className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
       </div>
+
+      {/* ── 사업자 인증 정보 (D-30 / D-37) ── */}
+      <section className="space-y-4 rounded-xl border border-border p-4">
+        <div>
+          <h3 className="text-sm font-semibold text-foreground">사업자 인증 정보</h3>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            사업자등록번호를 입력하면 형식 검증 후 자동 인증됩니다. 공고 등록 시 사업자등록증 이미지가 추가로 필요합니다.
+          </p>
+        </div>
+
+        <div>
+          <label
+            htmlFor={`businessRegNumber-${props.profileId}`}
+            className="mb-1 block text-sm font-medium"
+          >
+            사업자등록번호
+          </label>
+          <input
+            id={`businessRegNumber-${props.profileId}`}
+            ref={regNumberRef}
+            name="businessRegNumber"
+            type="text"
+            placeholder="123-45-67890"
+            defaultValue={
+              props.initialBusinessRegNumber
+                ? formatRegNumber(props.initialBusinessRegNumber)
+                : ""
+            }
+            onBlur={handleRegNumberBlur}
+            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            style={{ minHeight: "44px" }}
+          />
+          {err?.fieldErrors?.businessRegNumber && (
+            <p className="mt-1 text-xs text-destructive">
+              {err.fieldErrors.businessRegNumber}
+            </p>
+          )}
+          <p className="mt-1 text-xs text-muted-foreground">
+            {props.verified ? "✅ 인증됨" : "미인증 — 번호 입력 후 저장하면 자동 인증됩니다"}
+          </p>
+        </div>
+
+        <div>
+          <label
+            htmlFor={`ownerName-${props.profileId}`}
+            className="mb-1 block text-sm font-medium"
+          >
+            대표자명
+          </label>
+          <input
+            id={`ownerName-${props.profileId}`}
+            name="ownerName"
+            type="text"
+            placeholder="홍길동"
+            defaultValue={props.initialOwnerName ?? ""}
+            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            style={{ minHeight: "44px" }}
+          />
+          {err?.fieldErrors?.ownerName && (
+            <p className="mt-1 text-xs text-destructive">{err.fieldErrors.ownerName}</p>
+          )}
+        </div>
+
+        <div>
+          <label
+            htmlFor={`ownerPhone-${props.profileId}`}
+            className="mb-1 block text-sm font-medium"
+          >
+            대표자 연락처
+          </label>
+          <input
+            id={`ownerPhone-${props.profileId}`}
+            name="ownerPhone"
+            type="tel"
+            placeholder="010-0000-0000"
+            defaultValue={props.initialOwnerPhone ?? ""}
+            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            style={{ minHeight: "44px" }}
+          />
+          {err?.fieldErrors?.ownerPhone && (
+            <p className="mt-1 text-xs text-destructive">{err.fieldErrors.ownerPhone}</p>
+          )}
+        </div>
+      </section>
 
       {/* Read-only BIZ-02 display — NOT submitted with the form */}
       <section

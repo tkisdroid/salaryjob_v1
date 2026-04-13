@@ -42,6 +42,9 @@ export default async function BizProfilePage() {
               initialLat={Number(p.lat)}
               initialLng={Number(p.lng)}
               initialDescription={p.description ?? ""}
+              initialBusinessRegNumber={p.businessRegNumber ?? null}
+              initialOwnerName={p.ownerName ?? null}
+              initialOwnerPhone={p.ownerPhone ?? null}
               rating={Number(p.rating)}
               reviewCount={p.reviewCount}
               completionRate={p.completionRate}
