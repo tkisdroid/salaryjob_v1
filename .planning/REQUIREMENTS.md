@@ -137,6 +137,34 @@ v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
 | 자체 동기식 채팅 (WebSocket) | Supabase Realtime으로 충분, 전용 채팅 인프라 불필요 |
 | 모바일 네이티브 앱 | PWA/웹 우선, 네이티브는 v1 이후 |
 
+## Phase 6 Operational Decisions (D-27..D-43)
+
+Phase 6 = Admin Backoffice 운영 결정사항 (17개). 이 결정들은 v1 요구사항(위)과는 별도로, Phase 6 구현 범위를 정의하는 설계 결정이다. 자동화 검증 증거는 `06-VERIFICATION.md`를 참조.
+
+| Decision | Description | Automated Evidence | Status |
+|----------|-------------|-------------------|--------|
+| D-27 | /admin blocks non-ADMIN; redirect to `/login?error=admin_required` | `tests/auth/admin-routing.test.ts` ✓ GREEN | Code Complete |
+| D-28 | `getDefaultPathForRole('ADMIN')==='/admin'`; ADMIN login → /admin | `tests/auth/admin-routing.test.ts` ✓ GREEN | Code Complete |
+| D-29 | AdminSidebar separate component (not BizSidebar reuse) | grep `import.*BizSidebar` src/app/admin → exit 1 ✓ | Code Complete |
+| D-30 | Valid regNumber format → `verified=true` auto; stored digit-only | `tests/business/verify-regnumber.test.ts` (SKIP — DB) | Code Complete (Human UAT Sc.5) |
+| D-31 | createJob with `businessRegImageUrl IS NULL` → redirect sentinel `/biz/verify` | `tests/jobs/create-job-image-gate.test.ts` (SKIP — DB) | Code Complete (Human UAT Sc.6) |
+| D-32 | `runBizLicenseOcr` parses CLOVA response; extracts digit-only 10-char candidates | `tests/ocr/clova-parser.test.ts` ✓ GREEN (7 tests) | Code Complete |
+| D-33 | OCR timeout/error/mismatch → image saved, no user-facing failure, `regNumberOcrMismatched=true` | OCR unit GREEN; integration SKIP — DB | Partial (Human UAT Sc.7/8) |
+| D-34 | checkOut writes commissionRate + commissionAmount + netEarnings snapshot | `tests/settlements/commission-snapshot.test.ts` (SKIP — DB) | Code Complete |
+| D-35 | Null commissionRate falls back to `PLATFORM_DEFAULT_COMMISSION_RATE` env | Same test file | Code Complete |
+| D-36 | `commissionRate` Decimal(5,2), nullable; override supersedes env; Zod rejects >100 | Same test file + Zod schema | Code Complete |
+| D-37 | BusinessProfile 6 new columns + Application 3 new columns (all nullable) | `prisma/schema.prisma` verified; migration on disk | Migration Pending |
+| D-38 | `business-reg-docs` bucket private + 4 RLS policies | Migration on disk (20260414000002) | Migration Pending |
+| D-39 | `verified` flag = regNumber format OK only (not image-uploaded) | Code reading: gate checks `businessRegImageUrl`, not `verified` | Code Complete |
+| D-40 | Admin list searches name/reg/owner/phone via ILIKE; dash-normalized reg | `tests/admin/business-list.test.ts` (SKIP — DB) | Code Complete (Human UAT Sc.2) |
+| D-41 | verified filter: all/yes/no | Same test | Code Complete (Human UAT Sc.2) |
+| D-42 | sort by createdAt asc/desc and commissionRate asc/desc | Same test | Code Complete (Human UAT Sc.2) |
+| D-43 | Cursor pagination 20/page, stable order | Same test | Code Complete (Human UAT Sc.2) |
+
+**DB-gated tests skip because:** `db.lkntomgdhfvxzvnzmlct.supabase.co` unreachable from dev machine. Apply `npx tsx scripts/apply-supabase-migrations.ts` to enable live DB tests.
+
+---
+
 ## Traceability
 
 | Requirement | Phase | Status |
@@ -194,15 +222,35 @@ v2 = MVP 검증 후 추가. 로드맵에 포함되지 않음.
 | 양방향 ReviewForm 공용 컴포넌트 (worker↔biz) | Phase 1 | Completed 2026-04-10 (`55790d1`) |
 | Timee 스타일 UI 언어 (모바일 퍼스트 Worker, 데스크톱 Biz) | Phase 1 | Completed 2026-04-10 (`55790d1`) |
 
+| D-27 | Phase 6 | Code Complete 2026-04-13 (`4cc274c`) |
+| D-28 | Phase 6 | Code Complete 2026-04-13 (`4cc274c`) |
+| D-29 | Phase 6 | Code Complete 2026-04-13 (`4cc274c`) |
+| D-30 | Phase 6 | Code Complete 2026-04-13 — Human UAT Sc.5 pending |
+| D-31 | Phase 6 | Code Complete 2026-04-13 — Human UAT Sc.6 pending |
+| D-32 | Phase 6 | Code Complete 2026-04-13 (`4cc274c`) |
+| D-33 | Phase 6 | Code Complete 2026-04-13 — Human UAT Sc.7/8 deferred |
+| D-34 | Phase 6 | Code Complete 2026-04-13 (`c5ca5cf`) |
+| D-35 | Phase 6 | Code Complete 2026-04-13 (`c5ca5cf`) |
+| D-36 | Phase 6 | Code Complete 2026-04-13 (`c5ca5cf`) |
+| D-37 | Phase 6 | Migration on disk — apply pending |
+| D-38 | Phase 6 | Migration on disk — apply pending |
+| D-39 | Phase 6 | Code Complete 2026-04-13 (`55b3fc3`) |
+| D-40 | Phase 6 | Code Complete 2026-04-13 — Human UAT Sc.2 pending |
+| D-41 | Phase 6 | Code Complete 2026-04-13 — Human UAT Sc.2 pending |
+| D-42 | Phase 6 | Code Complete 2026-04-13 — Human UAT Sc.2 pending |
+| D-43 | Phase 6 | Code Complete 2026-04-13 — Human UAT Sc.2 pending |
+
 **Coverage:**
 - v1 requirements: **43** total (AUTH 7 + DATA 5 + WORK 4 + BIZ 3 + POST 6 + APPL 5 + SHIFT 3 + REV 4 + SETL 3 + SEARCH 2 + NOTIF 1 partial)
-- Mapped to phases: 43/43 (100%) ✓
-- Completed: **43/43 ✓ (all v1 requirements — Phase 5 code complete 2026-04-11)**
+- Phase 6 operational decisions: **17** (D-27..D-43)
+- Mapped to phases: 43/43 v1 (100%) ✓ + 17/17 Phase 6 decisions
+- Completed: **43/43 v1 ✓ (Phase 5 code complete 2026-04-11)** + **17/17 Phase 6 decisions code complete 2026-04-13**
 - Unmapped: 0
 
 > Note: Phase 4 discuss-phase (2026-04-10) scope expansion added SEARCH-02 (v2→v1 승격), SEARCH-03 (신설), NOTIF-01 (Web Push partial v1). Previous count was 40 → now 43. Traceability table is authoritative.
 > Phase 5 (2026-04-11) completed REV-01..04, SETL-01..03, DATA-05 — all remaining Phase 5 requirements satisfied. Human-UAT (3 scenarios) deferred by user request.
+> Phase 6 (2026-04-13) completed D-27..D-43 at code level. DB migrations pending (Supabase unreachable). Human-UAT 5 scenarios pending, 3 deferred.
 
 ---
 *Requirements defined: 2026-04-10*
-*Last updated: 2026-04-11 — Phase 5 traceability marked Completed (43/43 v1 requirements done)*
+*Last updated: 2026-04-13 — Phase 6 operational decisions D-27..D-43 added (17 decisions, code complete)*
