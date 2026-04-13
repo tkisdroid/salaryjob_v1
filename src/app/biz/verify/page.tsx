@@ -1,391 +1,164 @@
-"use client"
+/**
+ * /biz/verify — 사업자등록증 업로드 페이지
+ *
+ * D-31: Gate before first job post — redirected here when businessRegImageUrl is null.
+ * D-32: Uploads image to business-reg-docs bucket, then calls CLOVA OCR.
+ * D-33: OCR failure/mismatch is non-blocking — image is always saved.
+ *
+ * This is a Server Component. The upload form POSTs to the uploadBusinessRegImage
+ * Server Action. No mock data — all state comes from the DB via requireBusiness().
+ */
 
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import {
-  Upload,
-  FileCheck,
-  CheckCircle,
-  Loader2,
-  Building2,
-  User,
-  Calendar,
-  Hash,
-  ArrowRight,
-  ArrowLeft,
-  Image as ImageIcon,
-} from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import { requireBusiness } from '@/lib/dal'
+import { prisma } from '@/lib/db'
+import { createSignedBusinessRegUrl } from '@/lib/supabase/storage-biz-reg'
+import { formatRegNumber } from '@/lib/validations/business'
+import { submitBusinessRegImage } from './actions'
+import { Upload, CheckCircle, AlertTriangle, ImageIcon } from 'lucide-react'
 
-/* ── Mock OCR Result ── */
+export default async function BizVerifyPage() {
+  const session = await requireBusiness()
 
-const MOCK_OCR_RESULT = {
-  businessNumber: "123-45-67890",
-  representativeName: "홍길동",
-  businessName: "맛있는 카페",
-  startDate: "2020-03-15",
-  businessType: "음식점업",
-  address: "서울특별시 강남구 테헤란로 123",
-} as const
-
-/* ── Step Indicator ── */
-
-function StepIndicator({ currentStep }: { currentStep: number }) {
-  const steps = [
-    { number: 1, label: "서류 업로드" },
-    { number: 2, label: "정보 확인" },
-    { number: 3, label: "인증 완료" },
-  ] as const
-
-  return (
-    <div className="flex items-center justify-center gap-2 mb-8">
-      {steps.map((step, i) => (
-        <div key={step.number} className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
-            <div
-              className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold transition-colors ${
-                currentStep >= step.number
-                  ? "bg-teal text-white"
-                  : "bg-muted text-muted-foreground"
-              }`}
-            >
-              {currentStep > step.number ? (
-                <CheckCircle className="w-4 h-4" />
-              ) : (
-                step.number
-              )}
-            </div>
-            <span
-              className={`text-sm font-medium hidden sm:inline ${
-                currentStep >= step.number
-                  ? "text-foreground"
-                  : "text-muted-foreground"
-              }`}
-            >
-              {step.label}
-            </span>
-          </div>
-          {i < steps.length - 1 && (
-            <div
-              className={`w-8 sm:w-12 h-0.5 ${
-                currentStep > step.number ? "bg-teal" : "bg-border"
-              }`}
-            />
-          )}
-        </div>
-      ))}
-    </div>
-  )
-}
-
-/* ── Step 1: Upload ── */
-
-function StepUpload({ onNext }: { onNext: () => void }) {
-  const [isDragging, setIsDragging] = useState(false)
-  const [fileName, setFileName] = useState<string | null>(null)
-
-  function handleDragOver(e: React.DragEvent) {
-    e.preventDefault()
-    setIsDragging(true)
-  }
-
-  function handleDragLeave() {
-    setIsDragging(false)
-  }
-
-  function handleDrop(e: React.DragEvent) {
-    e.preventDefault()
-    setIsDragging(false)
-    setFileName("사업자등록증.pdf")
-  }
-
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (file) {
-      setFileName(file.name)
-    }
-  }
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Upload className="w-5 h-5 text-teal" />
-          사업자등록증 업로드
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          className={`relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-12 transition-colors ${
-            isDragging
-              ? "border-teal bg-teal/5"
-              : fileName
-                ? "border-teal/40 bg-teal/5"
-                : "border-border hover:border-teal/40 hover:bg-muted/30"
-          }`}
-        >
-          {fileName ? (
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-teal/10">
-                <FileCheck className="w-7 h-7 text-teal" />
-              </div>
-              <p className="text-sm font-medium text-foreground">{fileName}</p>
-              <p className="text-xs text-muted-foreground">
-                파일이 선택되었습니다
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex items-center justify-center w-14 h-14 rounded-2xl bg-muted">
-                <ImageIcon className="w-7 h-7 text-muted-foreground" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-medium text-foreground">
-                  파일을 드래그하거나 클릭하여 업로드
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  PDF, JPG, PNG (최대 10MB)
-                </p>
-              </div>
-            </div>
-          )}
-          <input
-            type="file"
-            accept=".pdf,.jpg,.jpeg,.png"
-            onChange={handleFileChange}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-          />
-        </div>
-
-        <div className="mt-6 flex justify-end">
-          <Button
-            onClick={onNext}
-            disabled={!fileName}
-            className="bg-teal text-white hover:bg-teal/90"
-          >
-            다음
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-/* ── Step 2: OCR Review ── */
-
-function StepOcrReview({
-  onNext,
-  onBack,
-}: {
-  onNext: () => void
-  onBack: () => void
-}) {
-  const [formData, setFormData] = useState({
-    businessNumber: MOCK_OCR_RESULT.businessNumber,
-    representativeName: MOCK_OCR_RESULT.representativeName,
-    businessName: MOCK_OCR_RESULT.businessName,
-    startDate: MOCK_OCR_RESULT.startDate,
-    businessType: MOCK_OCR_RESULT.businessType,
-    address: MOCK_OCR_RESULT.address,
+  // Load the first BusinessProfile for this user (1:many — use first or query param in v2)
+  const business = await prisma.businessProfile.findFirst({
+    where: { userId: session.id },
+    select: {
+      id: true,
+      businessRegNumber: true,
+      businessRegImageUrl: true,
+      regNumberOcrMismatched: true,
+      verified: true,
+    },
+    orderBy: { createdAt: 'asc' },
   })
 
-  function handleChange(field: string, value: string) {
-    setFormData((prev) => ({ ...prev, [field]: value }))
+  if (!business) {
+    return (
+      <main className="mx-auto max-w-2xl px-6 py-8">
+        <p className="text-sm text-muted-foreground">
+          등록된 사업장 프로필이 없습니다. 먼저 사업장 프로필을 만들어주세요.
+        </p>
+      </main>
+    )
   }
 
-  const fields = [
-    {
-      key: "businessNumber",
-      label: "사업자등록번호",
-      icon: Hash,
-    },
-    {
-      key: "representativeName",
-      label: "대표자명",
-      icon: User,
-    },
-    {
-      key: "businessName",
-      label: "상호명",
-      icon: Building2,
-    },
-    {
-      key: "startDate",
-      label: "개업일자",
-      icon: Calendar,
-    },
-    {
-      key: "businessType",
-      label: "업종",
-      icon: Building2,
-    },
-    {
-      key: "address",
-      label: "사업장 소재지",
-      icon: Building2,
-    },
-  ] as const
+  // Generate a signed URL for preview if an image is already uploaded
+  const signedUrl = business.businessRegImageUrl
+    ? await createSignedBusinessRegUrl(business.businessRegImageUrl)
+    : null
+
+  const hasImage = Boolean(business.businessRegImageUrl)
+  const hasMismatch =
+    business.regNumberOcrMismatched && Boolean(business.businessRegNumber)
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <FileCheck className="w-5 h-5 text-teal" />
-          OCR 인식 결과 확인
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          자동 인식된 정보를 확인하고 수정해주세요.
-        </p>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {fields.map((field) => {
-            const Icon = field.icon
-            return (
-              <div key={field.key} className="space-y-1.5">
-                <Label
-                  htmlFor={field.key}
-                  className="flex items-center gap-1.5"
-                >
-                  <Icon className="w-3.5 h-3.5 text-muted-foreground" />
-                  {field.label}
-                </Label>
-                <Input
-                  id={field.key}
-                  value={formData[field.key as keyof typeof formData]}
-                  onChange={(e) => handleChange(field.key, e.target.value)}
-                />
-              </div>
-            )
-          })}
-        </div>
-
-        <div className="mt-6 flex justify-between">
-          <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="w-4 h-4" />
-            이전
-          </Button>
-          <Button
-            onClick={onNext}
-            className="bg-teal text-white hover:bg-teal/90"
-          >
-            인증 요청
-            <ArrowRight className="w-4 h-4" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
-
-/* ── Step 3: Verification Status ── */
-
-function StepVerificationStatus({ onBack }: { onBack: () => void }) {
-  const [verified, setVerified] = useState(false)
-
-  useEffect(() => {
-    const timer = setTimeout(() => setVerified(true), 3000)
-    return () => clearTimeout(timer)
-  }, [])
-
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          {verified ? (
-            <CheckCircle className="w-5 h-5 text-teal" />
-          ) : (
-            <Loader2 className="w-5 h-5 text-teal animate-spin" />
-          )}
-          사업자 인증
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-col items-center py-12">
-          {verified ? (
-            <>
-              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-teal/10 mb-6">
-                <CheckCircle className="w-10 h-10 text-teal" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">
-                인증이 완료되었습니다
-              </h3>
-              <p className="text-sm text-muted-foreground text-center max-w-sm">
-                사업자 인증이 성공적으로 완료되었습니다. 이제 공고를 등록하고
-                인재를 채용할 수 있어요.
-              </p>
-              <Button
-                className="mt-8 bg-teal text-white hover:bg-teal/90"
-                asChild
-              >
-                <Link href="/biz/posts/new">
-                  첫 공고 등록하기
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
-              </Button>
-            </>
-          ) : (
-            <>
-              <div className="flex items-center justify-center w-20 h-20 rounded-full bg-teal/10 mb-6">
-                <Loader2 className="w-10 h-10 text-teal animate-spin" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground mb-2">
-                국세청 확인 중...
-              </h3>
-              <p className="text-sm text-muted-foreground text-center max-w-sm">
-                사업자등록 정보를 국세청에 조회하고 있습니다. 잠시만
-                기다려주세요.
-              </p>
-            </>
-          )}
-        </div>
-
-        {!verified && (
-          <div className="flex justify-start">
-            <Button variant="outline" onClick={onBack}>
-              <ArrowLeft className="w-4 h-4" />
-              이전
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
-  )
-}
-
-/* ── Page ── */
-
-export default function BizVerifyPage() {
-  const [step, setStep] = useState(1)
-
-  return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
+    <main className="mx-auto max-w-2xl px-6 py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">사업자 인증</h1>
+        <h1 className="text-2xl font-bold text-foreground">사업자등록증 업로드</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          사업자등록증을 업로드하여 인증을 완료하세요.
+          공고 등록을 위해 사업자등록증 이미지를 업로드해주세요.
+          업로드된 이미지는 OCR로 자동 검증됩니다.
         </p>
       </div>
 
-      <StepIndicator currentStep={step} />
-
-      <div className="max-w-2xl mx-auto">
-        {step === 1 && <StepUpload onNext={() => setStep(2)} />}
-        {step === 2 && (
-          <StepOcrReview
-            onNext={() => setStep(3)}
-            onBack={() => setStep(1)}
-          />
+      {/* Current state indicator */}
+      <div className="mb-6 flex items-center gap-3 rounded-xl border border-border bg-card p-4">
+        {hasImage ? (
+          <>
+            <CheckCircle className="h-5 w-5 shrink-0 text-teal-600" />
+            <div>
+              <p className="text-sm font-medium text-foreground">업로드됨</p>
+              <p className="text-xs text-muted-foreground">
+                사업자등록증이 이미 업로드되어 있습니다. 재업로드하려면 아래 양식을 사용하세요.
+              </p>
+            </div>
+          </>
+        ) : (
+          <>
+            <ImageIcon className="h-5 w-5 shrink-0 text-muted-foreground" />
+            <div>
+              <p className="text-sm font-medium text-foreground">미업로드</p>
+              <p className="text-xs text-muted-foreground">
+                아직 사업자등록증이 업로드되지 않았습니다.
+              </p>
+            </div>
+          </>
         )}
-        {step === 3 && <StepVerificationStatus onBack={() => setStep(2)} />}
       </div>
-    </div>
+
+      {/* OCR mismatch notice — non-blocking, informational (D-33) */}
+      {hasMismatch && (
+        <div className="mb-6 flex items-start gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+          <div>
+            <p className="text-sm font-medium text-amber-800">OCR 번호 불일치</p>
+            <p className="text-xs text-amber-700 mt-0.5">
+              이미지에서 추출한 사업자번호가 입력값(
+              {formatRegNumber(business.businessRegNumber!)})과 일치하지 않습니다.
+              관리자 재검토 대상으로 등록되었습니다.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Image preview (if uploaded) */}
+      {signedUrl && (
+        <div className="mb-6">
+          <p className="mb-2 text-sm font-medium text-foreground">현재 업로드된 이미지</p>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={signedUrl}
+            alt="사업자등록증"
+            className="max-h-64 w-full rounded-xl border border-border object-contain bg-muted"
+          />
+        </div>
+      )}
+
+      {/* Upload form */}
+      <form action={submitBusinessRegImage} className="space-y-4">
+        {/* T-06-16: businessId passed as hidden field; action verifies ownership server-side */}
+        <input type="hidden" name="businessId" value={business.id} />
+
+        <div>
+          <label
+            htmlFor="biz-reg-file"
+            className="mb-1 block text-sm font-medium text-foreground"
+          >
+            {hasImage ? '재업로드' : '파일 선택'}
+          </label>
+          <input
+            id="biz-reg-file"
+            name="file"
+            type="file"
+            accept="image/jpeg,image/png,application/pdf"
+            required
+            className="block w-full rounded-lg border border-border bg-background p-3 text-sm
+                       file:mr-3 file:rounded-md file:border-0 file:bg-brand file:px-3 file:py-1.5
+                       file:text-xs file:font-medium file:text-white hover:file:bg-brand/90
+                       focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            style={{ minHeight: '44px' }}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            JPG, PNG, PDF — 최대 10MB
+          </p>
+        </div>
+
+        <button
+          type="submit"
+          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-xl
+                     bg-brand text-sm font-bold text-white transition-colors
+                     hover:bg-brand/90 disabled:opacity-50"
+          style={{ minHeight: '44px' }}
+        >
+          <Upload className="h-4 w-4" />
+          {hasImage ? '재업로드' : '업로드'}
+        </button>
+      </form>
+
+      <p className="mt-4 text-xs text-muted-foreground">
+        업로드된 이미지는 관리자만 열람할 수 있으며, OCR 검증에만 사용됩니다.
+        OCR 실패 시에도 이미지는 저장됩니다.
+      </p>
+    </main>
   )
 }
