@@ -23,4 +23,13 @@ export type FieldActionResult<T = void> =
 // Specific states for Phase 3 Server Actions
 export type ProfileFormState = FieldActionResult<{ id: string }>;
 export type AvatarFormState = ActionResult<{ avatarUrl: string }>;
-export type JobFormState = FieldActionResult<{ id: string }>;
+
+/**
+ * JobFormState extends FieldActionResult with an optional redirectTo sentinel.
+ * Used by createJob to signal the D-31 image gate: when businessRegImageUrl is
+ * null, the action returns { error: 'verify_required', redirectTo: '/biz/verify' }
+ * so the call-site UI can router.push(redirectTo) instead of just showing a toast.
+ */
+export type JobFormState =
+  | FieldActionResult<{ id: string }>
+  | { error: string; redirectTo: string };

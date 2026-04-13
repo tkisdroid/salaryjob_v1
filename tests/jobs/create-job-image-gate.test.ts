@@ -53,9 +53,7 @@ function buildJobFormData(businessId: string): FormData {
   return formData;
 }
 
-describe.skip(
-  // TODO(wave-7): flip describe.skip → describe.skipIf(!process.env.DATABASE_URL)
-  // once Plan 06-07 Task 1 adds the businessRegImageUrl gate to createJob.
+describe.skipIf(!process.env.DATABASE_URL)(
   "D-31: createJob image gate — businessRegImageUrl null blocks job creation",
   () => {
     beforeAll(async () => {

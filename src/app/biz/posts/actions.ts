@@ -205,6 +205,7 @@ export async function createJob(
       lng: true,
       address: true,
       addressDetail: true,
+      businessRegImageUrl: true,
     },
   });
   if (!business) {
@@ -212,6 +213,16 @@ export async function createJob(
       `POST-01 owner check failed: user ${session.id} tried to create job on businessId ${d.businessId}`,
     );
     return { error: "이 사업장에 공고를 올릴 권한이 없습니다" };
+  }
+
+  // D-31 image gate: businessRegImageUrl must be set before creating any job.
+  // Gate checks the IMAGE column — NOT the `verified` flag (D-39 / Pitfall 3).
+  // Returns a sentinel so the call-site UI can router.push(redirectTo).
+  if (!business.businessRegImageUrl) {
+    return {
+      error: "verify_required",
+      redirectTo: "/biz/verify" as const,
+    };
   }
 
   // Default lat/lng/address from BusinessProfile (Finding #6 — no geocoding)

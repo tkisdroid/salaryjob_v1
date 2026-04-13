@@ -128,9 +128,17 @@ async function resolveTestBusinessSession(applicationId?: string): Promise<{
       }
     }
   }
-  // Prefer @test.local business over seed business (Phase 4-10).
+  // Prefer @test.local business/admin over seed business (Phase 4-10).
+  // ADMIN users are included because production requireBusiness() allows ADMIN role
+  // (production guard: role !== 'BUSINESS' && role !== 'BOTH' && role !== 'ADMIN').
+  // Phase 6 image-gate tests create ADMIN users who own BusinessProfiles — those
+  // tests need requireBusiness() to resolve back to the same ADMIN user so the
+  // findFirst({id, userId}) owner check passes with the correct identity.
   const bizTest = await prisma.user.findFirst({
-    where: { role: 'BUSINESS', email: { endsWith: '@test.local' } },
+    where: {
+      role: { in: ['BUSINESS', 'BOTH', 'ADMIN'] },
+      email: { endsWith: '@test.local' },
+    },
     orderBy: { createdAt: 'asc' },
     select: { id: true, email: true, role: true },
   })
@@ -142,13 +150,13 @@ async function resolveTestBusinessSession(applicationId?: string): Promise<{
     }
   }
   const biz = await prisma.user.findFirst({
-    where: { role: 'BUSINESS' },
+    where: { role: { in: ['BUSINESS', 'BOTH'] } },
     orderBy: { createdAt: 'asc' },
     select: { id: true, email: true, role: true },
   })
   if (!biz) {
     throw new Error(
-      '[dal:test] resolveTestBusinessSession: no BUSINESS users in DB — did the test fixture call createTestBusiness()?',
+      '[dal:test] resolveTestBusinessSession: no BUSINESS/ADMIN users in DB — did the test fixture call createTestBusiness() or createTestAdmin()?',
     )
   }
   return {
