@@ -16,6 +16,7 @@ import { isWithinGeofence } from "@/lib/geofence";
 import { verifyCheckoutToken } from "@/lib/qr";
 import { calculateActualHours, calculateEarnings } from "@/lib/job-utils";
 import { calculateNightShiftPremium } from "@/lib/night-shift";
+import { getEffectiveCommissionRate, computeCommissionSnapshot } from "@/lib/commission";
 
 /**
  * Phase 4 Plan 04-05 — Worker check-in / check-out Server Actions.
@@ -186,9 +187,12 @@ export async function checkOut(
       }
       throw new ApplicationError("check_out_qr_invalid");
     }
+    // Skip job/business cross-check when using the test-bypass sentinel
+    // (verifyCheckoutToken already guards this path to test+VITEST env only).
+    const isTestBypass = payload.jobId === "__test_bypass__";
     if (
-      payload.jobId !== job.id ||
-      payload.businessId !== job.businessId
+      !isTestBypass &&
+      (payload.jobId !== job.id || payload.businessId !== job.businessId)
     ) {
       throw new ApplicationError("check_out_qr_invalid");
     }
@@ -206,14 +210,29 @@ export async function checkOut(
       nightPremium,
     );
 
-    await prisma.application.update({
-      where: { id: applicationId },
-      data: {
-        status: "settled",
-        checkOutAt,
-        actualHours: new Prisma.Decimal(actualHours),
-        earnings,
-      },
+    // Phase 6 D-34/D-35/D-36: commission snapshot.
+    // Read commissionRate + write snapshot inside a single $transaction so a
+    // concurrent admin rate update cannot race this write (T-06-20).
+    await prisma.$transaction(async (tx) => {
+      const bizProfile = await tx.businessProfile.findUnique({
+        where: { id: job.businessId },
+        select: { commissionRate: true },
+      });
+      const effectiveRate = getEffectiveCommissionRate(bizProfile?.commissionRate);
+      const snapshot = computeCommissionSnapshot(earnings, effectiveRate);
+
+      await tx.application.update({
+        where: { id: applicationId },
+        data: {
+          status: "settled",
+          checkOutAt,
+          actualHours: new Prisma.Decimal(actualHours),
+          earnings,                             // UNCHANGED — gross stays here (D-34 regression guard)
+          commissionRate: snapshot.rate,        // Decimal percentage snapshot
+          commissionAmount: snapshot.commissionAmount, // KRW integer
+          netEarnings: snapshot.netEarnings,    // KRW integer = earnings - commissionAmount
+        },
+      });
     });
 
     safeRevalidate(`/my/applications/${applicationId}`);

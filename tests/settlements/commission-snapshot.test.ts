@@ -41,9 +41,7 @@ import { createTestWorker, createTestJob } from "../fixtures/phase4";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
-describe.skip(
-  // TODO(wave-7): flip describe.skip → describe.skipIf(!process.env.DATABASE_URL)
-  // once Plan 06-07 Task 2 implements commission snapshot in checkOut action.
+describe.skipIf(!process.env.DATABASE_URL)(
   "D-34/D-35/D-36: Commission snapshot written by checkOut",
   () => {
     beforeAll(async () => {
@@ -117,7 +115,6 @@ describe.skip(
       });
 
       // Import checkOut lazily to avoid wave-7 module-not-found at collect time
-      // @ts-expect-error wave-7-not-yet-implemented
       const { checkOut } = await import(
         "@/app/(worker)/my/applications/[id]/check-in/actions"
       );
@@ -180,7 +177,6 @@ describe.skip(
         actualHoursDecimal: 4,
       });
 
-      // @ts-expect-error wave-7-not-yet-implemented
       const { checkOut } = await import(
         "@/app/(worker)/my/applications/[id]/check-in/actions"
       );
@@ -222,7 +218,6 @@ describe.skip(
         actualHoursDecimal: 4,
       });
 
-      // @ts-expect-error wave-7-not-yet-implemented
       const { checkOut } = await import(
         "@/app/(worker)/my/applications/[id]/check-in/actions"
       );
@@ -264,7 +259,6 @@ describe.skip(
         actualHoursDecimal: 1, // 1 hour → earnings = 10001
       });
 
-      // @ts-expect-error wave-7-not-yet-implemented
       const { checkOut } = await import(
         "@/app/(worker)/my/applications/[id]/check-in/actions"
       );
@@ -302,7 +296,6 @@ describe.skip(
         actualHoursDecimal: 1, // 1 hour → earnings = 10000
       });
 
-      // @ts-expect-error wave-7-not-yet-implemented
       const { checkOut } = await import(
         "@/app/(worker)/my/applications/[id]/check-in/actions"
       );
@@ -341,7 +334,6 @@ describe.skip(
         actualHoursDecimal: 4,
       });
 
-      // @ts-expect-error wave-7-not-yet-implemented
       const { checkOut } = await import(
         "@/app/(worker)/my/applications/[id]/check-in/actions"
       );

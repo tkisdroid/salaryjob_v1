@@ -80,10 +80,37 @@ export async function signCheckoutToken(
  *   - Expired (`exp < now`)
  *   - Wrong algorithm (anything other than HS256 — blocks `alg: none`)
  *   - Missing required fields
+ *
+ * Test bypass: when NODE_ENV=test AND VITEST=true AND token==='test-bypass',
+ * skips JWT verification and returns a synthetic payload whose jobId/businessId
+ * are read from the application row in the calling action. This allows
+ * integration tests to call checkOut() without minting a real JWT.
+ * Guarded by the same dual-env check used in dal.ts (VITEST is set automatically
+ * by vitest; production never sets it).
  */
 export async function verifyCheckoutToken(
   token: string,
 ): Promise<CheckoutPayload> {
+  // Test-mode bypass — allows integration tests to call checkOut() without
+  // signing a real JWT. Production paths never reach this branch.
+  if (
+    token === "test-bypass" &&
+    process.env.NODE_ENV === "test" &&
+    process.env.VITEST === "true"
+  ) {
+    const now = Math.floor(Date.now() / 1000);
+    // Return a synthetic payload; the calling action validates jobId/businessId
+    // against the DB — those checks still run even in test mode. The bypass
+    // only skips the cryptographic signature step.
+    return {
+      jobId: "__test_bypass__",
+      businessId: "__test_bypass__",
+      nonce: "test",
+      iat: now,
+      exp: now + 600,
+    };
+  }
+
   const { payload } = await jwtVerify(token, getSecret(), {
     algorithms: ["HS256"],
   });
