@@ -111,29 +111,39 @@ model WorkerProfile {
 }
 
 model BusinessProfile {
-  id             String                                 @id @default(uuid()) @db.Uuid
-  userId         String                                 @db.Uuid
-  user           User                                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  name           String
-  category       JobCategory
-  logo           String? // emoji or URL
-  address        String
-  addressDetail  String?
-  lat            Decimal                                @db.Decimal(10, 7)
-  lng            Decimal                                @db.Decimal(10, 7)
+  id                    String                                 @id @default(uuid()) @db.Uuid
+  userId                String                                 @db.Uuid
+  user                  User                                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name                  String
+  category              JobCategory
+  logo                  String? // emoji or URL
+  address               String
+  addressDetail         String?
+  lat                   Decimal                                @db.Decimal(10, 7)
+  lng                   Decimal                                @db.Decimal(10, 7)
   // Geography column added via Supabase raw SQL migration (Prisma cannot natively declare)
-  location       Unsupported("geography(Point, 4326)")?
-  rating         Decimal                                @default(0) @db.Decimal(3, 2)
-  reviewCount    Int                                    @default(0)
-  completionRate Int                                    @default(0)
-  verified       Boolean                                @default(false)
-  description    String?
-  createdAt      DateTime                               @default(now())
-  updatedAt      DateTime                               @updatedAt
+  location              Unsupported("geography(Point, 4326)")?
+  rating                Decimal                                @default(0) @db.Decimal(3, 2)
+  reviewCount           Int                                    @default(0)
+  completionRate        Int                                    @default(0)
+  verified              Boolean                                @default(false)
+  description           String?
+  // Phase 6 D-37: Business verification + commission fields
+  businessRegNumber     String?                                @db.VarChar(10) // digits-only 10-char Korean biz reg number
+  ownerName             String? // 대표자명 (may differ from signup user)
+  ownerPhone            String?                                @db.VarChar(20) // 대표자 연락처
+  businessRegImageUrl   String? // path within business-reg-docs bucket (NOT full URL — use signed URL at read time)
+  commissionRate        Decimal?                               @db.Decimal(5, 2) // override rate as percentage (5.00 = 5%). NULL → env default
+  // Phase 6 D-33: admin-review flag set by OCR mismatch in /biz/verify flow
+  regNumberOcrMismatched Boolean                               @default(false)
+  createdAt             DateTime                               @default(now())
+  updatedAt             DateTime                               @updatedAt
 
   jobs Job[]
 
   @@index([userId])
+  @@index([businessRegNumber])
+  @@index([ownerPhone])
   @@map("business_profiles")
 }
 
@@ -179,19 +189,23 @@ model Job {
 }
 
 model Application {
-  id             String            @id @default(uuid()) @db.Uuid
-  jobId          String            @db.Uuid
-  job            Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
-  workerId       String            @db.Uuid
-  worker         User              @relation("WorkerApps", fields: [workerId], references: [id], onDelete: Cascade)
-  status         ApplicationStatus @default(pending)
-  appliedAt      DateTime          @default(now())
-  checkInAt      DateTime?
-  checkOutAt     DateTime?
-  actualHours    Decimal?          @db.Decimal(5, 2)
-  earnings       Int?
-  reviewGiven    Boolean           @default(false)
-  reviewReceived Boolean           @default(false)
+  id               String            @id @default(uuid()) @db.Uuid
+  jobId            String            @db.Uuid
+  job              Job               @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  workerId         String            @db.Uuid
+  worker           User              @relation("WorkerApps", fields: [workerId], references: [id], onDelete: Cascade)
+  status           ApplicationStatus @default(pending)
+  appliedAt        DateTime          @default(now())
+  checkInAt        DateTime?
+  checkOutAt       DateTime?
+  actualHours      Decimal?          @db.Decimal(5, 2)
+  earnings         Int? // gross earnings (unchanged from Phase 5)
+  reviewGiven      Boolean           @default(false)
+  reviewReceived   Boolean           @default(false)
+  // Phase 6 D-34/D-36: commission snapshot at checkOut time (Option A — nullable, immutable after settled)
+  commissionRate   Decimal?          @db.Decimal(5, 2) // snapshot of effective rate (percentage form)
+  commissionAmount Int? // KRW commission rounded half-up
+  netEarnings      Int? // gross (earnings) - commissionAmount
 
   reviews Review[]
 
