@@ -122,6 +122,12 @@ Plan: 07 of 07
 - `prisma/schema.prisma` — Phase 2/3/4/5 최종 스키마 (ApplicationStatus.settled, WorkerProfile.reviewCount, PushSubscription 포함)
 - `prisma/seed-data.ts` — Phase 6 seed fixtures (mock-data.ts 대체)
 
+## Quick Tasks Completed
+
+| ID | Date | Description | Commits |
+|----|------|-------------|---------|
+| 260413-fre | 2026-04-13 | Worker apply CTA 가림 + biz 공고상세 버튼 순서 + "+새 공고 등록" 줄바꿈 수정 | `6c74315`, `9e96487`, `0a6cfdf` |
+
 ---
 *State initialized: 2026-04-10*
 *Phase 4 completed: 2026-04-11 (Plan 04-10 verification pass)*
