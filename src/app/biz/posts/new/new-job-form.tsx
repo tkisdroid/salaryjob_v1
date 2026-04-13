@@ -380,7 +380,7 @@ function Step1Basic({
         </p>
       </div>
 
-      <Field label="공고 제목" required hint="10자 이내로 핵심만">
+      <Field label="공고 제목" required hint="4자 이상, 10자 이내로 핵심만">
         <input
           type="text"
           data-testid="job-title-input"
@@ -390,9 +390,14 @@ function Step1Basic({
           maxLength={40}
           className="w-full h-11 px-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
         />
+        {form.title.trim().length > 0 && form.title.trim().length < 4 && (
+          <p className="text-[10px] font-bold text-destructive">
+            제목은 최소 4자 이상 입력해주세요
+          </p>
+        )}
       </Field>
 
-      <Field label="카테고리" required>
+      <Field label="카테고리" required hint="업무 유형을 하나 선택해 주세요">
         <div className="grid grid-cols-4 gap-2">
           {CATEGORIES.map((c) => (
             <button
@@ -413,7 +418,7 @@ function Step1Basic({
         </div>
       </Field>
 
-      <Field label="업무 소개" required hint="업무 내용, 분위기 등 자유롭게">
+      <Field label="업무 소개" required hint="10자 이상, 업무 내용·분위기 등 자유롭게">
         <textarea
           data-testid="job-description-input"
           value={form.description}
@@ -423,6 +428,11 @@ function Step1Basic({
           maxLength={500}
           className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
         />
+        {form.description.trim().length > 0 && form.description.trim().length < 10 && (
+          <p className="text-[10px] font-bold text-destructive">
+            업무 소개는 최소 10자 이상 입력해주세요
+          </p>
+        )}
       </Field>
 
       <div className="rounded-xl bg-brand/5 border border-brand/20 p-3 flex items-start gap-2">
@@ -451,7 +461,7 @@ function Step2Schedule({
         <p className="text-xs text-muted-foreground">당일 근무도 가능해요</p>
       </div>
 
-      <Field label="근무일" required>
+      <Field label="근무일" required hint="근무할 날짜를 선택해 주세요">
         <input
           type="date"
           min={today}
@@ -462,21 +472,31 @@ function Step2Schedule({
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
-        <Field label="시작 시간" required>
+        <Field label="시작 시간" required hint="근무 시작 시각">
           <input
             type="time"
             value={form.startTime}
             onChange={(e) => setForm({ ...form, startTime: e.target.value })}
             className="w-full h-11 px-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
+          {form.endTime !== "" && form.startTime === "" && (
+            <p className="text-[10px] font-bold text-destructive">
+              시작 시간을 입력해 주세요
+            </p>
+          )}
         </Field>
-        <Field label="종료 시간" required>
+        <Field label="종료 시간" required hint="근무 종료 시각">
           <input
             type="time"
             value={form.endTime}
             onChange={(e) => setForm({ ...form, endTime: e.target.value })}
             className="w-full h-11 px-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
+          {form.startTime !== "" && form.endTime === "" && (
+            <p className="text-[10px] font-bold text-destructive">
+              종료 시간을 입력해 주세요
+            </p>
+          )}
         </Field>
       </div>
 
