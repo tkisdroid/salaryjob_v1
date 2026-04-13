@@ -168,14 +168,14 @@ Plans:
 **Goal:** 관리자(ADMIN)가 사업장 검색·수수료 관리·사업자등록증 열람을 할 수 있고, 사업자는 등록번호 자동 인증 + 첫 공고 등록 시 등록증 이미지 업로드 게이트를 통과한다
 **Requirements**: D-27, D-28, D-29, D-30, D-31, D-32, D-33, D-34, D-35, D-36, D-37, D-38, D-39, D-40, D-41, D-42, D-43 (17 operational decisions from 06-CONTEXT.md)
 **Depends on:** Phase 5
-**Plans:** 8 plans
+**Plans:** 4/8 plans executed
 
 Plans:
 - [ ] 06-01-red-tests-PLAN.md — Wave 1: Wave 0 RED tests (6 files) + createTestAdmin fixture
-- [ ] 06-02-schema-storage-migration-PLAN.md — Wave 2: [BLOCKING] BusinessProfile + Application schema extensions + business-reg-docs bucket + indexes + prisma generate
-- [ ] 06-03-auth-dal-routing-PLAN.md — Wave 3: requireAdmin() + canRoleAccessPath/getDefaultPathForRole ADMIN branches + middleware /admin gate
-- [ ] 06-04-libs-ocr-storage-commission-PLAN.md — Wave 3: CLOVA OCR wrapper + private storage helper + commission math + normalizeDigits
-- [ ] 06-05-admin-console-PLAN.md — Wave 4: /admin shell + list with search/filter/sort/cursor + detail with signed image + commission edit Server Action
+- [x] 06-02-schema-storage-migration-PLAN.md — Wave 2: [BLOCKING] BusinessProfile + Application schema extensions + business-reg-docs bucket + indexes + prisma generate
+- [x] 06-03-auth-dal-routing-PLAN.md — Wave 3: requireAdmin() + canRoleAccessPath/getDefaultPathForRole ADMIN branches + middleware /admin gate
+- [x] 06-04-libs-ocr-storage-commission-PLAN.md — Wave 3: CLOVA OCR wrapper + private storage helper + commission math + normalizeDigits
+- [x] 06-05-admin-console-PLAN.md — Wave 4: /admin shell + list with search/filter/sort/cursor + detail with signed image + commission edit Server Action
 - [ ] 06-06-biz-verify-ocr-PLAN.md — Wave 4: biz profile regNumber/owner fields (D-30 auto-verify) + /biz/verify rebuild (MOCK removed) + OCR wiring
 - [ ] 06-07-gate-commission-snapshot-PLAN.md — Wave 5: createJob image gate (D-31) + checkOut commission snapshot (D-34/35/36)
 - [ ] 06-08-verify-seed-uat-PLAN.md — Wave 6: full vitest + build + 06-VERIFICATION.md + 06-HUMAN-UAT.md + admin seed migration + STATE/ROADMAP/REQUIREMENTS updates [HUMAN CHECKPOINT]
