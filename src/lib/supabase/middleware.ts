@@ -64,16 +64,25 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
-  // Logged-in users hitting the landing page → redirect to worker/biz home.
+  // Logged-in users hitting the landing page → redirect to worker/biz/admin home.
   if (user && path === '/') {
     const url = request.nextUrl.clone()
     const r = user.app_metadata?.role as AppRole | undefined
-    url.pathname = r === 'BUSINESS' || r === 'BOTH' ? '/biz' : '/home'
+    if (r === 'ADMIN') url.pathname = '/admin'
+    else if (r === 'BUSINESS' || r === 'BOTH') url.pathname = '/biz'
+    else url.pathname = '/home'
     return NextResponse.redirect(url)
   }
 
   const role = user?.app_metadata?.role as AppRole | undefined
   const requirement = getRouteRequirement(path)
+
+  if (requirement === 'admin' && (!role || !canRoleAccessPath(role, path))) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/login'
+    url.searchParams.set('error', 'admin_required')
+    return NextResponse.redirect(url)
+  }
 
   if (requirement === 'worker' && role && !canRoleAccessPath(role, path)) {
     const url = request.nextUrl.clone()
