@@ -77,6 +77,7 @@ Plan: 07 of 07
 ### Roadmap Evolution
 
 - Phase 6 added (2026-04-13): Admin Backoffice — 사업장 프로필 검색/정렬, 사업자별 수수료 관리, 가입시 사업자인증, 사업자등록번호/대표자/연락처 노출
+- Phase 6 Plan 02 completed (2026-04-13): Schema + Storage migration — 9 new columns (6 BusinessProfile + 3 Application) + private bucket + RLS + 2 indexes
 
 ### Open TODOs
 
@@ -112,9 +113,11 @@ Plan: 07 of 07
 
 ### Next Session Starting Point
 
-1. **우선:** `.planning/phases/05-reviews-settlements/05-HUMAN-UAT.md`의 3개 시나리오 수동 검증 (`npm run dev` + 시드 DB)
-2. `.planning/phases/04-db/04-HUMAN-UAT.md`의 5개 시나리오 (Kakao/VAPID/모바일 필요)
-3. HUMAN-UAT 통과 후: v2 planning (AI 매칭, Toss 실결제, 네이티브 FCM, 1:1 채팅)
+1. **Phase 6 Plan 03** (`06-03-auth-dal-routing-PLAN.md`): requireAdmin() DAL helper + routing.ts ADMIN branch + middleware admin gate (Wave 2)
+2. After Plan 03: Plan 04 libs (OCR + storage-biz-reg + commission helpers), Plan 05 admin console UI, Plan 06 biz/verify OCR rebuild, Plan 07 createJob gate + checkOut commission snapshot
+3. Phase 5 HUMAN-UAT still pending (`.planning/phases/05-reviews-settlements/05-HUMAN-UAT.md`)
+
+**DB apply needed:** Run `npx tsx scripts/apply-supabase-migrations.ts` from a machine with Supabase network access to apply the 3 Phase 6 migrations (000001/000002/000003).
 
 ### Files of Interest
 
