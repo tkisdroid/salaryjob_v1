@@ -1,7 +1,8 @@
 export type AppRole = 'WORKER' | 'BUSINESS' | 'BOTH' | 'ADMIN'
 
-type RouteRequirement = 'worker' | 'business' | null
+type RouteRequirement = 'worker' | 'business' | 'admin' | null
 
+const ADMIN_PREFIXES = ['/admin']
 const WORKER_PREFIXES = [
   '/home',
   '/my',
@@ -38,6 +39,7 @@ export function isPublicPath(path: string): boolean {
 }
 
 export function getRouteRequirement(path: string): RouteRequirement {
+  if (ADMIN_PREFIXES.some((p) => startsWithSegment(path, p))) return 'admin'
   if (path === '/posts/new' || WORKER_POST_APPLY_ROUTE.test(path)) return 'worker'
   if (WORKER_PREFIXES.some((prefix) => startsWithSegment(path, prefix))) return 'worker'
   if (BUSINESS_PREFIXES.some((prefix) => startsWithSegment(path, prefix))) return 'business'
@@ -51,13 +53,15 @@ export function canRoleAccessPath(
   const requirement = getRouteRequirement(path)
   if (!requirement) return true
   if (!role) return false
+  if (requirement === 'admin') return role === 'ADMIN'
   if (role === 'ADMIN' || role === 'BOTH') return true
   if (requirement === 'worker') return role === 'WORKER'
   return role === 'BUSINESS'
 }
 
 export function getDefaultPathForRole(role: AppRole | null | undefined): string {
-  if (role === 'BUSINESS' || role === 'ADMIN') return '/biz'
+  if (role === 'ADMIN') return '/admin'
+  if (role === 'BUSINESS') return '/biz'
   if (role === 'WORKER' || role === 'BOTH') return '/home'
   return '/role-select'
 }
