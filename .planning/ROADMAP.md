@@ -163,6 +163,16 @@ Plans:
 - ~~고급 검색·카카오맵 (SEARCH-01..02)~~ **SEARCH-02 (Kakao 지도) + SEARCH-03 (시간 필터) Phase 4로 승격. SEARCH-01 (고급 키워드 검색)은 여전히 v2**
 - 1:1 채팅 (CHAT-01..02) — v2
 
+### Phase 6: Admin Backoffice — 사업장 프로필 검색/정렬, 사업자별 수수료 관리, 가입시 사업자인증, 사업자등록번호/대표자/연락처 노출
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 5
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 6 to break down)
+
 ---
 *Roadmap created: 2026-04-10 by /gsd-new-project (brownfield — Phase 1 retroactive)*
 *Phase 4 plans generated: 2026-04-10 by /gsd-plan-phase 4 (10 plans, scope expanded per CONTEXT.md)*

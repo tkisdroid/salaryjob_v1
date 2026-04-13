@@ -74,6 +74,10 @@ Plan: 07 of 07
 | D-26: serverExternalPackages + npm install for Prisma 7 Turbopack build | @prisma/client empty (broken npm state); serverExternalPackages added as future-proof config for Turbopack + Prisma 7 custom output path | 2026-04-11 (Phase 5 Plan 07) |
 | Phase 05 P07 | 45 | 2 tasks | 6 files |
 
+### Roadmap Evolution
+
+- Phase 6 added (2026-04-13): Admin Backoffice — 사업장 프로필 검색/정렬, 사업자별 수수료 관리, 가입시 사업자인증, 사업자등록번호/대표자/연락처 노출
+
 ### Open TODOs
 
 - [ ] Phase 5 HUMAN-UAT 3 시나리오 수동 검증 (`.planning/phases/05-reviews-settlements/05-HUMAN-UAT.md`)
