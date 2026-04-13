@@ -350,13 +350,12 @@ export function AvailabilityEditor({
             셀을 탭하거나 드래그해서 가용 시간을 선택하세요
           </CardDescription>
         </CardHeader>
-        <CardContent className="overflow-x-auto -mx-4 px-4">
+        <CardContent>
           <div
             ref={gridRef}
             className="grid select-none touch-none"
             style={{
-              gridTemplateColumns: "48px repeat(7, 1fr)",
-              minWidth: "480px",
+              gridTemplateColumns: "28px repeat(7, minmax(0, 1fr))",
             }}
             onMouseDown={handleMouseDown}
           >
@@ -380,8 +379,8 @@ export function AvailabilityEditor({
                 `<>` fragments cannot carry one, so we use Fragment. */}
             {HOURS.map((hour) => (
               <Fragment key={`row-${hour}`}>
-                <div className="h-8 flex items-center justify-end pr-2 text-[10px] text-muted-foreground">
-                  {hour}시
+                <div className="h-8 flex items-center justify-end pr-1 text-[10px] text-muted-foreground">
+                  {hour}
                 </div>
                 {DAY_KEYS.map((dayKey) => {
                   const slotKey: SlotKey = `${dayKey}-${hour}`;
