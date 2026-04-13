@@ -168,6 +168,7 @@ Plan: 08 of 08
 | 260413-fre | 2026-04-13 | Worker apply CTA 가림 + biz 공고상세 버튼 순서 + "+새 공고 등록" 줄바꿈 수정 | `6c74315`, `9e96487`, `0a6cfdf` |
 | 260413-g13 | 2026-04-13 | biz 공고등록 Step 1/2 silent-disabled 다음 버튼 — 인라인 경고 + hint 추가 (Step 3 패턴 복제) | `40c01ee` |
 | 260413-heo | 2026-04-13 | 시간등록 7일 한 화면 — overflow-x + minWidth 제거, 셀 압축 (W3) | `1a7914b` |
+| 260413-upw | 2026-04-13 | Codex adversarial review 4 findings: admin app_metadata sync + verified trust boundary + /biz/verify multi-biz + rate cursor pagination | `6a392a8`, `0dba8ba`, `3a3f08b`, `f7640a9` |
 
 ### Known Env Drift (2026-04-13)
 
