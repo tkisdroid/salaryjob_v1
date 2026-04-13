@@ -182,7 +182,32 @@ Plans:
 - [x] 06-07-gate-commission-snapshot-PLAN.md — Wave 5: createJob image gate (D-31) + checkOut commission snapshot (D-34/35/36)
 - [x] 06-08-verify-seed-uat-PLAN.md — Wave 6: full vitest + build + 06-VERIFICATION.md + 06-HUMAN-UAT.md + admin seed migration + STATE/ROADMAP/REQUIREMENTS updates [HUMAN CHECKPOINT PENDING]
 
+## Backlog
+
+### Phase 999.1: B4 — 하트(관심)→사업장 알림 + 워커 수신함 (BACKLOG)
+
+**Captured:** 2026-04-13
+**Goal:** 사업자가 /biz/workers 인재검색에서 워커에게 하트(관심)를 누르면 (1) 해당 워커에게 푸시/인앱 알림 발송 (2) 워커 /my에 "나에게 관심 보인 사업장" 수신함 페이지. Timee의 '스카우트' 유사 기능.
+**Requirements:** TBD (신규 `BusinessInterest` 테이블 신설 검토 — businessId, workerId, createdAt, seenAt)
+**Scope hint:** Phase 4 Web Push 인프라 재사용. 워커 /my 하위 새 라우트 + 알림 생성 trigger + admin read-only view 고려.
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
+### Phase 999.2: B5 — 사업자 포인트(현금) 충전 + Toss 결제 연동 (BACKLOG)
+
+**Captured:** 2026-04-13
+**Goal:** 사업자가 선충전(포인트/현금)으로 잔액을 확보하고, 임금 지급·수수료가 해당 잔액에서 자동 차감되는 구조. 현재 Phase 6에서 수수료 rate 모델링은 끝남 — 실 결제/출금이 v2 본체.
+**Requirements:** PAY-01..04 (v2)
+**Scope hint:** Toss Payments 위젯 + 가상계좌/카드 결제 웹훅(`/api/webhooks/toss`) + `BusinessBalance` 테이블 + 거래 원장(ledger) + 포인트 소진·환불 플로우. 원천징수·전자세금계산서는 3.71% 영세율 적용 정책 확인 필수.
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd-review-backlog when ready)
+
 ---
+
 *Roadmap created: 2026-04-10 by /gsd-new-project (brownfield — Phase 1 retroactive)*
 *Phase 4 plans generated: 2026-04-10 by /gsd-plan-phase 4 (10 plans, scope expanded per CONTEXT.md)*
 *Phase 5 plans generated: 2026-04-11 by /gsd-plan-phase 5 (7 plans) — code complete 2026-04-11*
