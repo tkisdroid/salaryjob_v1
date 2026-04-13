@@ -1,0 +1,29 @@
+-- Phase 6 admin seed — NO-OP by default.
+-- Purpose: promote a dev account to ADMIN role so human UAT scenarios 1-4 can run.
+--
+-- PREREQUISITES (must be done before uncommenting):
+--   1. The target user must already exist in auth.users (create via Supabase Auth dashboard
+--      or the app's sign-up flow — use any email, e.g. admin@gignow.kr).
+--   2. Run `npx tsx scripts/apply-supabase-migrations.ts` or paste into Supabase SQL editor.
+--
+-- HOW TO USE:
+--   1. Uncomment the BEGIN/UPDATE/COMMIT block below.
+--   2. Replace 'admin@gignow.kr' with the actual dev-account email.
+--   3. Apply via `npx tsx scripts/apply-supabase-migrations.ts` OR paste into Supabase SQL editor.
+--   4. Re-comment (or leave as-is) — the migration is idempotent (UPDATE with WHERE is safe to re-run).
+--
+-- IMPORTANT: The migration script records applied migrations in a tracking table.
+-- If you apply this file once (even as a NO-OP), it will be marked "applied" and skipped on re-runs.
+-- To actually promote the user after the fact, run the UPDATE in the Supabase SQL editor directly.
+--
+-- SECURITY NOTE: Only one ADMIN should exist per environment in UAT/dev.
+-- Production ADMIN accounts must be provisioned by an ops engineer, never by this migration.
+--
+-- BEGIN;
+--   UPDATE public.users
+--   SET    role = 'ADMIN'
+--   WHERE  email = 'admin@gignow.kr';
+-- COMMIT;
+
+-- Intentionally empty so apply-supabase-migrations records this file without mutation.
+SELECT 1;
