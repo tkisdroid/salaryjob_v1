@@ -1,7 +1,7 @@
 'use server'
 
 /**
- * verifyBusinessRegNumber — standalone Server Action for D-30 auto-verify.
+ * verifyBusinessRegNumber — standalone Server Action for D-30 reg-number storage.
  *
  * Accepts a FormData with:
  *   - businessId (UUID of the BusinessProfile)
@@ -9,7 +9,7 @@
  *
  * On valid format:
  *   - Writes digit-only regNumber to businessRegNumber column
- *   - Sets verified=true atomically (D-30)
+ *   - Does NOT set verified=true — verification requires OCR match in /biz/verify (D-33).
  *   - Returns { success: true }
  *
  * On invalid format:
@@ -62,7 +62,8 @@ export async function verifyBusinessRegNumber(
       where: { id: business.id },
       data: {
         businessRegNumber: digitOnly,
-        verified: true, // D-30 auto-approve
+        // verified is NOT set here — format validity alone is insufficient.
+        // verified=true is set only on OCR match in /biz/verify (D-33).
       },
     })
     return { success: true }

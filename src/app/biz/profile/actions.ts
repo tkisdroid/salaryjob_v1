@@ -128,20 +128,19 @@ export async function updateBusinessProfile(
   }
 
   try {
-    // D-30: Determine verified state based on regNumber presence and validity.
-    // If regNumber is provided and format-valid → verified=true (auto-approve).
-    // If regNumber is cleared (empty string) → verified=false (per Pitfall 3).
-    // If regNumber field absent from FormData → leave verified unchanged (undefined = no-op).
+    // verified is NOT auto-set here — it flips true only via OCR match in /biz/verify (D-33).
+    // Clearing the regNumber still revokes verified=false to prevent stale trust.
+    // If regNumber field absent from FormData → leave both unchanged (undefined = no-op).
     let verifiedUpdate: boolean | undefined = undefined
     let normalizedRegNumber: string | null | undefined = undefined
 
     const rawReg = d.businessRegNumber
     if (rawReg && rawReg.trim() !== '') {
-      // RegNumberSchema already validated the format — safe to normalize
+      // RegNumberSchema already validated the format — safe to normalize.
+      // verified is intentionally NOT set here; format-valid alone is insufficient.
       normalizedRegNumber = normalizeRegNumber(rawReg)
-      verifiedUpdate = true // D-30 auto-approve
     } else if (rawReg === '') {
-      // Explicitly cleared — revoke verified status
+      // Explicitly cleared — revoke verified status and clear the stored number.
       normalizedRegNumber = null
       verifiedUpdate = false
     }

@@ -10,7 +10,7 @@
  *   4. Write businessRegImageUrl = path + reset regNumberOcrMismatched=false (D-33: always save URL first)
  *   5. Read file buffer, call runBizLicenseOcr — on failure, return ok:true ocr:'skipped'
  *   6. Compare OCR candidateRegNumbers to stored businessRegNumber:
- *      - Match  → regNumberOcrMismatched stays false, return { ok:true, ocr:'matched' }
+ *      - Match  → set verified=true AND regNumberOcrMismatched stays false, return { ok:true, ocr:'matched' } (D-33 success path)
  *      - Mismatch → set regNumberOcrMismatched=true, return { ok:true, ocr:'mismatched' }
  *        (verified is NOT changed — D-33: mismatch is admin-review flag only, not auto-reject)
  *   7. revalidatePath('/biz/verify')
@@ -93,8 +93,14 @@ export async function uploadBusinessRegImage(
     if (result.ok) {
       const stored = business.businessRegNumber // digits-only or null
       if (stored && result.candidateRegNumbers.includes(stored)) {
-        // OCR match — regNumberOcrMismatched stays false (already reset above)
         ocr = 'matched'
+        // D-33 success: OCR-confirmed → flip verified=true. This is the ONLY
+        // path that auto-sets verified (regex format alone is insufficient — see
+        // /biz/profile/actions.ts and /biz/signup/actions.ts).
+        await prisma.businessProfile.update({
+          where: { id: business.id },
+          data: { verified: true },
+        })
       } else {
         // No candidates OR mismatch — flag for admin review (D-33: non-blocking)
         ocr = 'mismatched'
