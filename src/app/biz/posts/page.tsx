@@ -113,10 +113,10 @@ export default async function BizPostsPage() {
         </div>
         <Link
           href="/biz/posts/new"
-          className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-teal px-4 text-sm font-medium text-white transition-colors hover:bg-teal/90"
+          className="inline-flex h-10 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-teal px-4 text-sm font-medium text-white transition-colors hover:bg-teal/90"
         >
-          <Plus className="h-4 w-4" />
-          새 공고 등록
+          <Plus className="h-4 w-4 shrink-0" />
+          <span>새 공고 등록</span>
         </Link>
       </div>
 
