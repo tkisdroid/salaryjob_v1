@@ -16,21 +16,46 @@ import { formatRegNumber } from '@/lib/validations/business'
 import { submitBusinessRegImage } from './actions'
 import { Upload, CheckCircle, AlertTriangle, ImageIcon } from 'lucide-react'
 
-export default async function BizVerifyPage() {
+export default async function BizVerifyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ businessId?: string }>
+}) {
   const session = await requireBusiness()
+  const params = await searchParams
+  const requestedId = params.businessId?.trim()
 
-  // Load the first BusinessProfile for this user (1:many — use first or query param in v2)
-  const business = await prisma.businessProfile.findFirst({
-    where: { userId: session.id },
-    select: {
-      id: true,
-      businessRegNumber: true,
-      businessRegImageUrl: true,
-      regNumberOcrMismatched: true,
-      verified: true,
-    },
-    orderBy: { createdAt: 'asc' },
-  })
+  // UUID guard — drop garbage silently and fall back to findFirst behavior
+  const isValidUuid = requestedId && /^[0-9a-f-]{36}$/i.test(requestedId)
+
+  let business
+  if (isValidUuid) {
+    // Targeted: load the requested profile, re-verify ownership (requireBusiness
+    // already gated role; userId match prevents cross-tenant profile access).
+    business = await prisma.businessProfile.findFirst({
+      where: { id: requestedId, userId: session.id },
+      select: {
+        id: true,
+        businessRegNumber: true,
+        businessRegImageUrl: true,
+        regNumberOcrMismatched: true,
+        verified: true,
+      },
+    })
+  } else {
+    // Fallback: original behavior — oldest profile for this user
+    business = await prisma.businessProfile.findFirst({
+      where: { userId: session.id },
+      select: {
+        id: true,
+        businessRegNumber: true,
+        businessRegImageUrl: true,
+        regNumberOcrMismatched: true,
+        verified: true,
+      },
+      orderBy: { createdAt: 'asc' },
+    })
+  }
 
   if (!business) {
     return (

@@ -218,10 +218,11 @@ export async function createJob(
   // D-31 image gate: businessRegImageUrl must be set before creating any job.
   // Gate checks the IMAGE column — NOT the `verified` flag (D-39 / Pitfall 3).
   // Returns a sentinel so the call-site UI can router.push(redirectTo).
+  // businessId is included so multi-business owners land on the BLOCKED profile.
   if (!business.businessRegImageUrl) {
     return {
       error: "verify_required",
-      redirectTo: "/biz/verify" as const,
+      redirectTo: `/biz/verify?businessId=${d.businessId}`,
     };
   }
 
