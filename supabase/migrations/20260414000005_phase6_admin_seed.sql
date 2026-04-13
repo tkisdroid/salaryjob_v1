@@ -11,6 +11,7 @@
 --   2. Replace 'admin@gignow.kr' with the actual dev-account email.
 --   3. Apply via `npx tsx scripts/apply-supabase-migrations.ts` OR paste into Supabase SQL editor.
 --   4. Re-comment (or leave as-is) — the migration is idempotent (UPDATE with WHERE is safe to re-run).
+--   5. Tell the promoted user to log out and log back in (JWT refresh required).
 --
 -- IMPORTANT: The migration script records applied migrations in a tracking table.
 -- If you apply this file once (even as a NO-OP), it will be marked "applied" and skipped on re-runs.
@@ -23,7 +24,20 @@
 --   UPDATE public.users
 --   SET    role = 'ADMIN'
 --   WHERE  email = 'admin@gignow.kr';
+--
+--   -- IMPORTANT: middleware reads JWT app_metadata.role (NOT public.users.role).
+--   -- We MUST mirror the role into auth.users.raw_app_meta_data so that on the
+--   -- user's NEXT login (or token refresh), the JWT carries app_metadata.role='ADMIN'.
+--   -- This mirrors the runtime pattern in src/app/(auth)/role-select/actions.ts:30-38.
+--   UPDATE auth.users
+--   SET    raw_app_meta_data = COALESCE(raw_app_meta_data, '{}'::jsonb)
+--                              || jsonb_build_object('role', 'ADMIN')
+--   WHERE  email = 'admin@gignow.kr';
 -- COMMIT;
+--
+-- POST-PROMOTION: the promoted user MUST log out and log back in for the new
+-- JWT claim to take effect. Without re-login, /admin will still redirect to /login
+-- because the existing session token still carries the previous role (or no role).
 
 -- Intentionally empty so apply-supabase-migrations records this file without mutation.
 SELECT 1;
