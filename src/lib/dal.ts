@@ -205,6 +205,27 @@ export const requireBusiness = cache(async (applicationId?: string) => {
   return session
 })
 
+export const requireAdmin = cache(async () => {
+  if (IS_TEST_MODE) {
+    const admin = await prisma.user.findFirst({
+      where: { role: 'ADMIN' },
+      orderBy: { createdAt: 'asc' },
+      select: { id: true, email: true, role: true },
+    })
+    if (!admin) {
+      throw new Error(
+        '[dal:test] requireAdmin: no ADMIN users in DB — call createTestAdmin() first',
+      )
+    }
+    return { id: admin.id, email: admin.email, role: admin.role as 'ADMIN' }
+  }
+  const session = await verifySession()
+  if (session.role !== 'ADMIN') {
+    redirect('/login?error=admin_required')
+  }
+  return session
+})
+
 type SessionUser = Awaited<ReturnType<typeof verifySession>>
 
 /**
