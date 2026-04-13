@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: completed
-last_updated: "2026-04-13T08:36:58.392Z"
+last_updated: "2026-04-13T08:43:56Z"
 progress:
   total_phases: 6
-  completed_phases: 4
-  total_plans: 38
-  completed_plans: 37
-  percent: 97
+  completed_phases: 5
+  total_plans: 46
+  completed_plans: 45
+  percent: 98
 ---
 
 # State: GigNow (NJob)
@@ -72,8 +72,11 @@ Plan: 07 of 07
 | D-24: WorkerProfile.reviewCount column added (Plan 05-02 discovered dependency) | Biz→Worker rating aggregation requires reviewCount on worker side; not in Phase 5 research but added atomically with schema push | 2026-04-11 (Phase 5 Plan 02) |
 | D-25: ApplicationStatus.settled via ALTER TYPE ADD VALUE (not prisma db push) | Supabase internal _supabase_migrations table caused data-loss warning in prisma db push; direct SQL used for enum addition | 2026-04-11 (Phase 5 Plan 02) |
 | D-26: serverExternalPackages + npm install for Prisma 7 Turbopack build | @prisma/client empty (broken npm state); serverExternalPackages added as future-proof config for Turbopack + Prisma 7 custom output path | 2026-04-11 (Phase 5 Plan 07) |
+| D-31: createJob image gate checks businessRegImageUrl IS NOT NULL (not verified flag) | D-39/Pitfall 3 — verified flag is toggled by regNumber format check; image gate is separate | 2026-04-13 (Phase 6 Plan 07) |
+| D-34/35/36: commission snapshot written inside prisma.$transaction at checkOut | T-06-20 TOCTOU prevention — rate read + application write atomically; earnings column stays gross | 2026-04-13 (Phase 6 Plan 07) |
 | Phase 05 P07 | 45 | 2 tasks | 6 files |
 | Phase 06-admin-backoffice P05 | 6 | 3 tasks | 9 files |
+| Phase 06-admin-backoffice P07 | ~30min | 2 tasks | 7 files |
 
 ### Roadmap Evolution
 
@@ -114,9 +117,8 @@ Plan: 07 of 07
 
 ### Next Session Starting Point
 
-1. **Phase 6 Plan 03** (`06-03-auth-dal-routing-PLAN.md`): requireAdmin() DAL helper + routing.ts ADMIN branch + middleware admin gate (Wave 2)
-2. After Plan 03: Plan 04 libs (OCR + storage-biz-reg + commission helpers), Plan 05 admin console UI, Plan 06 biz/verify OCR rebuild, Plan 07 createJob gate + checkOut commission snapshot
-3. Phase 5 HUMAN-UAT still pending (`.planning/phases/05-reviews-settlements/05-HUMAN-UAT.md`)
+1. **Phase 6 Plan 08** (`06-08-verification-PLAN.md`): Full Phase 6 verification — run full test suite, production build, grep checks for all D-27..D-43 decisions
+2. Phase 5 HUMAN-UAT still pending (`.planning/phases/05-reviews-settlements/05-HUMAN-UAT.md`)
 
 **DB apply needed:** Run `npx tsx scripts/apply-supabase-migrations.ts` from a machine with Supabase network access to apply the 3 Phase 6 migrations (000001/000002/000003).
 
