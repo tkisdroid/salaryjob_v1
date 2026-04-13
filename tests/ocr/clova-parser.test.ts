@@ -22,9 +22,8 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 // Lazy import — will throw until Wave 4 ships the module.
 // describe.skip prevents this import from failing test collection.
 
-describe.skip(
-  // TODO(wave-4): flip describe.skip → describe once Plan 06-04 ships
-  // src/lib/ocr/clova.ts with runBizLicenseOcr
+describe(
+  // Plan 06-04 shipped src/lib/ocr/clova.ts with runBizLicenseOcr
   "D-32/D-33: CLOVA OCR parser — runBizLicenseOcr",
   () => {
     // @ts-expect-error wave-4-not-yet-implemented
