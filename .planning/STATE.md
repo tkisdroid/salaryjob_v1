@@ -127,6 +127,11 @@ Plan: 07 of 07
 | ID | Date | Description | Commits |
 |----|------|-------------|---------|
 | 260413-fre | 2026-04-13 | Worker apply CTA 가림 + biz 공고상세 버튼 순서 + "+새 공고 등록" 줄바꿈 수정 | `6c74315`, `9e96487`, `0a6cfdf` |
+| 260413-g13 | 2026-04-13 | biz 공고등록 Step 1/2 silent-disabled 다음 버튼 — 인라인 경고 + hint 추가 (Step 3 패턴 복제) | `40c01ee` |
+
+### Known Env Drift (2026-04-13)
+
+- `src/generated/prisma` (gitignored) stale on local — schema의 Phase 3 Job 컬럼(duties/requirements/tags/...)이 client에 미반영되어 공고 생성 시 `PrismaClientValidationError: Unknown argument 'duties'` 발생. `npx prisma generate` 재실행으로 해결. 신규 환경에서 같은 증상이 나오면 먼저 `npm install` 또는 `prisma generate` 실행 (postinstall hook이 `prisma generate` 수행하므로 보통 자동 해결).
 
 ---
 *State initialized: 2026-04-10*
