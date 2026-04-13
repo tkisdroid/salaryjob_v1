@@ -19,12 +19,14 @@ const NAV_ITEMS: readonly { href: string; icon: typeof Home; label: string; isFa
   { href: "/my", icon: User, label: "MY" },
 ];
 
-// Routes that replace the bottom tab bar with their own focused action bar
-// (check-in flow with "체크인 시작" / "근무 종료 (QR)" buttons, QR scanner,
-// success screen). Keeping MobileTabBar visible there causes the two bottom
-// bars to stack and the brand nav hides the primary action button.
+// Routes that replace the bottom tab bar with their own focused action bar.
+// Both the check-in flow and the apply-confirm flow are "focused conversion"
+// experiences that render their own sticky CTA at the bottom. Keeping
+// MobileTabBar (z-50) visible causes it to stack over the CTA (z-40) and
+// hide the primary action button entirely.
 const HIDE_TAB_BAR_PATTERNS: readonly RegExp[] = [
-  /^\/my\/applications\/[^/]+\/check-in$/,
+  /^\/my\/applications\/[^/]+\/check-in$/, // 체크인/체크아웃 플로우
+  /^\/posts\/[^/]+\/apply$/, // 지원 확정 플로우 — sticky CTA가 tab bar에 가려지지 않도록 숨김
 ];
 
 export function MobileTabBar() {
