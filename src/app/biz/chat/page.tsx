@@ -1,7 +1,5 @@
 import Link from "next/link";
 import { ChevronRight, MessageCircle, Search } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
 const CHAT_ROOMS = [
@@ -65,8 +63,8 @@ const CHAT_ROOMS = [
 function EmptyState() {
   return (
     <div className="flex flex-col items-center justify-center py-20 text-center">
-      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-teal/10">
-        <MessageCircle className="h-8 w-8 text-teal" />
+      <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand/10">
+        <MessageCircle className="h-8 w-8 text-brand" />
       </div>
       <h3 className="mb-2 text-lg font-bold text-foreground">
         아직 대화가 없어요
@@ -85,10 +83,10 @@ export default function BizChatPage() {
   return (
     <div className="mx-auto w-full max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
       <div className="mb-4 sm:mb-6">
-        <h1 className="text-[28px] font-bold leading-none text-foreground sm:text-2xl">
+        <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
           채팅
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-1 text-xs text-muted-foreground">
           지원자 및 근무자와 실시간으로 대화하세요.
         </p>
       </div>
@@ -101,56 +99,52 @@ export default function BizChatPage() {
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="이름 또는 공고로 검색..."
-              className="h-11 rounded-xl pl-10"
+              className="h-11 rounded-2xl border-border bg-card text-sm pl-10"
             />
           </div>
 
-          <Card className="overflow-hidden rounded-2xl">
-            <CardContent className="divide-y divide-border px-0 sm:px-4">
-              {CHAT_ROOMS.map((room) => (
-                <Link
-                  key={room.id}
-                  href={`/biz/chat/${room.id}`}
-                  className="flex min-w-0 items-center gap-3 px-4 py-3 transition-colors hover:bg-muted/30 sm:-mx-4 sm:rounded-lg sm:px-4"
-                >
-                  <div className="relative shrink-0">
-                    <Avatar size="lg" className="size-10">
-                      <AvatarFallback>{room.workerName[0]}</AvatarFallback>
-                    </Avatar>
-                    {room.isOnline && (
-                      <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-card bg-teal" />
-                    )}
+          <div className="divide-y divide-border rounded-2xl border border-border bg-card">
+            {CHAT_ROOMS.map((room) => (
+              <Link
+                key={room.id}
+                href={`/biz/chat/${room.id}`}
+                className="flex min-w-0 items-center gap-3 px-5 py-4 transition-colors hover:bg-accent/50 active:bg-accent"
+              >
+                <div className="relative shrink-0">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-full bg-muted text-sm font-bold">
+                    {room.workerName[0]}
                   </div>
+                  {room.isOnline && (
+                    <div className="absolute -bottom-0.5 -left-0.5 h-3 w-3 rounded-full bg-brand border-2 border-background" />
+                  )}
+                </div>
 
-                  <div className="min-w-0 flex-1">
-                    <div className="mb-0.5 flex min-w-0 items-start justify-between gap-3">
-                      <p className="truncate text-sm font-semibold text-foreground">
-                        {room.workerName}
-                      </p>
-                      <span className="shrink-0 whitespace-nowrap text-[11px] text-muted-foreground">
-                        {room.lastMessageAt}
-                      </span>
-                    </div>
-                    <p className="mb-0.5 truncate text-xs font-medium text-teal">
-                      {room.postTitle}
-                    </p>
-                    <p className="truncate text-sm text-muted-foreground">
-                      {room.lastMessage}
-                    </p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-sm font-bold">{room.workerName}</h3>
+                    <span className="text-[10px] text-muted-foreground shrink-0">
+                      {room.lastMessageAt}
+                    </span>
                   </div>
+                  <p className="text-[11px] font-medium text-brand mt-0.5">
+                    {room.postTitle}
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5 truncate">
+                    {room.lastMessage}
+                  </p>
+                </div>
 
-                  <div className="ml-2 flex shrink-0 items-center gap-1.5">
-                    {room.unread > 0 && (
-                      <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full bg-brand px-1.5 text-xs font-semibold text-white">
-                        {room.unread}
-                      </span>
-                    )}
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                </Link>
-              ))}
-            </CardContent>
-          </Card>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  {room.unread > 0 && (
+                    <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-brand text-[10px] font-bold text-primary-foreground px-1.5">
+                      {room.unread}
+                    </span>
+                  )}
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </Link>
+            ))}
+          </div>
         </>
       )}
     </div>

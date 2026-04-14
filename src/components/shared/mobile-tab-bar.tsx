@@ -52,7 +52,7 @@ export function MobileTabBar() {
                 href={item.href}
                 className="flex flex-col items-center justify-center -mt-5"
               >
-                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-brand text-white shadow-lg shadow-brand/30 active:scale-95 transition-transform">
+                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-brand text-primary-foreground shadow-lg shadow-brand/30 active:scale-95 transition-transform">
                   <item.icon className="w-6 h-6" />
                 </div>
                 <span className="text-[10px] mt-0.5 font-medium text-brand">

@@ -6,19 +6,13 @@ import {
   Clock,
   Wallet,
   Calendar,
+  LayoutList,
   Users,
   Trash2,
   Zap,
   ChevronRight,
-  Building2,
   Tag,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { requireBusiness } from "@/lib/dal";
@@ -37,7 +31,7 @@ function statusBadge(
   if (filled >= headcount) {
     return { className: "bg-muted text-muted-foreground", label: "마감" };
   }
-  return { className: "bg-teal/10 text-teal", label: "모집 중" };
+  return { className: "border-brand/30 bg-brand/5 text-brand", label: "모집 중" };
 }
 
 /* ── Page ── */
@@ -95,27 +89,25 @@ export default async function BizPostDetailPage({
     <div className="max-w-5xl mx-auto px-6 py-8">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/biz/posts">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-        </Button>
+        <Link href="/biz/posts" className="text-foreground hover:text-brand transition-colors">
+          <ArrowLeft className="h-5 w-5" />
+        </Link>
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1 flex-wrap">
             <span
-              className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${badge.className}`}
+              className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${badge.className}`}
             >
               {badge.label}
             </span>
             {job.isUrgent && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[color:var(--urgent)]/10 px-2 py-0.5 text-xs font-bold text-[color:var(--urgent)]">
-                <Zap className="h-3 w-3 fill-[color:var(--urgent)]" />
+              <span className="inline-flex items-center gap-0.5 rounded-full bg-[color:var(--urgent)]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[color:var(--urgent)]">
+                <Zap className="h-3 w-3" />
                 급구
               </span>
             )}
-            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">{job.title}</h1>
+            <h1 className="text-xl font-extrabold tracking-tight text-foreground">{job.title}</h1>
           </div>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-xs text-muted-foreground ml-0">
             {job.business.logo} {job.business.name}
           </p>
         </div>
@@ -123,50 +115,46 @@ export default async function BizPostDetailPage({
 
       {/* Actions */}
       <div className="flex flex-wrap gap-2 mb-6">
-        {/* 1. Primary: 지원자 보기 */}
-        <Button className="bg-teal text-white hover:bg-teal/90" asChild>
-          <Link href={`/biz/posts/${id}/applicants`}>
-            <Users className="w-4 h-4" />
-            지원자 보기 ({job.appliedCount})
-            <ChevronRight className="w-4 h-4" />
-          </Link>
-        </Button>
+        <form action={handleDelete}>
+          <Button
+            variant="outline"
+            type="submit"
+            size="sm"
+            className="h-9 rounded-xl text-xs font-medium border-destructive/30 text-destructive hover:bg-destructive/5"
+          >
+            <Trash2 className="h-3.5 w-3.5 mr-1" />
+            삭제
+          </Button>
+        </form>
 
-        {/* 2. Secondary: 퇴근 QR */}
         <CheckoutQrModal
           jobId={job.id}
           trigger={
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-brand px-4 py-2 text-sm font-bold text-white hover:bg-brand/90"
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-brand px-3 text-xs font-medium text-primary-foreground hover:bg-brand-dark"
             >
-              <QrCode className="w-4 h-4" />
+              <QrCode className="h-3.5 w-3.5" />
               퇴근 QR 열기
             </button>
           }
         />
 
-        {/* 3. Destructive (far right): 삭제 */}
-        <form action={handleDelete} className="ml-auto">
-          <Button
-            variant="outline"
-            type="submit"
-            className="text-destructive border-destructive/30 hover:bg-destructive/5"
-          >
-            <Trash2 className="w-4 h-4" />
-            삭제
-          </Button>
-        </form>
+        <Button size="sm" className="h-9 rounded-xl text-xs font-medium bg-foreground text-background hover:bg-foreground/90 ml-auto" asChild>
+          <Link href={`/biz/posts/${id}/applicants`}>
+            <Users className="h-3.5 w-3.5 mr-1" />
+            지원자 보기 ({job.appliedCount})
+            <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
+          </Link>
+        </Button>
       </div>
 
       {/* Body */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>공고 상세</CardTitle>
-            </CardHeader>
-            <CardContent>
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <h2 className="text-sm font-bold mb-3">공고 상세</h2>
+            <div>
               <p className="text-sm leading-relaxed whitespace-pre-line text-foreground">
                 {job.description}
               </p>
@@ -229,74 +217,34 @@ export default async function BizPostDetailPage({
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
 
         <div className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">공고 정보</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-start gap-3">
-                <Building2 className="w-4 h-4 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-xs text-muted-foreground">카테고리</p>
-                  <p className="text-sm font-medium">{job.category}</p>
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <h2 className="text-sm font-bold mb-4">공고 정보</h2>
+            <div className="space-y-4">
+              {[
+                { icon: LayoutList, label: "카테고리", value: job.category },
+                { icon: MapPin, label: "근무 위치", value: `${job.business.address}${job.business.addressDetail ? ` ${job.business.addressDetail}` : ""}` },
+                { icon: Wallet, label: "급여", value: `시급 ${job.hourlyPay.toLocaleString()}원${job.transportFee > 0 ? ` · 교통비 ${job.transportFee.toLocaleString()}원` : ""}` },
+                { icon: Clock, label: "근무 시간", value: `${job.startTime} ~ ${job.endTime} (${job.workHours}시간)` },
+                { icon: Users, label: "모집 인원", value: `${job.filled}/${job.headcount}명` },
+                { icon: Calendar, label: "근무일", value: job.workDate },
+              ].map((row) => (
+                <div key={row.label} className="flex items-start gap-3">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/5 text-muted-foreground shrink-0">
+                    <row.icon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-muted-foreground">{row.label}</p>
+                    <p className="text-sm font-semibold mt-0.5">{row.value}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-xs text-muted-foreground">근무 위치</p>
-                  <p className="text-sm font-medium">
-                    {job.business.address}
-                    {job.business.addressDetail
-                      ? ` ${job.business.addressDetail}`
-                      : ""}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Wallet className="w-4 h-4 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-xs text-muted-foreground">급여</p>
-                  <p className="text-sm font-medium">
-                    시급 {job.hourlyPay.toLocaleString()}원
-                    {job.transportFee > 0
-                      ? ` · 교통비 ${job.transportFee.toLocaleString()}원`
-                      : ""}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Clock className="w-4 h-4 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-xs text-muted-foreground">근무 시간</p>
-                  <p className="text-sm font-medium">
-                    {job.startTime} ~ {job.endTime} ({job.workHours}시간)
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Users className="w-4 h-4 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-xs text-muted-foreground">모집 인원</p>
-                  <p className="text-sm font-medium">
-                    {job.filled}/{job.headcount}명
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Calendar className="w-4 h-4 text-muted-foreground mt-0.5" />
-                <div>
-                  <p className="text-xs text-muted-foreground">근무일</p>
-                  <p className="text-sm font-medium">{job.workDate}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </div>

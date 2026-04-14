@@ -443,11 +443,16 @@ export function CheckInFlow({ application }: Props) {
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 py-5 space-y-5">
-        <div className="text-center py-4">
-          <p className="text-[11px] text-muted-foreground mb-1">현재 시각</p>
-          <p className="text-4xl font-bold tabular-nums tracking-tight">
-            {formatClock(now)}
+      <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
+        {/* Live clock */}
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground">현재 시각</p>
+          <p className="text-5xl font-extrabold tracking-tight mt-1 tabular-nums">
+            {now.getHours().toString().padStart(2, "0")}:
+            {now.getMinutes().toString().padStart(2, "0")}
+            <span className="text-brand">
+              :{now.getSeconds().toString().padStart(2, "0")}
+            </span>
           </p>
           <p className="text-xs text-muted-foreground mt-1">
             {formatWorkDate(job.workDate)}
@@ -461,17 +466,17 @@ export function CheckInFlow({ application }: Props) {
           </div>
         )}
 
-        <div className="rounded-2xl border border-border bg-card p-4">
+        <div className="group rounded-2xl border border-border bg-card p-4 space-y-3 hover:shadow-md hover:border-brand/20 transition-all duration-300">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-2xl shrink-0">
+            <div className="w-12 h-12 rounded-xl bg-brand-soft flex items-center justify-center text-2xl shrink-0 transition-transform duration-200 group-hover:scale-110">
               {businessLogo}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-muted-foreground truncate">
+              <p className="text-xs text-muted-foreground truncate">
                 {job.business.name}
               </p>
-              <p className="font-bold text-sm line-clamp-1">{job.title}</p>
-              <div className="flex items-center gap-2 mt-1 text-[11px] text-muted-foreground">
+              <h3 className="text-sm font-bold">{job.title}</h3>
+              <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
                 <Clock className="w-3 h-3" />
                 <span>
                   {job.startTime}~{job.endTime}
@@ -479,46 +484,38 @@ export function CheckInFlow({ application }: Props) {
               </div>
             </div>
           </div>
-          <div className="mt-3 pt-3 border-t border-border">
-            <div className="flex items-start gap-2 text-xs">
-              <MapPin className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <p className="font-medium">{job.business.address}</p>
-                {job.business.addressDetail && (
-                  <p className="text-muted-foreground mt-0.5">
-                    {job.business.addressDetail}
-                  </p>
-                )}
-              </div>
-              <span className="shrink-0 text-[11px] font-medium text-muted-foreground flex items-center gap-0.5">
-                <Navigation className="w-3 h-3" /> 반경 200m
-              </span>
-            </div>
+          <div className="border-t border-border pt-3 flex items-center justify-between text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5" />
+              {job.business.address}
+            </span>
+            <span className="flex items-center gap-1">
+              <Navigation className="w-3.5 h-3.5" />
+              반경 200m
+            </span>
           </div>
         </div>
 
-        <div className="rounded-2xl border border-brand/30 bg-brand-light p-4">
-          <div className="flex items-start gap-2 mb-2">
-            <Zap className="w-4 h-4 text-brand-deep shrink-0 mt-0.5" />
-            <p className="text-xs font-bold text-brand-deep">
-              체크인 안내
-            </p>
+        <div className="rounded-2xl bg-brand-soft border border-brand/10 p-4 space-y-2.5">
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 text-brand" />
+            <h4 className="text-sm font-bold text-brand">체크인 안내</h4>
           </div>
-          <ul className="space-y-1.5 text-[11px] text-foreground/80 leading-relaxed">
-            <li className="flex items-start gap-1.5">
-              <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" />
+          <ul className="space-y-1.5">
+            <li className="flex items-start gap-2 text-xs text-muted-foreground">
+              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-brand shrink-0" />
               <span>
                 체크인은 근무 시작 10분 전 ~ 30분 후에만 가능합니다.
               </span>
             </li>
-            <li className="flex items-start gap-1.5">
-              <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" />
+            <li className="flex items-start gap-2 text-xs text-muted-foreground">
+              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-brand shrink-0" />
               <span>
                 매장 반경 200m 이내에서 위치 권한을 허용해주세요.
               </span>
             </li>
-            <li className="flex items-start gap-1.5">
-              <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" />
+            <li className="flex items-start gap-2 text-xs text-muted-foreground">
+              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-brand shrink-0" />
               <span>
                 체크아웃 시 매장 담당자의 QR을 카메라로 스캔합니다.
               </span>
@@ -527,17 +524,17 @@ export function CheckInFlow({ application }: Props) {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-border">
-        <div className="max-w-lg mx-auto px-4 py-3">
+      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background px-4 pt-3 pb-3 pb-[env(safe-area-inset-bottom)]">
+        <div className="max-w-lg mx-auto">
           <button
             type="button"
             onClick={handleCheckIn}
-            className="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-brand/20 transition-colors"
+            className="w-full rounded-xl py-4 text-sm font-bold flex items-center justify-center gap-2 bg-brand text-white shadow-lg shadow-brand/20 hover:shadow-xl hover:shadow-brand/30 hover:-translate-y-0.5 transition-all duration-300 active:scale-[0.97]"
           >
-            <MapPin className="w-4 h-4" />
+            <MapPin className="w-5 h-5 animate-pulse" />
             체크인 시작
           </button>
-          <p className="text-[10px] text-center text-muted-foreground mt-2">
+          <p className="text-center text-[10px] text-muted-foreground mt-2">
             버튼을 누르면 위치 정보를 전송합니다
           </p>
         </div>

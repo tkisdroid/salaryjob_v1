@@ -31,33 +31,33 @@ export default async function WorkerSettlementsPage({
   );
 
   return (
-    <main className="mx-auto max-w-xl p-4 pb-24">
+    <main className="mx-auto max-w-xl px-4 py-4 pb-24">
       <div className="mb-4 flex items-center gap-2">
         <BackButton fallbackHref="/my" ariaLabel="뒤로" className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted">
           <ArrowLeft className="h-5 w-5" />
         </BackButton>
-        <h1 className="text-xl font-bold">정산</h1>
+        <h1 className="text-base font-bold">정산</h1>
       </div>
 
       <div className="grid grid-cols-2 gap-3 mb-4">
-        <Card>
+        <Card className="rounded-2xl hover:shadow-md transition-all duration-300">
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">총수입</p>
-            <p className="text-xl font-bold">
+            <p className="text-[10px] text-muted-foreground">총수입</p>
+            <p className="text-xl font-extrabold mt-1">
               {totals.allTimeTotal.toLocaleString("ko-KR")}원
             </p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[10px] text-muted-foreground mt-1">
               {totals.allTimeCount}건
             </p>
           </CardContent>
         </Card>
-        <Card>
+        <Card className="rounded-2xl hover:shadow-md transition-all duration-300">
           <CardContent className="p-4">
-            <p className="text-xs text-muted-foreground">이번 달</p>
-            <p className="text-xl font-bold">
+            <p className="text-[10px] text-muted-foreground">이번 달</p>
+            <p className="text-xl font-extrabold text-brand mt-1">
               {totals.thisMonthTotal.toLocaleString("ko-KR")}원
             </p>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="text-[10px] text-muted-foreground mt-1">
               {totals.thisMonthCount}건
             </p>
           </CardContent>
@@ -69,9 +69,9 @@ export default async function WorkerSettlementsPage({
         firstUnreviewedAppId={unreviewed[0]?.id ?? null}
       />
 
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 mt-4">
         {settlements.length === 0 ? (
-          <Card>
+          <Card className="rounded-2xl">
             <CardContent className="p-6 text-center text-sm text-muted-foreground">
               아직 정산 내역이 없어요
             </CardContent>

@@ -6,10 +6,8 @@ import { useSearchParams } from "next/navigation";
 import { Mail } from "lucide-react";
 import { signInWithGoogle, signInWithKakao, signInWithMagicLink } from "@/app/(auth)/signup/actions";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { signInWithPassword } from "./actions";
 import { CeleryMark } from "@/components/brand/celery-mark";
 
@@ -38,12 +36,12 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
     : "/signup";
 
   return (
-    <Card className="p-6 shadow-sm">
-      <div className="mb-6 text-center">
-        <CeleryMark className="mx-auto mb-3 h-14 w-14" />
-        <h1 className="text-2xl font-bold">로그인</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          샐러리잡에 다시 돌아오신 것을 환영해요
+    <div className="w-full max-w-sm">
+      <div className="flex flex-col items-center mb-8">
+        <CeleryMark className="h-16 w-16 mb-4" />
+        <h1 className="text-2xl font-extrabold">샐러리잡</h1>
+        <p className="text-sm text-muted-foreground mt-1">
+          내 주변 로컬 잡 플랫폼
         </p>
       </div>
 
@@ -51,26 +49,36 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
         <LoginErrorBanner />
       </Suspense>
 
-      <form action={formAction} className="space-y-4">
+      <form action={formAction} className="space-y-3">
         {nextPath && <input type="hidden" name="next" value={nextPath} />}
 
-        <div className="space-y-2">
-          <Label htmlFor="email">이메일</Label>
+        <div>
+          <Label htmlFor="email" className="text-xs font-medium text-muted-foreground mb-1.5 block">
+            이메일
+          </Label>
           <div className="relative">
             <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               id="email"
               name="email"
               type="email"
-              placeholder="email@example.com"
-              className="pl-10"
+              placeholder="이메일을 입력하세요"
+              className="w-full rounded-xl border border-input bg-card px-4 py-3 pl-10 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="password">비밀번호</Label>
-          <Input id="password" name="password" type="password" placeholder="비밀번호 입력" />
+        <div>
+          <Label htmlFor="password" className="text-xs font-medium text-muted-foreground mb-1.5 block">
+            비밀번호
+          </Label>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="비밀번호 입력"
+            className="w-full rounded-xl border border-input bg-card px-4 py-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
         </div>
 
         {state?.error?.form && (
@@ -80,18 +88,33 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
           <p className="text-sm text-destructive">{state.error.email[0]}</p>
         )}
 
-        <Button type="submit" disabled={pending} className="w-full bg-brand text-white hover:bg-brand-dark">
+        <Button
+          type="submit"
+          disabled={pending}
+          className="w-full h-12 rounded-xl bg-brand text-primary-foreground font-semibold hover:bg-brand-dark text-sm"
+        >
           {pending ? "로그인 중..." : "로그인"}
         </Button>
       </form>
 
-      <Separator className="my-6" />
+      <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-[10px]">
+          <span className="bg-background px-3 text-muted-foreground">또는</span>
+        </div>
+      </div>
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <form action={signInWithGoogle}>
           {nextPath && <input type="hidden" name="next" value={nextPath} />}
-          <Button type="submit" variant="outline" className="w-full">
-            Google로 로그인
+          <Button
+            type="submit"
+            variant="outline"
+            className="w-full h-12 rounded-xl border-border text-sm font-medium"
+          >
+            Google로 계속하기
           </Button>
         </form>
         <form action={signInWithKakao}>
@@ -99,26 +122,46 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
           <Button
             type="submit"
             variant="outline"
-            className="w-full border-[#FEE500] bg-[#FEE500] text-[#191919] hover:bg-[#FDD835]"
+            className="w-full h-12 rounded-xl border-[#FEE500] bg-[#FEE500] text-foreground hover:bg-[#FDD835] text-sm font-medium"
           >
-            카카오로 로그인
+            카카오로 계속하기
           </Button>
         </form>
         <form action={signInWithMagicLink}>
           {nextPath && <input type="hidden" name="next" value={nextPath} />}
-          <Input name="email" type="email" placeholder="이메일 주소" className="mb-2" />
-          <Button type="submit" variant="ghost" className="w-full">
-            Magic Link로 로그인
+          <Input
+            name="email"
+            type="email"
+            placeholder="이메일 주소"
+            className="mb-2 rounded-xl"
+          />
+          <Button
+            type="submit"
+            className="w-full h-12 rounded-xl bg-brand text-primary-foreground font-semibold hover:bg-brand-dark text-sm"
+          >
+            매직 링크로 로그인
           </Button>
         </form>
       </div>
 
-      <div className="mt-4 space-y-3 text-center">
+      <div className="mt-6 space-y-3 text-center">
         <p className="text-sm text-muted-foreground">아직 계정이 없으신가요?</p>
-        <Button variant="outline" className="w-full" asChild>
+        <Button variant="outline" className="w-full h-12 rounded-xl" asChild>
           <Link href={signupHref}>회원가입</Link>
         </Button>
       </div>
-    </Card>
+
+      <p className="mt-8 text-center text-[10px] text-muted-foreground">
+        로그인하면{" "}
+        <Link href="/terms" className="underline">
+          이용약관
+        </Link>
+        과{" "}
+        <Link href="/privacy" className="underline">
+          개인정보처리방침
+        </Link>
+        에 동의하게 됩니다.
+      </p>
+    </div>
   );
 }

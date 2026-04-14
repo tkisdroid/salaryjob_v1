@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { Camera, Star } from "lucide-react";
 import { updateWorkerProfile, uploadAvatar } from "./actions";
 import type { ProfileFormState, AvatarFormState } from "@/lib/form-state";
 
@@ -69,29 +70,34 @@ export function WorkerProfileEditForm(props: Props) {
     <div className="space-y-8">
       {/* Avatar upload — separate form so it can submit independently */}
       <section aria-labelledby="avatar-section">
-        <h2 id="avatar-section" className="mb-2 text-sm font-bold">
+        <h2 id="avatar-section" className="mb-3 text-sm font-bold">
           프로필 사진
         </h2>
         <form action={avatarAction} className="flex items-center gap-4">
-          <div className="h-20 w-20 overflow-hidden rounded-full bg-muted">
-            {displayAvatar ? (
-              displayAvatar.startsWith("http") || displayAvatar.startsWith("blob:") ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={displayAvatar}
-                  alt="프로필"
-                  className="h-full w-full object-cover"
-                />
+          <div className="relative group">
+            <div className="h-16 w-16 overflow-hidden rounded-full bg-brand-soft transition-transform duration-300 group-hover:scale-105">
+              {displayAvatar ? (
+                displayAvatar.startsWith("http") || displayAvatar.startsWith("blob:") ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={displayAvatar}
+                    alt="프로필"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-3xl">
+                    {displayAvatar}
+                  </div>
+                )
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-3xl">
-                  {displayAvatar}
+                  🙂
                 </div>
-              )
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-3xl">
-                🙂
-              </div>
-            )}
+              )}
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center transition-transform duration-200 hover:scale-110">
+              <Camera className="w-3 h-3" />
+            </div>
           </div>
           <div>
             <input
@@ -106,7 +112,7 @@ export function WorkerProfileEditForm(props: Props) {
             <button
               type="submit"
               disabled={isAvatarPending}
-              className="mt-2 inline-flex h-11 items-center justify-center rounded-lg bg-brand px-4 text-sm font-bold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
+              className="mt-2 rounded-lg bg-brand px-4 py-2 text-xs font-semibold text-white active:scale-[0.95] transition-all duration-200 hover:bg-brand-dark hover:shadow-md disabled:opacity-50"
             >
               {isAvatarPending ? "업로드 중..." : "업로드"}
             </button>
@@ -129,10 +135,10 @@ export function WorkerProfileEditForm(props: Props) {
       </section>
 
       {/* Profile fields — separate form */}
-      <form action={profileAction} className="space-y-4">
+      <form action={profileAction} className="space-y-6">
         <div>
-          <label htmlFor="name" className="mb-1 block text-sm font-medium">
-            이름 *
+          <label htmlFor="name" className="text-sm font-bold">
+            이름 <span className="text-destructive">*</span>
           </label>
           <input
             id="name"
@@ -140,7 +146,7 @@ export function WorkerProfileEditForm(props: Props) {
             type="text"
             required
             defaultValue={props.initialName}
-            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all duration-200"
           />
           {profileState &&
             "error" in profileState &&
@@ -152,7 +158,7 @@ export function WorkerProfileEditForm(props: Props) {
         </div>
 
         <div>
-          <label htmlFor="nickname" className="mb-1 block text-sm font-medium">
+          <label htmlFor="nickname" className="text-sm font-bold">
             닉네임
           </label>
           <input
@@ -160,15 +166,12 @@ export function WorkerProfileEditForm(props: Props) {
             name="nickname"
             type="text"
             defaultValue={props.initialNickname}
-            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all duration-200"
           />
         </div>
 
         <div>
-          <label
-            htmlFor="birthDate"
-            className="mb-1 block text-sm font-medium"
-          >
+          <label htmlFor="birthDate" className="text-sm font-bold">
             생년월일
           </label>
           <input
@@ -176,9 +179,9 @@ export function WorkerProfileEditForm(props: Props) {
             name="birthDate"
             type="date"
             defaultValue={props.initialBirthDate}
-            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all duration-200"
           />
-          <p className="mt-1 text-xs text-muted-foreground">
+          <p className="text-[10px] text-muted-foreground mt-1">
             사업자에게는 지원자 상세에서 만 나이로 표시됩니다.
           </p>
           {profileState &&
@@ -191,7 +194,7 @@ export function WorkerProfileEditForm(props: Props) {
         </div>
 
         <div>
-          <label htmlFor="bio" className="mb-1 block text-sm font-medium">
+          <label htmlFor="bio" className="text-sm font-bold">
             소개글 (140자 이하)
           </label>
           <textarea
@@ -200,7 +203,7 @@ export function WorkerProfileEditForm(props: Props) {
             rows={3}
             maxLength={140}
             defaultValue={props.initialBio}
-            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 resize-none transition-all duration-200"
           />
           {profileState &&
             "error" in profileState &&
@@ -212,7 +215,7 @@ export function WorkerProfileEditForm(props: Props) {
         </div>
 
         <fieldset>
-          <legend className="mb-2 text-sm font-medium">선호 카테고리</legend>
+          <legend className="mb-3 text-sm font-bold">선호 카테고리</legend>
           <div className="grid grid-cols-4 gap-2">
             {CATEGORIES.map((c) => {
               const selected = categories.includes(c.value);
@@ -221,11 +224,15 @@ export function WorkerProfileEditForm(props: Props) {
                   key={c.value}
                   type="button"
                   onClick={() => toggleCategory(c.value)}
-                  className={`rounded-xl border p-3 text-sm transition-colors ${selected ? "border-brand bg-brand-light text-brand-deep" : "border-border hover:border-brand/40"}`}
+                  className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-all duration-200 active:scale-[0.94] hover:-translate-y-0.5 ${
+                    selected
+                      ? "bg-brand-soft border-brand/30 text-foreground shadow-sm"
+                      : "bg-card border-border text-muted-foreground hover:border-brand/20"
+                  }`}
                   aria-pressed={selected}
                 >
-                  <div className="text-xl">{c.emoji}</div>
-                  <div>{c.label}</div>
+                  <span className={`text-xl transition-transform duration-200 ${selected ? "scale-110" : ""}`}>{c.emoji}</span>
+                  <span className="text-[10px] font-semibold">{c.label}</span>
                 </button>
               );
             })}
@@ -238,18 +245,33 @@ export function WorkerProfileEditForm(props: Props) {
         {/* Read-only WORK-03 display — NOT in form, NOT submitted */}
         <section
           aria-label="읽기 전용 지표"
-          className="rounded-xl border border-dashed border-border bg-mint-bg/30 p-4 text-sm text-muted-foreground"
+          className="rounded-2xl border border-border bg-card p-4 space-y-1.5 text-sm"
         >
-          <div>뱃지: {props.badgeLevel}</div>
-          <div>평점: {props.rating.toFixed(2)} ⭐</div>
-          <div>근무 횟수: {props.totalJobs}</div>
-          <div>완료율: {props.completionRate}%</div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">뱃지</span>
+            <span className="font-semibold">{props.badgeLevel}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">평점</span>
+            <span className="font-semibold flex items-center gap-1">
+              {props.rating.toFixed(2)}
+              <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">근무 횟수</span>
+            <span className="font-semibold">{props.totalJobs}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">완료율</span>
+            <span className="font-semibold">{props.completionRate}%</span>
+          </div>
         </section>
 
         <button
           type="submit"
           disabled={isProfilePending}
-          className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-brand text-sm font-bold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
+          className="w-full rounded-xl bg-brand py-3.5 text-sm font-bold text-white active:scale-[0.97] transition-all duration-300 hover:bg-brand-dark hover:shadow-lg hover:shadow-brand/20 disabled:opacity-50"
         >
           {isProfilePending ? "저장 중..." : "저장"}
         </button>

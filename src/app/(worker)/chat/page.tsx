@@ -3,9 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { MessageCircle } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
 // ---------------------------------------------------------------------------
@@ -128,43 +126,39 @@ export default function ChatListPage() {
       ) : (
         <div className="space-y-2">
           {rooms.map((room) => (
-            <Link key={room.id} href={`/chat/${room.id}`}>
-              <Card
-                size="sm"
-                className="transition-shadow hover:ring-brand/30"
-              >
-                <CardContent className="flex items-center gap-3">
-                  <Avatar>
-                    <AvatarFallback className="bg-muted text-[10px] font-bold">
-                      {room.initials}
-                    </AvatarFallback>
-                  </Avatar>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="truncate text-sm font-bold">
-                        {room.company}
-                      </span>
-                      <span className="shrink-0 text-[10px] text-muted-foreground">
-                        {room.time}
-                      </span>
-                    </div>
-                    <p className="mb-0.5 text-[10px] text-brand">
-                      {room.postTitle}
-                    </p>
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="truncate text-xs text-muted-foreground">
-                        {room.lastMessage}
-                      </p>
-                      {room.unreadCount > 0 && (
-                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand text-[10px] font-bold text-white">
-                          {room.unreadCount}
-                        </span>
-                      )}
-                    </div>
+            <Link
+              key={room.id}
+              href={`/chat/${room.id}`}
+              className="block w-full rounded-2xl bg-brand-light/60 border border-brand/[0.08] p-4 transition-transform active:scale-[0.98]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-full bg-brand/10 flex items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-brand">
+                    {room.initials}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-sm truncate">
+                      {room.company}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground shrink-0 ml-2">
+                      {room.time}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
+                  <p className="text-xs text-brand font-medium">
+                    {room.postTitle}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    {room.lastMessage}
+                  </p>
+                </div>
+                {room.unreadCount > 0 && (
+                  <span className="w-5 h-5 rounded-full bg-brand text-primary-foreground text-[10px] font-bold flex items-center justify-center shrink-0">
+                    {room.unreadCount}
+                  </span>
+                )}
+              </div>
             </Link>
           ))}
         </div>

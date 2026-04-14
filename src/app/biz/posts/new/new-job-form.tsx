@@ -263,7 +263,7 @@ function NewPostFlow({
             <select
               value={selectedBusinessId}
               onChange={(e) => setSelectedBusinessId(e.target.value)}
-              className="w-full h-11 px-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+              className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
             >
               {businessProfiles.map((bp) => (
                 <option key={bp.id} value={bp.id}>
@@ -388,7 +388,7 @@ function Step1Basic({
           onChange={(e) => setForm({ ...form, title: e.target.value })}
           placeholder="예: 주말 카페 바리스타 보조"
           maxLength={40}
-          className="w-full h-11 px-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+          className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
         />
         {form.title.trim().length > 0 && form.title.trim().length < 4 && (
           <p className="text-[10px] font-bold text-destructive">
@@ -405,10 +405,10 @@ function Step1Basic({
               type="button"
               data-testid={`job-category-${c.id}`}
               onClick={() => setForm({ ...form, category: c.id })}
-              className={`flex flex-col items-center gap-1 p-3 rounded-xl border-2 transition-all ${
+              className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all active:scale-95 ${
                 form.category === c.id
-                  ? "border-brand bg-brand/5"
-                  : "border-border hover:border-brand/40"
+                  ? "border-brand bg-brand/5 shadow-sm"
+                  : "border-border bg-card hover:border-brand/30"
               }`}
             >
               <span className="text-2xl">{c.emoji}</span>
@@ -426,7 +426,7 @@ function Step1Basic({
           placeholder="예: 주문 받기, 음료 제조 보조, 매장 정리를 함께 해주실 분을 찾습니다."
           rows={5}
           maxLength={500}
-          className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
+          className="w-full px-4 py-3 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
         />
         {form.description.trim().length > 0 && form.description.trim().length < 10 && (
           <p className="text-[10px] font-bold text-destructive">
@@ -467,7 +467,7 @@ function Step2Schedule({
           min={today}
           value={form.workDate}
           onChange={(e) => setForm({ ...form, workDate: e.target.value })}
-          className="w-full h-11 px-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+          className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
         />
       </Field>
 
@@ -477,7 +477,7 @@ function Step2Schedule({
             type="time"
             value={form.startTime}
             onChange={(e) => setForm({ ...form, startTime: e.target.value })}
-            className="w-full h-11 px-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
           {form.endTime !== "" && form.startTime === "" && (
             <p className="text-[10px] font-bold text-destructive">
@@ -490,7 +490,7 @@ function Step2Schedule({
             type="time"
             value={form.endTime}
             onChange={(e) => setForm({ ...form, endTime: e.target.value })}
-            className="w-full h-11 px-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
           {form.startTime !== "" && form.endTime === "" && (
             <p className="text-[10px] font-bold text-destructive">
@@ -507,19 +507,19 @@ function Step2Schedule({
             onClick={() =>
               setForm({ ...form, headcount: Math.max(1, form.headcount - 1) })
             }
-            className="w-11 h-11 rounded-xl border border-border hover:bg-muted flex items-center justify-center text-xl font-bold"
+            className="w-12 h-12 rounded-2xl border border-border bg-card hover:bg-accent active:scale-95 flex items-center justify-center text-xl font-bold transition-all"
           >
             −
           </button>
-          <div className="flex-1 h-11 rounded-xl border border-border bg-background flex items-center justify-center">
-            <span className="text-lg font-bold">{form.headcount}명</span>
+          <div className="flex-1 h-12 rounded-2xl border border-border bg-card flex items-center justify-center">
+            <span className="text-lg font-extrabold">{form.headcount}명</span>
           </div>
           <button
             type="button"
             onClick={() =>
               setForm({ ...form, headcount: Math.min(50, form.headcount + 1) })
             }
-            className="w-11 h-11 rounded-xl border border-border hover:bg-muted flex items-center justify-center text-xl font-bold"
+            className="w-12 h-12 rounded-2xl border border-border bg-card hover:bg-accent active:scale-95 flex items-center justify-center text-xl font-bold transition-all"
           >
             +
           </button>
@@ -606,7 +606,7 @@ function Step3Compensation({
             }
             step={100}
             min={MINIMUM_WAGE}
-            className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="w-full h-12 pl-10 pr-4 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
         </div>
         {form.hourlyPay < MINIMUM_WAGE && form.hourlyPay > 0 && (
@@ -627,21 +627,21 @@ function Step3Compensation({
             }
             step={500}
             min={0}
-            className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="w-full h-12 pl-10 pr-4 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
         </div>
       </Field>
 
-      <div className="rounded-2xl bg-brand text-white p-5">
-        <div className="flex items-center justify-between mb-3">
-          <p className="text-xs opacity-90">예상 비용 (인당)</p>
-          <TrendingUp className="w-4 h-4 opacity-80" />
+      <div className="rounded-2xl bg-brand p-5 text-primary-foreground space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-medium opacity-90">예상 비용 (인당)</p>
+          <TrendingUp className="h-4 w-4 opacity-70" />
         </div>
-        <p className="text-3xl font-bold">{formatMoney(totalPerPerson)}</p>
-        <div className="mt-3 pt-3 border-t border-white/20 space-y-1 text-xs">
+        <p className="text-3xl font-extrabold tracking-tight">{formatMoney(totalPerPerson)}</p>
+        <div className="border-t border-primary-foreground/20 pt-3 space-y-1.5 text-xs">
           <div className="flex justify-between opacity-90">
             <span>
-              기본급 ({form.hourlyPay.toLocaleString()}원 × {workHours || 0}시간)
+              기본급 ({form.hourlyPay.toLocaleString()}원 x {workHours || 0}시간)
             </span>
             <span>{formatMoney(basePay)}</span>
           </div>
@@ -649,12 +649,10 @@ function Step3Compensation({
             <span>교통비</span>
             <span>{formatMoney(form.transportFee)}</span>
           </div>
-        </div>
-        <div className="mt-3 pt-3 border-t border-white/20 flex justify-between items-center">
-          <span className="text-xs opacity-90">
-            총 비용 ({form.headcount}명)
-          </span>
-          <span className="text-lg font-bold">{formatMoney(totalCost)}</span>
+          <div className="flex justify-between font-bold pt-1.5 border-t border-primary-foreground/20">
+            <span>총 비용 ({form.headcount}명)</span>
+            <span>{formatMoney(totalCost)}</span>
+          </div>
         </div>
       </div>
 
@@ -691,7 +689,7 @@ function Step4Details({
           onChange={(e) => setForm({ ...form, duties: e.target.value })}
           placeholder="POS 주문 접수&#10;음료 재료 준비&#10;매장 정리 및 청소"
           rows={4}
-          className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
+          className="w-full px-4 py-3 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
         />
       </Field>
 
@@ -701,7 +699,7 @@ function Step4Details({
           onChange={(e) => setForm({ ...form, requirements: e.target.value })}
           placeholder="18세 이상&#10;2시간 이상 서서 근무 가능"
           rows={3}
-          className="w-full px-4 py-3 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
+          className="w-full px-4 py-3 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
         />
       </Field>
 
@@ -713,7 +711,7 @@ function Step4Details({
             value={form.dressCode}
             onChange={(e) => setForm({ ...form, dressCode: e.target.value })}
             placeholder="예: 검정 상의 + 어두운 색 바지"
-            className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="w-full h-12 pl-10 pr-4 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
         </div>
       </Field>
@@ -726,7 +724,7 @@ function Step4Details({
             value={form.whatToBring}
             onChange={(e) => setForm({ ...form, whatToBring: e.target.value })}
             placeholder="예: 신분증, 마스크"
-            className="w-full h-11 pl-10 pr-4 rounded-xl border border-border bg-background focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="w-full h-12 pl-10 pr-4 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
         </div>
       </Field>
@@ -823,11 +821,11 @@ function Step5Preview({
         </div>
       </div>
 
-      <div className="rounded-2xl bg-brand text-white p-5">
-        <p className="text-xs opacity-90 mb-1">총 예상 비용 (원천징수 별도)</p>
-        <p className="text-3xl font-bold">{formatMoney(totalCost)}</p>
-        <p className="text-[11px] opacity-90 mt-2">
-          {form.headcount}명 × {formatMoney(totalPerPerson)} ({workHours}시간 근무)
+      <div className="rounded-2xl bg-brand p-5 text-primary-foreground">
+        <p className="text-xs font-medium opacity-90">총 예상 비용 (원천징수 별도)</p>
+        <p className="text-3xl font-extrabold tracking-tight mt-1">{formatMoney(totalCost)}</p>
+        <p className="text-xs opacity-80 mt-1">
+          {form.headcount}명 x {formatMoney(totalPerPerson)} ({workHours}시간 근무)
         </p>
       </div>
 

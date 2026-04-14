@@ -9,11 +9,7 @@ import {
   MapPin,
   Users,
 } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Select } from "@/components/ui/select"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 /* ── Mock Data ── */
 
@@ -80,32 +76,6 @@ const WORKERS = [
   },
 ] as const
 
-const CATEGORIES = [
-  { value: "", label: "전체 카테고리" },
-  { value: "food", label: "외식/음료" },
-  { value: "retail", label: "판매/매장" },
-  { value: "logistics", label: "물류/배송" },
-  { value: "office", label: "사무/행정" },
-  { value: "event", label: "이벤트/행사" },
-  { value: "cleaning", label: "청소/정리" },
-] as const
-
-const LOCATIONS = [
-  { value: "", label: "전체 지역" },
-  { value: "gangnam", label: "강남구" },
-  { value: "seocho", label: "서초구" },
-  { value: "mapo", label: "마포구" },
-  { value: "yeongdeungpo", label: "영등포구" },
-  { value: "songpa", label: "송파구" },
-] as const
-
-const RATINGS = [
-  { value: "", label: "전체 평점" },
-  { value: "4.5", label: "4.5 이상" },
-  { value: "4.0", label: "4.0 이상" },
-  { value: "3.5", label: "3.5 이상" },
-] as const
-
 /* ── Page ── */
 
 export default function BizWorkersPage() {
@@ -132,8 +102,8 @@ export default function BizWorkersPage() {
     <div className="max-w-5xl mx-auto px-6 py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-foreground">인재 검색</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <h1 className="text-2xl font-extrabold tracking-tight text-foreground">인재 검색</h1>
+        <p className="mt-1 text-xs text-muted-foreground">
           조건에 맞는 인재를 검색하고 제안을 보내보세요.
         </p>
       </div>
@@ -145,46 +115,30 @@ export default function BizWorkersPage() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="이름, 스킬로 검색..."
-          className="pl-10"
+          className="h-11 rounded-2xl border-border bg-card text-sm pl-10"
         />
       </div>
 
       {/* Filter Row */}
       <div className="flex flex-wrap gap-2 mb-6">
-        <Select className="w-auto min-w-[140px]">
-          {CATEGORIES.map((cat) => (
-            <option key={cat.value} value={cat.value}>
-              {cat.label}
-            </option>
-          ))}
-        </Select>
-        <Select className="w-auto min-w-[120px]">
-          {LOCATIONS.map((loc) => (
-            <option key={loc.value} value={loc.value}>
-              {loc.label}
-            </option>
-          ))}
-        </Select>
-        <Select className="w-auto min-w-[120px]">
-          {RATINGS.map((r) => (
-            <option key={r.value} value={r.value}>
-              {r.label}
-            </option>
-          ))}
-        </Select>
-        <Select className="w-auto min-w-[140px]">
-          <option value="">전체 가용시간</option>
-          <option value="weekday">평일 가능</option>
-          <option value="weekend">주말 가능</option>
-          <option value="anytime">전일 가능</option>
-        </Select>
+        {[
+          { label: "전체 카테고리" },
+          { label: "전체 지역" },
+          { label: "전체 평점" },
+          { label: "전체 가용시간" },
+        ].map((f) => (
+          <button key={f.label}
+            className="rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-medium text-foreground hover:bg-accent transition-colors active:scale-95">
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {/* Results */}
       {filteredWorkers.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-teal/10 mb-4">
-            <Users className="w-8 h-8 text-teal" />
+          <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-brand/10 mb-4">
+            <Users className="w-8 h-8 text-brand" />
           </div>
           <h3 className="text-lg font-bold text-foreground mb-2">
             조건에 맞는 인재를 찾지 못했어요
@@ -194,71 +148,60 @@ export default function BizWorkersPage() {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {filteredWorkers.map((worker) => (
-            <Card
+            <div
               key={worker.id}
-              className="hover:ring-2 hover:ring-teal/20 transition-all"
+              className="rounded-2xl border border-border bg-card p-4 hover:shadow-md transition-shadow"
             >
-              <CardContent>
-                <div className="flex items-start justify-between mb-3">
-                  <Link
-                    href={`/biz/workers/${worker.id}`}
-                    className="flex items-center gap-3"
-                  >
-                    <Avatar size="lg">
-                      <AvatarFallback>{worker.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="text-sm font-semibold hover:text-teal transition-colors">
-                        {worker.name}
-                      </p>
-                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                        <Star className="w-3 h-3 fill-brand text-brand" />
-                        {worker.rating} · {worker.completedJobs}회 근무
-                      </div>
-                    </div>
-                  </Link>
-                  <button
-                    onClick={() => toggleFavorite(worker.id)}
-                    className="p-1 rounded-lg hover:bg-muted transition-colors"
-                    aria-label={
-                      favorites[worker.id]
-                        ? "단골 해제"
-                        : "단골 등록"
-                    }
-                  >
-                    <Heart
-                      className={`w-5 h-5 ${
-                        favorites[worker.id]
-                          ? "fill-brand text-brand"
-                          : "text-muted-foreground"
-                      }`}
-                    />
-                  </button>
+              <div className="flex items-start gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold shrink-0">
+                  {worker.name[0]}
                 </div>
-
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {worker.skills.map((skill) => (
-                    <Badge
-                      key={skill}
-                      variant="secondary"
-                      className="text-xs"
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <Link
+                      href={`/biz/workers/${worker.id}`}
+                      className="text-sm font-bold hover:text-brand transition-colors"
                     >
-                      {skill}
-                    </Badge>
-                  ))}
+                      {worker.name}
+                    </Link>
+                    <button
+                      onClick={() => toggleFavorite(worker.id)}
+                      className="transition-transform active:scale-90"
+                      aria-label={
+                        favorites[worker.id]
+                          ? "단골 해제"
+                          : "단골 등록"
+                      }
+                    >
+                      <Heart
+                        className={`w-5 h-5 ${
+                          favorites[worker.id]
+                            ? "fill-brand text-brand"
+                            : "text-muted-foreground"
+                        }`}
+                      />
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
+                    <Star className="h-3 w-3 text-yellow-500" />
+                    <span>{worker.rating} · {worker.completedJobs}회 근무</span>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {worker.skills.map((skill) => (
+                      <span key={skill} className="rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-brand">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground">
+                    <MapPin className="h-3 w-3" />
+                    <span>{worker.location}{"\u3000"}{worker.availability}</span>
+                  </div>
                 </div>
-
-                <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="w-3 h-3" />
-                    {worker.location}
-                  </span>
-                  <span>{worker.availability}</span>
-                </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}

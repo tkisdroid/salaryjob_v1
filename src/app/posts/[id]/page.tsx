@@ -11,6 +11,7 @@ import {
 import { formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { BackButton } from "@/components/shared/back-button";
+import { Clock, MapPin, Wallet, CheckCircle2 } from "lucide-react";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -65,10 +66,11 @@ export default async function PublicJobDetailPage({ params }: Props) {
   const spotsLeft = Math.max(0, job.headcount - job.filled);
 
   return (
-    <main className="mx-auto max-w-2xl p-4 pb-32">
+    <main className="mx-auto max-w-2xl px-4 py-4 pb-28">
+      {/* Header */}
       <nav className="mb-4">
         <BackButton
-          className="text-sm text-brand hover:underline"
+          className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-accent transition-colors"
           fallbackHref="/"
           ariaLabel="공고 목록으로 돌아가기"
         >
@@ -82,86 +84,102 @@ export default async function PublicJobDetailPage({ params }: Props) {
         </div>
       )}
 
-      <header className="mb-5">
-        <div className="mb-2 flex items-start justify-between gap-3">
-          <h1 className="text-2xl font-extrabold leading-tight tracking-tight">{job.title}</h1>
-          {job.isUrgent && !isExpired && (
-            <span className="shrink-0 rounded-full bg-[color:var(--urgent)]/10 px-2.5 py-1 text-xs font-bold text-[color:var(--urgent)]">
-              급구
-            </span>
-          )}
+      {/* Business info */}
+      <div className="flex items-center gap-3 mb-4">
+        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-xl">
+          {job.business.logo}
         </div>
-        <p className="text-sm text-muted-foreground">
-          {job.business.logo} {job.business.name} · {categoryLabel(job.category)}
-        </p>
-      </header>
+        <div>
+          <p className="text-sm font-bold">{job.business.name}</p>
+          <p className="text-[10px] text-muted-foreground">
+            {categoryLabel(job.category)}
+          </p>
+        </div>
+        {job.isUrgent && !isExpired && (
+          <span className="ml-auto shrink-0 rounded-full bg-[color:var(--urgent)]/10 px-2.5 py-1 text-xs font-bold text-[color:var(--urgent)]">
+            급구
+          </span>
+        )}
+      </div>
 
-      {/* Earnings highlight — POST-05 */}
-      <section className="mb-6 rounded-xl border border-border bg-card p-5">
-        <p className="text-xs text-muted-foreground mb-1">예상 수입</p>
-        <p className="text-3xl font-bold text-brand">{formatMoney(earnings)}</p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          시급 {formatMoney(job.hourlyPay)} × {job.workHours}시간
-          {job.nightShiftAllowance && " + 심야 할증"}
-          {job.transportFee > 0 && ` + 교통비 ${formatMoney(job.transportFee)}`}
-        </p>
-      </section>
+      {/* Job title */}
+      <h1 className="text-xl font-extrabold mb-4">{job.title}</h1>
 
-      {/* Key info grid */}
+      {/* Key info grid — 4 cards with icons */}
       <section className="mb-6 grid grid-cols-2 gap-3">
-        <div className="rounded-lg border border-border p-3">
-          <div className="text-xs text-muted-foreground">근무일</div>
-          <div className="text-sm font-bold tracking-tight">
-            {formatWorkDate(job.workDate)}
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="flex items-center gap-2 text-muted-foreground mb-1">
+            <Wallet className="h-4 w-4" />
+            <span className="text-[10px]">예상 수입</span>
           </div>
+          <p className="text-lg font-extrabold text-brand">{formatMoney(earnings)}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            시급 {formatMoney(job.hourlyPay)}
+          </p>
         </div>
-        <div className="rounded-lg border border-border p-3">
-          <div className="text-xs text-muted-foreground">근무 시간</div>
-          <div className="text-sm font-bold tracking-tight">
-            {job.startTime}~{job.endTime} ({job.workHours}h)
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="flex items-center gap-2 text-muted-foreground mb-1">
+            <Clock className="h-4 w-4" />
+            <span className="text-[10px]">근무 시간</span>
           </div>
+          <p className="text-lg font-extrabold">{job.workHours}시간</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
+            {job.startTime}~{job.endTime}
+          </p>
         </div>
-        <div className="rounded-lg border border-border p-3">
-          <div className="text-xs text-muted-foreground">모집 인원</div>
-          <div className="text-sm font-bold tracking-tight">
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="flex items-center gap-2 text-muted-foreground mb-1">
+            <MapPin className="h-4 w-4" />
+            <span className="text-[10px]">근무일</span>
+          </div>
+          <p className="text-sm font-extrabold">{formatWorkDate(job.workDate)}</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">
             {spotsLeft}명 남음 / {job.headcount}명
-          </div>
+          </p>
         </div>
-        <div className="rounded-lg border border-border p-3">
-          <div className="text-xs text-muted-foreground">교통비</div>
-          <div className="text-sm font-bold tracking-tight">
-            {formatMoney(job.transportFee)}
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="flex items-center gap-2 text-muted-foreground mb-1">
+            <span className="text-[10px]">💰</span>
+            <span className="text-[10px]">교통비</span>
           </div>
+          <p className="text-lg font-extrabold">{formatMoney(job.transportFee)}</p>
+          {job.nightShiftAllowance && (
+            <p className="text-[10px] text-muted-foreground mt-0.5">+ 심야 할증</p>
+          )}
         </div>
       </section>
 
       {/* Description */}
-      <section className="mb-5">
-        <h2 className="mb-2 text-sm font-bold">업무 소개</h2>
-        <p className="whitespace-pre-wrap text-sm leading-relaxed text-muted-foreground">
-          {job.description}
-        </p>
+      <section className="mb-6">
+        <h2 className="text-sm font-bold mb-2">업무 소개</h2>
+        <div className="rounded-2xl border border-border bg-card p-4 text-sm leading-relaxed text-muted-foreground">
+          <p className="whitespace-pre-wrap">{job.description}</p>
+          {job.duties.length > 0 && (
+            <ul className="mt-3 space-y-2">
+              {job.duties.map((d, i) => (
+                <li key={`${d}-${i}`} className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-brand shrink-0 mt-0.5" />
+                  {d}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </section>
-
-      {job.duties.length > 0 && (
-        <section className="mb-5">
-          <h2 className="mb-2 text-sm font-bold">주요 업무</h2>
-          <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
-            {job.duties.map((d, i) => (
-              <li key={`${d}-${i}`}>{d}</li>
-            ))}
-          </ul>
-        </section>
-      )}
 
       {job.requirements.length > 0 && (
         <section className="mb-5">
           <h2 className="mb-2 text-sm font-bold">지원 조건</h2>
-          <ul className="list-inside list-disc space-y-1 text-sm text-muted-foreground">
-            {job.requirements.map((r, i) => (
-              <li key={`${r}-${i}`}>{r}</li>
-            ))}
-          </ul>
+          <div className="rounded-2xl border border-border bg-card p-4">
+            <ul className="space-y-2 text-sm text-muted-foreground">
+              {job.requirements.map((r, i) => (
+                <li key={`${r}-${i}`} className="flex items-start gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-brand shrink-0 mt-0.5" />
+                  {r}
+                </li>
+              ))}
+            </ul>
+          </div>
         </section>
       )}
 
@@ -213,12 +231,13 @@ export default async function PublicJobDetailPage({ params }: Props) {
         )}
       </section>
 
+      {/* Sticky CTA */}
       {!isExpired && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur">
-          <div className="mx-auto max-w-2xl p-3">
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+          <div className="mx-auto max-w-2xl">
             <Link
               href={applyCtaHref}
-              className="block w-full rounded-xl bg-brand p-3 text-center font-bold text-white shadow-lg shadow-brand/20 hover:bg-brand-dark"
+              className="block w-full h-12 rounded-xl bg-brand text-center font-bold text-white shadow-lg shadow-brand/20 hover:bg-brand-dark leading-[3rem] text-base"
             >
               원탭 지원하기
             </Link>

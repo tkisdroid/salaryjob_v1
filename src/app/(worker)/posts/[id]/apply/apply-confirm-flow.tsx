@@ -289,13 +289,13 @@ export function ApplyConfirmFlow({ job }: { job: Job }) {
       </div>
 
       {/* Sticky Confirm CTA */}
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-border">
-        <div className="max-w-lg mx-auto px-4 py-3">
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+        <div className="max-w-lg mx-auto">
           <button
             type="button"
             disabled={!agreed}
             onClick={handleConfirm}
-            className="w-full h-13 py-3.5 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-brand/20 transition-colors disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed"
+            className="w-full h-12 rounded-xl bg-brand text-white font-semibold text-base flex items-center justify-center gap-1.5 shadow-lg shadow-brand/20 hover:bg-brand-dark transition-all duration-300 active:scale-[0.97] disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed"
           >
             <Zap className="w-4 h-4 fill-white" />
             {agreed ? `${formatMoney(earnings)} 원탭 지원` : "약관 동의 후 진행"}

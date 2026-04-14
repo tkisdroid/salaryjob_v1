@@ -227,3 +227,62 @@
 .animate-urgent {
   animation: urgent-pulse 1.5s ease-in-out infinite;
 }
+
+/* ── Design system animations ── */
+@layer utilities {
+  .animate-fade-up {
+    animation: fadeUp 0.5s ease-out both;
+  }
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out both;
+  }
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out both;
+  }
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  .animate-glow-pulse {
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+  .hover-underline-brand {
+    @apply relative inline-block;
+  }
+  .hover-underline-brand::after {
+    content: '';
+    @apply absolute w-full h-[1.5px] bottom-0 left-0 origin-bottom-right;
+    background: var(--brand);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  .group:hover .hover-underline-brand::after,
+  .hover-underline-brand:hover::after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+  }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 0 0 oklch(0.776 0.149 152 / 0.3); }
+  50% { box-shadow: 0 0 20px 4px oklch(0.776 0.149 152 / 0.15); }
+}
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}

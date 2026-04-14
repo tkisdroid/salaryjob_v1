@@ -21,11 +21,7 @@ import {
 import {
   Card,
   CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format";
@@ -82,12 +78,6 @@ function getCategoryIcon(categoryLabel: string): LucideIcon {
   return CATEGORY_ICONS[categoryLabel] ?? Sparkles;
 }
 
-function getScoreBgColor(score: number): string {
-  if (score >= 80) return "bg-brand text-white";
-  if (score >= 60) return "bg-brand-light text-brand-deep";
-  return "bg-muted text-muted-foreground";
-}
-
 function renderCategoryIcon(categoryLabel: string, className: string) {
   const Icon = getCategoryIcon(categoryLabel);
   return <Icon className={className} />;
@@ -103,40 +93,46 @@ function ScheduleBlock({
   readonly recommendation: ScheduleRecommendation;
 }) {
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-border p-3 hover:ring-1 hover:ring-brand/30 transition-all">
-      {/* Category icon */}
-      <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-brand-light shrink-0">
-        {renderCategoryIcon(recommendation.category, "w-5 h-5 text-brand")}
-      </div>
-
-      {/* Details */}
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-2">
-          <span className="text-sm font-medium truncate">
-            {recommendation.category}
-          </span>
-          <Badge
-            variant="secondary"
-            className={cn("shrink-0 text-[10px]", getScoreBgColor(recommendation.matchScore))}
-          >
-            {recommendation.matchScore}%
-          </Badge>
+    <div className="rounded-2xl border border-border bg-card p-4 active:scale-[0.99] transition-transform">
+      <div className="flex items-start gap-3">
+        {/* Category icon */}
+        <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">
+          {renderCategoryIcon(recommendation.category, "w-5 h-5 text-brand")}
         </div>
 
-        <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-          <span className="flex items-center gap-0.5">
-            <Clock className="w-3 h-3" />
-            {recommendation.timeSlot}
-          </span>
-          <span className="flex items-center gap-0.5">
-            <Wallet className="w-3 h-3" />
-            {formatMoney(recommendation.estimatedPay)}
-          </span>
-        </div>
+        {/* Details */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between">
+            <h3 className="text-sm font-bold truncate">
+              {recommendation.category}
+            </h3>
+            <span
+              className={cn(
+                "text-[10px] font-bold px-2.5 py-0.5 rounded-full shrink-0",
+                recommendation.matchScore >= 100
+                  ? "bg-brand text-white"
+                  : "bg-brand/10 text-brand"
+              )}
+            >
+              {recommendation.matchScore}%
+            </span>
+          </div>
 
-        <p className="text-[11px] text-muted-foreground mt-1 line-clamp-1">
-          {recommendation.reason}
-        </p>
+          <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
+            <span className="flex items-center gap-1">
+              <Clock className="w-3 h-3" />
+              {recommendation.timeSlot}
+            </span>
+            <span className="flex items-center gap-1">
+              <Wallet className="w-3 h-3" />
+              {formatMoney(recommendation.estimatedPay)}
+            </span>
+          </div>
+
+          <p className="text-[10px] text-muted-foreground mt-1.5 line-clamp-1">
+            {recommendation.reason}
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -157,15 +153,18 @@ function DayColumn({
 }) {
   return (
     <div>
-      <div
-        className={cn(
-          "flex items-center justify-center h-8 rounded-lg text-sm font-semibold mb-2",
-          isToday
-            ? "bg-brand text-white"
-            : "bg-muted text-muted-foreground"
-        )}
-      >
-        {day}
+      {/* Day divider */}
+      <div className="flex items-center justify-center my-2">
+        <div
+          className={cn(
+            "px-8 py-1.5 rounded-full text-xs font-semibold",
+            isToday
+              ? "bg-brand text-white"
+              : "bg-transparent text-muted-foreground"
+          )}
+        >
+          {day}
+        </div>
       </div>
 
       {recommendations.length > 0 ? (
@@ -237,16 +236,16 @@ export default function SchedulePage() {
     <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
       {/* Header */}
       <header className="space-y-1">
-        <div className="flex items-center gap-2">
-          <Link href="/my" className="p-1 -ml-1 hover:bg-muted rounded-md">
+        <div className="flex items-center gap-3">
+          <Link href="/my" className="p-1 -ml-1 hover:bg-muted rounded-md text-muted-foreground">
             <ChevronLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-brand" />
-            AI 추천 스케줄
-          </h1>
+          <div className="flex items-center gap-1.5">
+            <Sparkles className="w-4 h-4 text-brand" />
+            <h1 className="text-base font-bold">AI 추천 스케줄</h1>
+          </div>
         </div>
-        <p className="text-sm text-muted-foreground pl-7">
+        <p className="text-xs text-muted-foreground pl-7">
           이번 주 최적의 일정을 제안해드릴게요
         </p>
       </header>
@@ -288,20 +287,18 @@ export default function SchedulePage() {
       {!isLoading && hasAvailability && recommendations.length > 0 && (
         <>
           {/* Weekly summary */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle className="text-sm">이번 주 예상 수입</CardTitle>
-                  <CardDescription className="text-xs">
-                    {recommendations.length}개 추천 스케줄
-                  </CardDescription>
-                </div>
-                <p className="text-xl font-bold text-brand tabular-nums">
-                  {formatMoney(weeklyTotal)}
+          <Card className="rounded-2xl">
+            <CardContent className="p-4 flex items-center justify-between">
+              <div>
+                <p className="text-xs text-muted-foreground">이번 주 예상 수입</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {recommendations.length}개 추천 스케줄
                 </p>
               </div>
-            </CardHeader>
+              <p className="text-xl font-extrabold tabular-nums">
+                {formatMoney(weeklyTotal)}
+              </p>
+            </CardContent>
           </Card>
 
           {/* Day-by-day schedule */}
@@ -318,13 +315,15 @@ export default function SchedulePage() {
 
           {/* Action buttons */}
           <div className="flex flex-col gap-2 pt-2">
-            <Button className="w-full bg-brand hover:bg-brand-dark text-white">
-              <CalendarDays className="w-4 h-4" />
-              이 스케줄로 가용시간 등록
+            <Button className="w-full rounded-xl bg-brand hover:bg-brand-dark text-white py-3.5 text-sm font-semibold active:scale-[0.98] transition-transform" asChild>
+              <Link href="/my/availability">
+                <CalendarDays className="w-4 h-4" />
+                이 스케줄로 가용시간 등록
+              </Link>
             </Button>
             <Button
-              variant="outline"
-              className="w-full"
+              variant="ghost"
+              className="w-full text-sm font-medium text-muted-foreground active:scale-[0.98]"
               onClick={loadSchedule}
               disabled={isLoading}
             >

@@ -68,10 +68,13 @@ export default async function MyPage() {
       <div className="mx-auto max-w-lg space-y-5 px-4 py-4">
         <PushPermissionBanner />
 
-        <section className="rounded-2xl border border-border bg-card p-4">
-          <div className="mb-4 flex items-center gap-3">
+        <Link
+          href="/my/profile"
+          className="group block rounded-2xl border border-border bg-card p-4 hover:shadow-lg hover:border-brand/20 transition-all duration-300"
+        >
+          <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-brand/10 text-3xl">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand/10 text-3xl shrink-0 transition-transform duration-300 group-hover:scale-110">
                 {worker?.avatar ?? "👤"}
               </div>
               {worker?.verifiedId && (
@@ -82,51 +85,45 @@ export default async function MyPage() {
             </div>
 
             <div className="min-w-0 flex-1">
-              <div className="mb-1 flex items-center gap-2">
-                <h1 className="truncate text-lg font-bold">
+              <div className="flex items-center gap-2">
+                <h1 className="truncate text-lg font-extrabold">
                   {worker?.name ?? "프로필 없음"}
                 </h1>
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${badge.color}`}
+                  className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${badge.color}`}
                 >
                   {badge.label}
                 </span>
               </div>
-              <p className="line-clamp-1 text-xs text-muted-foreground">
+              <p className="line-clamp-1 text-xs text-muted-foreground mt-0.5">
                 {worker?.bio ?? "자기소개를 등록하면 더 정확한 추천을 받을 수 있습니다."}
               </p>
             </div>
 
-            <Link
-              href="/my/profile"
-              aria-label="프로필 수정"
-              className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center rounded-full hover:bg-muted"
-            >
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            </Link>
+            <ChevronRight className="h-5 w-5 text-muted-foreground shrink-0 transition-transform duration-300 group-hover:translate-x-1" />
           </div>
 
-          <div className="grid grid-cols-3 gap-2 border-t border-border pt-4">
-            <div className="text-center">
+          <div className="mt-4 grid grid-cols-3 divide-x divide-border text-center">
+            <div>
               <p className="text-[10px] text-muted-foreground">이번 달 수입</p>
               <p className="mt-0.5 text-sm font-bold text-brand">
                 {formatMoney(worker?.thisMonthEarnings ?? 0)}
               </p>
             </div>
-            <div className="border-x border-border text-center">
+            <div>
               <p className="text-[10px] text-muted-foreground">누적 수입</p>
               <p className="mt-0.5 text-sm font-bold">
                 {formatMoney(worker?.totalEarnings ?? 0)}
               </p>
             </div>
-            <div className="text-center">
+            <div>
               <p className="text-[10px] text-muted-foreground">노쇼</p>
               <p className="mt-0.5 text-sm font-bold">
                 {worker?.noShowCount ?? 0}회
               </p>
             </div>
           </div>
-        </section>
+        </Link>
 
         <section>
           <div className="mb-3 flex items-center justify-between">
@@ -159,14 +156,14 @@ export default async function MyPage() {
               {upcoming.map((application) => (
                 <article
                   key={application.id}
-                  className="rounded-2xl border border-border bg-card p-4 transition-all hover:border-brand/40 hover:shadow-sm"
+                  className="group rounded-2xl border border-border bg-card p-4 transition-all duration-300 hover:shadow-md hover:border-brand/20"
                 >
                   <Link
                     href={`/my/applications/${application.id}`}
                     className="block"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-2xl">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-2xl transition-transform duration-200 group-hover:scale-110">
                         {application.job.business.logo}
                       </div>
                       <div className="min-w-0 flex-1">
@@ -233,12 +230,10 @@ export default async function MyPage() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex flex-col items-center gap-1 rounded-xl border border-border p-3 transition-colors hover:border-brand/40 hover:bg-muted/30"
+                className="group flex flex-col items-center gap-1.5 py-3 rounded-xl border border-border bg-card transition-all duration-200 hover:shadow-md hover:border-brand/20 hover:-translate-y-0.5 active:scale-[0.94]"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10">
-                  <item.icon className="h-5 w-5 text-brand" />
-                </div>
-                <span className="text-[11px] font-medium">{item.label}</span>
+                <item.icon className="h-5 w-5 text-brand transition-transform duration-200 group-hover:scale-110" />
+                <span className="text-[10px] font-semibold">{item.label}</span>
               </Link>
             ))}
           </div>

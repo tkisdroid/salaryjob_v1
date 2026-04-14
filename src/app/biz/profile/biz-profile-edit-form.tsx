@@ -3,6 +3,7 @@
 import { useActionState, useRef } from "react";
 import { updateBusinessProfile } from "./actions";
 import { formatRegNumber } from "@/lib/validations/business";
+import { Building2, MapPin, Star } from "lucide-react";
 import type { ProfileFormState } from "@/lib/form-state";
 
 interface Props {
@@ -54,17 +55,23 @@ export function BizProfileEditForm(props: Props) {
   }
 
   return (
-    <form action={action} className="space-y-4">
+    <form action={action} className="space-y-5">
       {/* BIZ-03: profileId is the ONLY identity the Server Action trusts.
           The owner check compares this profile's userId to session.id. */}
       <input type="hidden" name="profileId" value={props.profileId} />
 
+      {/* Store name header */}
+      <div className="flex items-center gap-2">
+        <span className="text-xl">{props.initialLogo || "🏢"}</span>
+        <h2 className="text-base font-bold">{props.initialName}</h2>
+      </div>
+
       <div>
         <label
           htmlFor={`name-${props.profileId}`}
-          className="mb-1 block text-sm font-medium"
+          className="mb-1.5 block text-xs font-semibold"
         >
-          상호명 *
+          상호명 <span className="text-destructive">*</span>
         </label>
         <input
           id={`name-${props.profileId}`}
@@ -72,7 +79,7 @@ export function BizProfileEditForm(props: Props) {
           type="text"
           required
           defaultValue={props.initialName}
-          className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
         {err?.fieldErrors?.name && (
           <p className="mt-1 text-xs text-destructive">{err.fieldErrors.name}</p>
@@ -82,16 +89,17 @@ export function BizProfileEditForm(props: Props) {
       <div>
         <label
           htmlFor={`category-${props.profileId}`}
-          className="mb-1 block text-sm font-medium"
+          className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold"
         >
-          카테고리 *
+          <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+          카테고리 <span className="text-destructive">*</span>
         </label>
         <select
           id={`category-${props.profileId}`}
           name="category"
           required
           defaultValue={props.initialCategory}
-          className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         >
           {CATEGORIES.map((c) => (
             <option key={c.value} value={c.value}>
@@ -109,27 +117,30 @@ export function BizProfileEditForm(props: Props) {
       <div>
         <label
           htmlFor={`logo-${props.profileId}`}
-          className="mb-1 block text-sm font-medium"
+          className="mb-1.5 block text-xs font-semibold"
         >
           로고 이모지
         </label>
-        <input
-          id={`logo-${props.profileId}`}
-          name="logo"
-          type="text"
-          maxLength={10}
-          placeholder="🏢"
-          defaultValue={props.initialLogo}
-          className="w-24 rounded-lg border border-border bg-background p-3 text-center text-xl focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
-        />
+        <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-border bg-muted/30 text-2xl">
+          <input
+            id={`logo-${props.profileId}`}
+            name="logo"
+            type="text"
+            maxLength={10}
+            placeholder="🏢"
+            defaultValue={props.initialLogo}
+            className="w-full h-full bg-transparent text-center text-xl focus:outline-none"
+          />
+        </div>
       </div>
 
       <div>
         <label
           htmlFor={`address-${props.profileId}`}
-          className="mb-1 block text-sm font-medium"
+          className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold"
         >
-          주소 *
+          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+          주소 <span className="text-destructive">*</span>
         </label>
         <input
           id={`address-${props.profileId}`}
@@ -137,7 +148,7 @@ export function BizProfileEditForm(props: Props) {
           type="text"
           required
           defaultValue={props.initialAddress}
-          className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
         {err?.fieldErrors?.address && (
           <p className="mt-1 text-xs text-destructive">{err.fieldErrors.address}</p>
@@ -147,7 +158,7 @@ export function BizProfileEditForm(props: Props) {
       <div>
         <label
           htmlFor={`addressDetail-${props.profileId}`}
-          className="mb-1 block text-sm font-medium"
+          className="mb-1.5 block text-xs font-semibold"
         >
           상세주소
         </label>
@@ -156,7 +167,7 @@ export function BizProfileEditForm(props: Props) {
           name="addressDetail"
           type="text"
           defaultValue={props.initialAddressDetail}
-          className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
       </div>
 
@@ -164,7 +175,7 @@ export function BizProfileEditForm(props: Props) {
         <div>
           <label
             htmlFor={`lat-${props.profileId}`}
-            className="mb-1 block text-sm font-medium"
+            className="mb-1.5 block text-xs font-semibold"
           >
             위도 (lat)
           </label>
@@ -174,7 +185,7 @@ export function BizProfileEditForm(props: Props) {
             type="number"
             step="0.0000001"
             defaultValue={props.initialLat}
-            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
           {err?.fieldErrors?.lat && (
             <p className="mt-1 text-xs text-destructive">{err.fieldErrors.lat}</p>
@@ -183,7 +194,7 @@ export function BizProfileEditForm(props: Props) {
         <div>
           <label
             htmlFor={`lng-${props.profileId}`}
-            className="mb-1 block text-sm font-medium"
+            className="mb-1.5 block text-xs font-semibold"
           >
             경도 (lng)
           </label>
@@ -193,7 +204,7 @@ export function BizProfileEditForm(props: Props) {
             type="number"
             step="0.0000001"
             defaultValue={props.initialLng}
-            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
           />
           {err?.fieldErrors?.lng && (
             <p className="mt-1 text-xs text-destructive">{err.fieldErrors.lng}</p>
@@ -204,7 +215,7 @@ export function BizProfileEditForm(props: Props) {
       <div>
         <label
           htmlFor={`description-${props.profileId}`}
-          className="mb-1 block text-sm font-medium"
+          className="mb-1.5 block text-xs font-semibold"
         >
           사업장 설명
         </label>
@@ -214,7 +225,7 @@ export function BizProfileEditForm(props: Props) {
           rows={3}
           maxLength={500}
           defaultValue={props.initialDescription}
-          className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className="w-full min-h-[80px] rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm resize-none focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
         />
       </div>
 
@@ -230,7 +241,7 @@ export function BizProfileEditForm(props: Props) {
         <div>
           <label
             htmlFor={`businessRegNumber-${props.profileId}`}
-            className="mb-1 block text-sm font-medium"
+            className="mb-1.5 block text-xs font-semibold"
           >
             사업자등록번호
           </label>
@@ -246,7 +257,7 @@ export function BizProfileEditForm(props: Props) {
                 : ""
             }
             onBlur={handleRegNumberBlur}
-            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
             style={{ minHeight: "44px" }}
           />
           {err?.fieldErrors?.businessRegNumber && (
@@ -262,7 +273,7 @@ export function BizProfileEditForm(props: Props) {
         <div>
           <label
             htmlFor={`ownerName-${props.profileId}`}
-            className="mb-1 block text-sm font-medium"
+            className="mb-1.5 block text-xs font-semibold"
           >
             대표자명
           </label>
@@ -272,7 +283,7 @@ export function BizProfileEditForm(props: Props) {
             type="text"
             placeholder="홍길동"
             defaultValue={props.initialOwnerName ?? ""}
-            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
             style={{ minHeight: "44px" }}
           />
           {err?.fieldErrors?.ownerName && (
@@ -283,7 +294,7 @@ export function BizProfileEditForm(props: Props) {
         <div>
           <label
             htmlFor={`ownerPhone-${props.profileId}`}
-            className="mb-1 block text-sm font-medium"
+            className="mb-1.5 block text-xs font-semibold"
           >
             대표자 연락처
           </label>
@@ -293,7 +304,7 @@ export function BizProfileEditForm(props: Props) {
             type="tel"
             placeholder="010-0000-0000"
             defaultValue={props.initialOwnerPhone ?? ""}
-            className="w-full rounded-lg border border-border bg-background p-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
             style={{ minHeight: "44px" }}
           />
           {err?.fieldErrors?.ownerPhone && (
@@ -305,19 +316,17 @@ export function BizProfileEditForm(props: Props) {
       {/* Read-only BIZ-02 display — NOT submitted with the form */}
       <section
         aria-label="읽기 전용 지표"
-        className="rounded-xl border border-dashed border-border bg-mint-bg/30 p-4 text-sm text-muted-foreground"
+        className="rounded-xl border border-border bg-muted/20 p-4 text-xs text-muted-foreground space-y-1"
       >
-        <div>
-          평점: {props.rating.toFixed(2)} ⭐ ({props.reviewCount}개 리뷰)
-        </div>
-        <div>완료율: {props.completionRate}%</div>
-        <div>인증: {props.verified ? "✅ 인증됨" : "미인증"}</div>
+        <p>평점: {props.rating.toFixed(2)} <Star className="inline h-3 w-3 text-yellow-500" /> ({props.reviewCount}개 리뷰)</p>
+        <p>완료율: {props.completionRate}%</p>
+        <p>인증: {props.verified ? "✅ 인증됨" : "미인증"}</p>
       </section>
 
       <button
         type="submit"
         disabled={isPending}
-        className="inline-flex h-12 w-full items-center justify-center rounded-xl bg-brand text-sm font-bold text-white transition-colors hover:bg-brand-dark disabled:opacity-50"
+        className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-brand text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-dark disabled:opacity-50"
       >
         {isPending ? "저장 중..." : "저장"}
       </button>

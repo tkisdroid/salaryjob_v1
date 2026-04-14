@@ -305,10 +305,7 @@ export function AvailabilityEditor({
           <Link href="/my" className="p-1 -ml-1 hover:bg-muted rounded-md">
             <ChevronLeft className="w-5 h-5" />
           </Link>
-          <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
-            <Clock className="w-5 h-5 text-brand" />
-            내 가용시간
-          </h1>
+          <h1 className="text-lg font-bold tracking-tight">시간 등록</h1>
         </div>
         <p className="text-sm text-muted-foreground pl-7">
           빈 시간을 등록하면 AI가 맞춤 공고를 찾아드려요
@@ -332,10 +329,13 @@ export function AvailabilityEditor({
       ) : null}
 
       {/* Weekly Calendar Grid */}
-      <Card>
+      <Card className="rounded-2xl">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm">이번 주</CardTitle>
+            <div className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-brand" />
+              <CardTitle className="text-sm font-semibold">가능한 시간을 선택하세요</CardTitle>
+            </div>
             <Button
               variant="ghost"
               size="sm"
@@ -347,7 +347,7 @@ export function AvailabilityEditor({
             </Button>
           </div>
           <CardDescription className="text-xs">
-            셀을 탭하거나 드래그해서 가용 시간을 선택하세요
+            요일 또는 시간 헤더를 눌러 한 줄씩 선택할 수도 있어요
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -366,8 +366,8 @@ export function AvailabilityEditor({
               return (
                 <div
                   key={day}
-                  className={`h-8 flex items-center justify-center text-xs font-semibold ${
-                    isWeekend ? "text-brand" : "text-foreground"
+                  className={`h-8 flex items-center justify-center text-[10px] font-semibold rounded-md hover:bg-accent transition-colors cursor-pointer ${
+                    isWeekend ? "text-brand" : "text-muted-foreground"
                   }`}
                 >
                   {day}
@@ -393,10 +393,10 @@ export function AvailabilityEditor({
                       role="button"
                       aria-pressed={isSelected}
                       aria-label={`${DAYS[DAY_KEYS.indexOf(dayKey)]}요일 ${formatHour(hour)}`}
-                      className={`h-8 border border-border/50 cursor-pointer transition-colors ${
+                      className={`h-7 rounded-md cursor-pointer transition-colors ${
                         isSelected
-                          ? "bg-brand/80 border-brand/60"
-                          : "bg-background hover:bg-brand/10"
+                          ? "bg-brand text-primary-foreground"
+                          : "bg-secondary hover:bg-accent"
                       }`}
                     />
                   );
@@ -459,15 +459,13 @@ export function AvailabilityEditor({
       <Separator />
 
       {/* Summary */}
-      <div>
-        <p className="text-sm font-medium">
+      <div className="text-center">
+        <p className="text-xs text-muted-foreground">
+          {totalHours}개 시간대 선택됨
+        </p>
+        <p className="text-sm font-medium mt-1">
           이번 주{" "}
           <span className="text-brand font-bold">{totalHours}시간</span> 등록됨
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {totalHours > 0
-            ? "AI가 맞춤 공고를 찾고 있어요"
-            : "시간을 등록하면 AI 매칭이 시작됩니다"}
         </p>
       </div>
 
@@ -516,10 +514,10 @@ export function AvailabilityEditor({
               size="sm"
               onClick={handleSave}
               disabled={isPending || !isDirty}
-              className="bg-brand hover:bg-brand-dark text-white text-xs disabled:opacity-50"
+              className="rounded-xl bg-brand hover:bg-brand-dark text-white text-xs font-semibold disabled:opacity-50 transition-colors"
             >
               <Save className="w-3.5 h-3.5" />
-              {status.kind === "saving" || isPending ? "저장 중..." : "저장"}
+              {status.kind === "saving" || isPending ? "저장 중..." : "저장하기"}
             </Button>
           </div>
         </div>

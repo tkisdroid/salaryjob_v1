@@ -9,7 +9,6 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format";
@@ -85,9 +84,11 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
       </header>
 
       <Link href="/search">
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-muted/50 px-3 py-2.5 text-sm text-muted-foreground transition-colors hover:border-brand/40">
-          <Search className="h-4 w-4 shrink-0" />
-          <span>공고 검색...</span>
+        <div className="relative flex items-center">
+          <Search className="absolute left-3 h-4 w-4 text-muted-foreground" />
+          <div className="w-full rounded-xl border border-input bg-card pl-10 pr-4 py-2.5 text-sm text-muted-foreground transition-colors hover:border-brand/40">
+            직종, 지역, 매장명으로 검색
+          </div>
         </div>
       </Link>
 
@@ -157,38 +158,36 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
             <div className="space-y-3">
               {filtered.map((job) => (
                 <Link key={job.id} href={`/posts/${job.id}`}>
-                  <Card className="transition-shadow hover:ring-brand/30">
-                    <CardContent>
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <h3 className="truncate text-sm font-bold tracking-tight">
-                            {job.title}
-                          </h3>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            {job.businessName}
-                          </p>
-                        </div>
-                        <div className="shrink-0 text-right">
-                          <p className="text-sm font-bold text-brand">
-                            {formatMoney(job.hourlyPay)}
-                          </p>
-                          <p className="flex items-center justify-end gap-0.5 text-xs text-muted-foreground">
-                            <MapPin className="h-3 w-3" />
-                            {job.address.split(" ").slice(0, 2).join(" ")}
-                          </p>
-                        </div>
+                  <div className="rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:shadow-md hover:border-brand/30 hover:-translate-y-0.5">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="truncate text-sm font-bold tracking-tight">
+                          {job.title}
+                        </h3>
+                        <p className="mt-0.5 text-xs text-muted-foreground">
+                          {job.businessName}
+                        </p>
                       </div>
-                      {job.tags.length > 0 && (
-                        <div className="mt-2 flex flex-wrap gap-1">
-                          {job.tags.slice(0, 4).map((tag) => (
-                            <Badge key={tag} variant="secondary" className="text-[10px]">
-                              {tag}
-                            </Badge>
-                          ))}
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                      <div className="shrink-0 text-right">
+                        <p className="text-sm font-bold text-brand">
+                          {formatMoney(job.hourlyPay)}
+                        </p>
+                        <p className="flex items-center justify-end gap-0.5 text-xs text-muted-foreground">
+                          <MapPin className="h-3 w-3" />
+                          {job.address.split(" ").slice(0, 2).join(" ")}
+                        </p>
+                      </div>
+                    </div>
+                    {job.tags.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-1">
+                        {job.tags.slice(0, 4).map((tag) => (
+                          <Badge key={tag} variant="secondary" className="text-[10px]">
+                            {tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 </Link>
               ))}
             </div>
