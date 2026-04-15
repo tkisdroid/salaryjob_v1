@@ -22,20 +22,20 @@ export default async function BizSettlementsPage({
 
       <div className="grid grid-cols-2 gap-3 mb-4">
         <div className="rounded-2xl border border-border bg-card p-4">
-          <p className="text-[10px] text-muted-foreground">누적 지급</p>
+          <p className="text-xs text-muted-foreground">누적 지급</p>
           <p className="text-xl font-extrabold tracking-tight mt-1">
             {totals.allTimeTotal.toLocaleString("ko-KR")}원
           </p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {totals.allTimeCount}건
           </p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-4">
-          <p className="text-[10px] text-muted-foreground">이번 달 지급</p>
+          <p className="text-xs text-muted-foreground">이번 달 지급</p>
           <p className="text-xl font-extrabold tracking-tight mt-1">
             {totals.thisMonthTotal.toLocaleString("ko-KR")}원
           </p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground mt-0.5">
             {totals.thisMonthCount}건
           </p>
         </div>

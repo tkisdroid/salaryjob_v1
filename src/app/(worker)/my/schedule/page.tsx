@@ -93,7 +93,7 @@ function ScheduleBlock({
   readonly recommendation: ScheduleRecommendation;
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4 active:scale-[0.99] transition-transform">
+    <div className="rounded-2xl border border-border bg-card p-4 transition-colors hover:bg-card/95 hover:border-brand/20">
       <div className="flex items-start gap-3">
         {/* Category icon */}
         <div className="w-10 h-10 rounded-xl bg-brand/10 flex items-center justify-center shrink-0">

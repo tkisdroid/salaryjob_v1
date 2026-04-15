@@ -99,32 +99,32 @@ export default async function BizDashboardPage() {
 
       <section className="mt-8 grid grid-cols-2 gap-3 xl:grid-cols-4">
         <div className="rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md">
-          <p className="text-[10px] text-muted-foreground font-medium">전체 공고</p>
-          <p className="mt-1 text-xl font-extrabold tracking-tight">{jobs.length}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground font-semibold">전체 공고</p>
+          <p className="mt-1 text-2xl font-extrabold tracking-tight">{jobs.length}</p>
+          <p className="text-xs text-muted-foreground mt-1">
             모집 중 {openJobs.length}건
           </p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md">
-          <p className="text-[10px] text-muted-foreground font-medium">긴급 공고</p>
-          <p className="mt-1 text-xl font-extrabold tracking-tight text-brand">
+          <p className="text-xs text-muted-foreground font-semibold">긴급 공고</p>
+          <p className="mt-1 text-2xl font-extrabold tracking-tight text-brand">
             {urgentJobs.length}
           </p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground mt-1">
             즉시 확인이 필요한 공고
           </p>
         </div>
         <div className="rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md">
-          <p className="text-[10px] text-muted-foreground font-medium">충원율</p>
-          <p className="mt-1 text-xl font-extrabold tracking-tight">{fillRate}%</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground font-semibold">충원율</p>
+          <p className="mt-1 text-2xl font-extrabold tracking-tight">{fillRate}%</p>
+          <p className="text-xs text-muted-foreground mt-1">
             {totalFilled}/{totalHeadcount}명 매칭
           </p>
         </div>
         <div className="col-span-2 xl:col-span-1 rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md">
-          <p className="text-[10px] text-muted-foreground font-medium">예상 총 지급</p>
+          <p className="text-xs text-muted-foreground font-semibold">예상 총 지급</p>
           <p className="mt-1 text-2xl font-extrabold tracking-tight">{formatMoney(forecastBudget)}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <p className="text-xs text-muted-foreground mt-1">
             등록된 공고 기준 합계
           </p>
         </div>
@@ -146,7 +146,7 @@ export default async function BizDashboardPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">공고 관리</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   등록한 공고와 지원자를 확인합니다.
                 </p>
               </div>
@@ -161,7 +161,7 @@ export default async function BizDashboardPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">인재 탐색</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   지원자와 추천 인재 프로필을 확인합니다.
                 </p>
               </div>
@@ -176,7 +176,7 @@ export default async function BizDashboardPage() {
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">정산 확인</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="text-xs text-muted-foreground mt-0.5">
                   지급 현황과 정산 내역을 확인합니다.
                 </p>
               </div>
@@ -189,7 +189,7 @@ export default async function BizDashboardPage() {
           <div className="flex items-center justify-between px-5 pt-5 pb-2">
             <div>
               <h2 className="text-sm font-bold">최근 공고</h2>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 대시보드에서 바로 상세와 지원자를 확인할 수 있습니다.
               </p>
             </div>
@@ -243,10 +243,10 @@ export default async function BizDashboardPage() {
                     >
                       {job.title}
                     </Link>
-                    <p className="text-[11px] text-muted-foreground mt-1">
+                    <p className="text-xs text-muted-foreground mt-1">
                       {formatWorkSummary(job)}
                     </p>
-                    <p className="text-[11px] text-muted-foreground">
+                    <p className="text-xs text-muted-foreground">
                       {job.filled}/{job.headcount}명 · 지원 {job.appliedCount}건
                     </p>
                     <div className="flex gap-2 mt-3">

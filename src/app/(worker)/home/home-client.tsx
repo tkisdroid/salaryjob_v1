@@ -82,22 +82,22 @@ export function HomeClient({
                 <li key={job.id}>
                   <Link
                     href={`/posts/${job.id}`}
-                    className="group block rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:shadow-lg hover:border-brand/30 hover:-translate-y-0.5 active:scale-[0.98] active:shadow-sm"
+                    className="group block rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:shadow-lg hover:border-brand/30 hover:bg-card/95"
                   >
                     <div className="mb-2 flex items-start gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-lg shrink-0 transition-transform duration-200 group-hover:scale-110">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-lg shrink-0 transition-colors duration-200 group-hover:bg-brand/15">
                         {job.business.logo}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-[10px] text-muted-foreground">
+                        <p className="truncate text-xs text-foreground/70">
                           {job.business.name}
                         </p>
-                        <h3 className="line-clamp-1 text-sm font-bold mt-0.5 relative inline-block after:content-[''] after:absolute after:w-full after:scale-x-0 after:h-[1.5px] after:bottom-0 after:left-0 after:bg-brand after:origin-bottom-right after:transition-transform after:duration-300 group-hover:after:scale-x-100 group-hover:after:origin-bottom-left">
+                        <h3 className="line-clamp-1 text-sm font-bold mt-0.5 group-hover:text-brand-deep transition-colors">
                           {job.title}
                         </h3>
                       </div>
                     </div>
-                    <div className="mb-2.5 flex items-center gap-3 text-[10px] text-muted-foreground">
+                    <div className="mb-2.5 flex items-center gap-3 text-xs text-muted-foreground">
                       <div className="flex items-center gap-1">
                         <Clock className="h-3 w-3" />
                         {formatWorkDate(job.workDate)} {job.startTime}
@@ -108,10 +108,10 @@ export function HomeClient({
                       </div>
                     </div>
                     <div className="flex items-center justify-between border-t border-border pt-2.5">
-                      <span className="text-[10px] text-muted-foreground">
+                      <span className="text-xs text-muted-foreground">
                         시급 {formatMoney(job.hourlyPay)}
                       </span>
-                      <span className="text-sm font-bold text-brand transition-transform duration-200 group-hover:scale-105">
+                      <span className="text-sm font-bold text-brand">
                         {formatMoney(calculateEarnings(job))}
                       </span>
                     </div>

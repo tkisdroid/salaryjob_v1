@@ -238,7 +238,7 @@ export default function NotificationsPage() {
                             >
                               {notification.title}
                             </h3>
-                            <span className="text-[10px] text-muted-foreground shrink-0 pt-0.5">
+                            <span className="text-xs text-muted-foreground shrink-0 pt-0.5">
                               {notification.time}
                             </span>
                           </div>

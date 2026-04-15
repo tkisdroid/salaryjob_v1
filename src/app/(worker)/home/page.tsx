@@ -118,8 +118,8 @@ export default async function WorkerHomePage({
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
           <div>
-            <p className="text-[10px] text-muted-foreground">안녕하세요</p>
-            <p className="text-sm font-bold">{worker?.name ?? "게스트"}님 👋</p>
+            <p className="text-[11px] text-muted-foreground">안녕하세요</p>
+            <p className="text-base font-bold">{worker?.name ?? "게스트"}님 👋</p>
           </div>
           <Link
             href="/notifications"
@@ -175,7 +175,7 @@ export default async function WorkerHomePage({
                 <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-xl">
                   {cat.emoji}
                 </div>
-                <span className="text-[10px] font-medium">{cat.label}</span>
+                <span className="text-xs font-medium">{cat.label}</span>
               </Link>
             ))}
           </div>
@@ -208,7 +208,7 @@ export default async function WorkerHomePage({
                       {job.business.logo}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-[10px] text-muted-foreground">
+                      <p className="truncate text-xs text-muted-foreground">
                         {job.business.name}
                       </p>
                       <h3 className="line-clamp-1 text-sm font-bold">
@@ -216,7 +216,7 @@ export default async function WorkerHomePage({
                       </h3>
                     </div>
                   </div>
-                  <div className="mb-2 flex items-center gap-3 text-[10px] text-muted-foreground">
+                  <div className="mb-2 flex items-center gap-3 text-xs text-muted-foreground">
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {formatWorkDate(job.workDate)} {job.startTime}
@@ -227,7 +227,7 @@ export default async function WorkerHomePage({
                     </div>
                   </div>
                   <div className="flex items-center justify-between border-t border-border pt-2">
-                    <span className="text-[10px] text-muted-foreground">
+                    <span className="text-xs text-muted-foreground">
                       시급 {formatMoney(job.hourlyPay)}
                     </span>
                     <span className="text-sm font-bold text-[color:var(--urgent)]">

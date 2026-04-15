@@ -74,7 +74,7 @@ export default async function MyPage() {
         >
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand/10 text-3xl shrink-0 transition-transform duration-300 group-hover:scale-110">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand/10 text-3xl shrink-0 transition-colors duration-300 group-hover:bg-brand/15">
                 {worker?.avatar ?? "👤"}
               </div>
               {worker?.verifiedId && (
@@ -105,19 +105,19 @@ export default async function MyPage() {
 
           <div className="mt-4 grid grid-cols-3 divide-x divide-border text-center">
             <div>
-              <p className="text-[10px] text-muted-foreground">이번 달 수입</p>
+              <p className="text-xs text-muted-foreground">이번 달 수입</p>
               <p className="mt-0.5 text-sm font-bold text-brand">
                 {formatMoney(worker?.thisMonthEarnings ?? 0)}
               </p>
             </div>
             <div>
-              <p className="text-[10px] text-muted-foreground">누적 수입</p>
+              <p className="text-xs text-muted-foreground">누적 수입</p>
               <p className="mt-0.5 text-sm font-bold">
                 {formatMoney(worker?.totalEarnings ?? 0)}
               </p>
             </div>
             <div>
-              <p className="text-[10px] text-muted-foreground">노쇼</p>
+              <p className="text-xs text-muted-foreground">노쇼</p>
               <p className="mt-0.5 text-sm font-bold">
                 {worker?.noShowCount ?? 0}회
               </p>
@@ -163,24 +163,24 @@ export default async function MyPage() {
                     className="block"
                   >
                     <div className="flex items-start gap-3">
-                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-2xl transition-transform duration-200 group-hover:scale-110">
+                      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-2xl transition-colors duration-200 group-hover:bg-brand/15">
                         {application.job.business.logo}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className="truncate text-[11px] text-muted-foreground">
+                            <p className="truncate text-xs text-muted-foreground">
                               {application.job.business.name}
                             </p>
                             <h3 className="line-clamp-1 text-sm font-bold">
                               {application.job.title}
                             </h3>
                           </div>
-                          <span className="shrink-0 rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-bold text-brand">
+                          <span className="shrink-0 rounded-full bg-brand/10 px-2 py-0.5 text-[11px] font-bold text-brand">
                             확정
                           </span>
                         </div>
-                        <div className="mt-1.5 flex items-center gap-3 text-[11px] text-muted-foreground">
+                        <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
                           <div className="flex items-center gap-0.5">
                             <Clock className="h-3 w-3" />
                             <span className="font-medium text-foreground">
@@ -230,10 +230,10 @@ export default async function MyPage() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="group flex flex-col items-center gap-1.5 py-3 rounded-xl border border-border bg-card transition-all duration-200 hover:shadow-md hover:border-brand/20 hover:-translate-y-0.5 active:scale-[0.94]"
+                className="group flex flex-col items-center gap-1.5 py-3 rounded-xl border border-border bg-card transition-all duration-200 hover:shadow-md hover:border-brand/20 hover:bg-brand-light/30"
               >
-                <item.icon className="h-5 w-5 text-brand transition-transform duration-200 group-hover:scale-110" />
-                <span className="text-[10px] font-semibold">{item.label}</span>
+                <item.icon className="h-5 w-5 text-brand" />
+                <span className="text-xs font-semibold">{item.label}</span>
               </Link>
             ))}
           </div>
@@ -249,7 +249,7 @@ export default async function MyPage() {
             </div>
             <div className="min-w-0 flex-1">
               <p className="text-sm font-bold">AI 추천 일정</p>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="text-xs text-muted-foreground">
                 가능한 시간에 맞는 공고를 빠르게 확인할 수 있습니다.
               </p>
             </div>
@@ -278,16 +278,16 @@ export default async function MyPage() {
                     {application.job.business.logo}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[10px] text-muted-foreground">
+                    <p className="truncate text-xs text-muted-foreground">
                       {application.job.business.name}
                     </p>
-                    <p className="line-clamp-1 text-xs font-medium">
+                    <p className="line-clamp-1 text-sm font-medium">
                       {application.job.title}
                     </p>
                   </div>
                   <div className="shrink-0 text-right">
-                    <p className="text-[10px] text-muted-foreground">수입</p>
-                    <p className="text-xs font-bold text-brand">
+                    <p className="text-xs text-muted-foreground">수입</p>
+                    <p className="text-sm font-bold text-brand">
                       {application.earnings
                         ? formatMoney(application.earnings)
                         : "정산 대기"}

@@ -129,7 +129,7 @@ export default function ChatListPage() {
             <Link
               key={room.id}
               href={`/chat/${room.id}`}
-              className="block w-full rounded-2xl bg-brand-light/60 border border-brand/[0.08] p-4 transition-transform active:scale-[0.98]"
+              className="block w-full rounded-2xl bg-brand-light/60 border border-brand/[0.08] p-4 transition-colors hover:bg-brand-light/80"
             >
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 rounded-full bg-brand/10 flex items-center justify-center shrink-0">
