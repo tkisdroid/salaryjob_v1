@@ -2,83 +2,99 @@
 
 ## What This Is
 
-GigNow는 일본 Timee를 벤치마킹한 한국형 초단기/스팟 알바 매칭 플랫폼입니다. Worker와 Business를 잇는 양면 마켓플레이스로, "탐색 → 원탭 지원 → 근무 → 즉시 정산" 루프 하나만 집요하게 최적화합니다.
+GigNow는 일본 Timee를 벤치마킹한 한국형 초단기/스팟 알바 매칭 플랫폼입니다. Worker와 Business를 잇는 양면 마켓플레이스로, "탐색 → 원탭 지원 → 근무 → 즉시 정산" 루프 하나만 집요하게 최적화합니다. 운영자가 사업장 검색·수수료 관리·사업자등록증 열람을 할 수 있는 Admin 콘솔도 내장합니다.
 
 ## Core Value
 
 **이력서·면접 제로. 탭 하나로 확정, 근무 후 즉시 정산.** — 다른 모든 기능은 이 단일 경험을 방해하지 않는 한에서만 존재합니다.
 
+## Current State
+
+**Shipped:** v1.0 Timee 모델 한국 MVP — 2026-04-15 (tag `v1.0`)
+
+- 43/43 v1 requirements + 17/17 Phase 6 operational decisions satisfied at code level.
+- 6 phases × 38 plans × 55 tasks shipped across 2026-04-10 → 2026-04-13.
+- Stack: Next.js 16 App Router, React 19, Prisma 7, Supabase Auth + PostGIS, Tailwind v4 / shadcn.
+- Milestone audit: `tech_debt` (no blockers). See `.planning/milestones/v1.0-MILESTONE-AUDIT.md`.
+
 ## Requirements
 
-### Validated
+### Validated (v1.0)
 
-<!-- Shipped and confirmed valuable. -->
+- ✓ Mock UI foundation (Worker/Business E2E 루프, 양방향 ReviewForm, Timee 스타일 네비게이션) — Phase 1
+- ✓ Supabase·Prisma·Auth 기반 (6모델 + PostGIS + 이메일 4방식 + Kakao OAuth + role-gated layouts) — Phase 2
+- ✓ Worker/Business 프로필 CRUD + Supabase Storage 아바타 업로드 (WORK-01..04, BIZ-01..03) — Phase 3
+- ✓ Business 공고 CRUD + PostGIS 거리 정렬 + pg_cron 만료 (POST-01..06) — Phase 3
+- ✓ 원탭 지원 + accept/reject Realtime + 자동 마감 (APPL-01..05) — Phase 4
+- ✓ 체크인/체크아웃 + 야간 할증 50% + geofence ST_DWithin (SHIFT-01..03) — Phase 4
+- ✓ Kakao Maps 지도 탐색 + 시간 필터 버킷 (SEARCH-02/03) — Phase 4
+- ✓ Web Push (VAPID + Service Worker) accept/reject 알림 (NOTIF-01 partial) — Phase 4
+- ✓ 양방향 리뷰 + rating 원자적 집계 (REV-01..04) — Phase 5
+- ✓ Settlement (settled 전환 + Asia/Seoul 월 집계) (SETL-01..03) — Phase 5
+- ✓ `src/lib/mock-data.ts` 완전 제거 (DATA-05 gate pass) — Phase 5
+- ✓ Admin 콘솔 (사업장 검색/필터/정렬/커서 페이지네이션, 수수료 관리, 등록증 열람) (D-27..D-43) — Phase 6
+- ✓ 사업자 자동 인증 (regNumber) + 공고 등록 시 이미지 게이트 + CLOVA OCR — Phase 6
 
-- ✓ Worker 탐색·지원·체크인·리뷰 목업 루프 — Phase 1
-- ✓ Business 공고 생성·지원자 관리·지원자 리뷰 목업 루프 — Phase 1
-- ✓ 양방향 ReviewForm 공용 컴포넌트 (worker↔biz) — Phase 1
-- ✓ Timee 스타일 UI 언어 (모바일 퍼스트 Worker, 데스크톱 Biz) — Phase 1
-- ✓ Prisma 스키마 + Supabase 프로젝트 연결 + 마이그레이션 — Phase 2
-- ✓ Supabase Auth 기반 로그인/세션 (Worker + Business 이중 역할) — Phase 2
-- ✓ Worker/Business 프로필 CRUD 실 DB 연결 (WORK-01..04, BIZ-01..03) — Phase 3
-- ✓ Business 공고 CRUD 실 DB 연결 (POST-01..03, app-layer 소유자 체크) — Phase 3
-- ✓ Worker 읽기 서페이스 + PostGIS 거리 정렬 + pg_cron 만료 (POST-04..06) — Phase 3
-- ✓ Supabase Storage 아바타 업로드 (avatars/{uid}/ RLS 스코핑) — Phase 3
-- ✓ 13개 Phase 3 요구사항 자동 검증 완료 (16 test files / 54 tests / 0 failures)
+### Active (v1.1 candidate scope)
 
-### Active
+- [ ] Phase 6 DB 마이그레이션 적용 — `commissionRate` / `businessRegImageUrl` / `Application.commissionRate|commissionAmount|netEarnings` / `business-reg-docs` storage bucket. Runtime blocker until applied.
+- [ ] HUMAN-UAT 8 시나리오 실행 — Phase 5 (1분 루프, 375px 가독성, 리뷰 UX taste), Phase 6 (admin 검색, biz verify, 이미지 게이트, OCR 라운드트립).
+- [ ] `/my/schedule` 페이지의 로컬 MOCK 상수(availability/match history)를 실 DB로 wiring (Phase 1 legacy).
+- [ ] Stale Clerk TODO 주석 정리 (`api/push/register/route.ts`).
+- [ ] 인프라 보완: `CLOVA_OCR_SECRET` 프로비저닝, signed URL TTL 실측.
 
-<!-- Current scope. Building toward these. -->
+### Deferred to v2
 
-- [ ] 지원·근무 라이프사이클 DB 연결 — Phase 4
-- [ ] mock-data.ts 완전 제거 (Phase 5 종료 조건)
-- [ ] Phase 3 human UAT 8개 항목 사후 검증 (03-HUMAN-UAT.md) — 배포 전 수행
+- **AI 매칭 고도화** (AIMATCH-01..04) — Claude + Gemini 게이트웨이 본격 매칭 품질 튜닝.
+- **Toss Payments 실결제 + 원천징수** (PAY-01..04) — Phase 6에서 수수료 rate 모델링은 끝남. 실 결제·출금·원천징수는 v2. 백로그 999.2에 scope hint 기록됨.
+- **SMS / 카카오 알림톡 / 네이티브 FCM/APNs** — Web Push는 Phase 4에서 커버 완료. 네이티브 채널은 PWA 검증 후.
+- **고급 키워드 검색** (SEARCH-01) — 현재는 카테고리/거리/시간 필터만.
+- **1:1 채팅** (CHAT-01/02) — 자동 확정 플로우로 채팅 필요 최소화.
+- **사업자 하트/스카우트 알림** — 백로그 999.1에 scope hint 기록됨.
 
 ### Out of Scope
 
-<!-- Explicit boundaries. Includes reasoning to prevent re-adding. -->
-
-- **면접·판단 심사·고용주 임의 거절** — Timee 벤치마크의 핵심 차별화 원칙. 기존 한국 알바 플랫폼(알바천국/알바몬)의 "지원→대기→면접→채용" 워크플로를 재생산하면 프로덕트의 존재 이유가 사라짐. 단, **자동수락 타이머(30분) 기반 간소화된 pending→confirmed 플로우는 Timee 철학과 양립하므로 Phase 4에서 허용 (D-01, D-02, D-03)**. Business는 30분 이내 명시적 accept/reject만 할 수 있고, 미응답은 시스템이 자동 confirmed 처리한다.
-- **AI 매칭 알고리즘 고도화** — `src/lib/services/ai-matching.ts`에 Claude+Codex 스캐폴드만 존재. Phase 2는 데이터 레이어만 책임지고, 실제 매칭 품질은 Phase 3+에서 측정 후 튜닝.
-- **Toss Payments 실제 연동, 원천징수, 사업자번호 검증** — 정산 UI는 Phase 1에서 mock. 법·결제 통합은 제품-시장 맞물림 확인 후 별도 Phase.
-- **네이티브 FCM/APNs, SMS, 카카오 알림톡** — **Web Push (VAPID 기반 브라우저 내장 push)는 Phase 4에서 활성화 (D-19)**. 그러나 네이티브 모바일 푸시, SMS, 카카오 알림톡은 여전히 v2. Phase 4는 "Worker가 Chrome/Edge에서 수락/거절 OS 알림을 받는다"까지만 책임진다.
-- **Multi-session/MFA/조직 관리** — Supabase Auth 기본 기능만 사용. Clerk급 엔터프라이즈 기능 불필요.
-- **풀 광고 플랫폼** (위치 기반 프로모션, 규모 인센티브) — MVP 이후.
+- **면접·판단 심사·고용주 임의 거절** — Timee 차별화 원칙. 자동수락 타이머(30분)로 간소화된 pending→confirmed만 허용. 기존 한국 알바 플랫폼 패턴 금지.
+- **Multi-session / MFA / 조직 관리** — Supabase Auth 기본 기능만 사용.
+- **풀 광고 플랫폼** — MVP 검증 후 고려.
 - **한국어 외 언어 지원** — 국내 시장 집중.
+- **모바일 네이티브 앱** — PWA/웹 우선.
 
 ## Context
 
-- **벤치마크**: 일본 Timee (timee.co.jp, ads.apple.com/kr/app-store/success-stories/timee, japan-dev.com/companies/timee). 기능·UI·마이크로카피를 모두 학습하여 한국 시장에 이식.
-- **현재 코드 상태 (2026-04-10)**:
-  - Phase 1 커밋 완료 (`55790d1 feat: Phase 1 mock-data UI`)
-  - Next.js 16.2.1 App Router, React 19.2.4, Prisma 7.5, Tailwind v4, shadcn/ui, AI SDK v6
-  - `src/lib/mock-data.ts` 전 기능 구동, Worker/Biz 양쪽 루프 전부 모킹으로 E2E 가능
-  - `src/lib/services/ai-matching.ts` Claude+Codex 스캐폴드 — 워킹 트리에 TS 에러 남아있음 (Phase 3 대상)
-  - `.planning/codebase/ARCHITECTURE.md` 일부는 aspirational 상태 (Clerk/Toss/push 언급이 있으나 실제 미설치)
-- **개발자 컨텍스트**: 단일 개발자, 빠른 반복 속도를 선호. 커밋 단위 단단함·거버넌스·사용자 플로우 무결성을 중시.
-- **로컬라이제이션 타겟**: 카카오맵, 국세청 사업자 인증, Toss Payments, 원천징수 — 모두 Phase 3+.
+- **벤치마크**: 일본 Timee. 기능·UI·마이크로카피를 한국 시장에 이식.
+- **v1.0 코드 상태 (2026-04-15)**:
+  - 55 Next.js routes, 238 passing vitest + 10 todo
+  - Next.js 16.2.1 + React 19.2.4 + Prisma 7.5 + Tailwind v4 + shadcn/ui + @supabase/ssr
+  - `src/lib/mock-data.ts` **삭제됨** (DATA-05 gate). `(worker)/my/schedule/page.tsx`의 로컬 MOCK 상수는 Phase 1 legacy 잔재.
+  - Supabase DB에 Phase 2-5 마이그레이션 적용 완료. Phase 6 마이그레이션은 schema.prisma에만 존재, 실 apply 대기 (Supabase 연결 불가로 close 시점에 deferred).
+- **개발자 컨텍스트**: 단일 개발자, 빠른 반복 속도 + 단단한 거버넌스. GSD 워크플로(phase → plan → execute → verify → audit) 준수.
+- **UAT**: Phase 5 3 시나리오 + Phase 6 5 pending + 3 deferred. 브라우저 세션 + 실 Supabase 연결이 필요한 항목들.
 
 ## Constraints
 
 - **Tech stack**: Next.js 16 (App Router) + React 19 + Prisma 7 + Supabase (DB + Auth) — 변경하려면 PROJECT.md 업데이트 필수.
 - **Data model**: PostgreSQL + PostGIS (위치 기반 쿼리 필수) — Supabase 기본 제공.
-- **Auth provider**: Supabase Auth (Clerk/NextAuth 제외) — 데이터와 인증을 단일 벤더로 통합하여 복잡도 최소화. **예외: Kakao Maps JavaScript SDK는 /home 지도 탐색 UX를 위해 Phase 4에서 허용된 첫 외부 의존성 (D-23). Supabase 범위 밖.**
-- **Mock removal**: Phase 2 종료 시점에 `src/lib/mock-data.ts` 의존 경로 0개여야 함. 이 파일이 남아있으면 Phase 2는 미완료.
-- **UX 원칙**: Timee의 "면접 없음 · 당일 근무 · 즉시 정산" 3축을 깨는 기능 설계 금지.
-- **Performance**: "탐색 → 지원 → 확정" 플로우가 실제 DB 왕복으로도 1분 이내 완료되어야 Phase 2 성공.
+- **Auth provider**: Supabase Auth (Clerk/NextAuth 제외). **예외:** Kakao Maps JavaScript SDK는 /home 지도 탐색 UX를 위한 첫 외부 의존성 (D-23).
+- **Mock removal**: `src/lib/mock-data.ts` 의존 경로 0개 유지 (v1.0 gate 통과됨, 회귀 금지).
+- **UX 원칙**: Timee "면접 없음 · 당일 근무 · 즉시 정산" 3축을 깨는 기능 설계 금지.
+- **Performance**: "탐색 → 지원 → 확정" 플로우 실 DB 왕복 1분 이내 (v1.0에서 코드-레벨 달성, HUMAN-UAT 실측 대기).
 
 ## Key Decisions
 
-<!-- Decisions that constrain future work. Add throughout project lifecycle. -->
-
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| Phase 1은 mock-data.ts로 UI 완성 후 Phase 2에서 DB/API 연결 | 디자인/플로우 실수를 저비용으로 조기 발견. Prisma 스키마도 실제 UI 요구를 본 뒤에 정의 | ✓ Good — Phase 1 shipped 2026-04-10 |
-| Supabase를 DB + Auth 단일 벤더로 선택 | 한 벤더로 복잡도 최소화, MCP 서버로 Claude가 직접 마이그레이션 적용 가능 | ✓ Good — Phase 2 shipped 2026-04-10 (MCP 경로는 조직 미스매치로 막혀 direct-prisma fallback 적용. 결과는 동일) |
-| Phase 2 마이그레이션 전략: direct-prisma (Pivot from MCP/CLI) | 대상 Supabase 프로젝트가 MCP-linked 계정 밖에 있고 Docker/Supabase CLI 미설치 → `pg` 클라이언트 + Prisma migrate + tsx scripts/apply-supabase-migrations.ts로 fallback. 하이브리드 SSOT는 유지 | ✓ Good — Phase 2 통과 |
-| 양면 마켓플레이스 구조 (Worker + Business 동시 지원) | Timee 모델 복제. 한쪽만으로는 공급/수요 균형 불가 | ✓ Good — 라우트 그룹 구조로 Phase 1에 반영 |
-| AI 매칭은 Phase 3+로 연기 | Phase 2는 데이터 레이어만 책임. 매칭 품질은 실 데이터 축적 후 튜닝 | — Pending |
-| 성공 지표로 "플로우 지표"(탐색→지원→근무 예약 1분 이내) 채택 | 기술 완료가 아닌 사용자 플로우 동작이 진짜 완료 기준 | — Pending |
+| Phase 1은 mock-data.ts로 UI 완성 후 Phase 2에서 DB/API 연결 | 디자인/플로우 실수를 저비용으로 조기 발견 | ✓ Good — Phase 1 shipped 2026-04-10 |
+| Supabase를 DB + Auth 단일 벤더로 선택 | 한 벤더로 복잡도 최소화, MCP로 직접 적용 | ✓ Good — Phase 2 shipped 2026-04-10 (MCP 대신 direct-prisma fallback 적용, 결과 동일) |
+| Phase 2 마이그레이션 전략: direct-prisma (Pivot from MCP/CLI) | 대상 Supabase 프로젝트가 MCP-linked 계정 밖 → `pg` + Prisma migrate + tsx 스크립트 fallback | ✓ Good |
+| 양면 마켓플레이스 구조 (Worker + Business 동시 지원) | Timee 모델 복제 | ✓ Good — 라우트 그룹 구조로 Phase 1부터 반영 |
+| AUTH-01: 휴대폰/SMS OTP는 v2로 연기, 이메일 4방식으로 v1 대체 | SMS provider 연동 비용 + 한국에서 이메일 충분 | ✓ Good (드리프트 문서화, STATE.md D-01) |
+| Phase 4 scope 확장 — Kakao Maps + Web Push + 체크아웃 QR (SEARCH-02/03, NOTIF-01 partial) | Timee 지도·알림·본인확인 UX가 MVP에서 필수로 판명 | ✓ Good — Phase 4 shipped 2026-04-11 |
+| DATA-05 gate 강제 — Phase 5 종료 = mock-data.ts 삭제 | "실 DB 위에서 동작" 여부를 기계적으로 측정 | ✓ Good — `grep` exit 1 확인, 회귀 방지 장치 유지 |
+| Phase 6 commission 스냅샷 @ checkOut 시점 (rate 변경은 과거 정산에 영향 없음) | 과거 거래의 불변성 + 관리자 rate 수정 자유도 | ✓ Good — D-34..36 |
+| Phase 6 CLOVA OCR advisory, 이미지 저장은 authoritative | OCR 실패해도 Human UAT로 복구 가능, 게이트는 이미지 존재로만 판단 | ✓ Good — D-31/D-33 |
+| 성공 지표로 "플로우 지표"(탐색→지원→근무 예약 1분 이내) 채택 | 기술 완료가 아닌 사용자 플로우 동작이 진짜 완료 기준 | ⚠️ Revisit — 코드 달성, HUMAN-UAT 실측 v1.1에서 |
+| Phase 6 DB 마이그레이션 close 시점에 미적용 (tech debt로 수락) | Supabase 연결 불가. Code wiring 완료이므로 audit는 satisfied | ⚠️ Revisit — v1.1 첫 작업으로 apply |
 
 ---
-*Last updated: 2026-04-10 after Phase 2 (Supabase·Prisma·Auth 기반) shipped — 9/7 plans (6 originals + 02-07 mock-removal gap closure + 02-08 auth-type fixup + 02-09 Phase 1 legacy cleanup). Auto-verification 11/11 PASS. 5 human-UAT items pending in 02-HUMAN-UAT.md.*
+*Last updated: 2026-04-15 after v1.0 milestone shipped (6 phases, 38 plans, 43 v1 reqs + 17 Phase 6 decisions — all code-complete, `tech_debt` audit).*
