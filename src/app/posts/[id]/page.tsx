@@ -11,7 +11,18 @@ import {
 import { formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { BackButton } from "@/components/shared/back-button";
-import { Clock, MapPin, Wallet, CheckCircle2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Clock,
+  MapPin,
+  Wallet,
+  Banknote,
+  Users,
+  CheckCircle2,
+  CalendarDays,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -22,20 +33,17 @@ function isJobExpired(workDate: string, startTime: string): boolean {
   return workDateTime.getTime() < Date.now();
 }
 
-/**
- * Public job detail route — POST-04 + POST-05.
- *
- * Lives OUTSIDE the (worker) route group so middleware's isAuthPublic allows
- * anonymous access (see src/lib/supabase/middleware.ts — `/posts/` prefix).
- *
- * Calls calculateEarnings directly to satisfy POST-05 earnings display.
- * Renders an expiry badge (POST-06) when the job's workDate + startTime is
- * in the past, even if the row is still status='active' (covers the pg_cron
- * 5-minute lag).
- *
- * The "원탭 지원" button always routes to /login?next=/posts/{id} in Phase 3.
- * Phase 4 (APPL-01) upgrades this to a real applyToJob Server Action.
- */
+// ── 타이포 토큰 (랜딩 토큰 계열로 정합) ────────────────────────────────────
+const T = {
+  h1: "text-[22px] sm:text-[26px] font-extrabold leading-[1.25] tracking-[-0.022em]",
+  h2: "text-[15px] font-bold tracking-[-0.008em] text-foreground",
+  body: "text-[15px] leading-[1.7] text-muted-foreground",
+  bodySm: "text-[14px] leading-[1.65] text-muted-foreground",
+  micro: "text-[12px] text-muted-foreground",
+  kpi: "text-[17px] font-extrabold leading-[1.2] tracking-[-0.01em]",
+  numeric: "font-mono tabular-nums tracking-tight",
+};
+
 export default async function PublicJobDetailPage({ params }: Props) {
   const { id } = await params;
   const job = await getJobById(id);
@@ -60,195 +68,257 @@ export default async function PublicJobDetailPage({ params }: Props) {
     }
   }
 
-  // Render-time expiry check — independent of pg_cron sweep interval.
   const isExpired = isJobExpired(job.workDate, job.startTime);
   const earnings = calculateEarnings(job);
   const spotsLeft = Math.max(0, job.headcount - job.filled);
+  const isFull = spotsLeft === 0;
+  const ctaDisabled = isExpired || isFull;
 
   return (
-    <main className="mx-auto max-w-2xl px-4 py-4 pb-28">
-      {/* Header */}
-      <nav className="mb-4">
+    <main className="mx-auto max-w-2xl px-5 sm:px-6 pb-28 pt-4">
+      {/* ── Back button ─────────────────────────────────────────────── */}
+      <nav className="mb-5">
         <BackButton
-          className="flex h-9 w-9 items-center justify-center rounded-lg hover:bg-accent transition-colors"
+          className="inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-[13px] font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
           fallbackHref="/"
           ariaLabel="공고 목록으로 돌아가기"
         >
-          ← 뒤로
+          <ArrowLeft className="h-4 w-4" />
+          목록으로
         </BackButton>
       </nav>
 
-      {isExpired && (
-        <div className="mb-3 rounded-xl border border-dashed border-border bg-muted p-3 text-center text-sm font-bold text-muted-foreground">
-          만료된 공고입니다
+      {(isExpired || isFull) && (
+        <div
+          role="status"
+          className={cn(
+            "mb-4 rounded-xl border border-dashed px-4 py-3 text-center text-[13px] font-semibold",
+            isExpired
+              ? "border-border bg-muted text-muted-foreground"
+              : "border-[var(--amber)]/30 bg-[var(--amber-light)] text-[var(--amber-deep)]",
+          )}
+        >
+          {isExpired ? "만료된 공고입니다" : "모집이 마감되었습니다"}
         </div>
       )}
 
-      {/* Business info */}
-      <div className="flex items-center gap-3 mb-4">
-        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-xl">
+      {/* ── Business info + badge ──────────────────────────────────── */}
+      <header className="mb-5 flex items-center gap-3">
+        <div
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-brand/10 text-xl"
+          aria-hidden="true"
+        >
           {job.business.logo}
         </div>
-        <div>
-          <p className="text-sm font-bold">{job.business.name}</p>
-          <p className="text-[10px] text-muted-foreground">
+        <div className="min-w-0 flex-1">
+          <p className="text-[15px] font-bold tracking-[-0.012em] truncate">
+            {job.business.name}
+          </p>
+          <p className="text-[12px] text-muted-foreground">
             {categoryLabel(job.category)}
           </p>
         </div>
         {job.isUrgent && !isExpired && (
-          <span className="ml-auto shrink-0 rounded-full bg-[color:var(--urgent)]/10 px-2.5 py-1 text-xs font-bold text-[color:var(--urgent)]">
+          <span className="shrink-0 rounded-full bg-[var(--urgent)]/10 px-3 py-1 text-[12px] font-bold text-[var(--amber-deep)]">
             급구
           </span>
         )}
-      </div>
+      </header>
 
-      {/* Job title */}
-      <h1 className="text-xl font-extrabold mb-4">{job.title}</h1>
+      {/* ── Job title ───────────────────────────────────────────────── */}
+      <h1 className={cn("mb-6", T.h1)}>{job.title}</h1>
 
-      {/* Key info grid — 4 cards with icons */}
-      <section className="mb-6 grid grid-cols-2 gap-3">
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1">
-            <Wallet className="h-4 w-4" />
-            <span className="text-[10px]">예상 수입</span>
-          </div>
-          <p className="text-lg font-extrabold text-brand">{formatMoney(earnings)}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            시급 {formatMoney(job.hourlyPay)}
+      {/* ── Key info grid (4 cards, 통일된 value 크기) ──────────────── */}
+      <section className="mb-7 grid grid-cols-2 gap-3">
+        <InfoCard icon={<Wallet className="h-4 w-4" />} label="예상 수입">
+          <p className={cn("text-brand", T.kpi, T.numeric)}>
+            {formatMoney(earnings)}
           </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1">
-            <Clock className="h-4 w-4" />
-            <span className="text-[10px]">근무 시간</span>
-          </div>
-          <p className="text-lg font-extrabold">{job.workHours}시간</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
+          <p className={cn("mt-1", T.micro)}>
+            시급 <span className={T.numeric}>{formatMoney(job.hourlyPay)}</span>
+          </p>
+        </InfoCard>
+
+        <InfoCard icon={<Clock className="h-4 w-4" />} label="근무 시간">
+          <p className={T.kpi}>
+            <span className={T.numeric}>{job.workHours}</span>시간
+          </p>
+          <p className={cn("mt-1", T.micro, T.numeric)}>
             {job.startTime}~{job.endTime}
           </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1">
-            <MapPin className="h-4 w-4" />
-            <span className="text-[10px]">근무일</span>
-          </div>
-          <p className="text-sm font-extrabold">{formatWorkDate(job.workDate)}</p>
-          <p className="text-[10px] text-muted-foreground mt-0.5">
-            {spotsLeft}명 남음 / {job.headcount}명
+        </InfoCard>
+
+        <InfoCard icon={<CalendarDays className="h-4 w-4" />} label="근무일">
+          <p className={T.kpi}>{formatWorkDate(job.workDate)}</p>
+          <p className={cn("mt-1 flex items-center gap-1", T.micro)}>
+            <Users className="h-3 w-3" />
+            <span>
+              <span className={cn("font-bold", T.numeric)}>{spotsLeft}</span>명
+              남음 · 총 <span className={T.numeric}>{job.headcount}</span>명
+            </span>
           </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <div className="flex items-center gap-2 text-muted-foreground mb-1">
-            <span className="text-[10px]">💰</span>
-            <span className="text-[10px]">교통비</span>
-          </div>
-          <p className="text-lg font-extrabold">{formatMoney(job.transportFee)}</p>
+        </InfoCard>
+
+        <InfoCard icon={<Banknote className="h-4 w-4" />} label="교통비">
+          <p className={cn(T.kpi, T.numeric)}>
+            {formatMoney(job.transportFee)}
+          </p>
           {job.nightShiftAllowance && (
-            <p className="text-[10px] text-muted-foreground mt-0.5">+ 심야 할증</p>
+            <p className={cn("mt-1", T.micro)}>＋ 심야 할증 포함</p>
           )}
-        </div>
+        </InfoCard>
       </section>
 
-      {/* Description */}
-      <section className="mb-6">
-        <h2 className="text-sm font-bold mb-2">업무 소개</h2>
-        <div className="rounded-2xl border border-border bg-card p-4 text-sm leading-relaxed text-muted-foreground">
-          <p className="whitespace-pre-wrap">{job.description}</p>
-          {job.duties.length > 0 && (
-            <ul className="mt-3 space-y-2">
-              {job.duties.map((d, i) => (
-                <li key={`${d}-${i}`} className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-brand shrink-0 mt-0.5" />
-                  {d}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      </section>
-
-      {job.requirements.length > 0 && (
-        <section className="mb-5">
-          <h2 className="mb-2 text-sm font-bold">지원 조건</h2>
-          <div className="rounded-2xl border border-border bg-card p-4">
-            <ul className="space-y-2 text-sm text-muted-foreground">
-              {job.requirements.map((r, i) => (
-                <li key={`${r}-${i}`} className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-brand shrink-0 mt-0.5" />
-                  {r}
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-      )}
-
-      {job.dressCode && (
-        <section className="mb-5">
-          <h2 className="mb-2 text-sm font-bold">복장</h2>
-          <p className="text-sm text-muted-foreground">{job.dressCode}</p>
-        </section>
-      )}
-
-      {job.whatToBring.length > 0 && (
-        <section className="mb-5">
-          <h2 className="mb-2 text-sm font-bold">준비물</h2>
-          <div className="flex flex-wrap gap-1.5">
-            {job.whatToBring.map((w, i) => (
-              <span
-                key={`${w}-${i}`}
-                className="rounded-full bg-muted px-2.5 py-1 text-xs"
-              >
-                {w}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {job.tags.length > 0 && (
-        <section className="mb-5">
-          <div className="flex flex-wrap gap-1.5">
-            {job.tags.map((t) => (
-              <span
-                key={t}
-                className="rounded-full border border-border px-2 py-0.5 text-xs font-medium"
-              >
-                #{t}
-              </span>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="mb-6">
-        <h2 className="mb-2 text-sm font-bold">근무 장소</h2>
-        <p className="text-sm text-muted-foreground">{job.business.address}</p>
-        {job.business.addressDetail && (
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {job.business.addressDetail}
+      {/* ── Location ───────────────────────────────────────────────── */}
+      <section className="mb-7">
+        <h2 className={cn("mb-2.5 flex items-center gap-1.5", T.h2)}>
+          <MapPin className="h-4 w-4 text-muted-foreground" />
+          근무 장소
+        </h2>
+        <div className="rounded-2xl border border-border bg-card p-4">
+          <p className="text-[15px] font-semibold tracking-[-0.008em] text-foreground">
+            {job.business.address}
           </p>
-        )}
+          {job.business.addressDetail && (
+            <p className={cn("mt-1", T.micro)}>{job.business.addressDetail}</p>
+          )}
+        </div>
       </section>
 
-      {/* Sticky CTA */}
-      {!isExpired && (
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
-          <div className="mx-auto max-w-2xl">
+      {/* ── Description ─────────────────────────────────────────────── */}
+      <section className="mb-7">
+        <h2 className={cn("mb-2.5", T.h2)}>업무 소개</h2>
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <p className={cn("whitespace-pre-wrap", T.body)}>
+            {job.description}
+          </p>
+          {job.duties.length > 0 && (
+            <ul className="mt-4 space-y-2.5">
+              {job.duties.map((d, i) => (
+                <li
+                  key={`${d}-${i}`}
+                  className={cn("flex items-start gap-2", T.bodySm, "text-foreground")}
+                >
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                  <span>{d}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </section>
+
+      {/* ── Requirements ────────────────────────────────────────────── */}
+      {job.requirements.length > 0 && (
+        <section className="mb-7">
+          <h2 className={cn("mb-2.5", T.h2)}>지원 조건</h2>
+          <div className="rounded-2xl border border-border bg-card p-5">
+            <ul className="space-y-2.5">
+              {job.requirements.map((r, i) => (
+                <li
+                  key={`${r}-${i}`}
+                  className={cn("flex items-start gap-2", T.bodySm, "text-foreground")}
+                >
+                  <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-brand" />
+                  <span>{r}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      )}
+
+      {/* ── Dress code & What to bring ──────────────────────────────── */}
+      {(job.dressCode || job.whatToBring.length > 0) && (
+        <section className="mb-7 grid gap-4 sm:grid-cols-2">
+          {job.dressCode && (
+            <div>
+              <h2 className={cn("mb-2", T.h2)}>복장</h2>
+              <p className={T.bodySm}>{job.dressCode}</p>
+            </div>
+          )}
+          {job.whatToBring.length > 0 && (
+            <div>
+              <h2 className={cn("mb-2", T.h2)}>준비물</h2>
+              <div className="flex flex-wrap gap-1.5">
+                {job.whatToBring.map((w, i) => (
+                  <span
+                    key={`${w}-${i}`}
+                    className="rounded-full bg-muted px-3 py-1 text-[12px] font-medium text-foreground"
+                  >
+                    {w}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* ── Tags ────────────────────────────────────────────────────── */}
+      {job.tags.length > 0 && (
+        <section className="mb-7 flex flex-wrap gap-1.5">
+          {job.tags.map((t) => (
+            <span
+              key={t}
+              className="rounded-full border border-border px-2.5 py-0.5 text-[12px] font-medium text-muted-foreground"
+            >
+              #{t}
+            </span>
+          ))}
+        </section>
+      )}
+
+      {/* ── Sticky CTA ──────────────────────────────────────────────── */}
+      {!ctaDisabled && (
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background pb-[env(safe-area-inset-bottom)]">
+          <div className="mx-auto flex max-w-2xl items-center gap-3 px-5 py-3 sm:px-6">
+            {/* 요약 — 데스크톱/큰 모바일에서 가격 미리보기 */}
+            <div className="hidden min-w-0 flex-1 sm:block">
+              <p className="text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground">
+                예상 수입
+              </p>
+              <p className={cn("text-[17px] font-extrabold text-brand", T.numeric)}>
+                {formatMoney(earnings)}
+              </p>
+            </div>
+
             <Link
               href={applyCtaHref}
-              className="block w-full h-12 rounded-xl bg-brand text-center font-bold text-white shadow-lg shadow-brand/20 hover:bg-brand-dark leading-[3rem] text-base"
+              className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-full bg-brand px-6 text-[15px] font-semibold text-primary-foreground shadow-[0_6px_20px_hsl(var(--brand)/0.22)] transition-colors hover:bg-brand-dark focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:flex-none sm:px-7"
             >
               원탭 지원하기
+              <ArrowRight className="h-4 w-4" />
             </Link>
-            {!user && (
-              <p className="mt-1 text-center text-xs text-muted-foreground">
-                로그인 후 즉시 확정됩니다
-              </p>
-            )}
           </div>
+          {!user && (
+            <p className="px-5 pb-3 text-center text-[12px] text-muted-foreground sm:px-6">
+              로그인 후 즉시 확정됩니다
+            </p>
+          )}
         </div>
       )}
     </main>
+  );
+}
+
+// ── InfoCard primitive ─────────────────────────────────────────────────────
+function InfoCard({
+  icon,
+  label,
+  children,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="mb-2 flex items-center gap-1.5 text-muted-foreground">
+        {icon}
+        <span className="text-[12px] font-medium">{label}</span>
+      </div>
+      {children}
+    </div>
   );
 }
