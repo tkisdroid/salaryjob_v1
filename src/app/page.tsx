@@ -407,12 +407,12 @@ export default async function LandingPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {valueCards.map((card, i) => (
                 <Reveal key={card.title} delay={0.08 + i * 0.07}>
-                  <div className="group rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
+                  <div className="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
                     <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand transition-all duration-300 group-hover:bg-brand group-hover:text-primary-foreground group-hover:scale-110">
                       <card.Icon className="h-5 w-5" />
                     </div>
                     <h3 className="mt-4 text-base font-bold">{card.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
                       {card.description}
                     </p>
                   </div>
@@ -438,7 +438,7 @@ export default async function LandingPage() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {workerFlow.map((step, i) => (
                 <Reveal key={step.number} delay={0.06 + i * 0.08}>
-                  <div className="group relative rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
+                  <div className="group relative flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
                     <span className="text-3xl font-black text-brand/15 transition-colors duration-300 group-hover:text-brand/30">
                       {step.number}
                     </span>
@@ -446,13 +446,29 @@ export default async function LandingPage() {
                       <step.Icon className="h-5 w-5" />
                     </div>
                     <h3 className="mt-3 text-base font-bold">{step.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
                       {step.description}
                     </p>
                   </div>
                 </Reveal>
               ))}
             </div>
+            <Reveal delay={0.4}>
+              <div className="mt-10 text-center">
+                <Link
+                  href="/login?next=/home"
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "h-12 rounded-full bg-brand px-8 text-sm font-semibold text-primary-foreground hover:bg-brand-dark sm:text-base",
+                  )}
+                >
+                  <span className="flex items-center gap-1.5">
+                    지금 바로 일하기
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                </Link>
+              </div>
+            </Reveal>
           </div>
         </section>
 
