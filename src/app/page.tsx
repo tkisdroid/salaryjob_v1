@@ -40,8 +40,43 @@ function formatDayLabel(workDate: string): string {
   });
 }
 
+// ── 타이포 토큰 ──────────────────────────────────────────────────────────────
+// 한글 가독성 기준: 본문 15~16px, line-height 1.7~1.75, heading 대형에서
+// 음수 tracking(-0.02~-0.035em)으로 Pretendard 음절 간 여백을 압축.
+const T = {
+  // 대형 헤딩은 clamp으로 breakpoint 사이도 fluid
+  h1: "text-[clamp(2.1rem,5.5vw+0.5rem,3.75rem)] font-extrabold leading-[1.15] tracking-[-0.035em]",
+  h2: "text-[clamp(1.625rem,2.4vw+0.75rem,2.125rem)] font-extrabold leading-[1.2] tracking-[-0.025em]",
+  h2Climax:
+    "text-[clamp(1.875rem,3vw+0.75rem,2.625rem)] font-extrabold leading-[1.15] tracking-[-0.03em]",
+  h3: "text-[17px] font-bold leading-[1.4] tracking-[-0.01em]",
+  eyebrow:
+    "text-[11px] font-bold uppercase tracking-[0.2em] text-brand",
+  lead:
+    "text-[15px] sm:text-base leading-[1.75] text-muted-foreground",
+  body:
+    "text-[15px] leading-[1.7] text-muted-foreground",
+  bodySm:
+    "text-sm leading-[1.7] text-muted-foreground",
+  hint:
+    "text-[12px] leading-[1.5] text-muted-foreground",
+  // 숫자 전용 — Geist Mono tabular
+  numeric:
+    "font-mono tabular-nums tracking-tight",
+} as const;
+
 const NAV_HOVER =
   "hover:text-foreground transition-colors relative rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0 after:bg-brand after:scale-x-0 after:origin-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-left";
+
+// 카드 공통 — 높이 정렬(flex col + flex-1 description)과 hover 리프트 한 곳에
+const CARD_BASE =
+  "group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.07)]";
+
+const ICON_TILE_BRAND =
+  "flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand transition-[background-color,color,transform] duration-300 group-hover:bg-brand group-hover:text-primary-foreground group-hover:scale-110";
+
+const ICON_TILE_TEAL =
+  "flex h-11 w-11 items-center justify-center rounded-xl bg-teal-light text-teal transition-[background-color,color,transform] duration-300 group-hover:bg-teal group-hover:text-primary-foreground group-hover:scale-110";
 
 export default async function LandingPage() {
   const { jobs, nextCursor } = await getJobsPaginated({ limit: 12 });
@@ -161,31 +196,35 @@ export default async function LandingPage() {
       {/* ─── Header ─────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 group rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
-            <CeleryMark className="h-10 w-10 text-brand transition-transform duration-300 group-hover:rotate-12" />
+          <Link
+            href="/"
+            className="group flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          >
+            <CeleryMark className="h-9 w-9 text-brand transition-transform duration-300 group-hover:rotate-12" />
             <div className="leading-tight">
-              <p className="text-base font-bold tracking-tight text-foreground">
+              <p className="text-[15px] font-bold tracking-[-0.015em] text-foreground">
                 샐러리잡
               </p>
-              <p className="text-[10px] text-muted-foreground">
+              <p className="text-[11px] text-muted-foreground">
                 내 주변 로컬 잡
               </p>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-6 text-sm font-medium text-muted-foreground md:flex">
+          {/* Nav: 실제 섹션 스크롤 순서(Worker → Flow → Business)에 맞춤 */}
+          <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
             <a href="#worker" className={NAV_HOVER}>
               일자리 찾기
-            </a>
-            <a href="#business" className={NAV_HOVER}>
-              사업자 등록
             </a>
             <a href="#flow" className={NAV_HOVER}>
               이용 방법
             </a>
+            <a href="#business" className={NAV_HOVER}>
+              사업자 등록
+            </a>
           </nav>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Link
               href="/login"
               className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
@@ -196,7 +235,7 @@ export default async function LandingPage() {
               href="/login?next=/home"
               className={cn(
                 buttonVariants({ size: "sm" }),
-                "rounded-full bg-brand px-4 text-primary-foreground shadow-sm hover:bg-brand-dark shadow-[0_4px_16px_hsl(var(--brand)/0.15)]",
+                "rounded-full bg-brand px-4 text-primary-foreground shadow-[0_4px_16px_hsl(var(--brand)/0.18)] hover:bg-brand-dark",
               )}
             >
               시작하기
@@ -215,14 +254,14 @@ export default async function LandingPage() {
           <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 sm:px-6 py-20 md:grid-cols-[1.15fr_0.85fr] md:py-28">
             <div className="max-w-2xl">
               <Reveal>
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand-light px-4 py-1.5 text-xs font-semibold text-brand-deep">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand-light px-3.5 py-1.5 text-[12px] font-bold tracking-[-0.005em] text-brand-deep">
                   <IconSparkle className="h-3.5 w-3.5" />
-                  샐러리처럼 산뜻한 로컬 잡 플랫폼
+                  산뜻한 로컬 잡 플랫폼
                 </div>
               </Reveal>
 
               <Reveal delay={0.1}>
-                <h1 className="text-[clamp(2rem,5.5vw+0.5rem,3.5rem)] font-extrabold leading-[1.15] tracking-tight text-foreground">
+                <h1 className={cn(T.h1, "text-foreground")}>
                   <span className="block">내 주변 일자리,</span>
                   <span className="block text-brand-deep">
                     더 가볍고 빠르게
@@ -231,22 +270,19 @@ export default async function LandingPage() {
               </Reveal>
 
               <Reveal delay={0.2}>
-                <p className="mt-5 max-w-xl text-[15px] leading-7 text-muted-foreground sm:text-base md:text-lg">
-                  이력서도 면접도 필요 없어요.
-                  <br className="hidden sm:block" />
-                  오늘 가능한 일부터 안정적인 근무까지,
-                  <br className="hidden sm:block" />
-                  탭 한 번으로 지원하고 근무 후 바로 정산받으세요.
+                <p className={cn("mt-6 max-w-[32ch]", T.lead)}>
+                  이력서도 면접도 없이, 오늘 가능한 일부터 탭 한 번으로.
+                  근무가 끝나면 바로 정산까지.
                 </p>
               </Reveal>
 
               <Reveal delay={0.3}>
-                <div className="mt-7 flex w-full flex-col gap-2.5 sm:flex-row sm:gap-3">
+                <div className="mt-8 flex w-full flex-col gap-2.5 sm:flex-row sm:gap-3">
                   <Link
                     href="/login?next=/home"
                     className={cn(
                       buttonVariants({ size: "lg" }),
-                      "h-12 w-full rounded-full bg-brand px-6 text-sm font-semibold text-primary-foreground hover:bg-brand-dark sm:w-auto sm:text-base shadow-[0_6px_24px_hsl(var(--brand)/0.2)]",
+                      "h-12 w-full rounded-full bg-brand px-6 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.25)] hover:bg-brand-dark sm:w-auto sm:text-base",
                     )}
                   >
                     <span className="flex items-center gap-1.5">
@@ -258,7 +294,7 @@ export default async function LandingPage() {
                     href="/signup?role=business"
                     className={cn(
                       buttonVariants({ variant: "outline", size: "lg" }),
-                      "h-12 w-full rounded-full border-brand/30 bg-card px-6 text-sm font-semibold text-brand-deep hover:bg-brand-light sm:w-auto sm:text-base",
+                      "h-12 w-full rounded-full border-brand/30 bg-card px-6 text-[15px] font-semibold text-brand-deep hover:bg-brand-light sm:w-auto sm:text-base",
                     )}
                   >
                     사업자로 시작하기
@@ -267,7 +303,7 @@ export default async function LandingPage() {
               </Reveal>
 
               <Reveal delay={0.4}>
-                <ul className="mt-6 grid grid-cols-1 gap-2 text-xs text-muted-foreground sm:grid-cols-3 sm:gap-2.5">
+                <ul className="mt-7 grid grid-cols-1 gap-2 text-[13px] text-muted-foreground sm:grid-cols-3 sm:gap-2.5">
                   {["이력서·면접 제로", "당일 근무 가능", "근무 후 즉시 정산"].map(
                     (text) => (
                       <li
@@ -275,7 +311,7 @@ export default async function LandingPage() {
                         className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2"
                       >
                         <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand" />
-                        <span className="truncate">{text}</span>
+                        <span className="truncate font-medium">{text}</span>
                       </li>
                     ),
                   )}
@@ -290,9 +326,9 @@ export default async function LandingPage() {
                 <div className="relative w-72 h-[500px] rounded-[2.5rem] border-[6px] border-foreground/10 bg-card shadow-2xl overflow-hidden">
                   <div className="bg-gradient-to-r from-brand/15 to-brand/5 p-4 flex items-center gap-3">
                     <CeleryMark className="h-8 w-8 text-brand" />
-                    <div>
-                      <p className="text-sm font-bold">샐러리잡</p>
-                      <p className="text-[10px] text-muted-foreground">
+                    <div className="leading-tight">
+                      <p className="text-[13px] font-bold tracking-[-0.01em]">샐러리잡</p>
+                      <p className="text-[11px] text-muted-foreground">
                         내 주변 일자리
                       </p>
                     </div>
@@ -304,23 +340,23 @@ export default async function LandingPage() {
                             key={job.id}
                             className="rounded-2xl border border-border bg-card p-3 hover:shadow-md transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5"
                           >
-                            <p className="text-[10px] text-muted-foreground">
+                            <p className="text-[11px] text-muted-foreground">
                               {job.business.name}
                             </p>
-                            <p className="text-sm font-bold mt-0.5">
+                            <p className="text-[13px] font-bold mt-0.5 tracking-[-0.01em]">
                               {job.title}
                             </p>
-                            <div className="flex items-center gap-2 mt-2 text-[10px] text-muted-foreground">
+                            <div className="flex items-center gap-2 mt-2 text-[11px] text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
                                 {formatDayLabel(job.workDate)} {job.startTime}
                               </span>
                             </div>
                             <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
-                              <span className="text-[10px] text-muted-foreground">
+                              <span className="text-[11px] text-muted-foreground">
                                 시급
                               </span>
-                              <span className="text-sm font-bold text-brand">
+                              <span className={cn("text-[13px] font-bold text-brand", T.numeric)}>
                                 {formatWon(job.hourlyPay)}
                               </span>
                             </div>
@@ -335,23 +371,23 @@ export default async function LandingPage() {
                             key={job.name}
                             className="rounded-2xl border border-border bg-card p-3 hover:shadow-md transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5"
                           >
-                            <p className="text-[10px] text-muted-foreground">
+                            <p className="text-[11px] text-muted-foreground">
                               {job.name}
                             </p>
-                            <p className="text-sm font-bold mt-0.5">
+                            <p className="text-[13px] font-bold mt-0.5 tracking-[-0.01em]">
                               {job.role}
                             </p>
-                            <div className="flex items-center gap-2 mt-2 text-[10px] text-muted-foreground">
+                            <div className="flex items-center gap-2 mt-2 text-[11px] text-muted-foreground">
                               <span className="flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
                                 {job.time}
                               </span>
                             </div>
                             <div className="flex items-center justify-between mt-2 pt-2 border-t border-border">
-                              <span className="text-[10px] text-muted-foreground">
+                              <span className="text-[11px] text-muted-foreground">
                                 시급
                               </span>
-                              <span className="text-sm font-bold text-brand">
+                              <span className={cn("text-[13px] font-bold text-brand", T.numeric)}>
                                 {job.pay}
                               </span>
                             </div>
@@ -366,22 +402,28 @@ export default async function LandingPage() {
 
         {/* ─── Trust Stats ─────────────────────────────────────────────── */}
         <section className="border-b border-border/60" aria-label="서비스 현황">
-          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-12 md:py-16">
-            <ul className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-14 md:py-16">
+            <ul className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
               {trustStats.map((stat, i) => (
-                <li key={stat.label}>
-                  <Reveal delay={i * 0.07}>
-                    <div className="rounded-2xl border border-border bg-card p-5 text-center transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
-                      <p className="text-2xl font-extrabold text-brand md:text-3xl">
+                <li key={stat.label} className="h-full">
+                  <Reveal delay={i * 0.07} className="h-full">
+                    <div className="flex h-full flex-col justify-center rounded-2xl border border-border bg-card px-5 py-6 text-center transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.06)]">
+                      <p
+                        className={cn(
+                          "text-[28px] md:text-[32px] font-extrabold text-brand leading-none",
+                          T.numeric,
+                        )}
+                      >
                         <span className="sr-only">{stat.label}: </span>
                         {stat.value}
                       </p>
-                      <p className="mt-1 text-sm font-semibold text-foreground" aria-hidden="true">
+                      <p
+                        className="mt-2 text-[13px] font-semibold tracking-[-0.005em] text-foreground"
+                        aria-hidden="true"
+                      >
                         {stat.label}
                       </p>
-                      <p className="mt-0.5 text-[10px] text-muted-foreground">
-                        {stat.hint}
-                      </p>
+                      <p className={cn("mt-1", T.hint)}>{stat.hint}</p>
                     </div>
                   </Reveal>
                 </li>
@@ -391,30 +433,26 @@ export default async function LandingPage() {
         </section>
 
         {/* ─── Value Cards (FOR WORKERS) ──────────────────────────────── */}
-        <section id="worker" className="border-b border-border/60">
-          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-16 md:py-20">
+        <section id="worker" className="border-b border-border/60 scroll-mt-20">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-20 md:py-24">
             <Reveal>
-              <div className="mb-10 text-center">
-                <p className="text-xs font-semibold text-brand uppercase tracking-widest">
-                  FOR WORKERS
-                </p>
-                <h2 className="mt-2 text-2xl font-extrabold tracking-tight md:text-3xl">
-                  왜 샐러리잡인가요?
-                </h2>
-                <p className="mt-3 text-sm text-muted-foreground max-w-lg mx-auto">
+              <div className="mb-12 text-center">
+                <p className={T.eyebrow}>FOR WORKERS</p>
+                <h2 className={cn("mt-3", T.h2)}>왜 샐러리잡인가요?</h2>
+                <p className={cn("mt-4 max-w-lg mx-auto", T.body)}>
                   복잡한 과정 없이, 내 주변 일자리를 가장 빠르게 연결합니다.
                 </p>
               </div>
             </Reveal>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {valueCards.map((card, i) => (
-                <Reveal key={card.title} delay={0.08 + i * 0.07}>
-                  <div className="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand transition-[background-color,color,transform] duration-300 group-hover:bg-brand group-hover:text-primary-foreground group-hover:scale-110">
+                <Reveal key={card.title} delay={0.08 + i * 0.07} className="h-full">
+                  <div className={CARD_BASE}>
+                    <div className={ICON_TILE_BRAND}>
                       <card.Icon className="h-5 w-5" />
                     </div>
-                    <h3 className="mt-4 text-base font-bold">{card.title}</h3>
-                    <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                    <h3 className={cn("mt-5", T.h3)}>{card.title}</h3>
+                    <p className={cn("mt-2 flex-1", T.bodySm)}>
                       {card.description}
                     </p>
                   </div>
@@ -425,30 +463,32 @@ export default async function LandingPage() {
         </section>
 
         {/* ─── How it works ────────────────────────────────────────────── */}
-        <section id="flow" className="border-b border-border/60 bg-mint-bg/30">
-          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-16 md:py-20">
+        <section id="flow" className="border-b border-border/60 bg-mint-bg/30 scroll-mt-20">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-20 md:py-24">
             <Reveal>
-              <div className="mb-10 text-center">
-                <p className="text-xs font-semibold text-brand uppercase tracking-widest">
-                  HOW IT WORKS
-                </p>
-                <h2 className="mt-2 text-2xl font-extrabold tracking-tight md:text-3xl">
-                  이렇게 쉬워요
-                </h2>
+              <div className="mb-12 text-center">
+                <p className={T.eyebrow}>HOW IT WORKS</p>
+                <h2 className={cn("mt-3", T.h2)}>이렇게 쉬워요</h2>
               </div>
             </Reveal>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {workerFlow.map((step, i) => (
-                <Reveal key={step.number} delay={0.06 + i * 0.08}>
-                  <div className="group relative flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
-                    <span className="text-3xl font-black text-brand/15 transition-colors duration-300 group-hover:text-brand/30">
+                <Reveal key={step.number} delay={0.06 + i * 0.08} className="h-full">
+                  <div className={cn(CARD_BASE, "relative")}>
+                    <span
+                      className={cn(
+                        "text-[28px] leading-none text-brand/20 transition-colors duration-300 group-hover:text-brand/35",
+                        T.numeric,
+                        "font-extrabold",
+                      )}
+                    >
                       {step.number}
                     </span>
-                    <div className="mt-2 flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10 text-brand transition-[background-color,color,transform] duration-300 group-hover:bg-brand group-hover:text-primary-foreground group-hover:scale-110">
+                    <div className={cn(ICON_TILE_BRAND, "mt-3")}>
                       <step.Icon className="h-5 w-5" />
                     </div>
-                    <h3 className="mt-3 text-base font-bold">{step.title}</h3>
-                    <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">
+                    <h3 className={cn("mt-4", T.h3)}>{step.title}</h3>
+                    <p className={cn("mt-2 flex-1", T.bodySm)}>
                       {step.description}
                     </p>
                   </div>
@@ -456,12 +496,12 @@ export default async function LandingPage() {
               ))}
             </div>
             <Reveal delay={0.4}>
-              <div className="mt-10 text-center">
+              <div className="mt-12 text-center">
                 <Link
                   href="/login?next=/home"
                   className={cn(
                     buttonVariants({ size: "lg" }),
-                    "h-12 rounded-full bg-brand px-8 text-sm font-semibold text-primary-foreground hover:bg-brand-dark sm:text-base",
+                    "h-12 rounded-full bg-brand px-8 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.2)] hover:bg-brand-dark sm:text-base",
                   )}
                 >
                   <span className="flex items-center gap-1.5">
@@ -475,32 +515,29 @@ export default async function LandingPage() {
         </section>
 
         {/* ─── Business section ─────────────────────────────────────────── */}
-        <section id="business" className="border-b border-border/60">
-          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-16 md:py-20">
+        <section id="business" className="border-b border-border/60 scroll-mt-20">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-20 md:py-24">
             <Reveal>
-              <div className="mb-10 text-center">
-                <div className="inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand-light px-4 py-1.5 text-xs font-semibold text-brand-deep mb-4">
+              <div className="mb-12 text-center">
+                <div className="inline-flex items-center gap-2 rounded-full border border-teal/20 bg-teal-light px-3.5 py-1.5 text-[12px] font-bold tracking-[-0.005em] text-teal mb-4">
                   <IconStore className="h-3.5 w-3.5" />
                   사업자 전용
                 </div>
-                <h2 className="text-2xl font-extrabold tracking-tight md:text-3xl">
-                  인력이 급할 땐, 샐러리잡
-                </h2>
-                <p className="mt-3 text-sm text-muted-foreground max-w-lg mx-auto">
-                  공고를 올리면 주변 인력이 바로 지원합니다. 관리부터 정산까지 한
-                  곳에서.
+                <h2 className={T.h2}>인력이 급할 땐, 샐러리잡</h2>
+                <p className={cn("mt-4 max-w-lg mx-auto", T.body)}>
+                  공고를 올리면 주변 인력이 바로 지원합니다. 관리부터 정산까지 한 곳에서.
                 </p>
               </div>
             </Reveal>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {businessValue.map((card, i) => (
-                <Reveal key={card.title} delay={0.08 + i * 0.07}>
-                  <div className="group rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-light text-teal transition-[background-color,color,transform] duration-300 group-hover:bg-teal group-hover:text-primary-foreground group-hover:scale-110">
+                <Reveal key={card.title} delay={0.08 + i * 0.07} className="h-full">
+                  <div className={CARD_BASE}>
+                    <div className={ICON_TILE_TEAL}>
                       <card.Icon className="h-5 w-5" />
                     </div>
-                    <h3 className="mt-4 text-base font-bold">{card.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    <h3 className={cn("mt-5", T.h3)}>{card.title}</h3>
+                    <p className={cn("mt-2 flex-1", T.bodySm)}>
                       {card.description}
                     </p>
                   </div>
@@ -508,12 +545,12 @@ export default async function LandingPage() {
               ))}
             </div>
             <Reveal delay={0.3}>
-              <div className="mt-10 text-center">
+              <div className="mt-12 text-center">
                 <Link
                   href="/signup?role=business"
                   className={cn(
                     buttonVariants({ size: "lg" }),
-                    "h-12 rounded-full bg-brand px-8 text-sm font-semibold text-primary-foreground hover:bg-brand-dark sm:text-base shadow-[0_6px_24px_hsl(var(--brand)/0.2)]",
+                    "h-12 rounded-full bg-brand px-8 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.2)] hover:bg-brand-dark sm:text-base",
                   )}
                 >
                   <span className="flex items-center gap-1.5">
@@ -527,47 +564,43 @@ export default async function LandingPage() {
         </section>
 
         {/* ─── Live Feed ───────────────────────────────────────────────── */}
-        <section className="mx-auto max-w-6xl px-5 sm:px-6 py-14 md:py-20">
-          <Reveal>
-            <div className="mb-10">
-              <p className="text-xs font-semibold uppercase tracking-widest text-brand">
-                Live feed
-              </p>
-              <h2 className="mt-2 text-2xl font-extrabold tracking-tight md:text-3xl">
-                지금 공개된 공고
-              </h2>
-              <p className="mt-3 text-muted-foreground">
-                실제 서비스 홈에서 사용하는 목록을 그대로 보여드려요.
-              </p>
-            </div>
-          </Reveal>
+        <section className="border-b border-border/60">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-20 md:py-24">
+            <Reveal>
+              <div className="mb-10">
+                <p className={T.eyebrow}>LIVE FEED</p>
+                <h2 className={cn("mt-3", T.h2)}>지금 공개된 공고</h2>
+                <p className={cn("mt-4 max-w-xl", T.body)}>
+                  바로 지원 가능한 공고를 실시간으로 확인하세요.
+                </p>
+              </div>
+            </Reveal>
 
-          <div className="rounded-[28px] border border-border bg-card p-4 md:p-6">
-            <JobListInfinite
-              initialJobs={jobs}
-              initialCursor={nextCursor}
-              jobHrefBase="/posts"
-            />
+            <div className="rounded-[28px] border border-border bg-card p-4 md:p-6">
+              <JobListInfinite
+                initialJobs={jobs}
+                initialCursor={nextCursor}
+                jobHrefBase="/posts"
+              />
+            </div>
           </div>
         </section>
 
         {/* ─── Final CTA ───────────────────────────────────────────────── */}
         <section className="border-t border-border/60 bg-brand-light">
-          <div className="mx-auto max-w-5xl px-5 sm:px-6 py-16 text-center md:py-24">
-            <CeleryMark className="mx-auto h-16 w-16 text-brand" />
-            <h2 className="mt-6 text-2xl font-extrabold tracking-tight sm:text-[28px] md:text-[38px]">
-              지금 샐러리잡 시작하기
-            </h2>
-            <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground sm:text-base">
-              이력서도 면접도 긴 대기도 없이, 탭 한 번으로 지원하고
-              근무 후 바로 정산까지. 오늘 가능한 일부터 확인해 보세요.
+          <div className="mx-auto max-w-5xl px-5 sm:px-6 py-20 text-center md:py-28">
+            <CeleryMark className="mx-auto h-14 w-14 text-brand" />
+            <h2 className={cn("mt-7", T.h2Climax)}>지금 샐러리잡 시작하기</h2>
+            <p className={cn("mx-auto mt-5 max-w-xl", T.lead)}>
+              탭 한 번으로 지원하고, 근무 후 바로 정산까지.
+              오늘 가능한 일부터 확인해 보세요.
             </p>
-            <div className="mx-auto mt-8 flex w-full max-w-md flex-col justify-center gap-2.5 sm:max-w-none sm:flex-row sm:gap-3">
+            <div className="mx-auto mt-9 flex w-full max-w-md flex-col justify-center gap-2.5 sm:max-w-none sm:flex-row sm:gap-3">
               <Link
                 href="/login?next=/home"
                 className={cn(
                   buttonVariants({ size: "lg" }),
-                  "h-12 w-full rounded-full bg-brand px-6 text-sm font-semibold text-primary-foreground hover:bg-brand-dark sm:w-auto sm:text-base shadow-[0_6px_24px_hsl(var(--brand)/0.2)]",
+                  "h-12 w-full rounded-full bg-brand px-6 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.25)] hover:bg-brand-dark sm:w-auto sm:text-base",
                 )}
               >
                 가까운 일자리 찾기
@@ -576,7 +609,7 @@ export default async function LandingPage() {
                 href="/signup?role=business"
                 className={cn(
                   buttonVariants({ variant: "outline", size: "lg" }),
-                  "h-12 w-full rounded-full border-brand/30 bg-card px-6 text-sm font-semibold text-brand-deep hover:bg-mint-bg sm:w-auto sm:text-base",
+                  "h-12 w-full rounded-full border-brand/30 bg-card px-6 text-[15px] font-semibold text-brand-deep hover:bg-mint-bg sm:w-auto sm:text-base",
                 )}
               >
                 사업장 등록하기
@@ -589,12 +622,14 @@ export default async function LandingPage() {
         <Reveal>
           <footer className="bg-foreground/[0.03]">
             <div className="mx-auto max-w-6xl px-5 sm:px-6 py-12">
-              <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+              <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-between">
                 <div className="flex items-center gap-2">
-                  <CeleryMark className="h-8 w-8 text-brand" />
-                  <span className="text-sm font-bold">샐러리잡</span>
+                  <CeleryMark className="h-7 w-7 text-brand" />
+                  <span className="text-[14px] font-bold tracking-[-0.015em]">
+                    샐러리잡
+                  </span>
                 </div>
-                <div className="flex gap-6 text-xs text-muted-foreground">
+                <div className="flex gap-6 text-[13px] text-muted-foreground">
                   <Link
                     href="/terms"
                     className="hover:text-foreground transition-colors"
@@ -615,7 +650,7 @@ export default async function LandingPage() {
                   </Link>
                 </div>
               </div>
-              <p className="mt-6 text-center text-[10px] text-muted-foreground">
+              <p className={cn("mt-7 text-center", T.hint)}>
                 &copy; {new Date().getFullYear()} 샐러리잡. All rights reserved.
               </p>
             </div>
