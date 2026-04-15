@@ -41,25 +41,26 @@ function formatDayLabel(workDate: string): string {
 }
 
 // ── 타이포 토큰 ──────────────────────────────────────────────────────────────
-// 한글 16px + leading 1.7~1.75 가 공식적으로 가장 편한 본문 셋업. 대형 heading 은
-// clamp 로 뷰포트 사이 부드러운 전환 + 강한 음수 tracking 으로 Pretendard 음절
-// 간격을 조여 읽는 속도를 높인다.
+// 한글 가독성 기준: 본문 15~16px, line-height 1.7~1.75, heading 대형에서
+// 음수 tracking(-0.02~-0.035em)으로 Pretendard 음절 간 여백을 압축.
 const T = {
-  h1: "text-[clamp(2.25rem,5.8vw+0.5rem,4rem)] font-extrabold leading-[1.12] tracking-[-0.038em]",
-  h2: "text-[clamp(1.75rem,2.6vw+0.75rem,2.375rem)] font-extrabold leading-[1.18] tracking-[-0.028em]",
+  // 대형 헤딩은 clamp으로 breakpoint 사이도 fluid
+  h1: "text-[clamp(2.1rem,5.5vw+0.5rem,3.75rem)] font-extrabold leading-[1.15] tracking-[-0.035em]",
+  h2: "text-[clamp(1.625rem,2.4vw+0.75rem,2.125rem)] font-extrabold leading-[1.2] tracking-[-0.025em]",
   h2Climax:
-    "text-[clamp(2rem,3.2vw+0.75rem,2.75rem)] font-extrabold leading-[1.14] tracking-[-0.032em]",
-  h3: "text-[17px] sm:text-[18px] font-bold leading-[1.4] tracking-[-0.012em]",
+    "text-[clamp(1.875rem,3vw+0.75rem,2.625rem)] font-extrabold leading-[1.15] tracking-[-0.03em]",
+  h3: "text-[17px] font-bold leading-[1.4] tracking-[-0.01em]",
   eyebrow:
-    "text-[12px] font-bold uppercase tracking-[0.18em] text-brand",
+    "text-[11px] font-bold uppercase tracking-[0.2em] text-brand",
   lead:
-    "text-base leading-[1.75] text-muted-foreground sm:text-[17px]",
+    "text-[15px] sm:text-base leading-[1.75] text-muted-foreground",
   body:
-    "text-base leading-[1.72] text-muted-foreground",
+    "text-[15px] leading-[1.7] text-muted-foreground",
   bodySm:
-    "text-[15px] leading-[1.68] text-muted-foreground",
+    "text-sm leading-[1.7] text-muted-foreground",
   hint:
     "text-[12px] leading-[1.5] text-muted-foreground",
+  // 숫자 전용 — Geist Mono tabular
   numeric:
     "font-mono tabular-nums tracking-tight",
 } as const;
@@ -67,16 +68,17 @@ const T = {
 const NAV_HOVER =
   "hover:text-foreground transition-colors relative rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0 after:bg-brand after:scale-x-0 after:origin-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-left";
 
-// 카드 공통 — 높이 정렬(flex col + flex-1 description)과 hover 리프트
+// 카드 공통 — 높이 정렬(flex col + flex-1 description)과 hover 리프트 한 곳에
 const CARD_BASE =
   "group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.07)]";
 
-// Icon tile 공통
+// ── Icon tile tones ─────────────────────────────────────────────────────────
+// semantic 분배: brand=속도/핵심, teal=신뢰/매장, amber=돈/시간, lime=인증
 const ICON_TILE_BASE =
   "flex h-11 w-11 items-center justify-center rounded-xl transition-[background-color,color,transform] duration-300 group-hover:text-primary-foreground group-hover:scale-110";
 
-// Semantic tone 맵 — amber/lime/teal-deep 은 Tailwind 기본 팔레트 충돌 피해
-// arbitrary var 참조로 고정.
+// `amber`/`lime`/`teal-deep` 등은 Tailwind 기본 팔레트와 suffix 충돌 위험이
+// 있어 arbitrary CSS var 참조로 확정. 모든 tone에서 surface + text 대비 4.5:1+.
 const iconTile = {
   brand:
     "bg-brand/10 text-brand group-hover:bg-brand",
@@ -90,38 +92,6 @@ const iconTile = {
 
 type Tone = keyof typeof iconTile;
 
-// CTA 버튼 공통 — primary(fill) / outline 두 가지.
-const CTA_PRIMARY =
-  "h-12 rounded-full bg-brand px-6 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.22)] hover:bg-brand-dark sm:text-base";
-const CTA_OUTLINE =
-  "h-12 rounded-full border-brand/30 bg-card px-6 text-[15px] font-semibold text-brand-deep hover:bg-brand-light sm:text-base";
-
-// Eyebrow + heading 쌍 — 통일된 section header
-function SectionHeader({
-  eyebrow,
-  title,
-  body,
-  align = "center",
-}: {
-  eyebrow: string;
-  title: string;
-  body?: string;
-  align?: "center" | "left";
-}) {
-  const alignClass = align === "center" ? "text-center mx-auto" : "text-left";
-  return (
-    <div className={cn("mb-12", alignClass)}>
-      <p className={T.eyebrow}>{eyebrow}</p>
-      <h2 className={cn("mt-3", T.h2)}>{title}</h2>
-      {body ? (
-        <p className={cn("mt-4 max-w-xl", T.body, align === "center" && "mx-auto")}>
-          {body}
-        </p>
-      ) : null}
-    </div>
-  );
-}
-
 export default async function LandingPage() {
   const { jobs, nextCursor } = await getJobsPaginated({ limit: 12 });
   const featuredJobs = jobs.slice(0, 3);
@@ -133,7 +103,6 @@ export default async function LandingPage() {
         )
       : 0;
 
-  // ── Data ────────────────────────────────────────────────────────────────
   const valueCards: Array<{
     Icon: typeof IconOneTap;
     title: string;
@@ -145,28 +114,28 @@ export default async function LandingPage() {
       title: "원탭 지원",
       description:
         "이력서도 면접도 없어요. 조건이 맞으면 버튼 한 번으로 지원이 끝납니다.",
-      tone: "brand",
+      tone: "brand", // 핵심: 속도/원탭
     },
     {
       Icon: IconNearby,
       title: "내 주변만",
       description:
         "위치 기반으로 걸어갈 수 있는 거리의 일만 골라서 보여드려요.",
-      tone: "teal",
+      tone: "teal", // 지도/매장 계열
     },
     {
       Icon: IconInstantPay,
       title: "즉시 정산",
       description:
         "근무가 끝나면 시급·교통비·야간 할증까지 계산해 바로 입금됩니다.",
-      tone: "amber",
+      tone: "amber", // 돈/시간
     },
     {
       Icon: IconVerified,
       title: "검증된 사업장",
       description:
         "실제 근무한 사람들의 평점과 리뷰로 안심하고 지원할 수 있어요.",
-      tone: "lime",
+      tone: "lime", // 인증/성취
     },
   ];
 
@@ -207,11 +176,7 @@ export default async function LandingPage() {
     },
   ];
 
-  const businessValue: Array<{
-    Icon: typeof IconTeam;
-    title: string;
-    description: string;
-  }> = [
+  const businessValue = [
     {
       Icon: IconTeam,
       title: "몇 분 안에 인력 확보",
@@ -268,6 +233,8 @@ export default async function LandingPage() {
     },
   ];
 
+  // Trust stat value 색 매핑 — 타일 톤과 동일 축 사용. Tailwind 기본 팔레트
+  // 충돌 회피 위해 amber/lime/teal-deep 은 arbitrary var 참조.
   const statValueText: Record<Tone, string> = {
     brand: "text-brand",
     teal: "text-[var(--teal-deep)]",
@@ -275,7 +242,6 @@ export default async function LandingPage() {
     lime: "text-[var(--lime-deep)]",
   };
 
-  // ── Render ──────────────────────────────────────────────────────────────
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
       {/* ─── Header ─────────────────────────────────────────────────────── */}
@@ -287,7 +253,7 @@ export default async function LandingPage() {
           >
             <CeleryMark className="h-9 w-9 text-brand transition-transform duration-300 group-hover:rotate-12" />
             <div className="leading-tight">
-              <p className="text-[15px] font-bold tracking-[-0.018em] text-foreground">
+              <p className="text-[15px] font-bold tracking-[-0.015em] text-foreground">
                 샐러리잡
               </p>
               <p className="text-[11px] text-muted-foreground">
@@ -296,6 +262,7 @@ export default async function LandingPage() {
             </div>
           </Link>
 
+          {/* Nav: 실제 섹션 스크롤 순서(Worker → Flow → Business)에 맞춤 */}
           <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
             <a href="#worker" className={NAV_HOVER}>
               일자리 찾기
@@ -319,7 +286,7 @@ export default async function LandingPage() {
               href="/login?next=/home"
               className={cn(
                 buttonVariants({ size: "sm" }),
-                "rounded-full bg-brand px-4 text-primary-foreground shadow-[0_4px_16px_hsl(var(--brand)/0.2)] hover:bg-brand-dark",
+                "rounded-full bg-brand px-4 text-primary-foreground shadow-[0_4px_16px_hsl(var(--brand)/0.18)] hover:bg-brand-dark",
               )}
             >
               시작하기
@@ -330,18 +297,19 @@ export default async function LandingPage() {
 
       <main>
         {/* ─── Hero ────────────────────────────────────────────────────── */}
-        <section className="relative overflow-hidden">
+        <section className="relative border-b border-border/60 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-brand-light via-background to-mint-bg" />
-          <div className="absolute -top-40 -right-32 w-[28rem] h-[28rem] rounded-full bg-brand/[0.07] blur-3xl animate-float" />
-          <div className="absolute bottom-[-6rem] left-[-4rem] w-80 h-80 rounded-full bg-brand/[0.06] blur-3xl animate-float [animation-delay:1.5s]" />
-          <div className="absolute top-1/2 right-1/3 w-48 h-48 rounded-full bg-[var(--lime-accent)]/[0.08] blur-3xl animate-float [animation-delay:3s]" />
+          <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-brand/5 blur-3xl animate-float" />
+          <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-brand/[0.08] blur-3xl animate-float [animation-delay:1.5s]" />
+          {/* 온도 대비: 주변 mint 블롭에 라임(따뜻) 한 방울로 단일 톤 완화 */}
+          <div className="absolute top-1/3 left-1/4 w-40 h-40 rounded-full bg-[var(--lime-accent)]/[0.08] blur-3xl animate-float [animation-delay:3s]" />
 
-          <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 sm:px-6 py-20 md:grid-cols-[1.15fr_0.85fr] md:py-28 lg:py-32">
+          <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 sm:px-6 py-20 md:grid-cols-[1.15fr_0.85fr] md:py-28">
             <div className="max-w-2xl">
               <Reveal>
-                <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand-light px-3.5 py-1.5 text-[12px] font-bold tracking-[-0.005em] text-brand-deep">
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand-light px-3.5 py-1.5 text-[12px] font-bold tracking-[-0.005em] text-brand-deep">
                   <IconSparkle className="h-3.5 w-3.5" />
-                  샐러리처럼 산뜻한 로컬 잡 플랫폼
+                  산뜻한 로컬 잡 플랫폼
                 </div>
               </Reveal>
 
@@ -355,12 +323,9 @@ export default async function LandingPage() {
               </Reveal>
 
               <Reveal delay={0.2}>
-                <p className={cn("mt-6 max-w-xl", T.lead)}>
-                  이력서도 면접도 필요 없어요.
-                  <br className="hidden sm:block" />
-                  오늘 가능한 일부터 안정적인 근무까지,
-                  <br className="hidden sm:block" />
-                  탭 한 번으로 지원하고 근무 후 바로 정산받으세요.
+                <p className={cn("mt-6 max-w-[32ch]", T.lead)}>
+                  이력서도 면접도 없이, 오늘 가능한 일부터 탭 한 번으로.
+                  근무가 끝나면 바로 정산까지.
                 </p>
               </Reveal>
 
@@ -368,7 +333,10 @@ export default async function LandingPage() {
                 <div className="mt-8 flex w-full flex-col gap-2.5 sm:flex-row sm:gap-3">
                   <Link
                     href="/login?next=/home"
-                    className={cn(buttonVariants({ size: "lg" }), CTA_PRIMARY, "w-full sm:w-auto")}
+                    className={cn(
+                      buttonVariants({ size: "lg" }),
+                      "h-12 w-full rounded-full bg-brand px-6 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.25)] hover:bg-brand-dark sm:w-auto sm:text-base",
+                    )}
                   >
                     <span className="flex items-center gap-1.5">
                       내 주변 일자리 보기
@@ -377,7 +345,10 @@ export default async function LandingPage() {
                   </Link>
                   <Link
                     href="/signup?role=business"
-                    className={cn(buttonVariants({ variant: "outline", size: "lg" }), CTA_OUTLINE, "w-full sm:w-auto")}
+                    className={cn(
+                      buttonVariants({ variant: "outline", size: "lg" }),
+                      "h-12 w-full rounded-full border-brand/30 bg-card px-6 text-[15px] font-semibold text-brand-deep hover:bg-brand-light sm:w-auto sm:text-base",
+                    )}
                   >
                     사업자로 시작하기
                   </Link>
@@ -402,19 +373,14 @@ export default async function LandingPage() {
             </div>
 
             {/* Hero illustration — phone mockup (desktop only) */}
-            <Reveal
-              delay={0.3}
-              className="hidden md:flex items-center justify-center"
-            >
+            <Reveal delay={0.3} className="hidden md:flex items-center justify-center">
               <div className="animate-float-soft">
                 <div className="absolute inset-0 rounded-[2.5rem] bg-brand/10 blur-2xl scale-95" />
                 <div className="relative w-72 h-[500px] rounded-[2.5rem] border-[6px] border-foreground/10 bg-card shadow-2xl overflow-hidden">
                   <div className="bg-gradient-to-r from-brand/15 to-brand/5 p-4 flex items-center gap-3">
                     <CeleryMark className="h-8 w-8 text-brand" />
                     <div className="leading-tight">
-                      <p className="text-[13px] font-bold tracking-[-0.01em]">
-                        샐러리잡
-                      </p>
+                      <p className="text-[13px] font-bold tracking-[-0.01em]">샐러리잡</p>
                       <p className="text-[11px] text-muted-foreground">
                         내 주변 일자리
                       </p>
@@ -443,36 +409,16 @@ export default async function LandingPage() {
                               <span className="text-[11px] text-muted-foreground">
                                 시급
                               </span>
-                              <span
-                                className={cn(
-                                  "text-[13px] font-bold text-brand",
-                                  T.numeric,
-                                )}
-                              >
+                              <span className={cn("text-[13px] font-bold text-brand", T.numeric)}>
                                 {formatWon(job.hourlyPay)}
                               </span>
                             </div>
                           </div>
                         ))
                       : [
-                          {
-                            name: "커피빈 강남점",
-                            role: "바리스타",
-                            pay: "13,000원/시간",
-                            time: "오늘 14:00~18:00",
-                          },
-                          {
-                            name: "올리브영 역삼점",
-                            role: "진열 알바",
-                            pay: "12,500원/시간",
-                            time: "내일 09:00~13:00",
-                          },
-                          {
-                            name: "GS25 선릉역점",
-                            role: "편의점 알바",
-                            pay: "11,000원/시간",
-                            time: "오늘 18:00~22:00",
-                          },
+                          { name: "커피빈 강남점", role: "바리스타", pay: "13,000원/시간", time: "오늘 14:00~18:00" },
+                          { name: "올리브영 역삼점", role: "진열 알바", pay: "12,500원/시간", time: "내일 09:00~13:00" },
+                          { name: "GS25 선릉역점", role: "편의점 알바", pay: "11,000원/시간", time: "오늘 18:00~22:00" },
                         ].map((job) => (
                           <div
                             key={job.name}
@@ -494,12 +440,7 @@ export default async function LandingPage() {
                               <span className="text-[11px] text-muted-foreground">
                                 시급
                               </span>
-                              <span
-                                className={cn(
-                                  "text-[13px] font-bold text-brand",
-                                  T.numeric,
-                                )}
-                              >
+                              <span className={cn("text-[13px] font-bold text-brand", T.numeric)}>
                                 {job.pay}
                               </span>
                             </div>
@@ -512,15 +453,50 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ─── FOR WORKERS — 왜 샐러리잡인가 ──────────────────────────── */}
-        <section id="worker" className="border-t border-border/60 scroll-mt-20">
+        {/* ─── Trust Stats ─────────────────────────────────────────────── */}
+        <section className="border-b border-border/60" aria-label="서비스 현황">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-14 md:py-16">
+            <ul className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+              {trustStats.map((stat, i) => (
+                <li key={stat.label} className="h-full">
+                  <Reveal delay={i * 0.07} className="h-full">
+                    <div className="flex h-full flex-col justify-center rounded-2xl border border-border bg-card px-5 py-6 text-center transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.06)]">
+                      <p
+                        className={cn(
+                          "text-[28px] md:text-[32px] font-extrabold leading-none",
+                          statValueText[stat.tone],
+                          T.numeric,
+                        )}
+                      >
+                        <span className="sr-only">{stat.label}: </span>
+                        {stat.value}
+                      </p>
+                      <p
+                        className="mt-2 text-[13px] font-semibold tracking-[-0.005em] text-foreground"
+                        aria-hidden="true"
+                      >
+                        {stat.label}
+                      </p>
+                      <p className={cn("mt-1", T.hint)}>{stat.hint}</p>
+                    </div>
+                  </Reveal>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* ─── Value Cards (FOR WORKERS) ──────────────────────────────── */}
+        <section id="worker" className="border-b border-border/60 scroll-mt-20">
           <div className="mx-auto max-w-6xl px-5 sm:px-6 py-20 md:py-24">
             <Reveal>
-              <SectionHeader
-                eyebrow="FOR WORKERS"
-                title="왜 샐러리잡인가요?"
-                body="복잡한 과정 없이, 내 주변 일자리를 가장 빠르게 연결합니다."
-              />
+              <div className="mb-12 text-center">
+                <p className={T.eyebrow}>FOR WORKERS</p>
+                <h2 className={cn("mt-3", T.h2)}>왜 샐러리잡인가요?</h2>
+                <p className={cn("mt-4 max-w-lg mx-auto", T.body)}>
+                  복잡한 과정 없이, 내 주변 일자리를 가장 빠르게 연결합니다.
+                </p>
+              </div>
             </Reveal>
             <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {valueCards.map((card, i) => (
@@ -540,14 +516,14 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ─── HOW IT WORKS — 4단계 ───────────────────────────────────── */}
-        <section id="flow" className="border-t border-border/60 bg-mint-bg/30 scroll-mt-20">
+        {/* ─── How it works ────────────────────────────────────────────── */}
+        <section id="flow" className="border-b border-border/60 bg-mint-bg/30 scroll-mt-20">
           <div className="mx-auto max-w-6xl px-5 sm:px-6 py-20 md:py-24">
             <Reveal>
-              <SectionHeader
-                eyebrow="HOW IT WORKS"
-                title="이렇게 쉬워요"
-              />
+              <div className="mb-12 text-center">
+                <p className={T.eyebrow}>HOW IT WORKS</p>
+                <h2 className={cn("mt-3", T.h2)}>이렇게 쉬워요</h2>
+              </div>
             </Reveal>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {workerFlow.map((step, i) => (
@@ -577,7 +553,10 @@ export default async function LandingPage() {
               <div className="mt-12 text-center">
                 <Link
                   href="/login?next=/home"
-                  className={cn(buttonVariants({ size: "lg" }), CTA_PRIMARY)}
+                  className={cn(
+                    buttonVariants({ size: "lg" }),
+                    "h-12 rounded-full bg-brand px-8 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.2)] hover:bg-brand-dark sm:text-base",
+                  )}
                 >
                   <span className="flex items-center gap-1.5">
                     지금 바로 일하기
@@ -589,77 +568,17 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ─── LIVE FEED — 실제 공고 증명 ──────────────────────────── */}
-        <section className="border-t border-border/60">
+        {/* ─── Business section ─────────────────────────────────────────── */}
+        <section id="business" className="border-b border-border/60 scroll-mt-20">
           <div className="mx-auto max-w-6xl px-5 sm:px-6 py-20 md:py-24">
             <Reveal>
-              <div className="mb-10">
-                <p className={T.eyebrow}>LIVE FEED</p>
-                <h2 className={cn("mt-3", T.h2)}>지금 공개된 공고</h2>
-                <p className={cn("mt-4 max-w-xl", T.body)}>
-                  실제 서비스 홈에서 사용하는 목록을 그대로 보여드려요.
-                </p>
-              </div>
-            </Reveal>
-
-            <div className="rounded-3xl border border-border bg-card p-4 md:p-6">
-              <JobListInfinite
-                initialJobs={jobs}
-                initialCursor={nextCursor}
-                jobHrefBase="/posts"
-              />
-            </div>
-          </div>
-        </section>
-
-        {/* ─── TRUST STATS — 규모 ─────────────────────────────────────── */}
-        <section
-          className="border-t border-border/60 bg-mint-bg/30"
-          aria-label="서비스 규모"
-        >
-          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-14 md:py-16">
-            <ul className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
-              {trustStats.map((stat, i) => (
-                <li key={stat.label} className="h-full">
-                  <Reveal delay={i * 0.07} className="h-full">
-                    <div className="flex h-full flex-col items-center justify-center rounded-2xl border border-border bg-card px-5 py-7 text-center transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.06)]">
-                      <p
-                        className={cn(
-                          "text-[32px] md:text-[36px] font-extrabold leading-none",
-                          statValueText[stat.tone],
-                          T.numeric,
-                        )}
-                      >
-                        <span className="sr-only">{stat.label}: </span>
-                        {stat.value}
-                      </p>
-                      <p
-                        className="mt-3 text-[14px] font-semibold tracking-[-0.008em] text-foreground"
-                        aria-hidden="true"
-                      >
-                        {stat.label}
-                      </p>
-                      <p className={cn("mt-1", T.hint)}>{stat.hint}</p>
-                    </div>
-                  </Reveal>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* ─── BUSINESS — B2B ────────────────────────────────────────── */}
-        <section id="business" className="border-t border-border/60 scroll-mt-20">
-          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-20 md:py-24">
-            <Reveal>
-              <div className="mb-12 text-center mx-auto">
-                <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-[var(--teal-deep)]">
+              <div className="mb-12 text-center">
+                <div className="inline-flex items-center gap-2 rounded-full border border-teal/20 bg-teal-light px-3.5 py-1.5 text-[12px] font-bold tracking-[-0.005em] text-teal mb-4">
+                  <IconStore className="h-3.5 w-3.5" />
                   사업자 전용
-                </p>
-                <h2 className={cn("mt-3", T.h2)}>
-                  인력이 급할 땐, 샐러리잡
-                </h2>
-                <p className={cn("mt-4 max-w-xl mx-auto", T.body)}>
+                </div>
+                <h2 className={T.h2}>인력이 급할 땐, 샐러리잡</h2>
+                <p className={cn("mt-4 max-w-lg mx-auto", T.body)}>
                   공고를 올리면 주변 인력이 바로 지원합니다. 관리부터 정산까지 한 곳에서.
                 </p>
               </div>
@@ -680,16 +599,15 @@ export default async function LandingPage() {
               ))}
             </div>
             <Reveal delay={0.3}>
-              <div className="mt-14 flex justify-center">
+              <div className="mt-12 text-center">
                 <Link
                   href="/signup?role=business"
                   className={cn(
                     buttonVariants({ size: "lg" }),
-                    "h-12 rounded-full bg-[var(--teal-deep)] px-8 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_oklch(0.45_0.08_186/0.25)] hover:bg-teal sm:text-base",
+                    "h-12 rounded-full bg-brand px-8 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.2)] hover:bg-brand-dark sm:text-base",
                   )}
                 >
                   <span className="flex items-center gap-1.5">
-                    <IconStore className="h-4 w-4" />
                     사업자로 시작하기
                     <ArrowRight className="h-4 w-4" />
                   </span>
@@ -699,30 +617,54 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ─── FINAL CTA ───────────────────────────────────────────────── */}
+        {/* ─── Live Feed ───────────────────────────────────────────────── */}
+        <section className="border-b border-border/60">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-20 md:py-24">
+            <Reveal>
+              <div className="mb-10">
+                <p className={T.eyebrow}>LIVE FEED</p>
+                <h2 className={cn("mt-3", T.h2)}>지금 공개된 공고</h2>
+                <p className={cn("mt-4 max-w-xl", T.body)}>
+                  바로 지원 가능한 공고를 실시간으로 확인하세요.
+                </p>
+              </div>
+            </Reveal>
+
+            <div className="rounded-[28px] border border-border bg-card p-4 md:p-6">
+              <JobListInfinite
+                initialJobs={jobs}
+                initialCursor={nextCursor}
+                jobHrefBase="/posts"
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* ─── Final CTA ───────────────────────────────────────────────── */}
         <section className="border-t border-border/60 bg-brand-light">
           <div className="mx-auto max-w-5xl px-5 sm:px-6 py-20 text-center md:py-28">
             <CeleryMark className="mx-auto h-14 w-14 text-brand" />
-            <h2 className={cn("mt-7", T.h2Climax)}>
-              지금 샐러리잡 시작하기
-            </h2>
+            <h2 className={cn("mt-7", T.h2Climax)}>지금 샐러리잡 시작하기</h2>
             <p className={cn("mx-auto mt-5 max-w-xl", T.lead)}>
-              이력서도 면접도 긴 대기도 없이, 탭 한 번으로 지원하고
-              근무 후 바로 정산까지. 오늘 가능한 일부터 확인해 보세요.
+              탭 한 번으로 지원하고, 근무 후 바로 정산까지.
+              오늘 가능한 일부터 확인해 보세요.
             </p>
             <div className="mx-auto mt-9 flex w-full max-w-md flex-col justify-center gap-2.5 sm:max-w-none sm:flex-row sm:gap-3">
               <Link
                 href="/login?next=/home"
-                className={cn(buttonVariants({ size: "lg" }), CTA_PRIMARY, "w-full sm:w-auto")}
+                className={cn(
+                  buttonVariants({ size: "lg" }),
+                  "h-12 w-full rounded-full bg-brand px-6 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.25)] hover:bg-brand-dark sm:w-auto sm:text-base",
+                )}
               >
-                <span className="flex items-center gap-1.5">
-                  가까운 일자리 찾기
-                  <ArrowRight className="h-4 w-4" />
-                </span>
+                가까운 일자리 찾기
               </Link>
               <Link
                 href="/signup?role=business"
-                className={cn(buttonVariants({ variant: "outline", size: "lg" }), CTA_OUTLINE, "w-full sm:w-auto")}
+                className={cn(
+                  buttonVariants({ variant: "outline", size: "lg" }),
+                  "h-12 w-full rounded-full border-brand/30 bg-card px-6 text-[15px] font-semibold text-brand-deep hover:bg-mint-bg sm:w-auto sm:text-base",
+                )}
               >
                 사업장 등록하기
               </Link>
@@ -732,12 +674,12 @@ export default async function LandingPage() {
 
         {/* ─── Footer ──────────────────────────────────────────────────── */}
         <Reveal>
-          <footer className="border-t border-border/60 bg-foreground/[0.02]">
+          <footer className="bg-foreground/[0.03]">
             <div className="mx-auto max-w-6xl px-5 sm:px-6 py-12">
               <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-between">
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-2">
                   <CeleryMark className="h-7 w-7 text-brand" />
-                  <span className="text-[14px] font-bold tracking-[-0.018em]">
+                  <span className="text-[14px] font-bold tracking-[-0.015em]">
                     샐러리잡
                   </span>
                 </div>
