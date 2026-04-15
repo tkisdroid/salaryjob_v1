@@ -302,7 +302,7 @@ export default async function LandingPage() {
                       ? featuredJobs.map((job) => (
                           <div
                             key={job.id}
-                            className="rounded-2xl border border-border bg-card p-3 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
+                            className="rounded-2xl border border-border bg-card p-3 hover:shadow-md transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5"
                           >
                             <p className="text-[10px] text-muted-foreground">
                               {job.business.name}
@@ -333,7 +333,7 @@ export default async function LandingPage() {
                         ].map((job) => (
                           <div
                             key={job.name}
-                            className="rounded-2xl border border-border bg-card p-3 hover:shadow-md transition-all duration-200 hover:-translate-y-0.5"
+                            className="rounded-2xl border border-border bg-card p-3 hover:shadow-md transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5"
                           >
                             <p className="text-[10px] text-muted-foreground">
                               {job.name}
@@ -371,7 +371,7 @@ export default async function LandingPage() {
               {trustStats.map((stat, i) => (
                 <li key={stat.label}>
                   <Reveal delay={i * 0.07}>
-                    <div className="rounded-2xl border border-border bg-card p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
+                    <div className="rounded-2xl border border-border bg-card p-5 text-center transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
                       <p className="text-2xl font-extrabold text-brand md:text-3xl">
                         <span className="sr-only">{stat.label}: </span>
                         {stat.value}
@@ -409,8 +409,8 @@ export default async function LandingPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {valueCards.map((card, i) => (
                 <Reveal key={card.title} delay={0.08 + i * 0.07}>
-                  <div className="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand transition-all duration-300 group-hover:bg-brand group-hover:text-primary-foreground group-hover:scale-110">
+                  <div className="group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand transition-[background-color,color,transform] duration-300 group-hover:bg-brand group-hover:text-primary-foreground group-hover:scale-110">
                       <card.Icon className="h-5 w-5" />
                     </div>
                     <h3 className="mt-4 text-base font-bold">{card.title}</h3>
@@ -440,11 +440,11 @@ export default async function LandingPage() {
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
               {workerFlow.map((step, i) => (
                 <Reveal key={step.number} delay={0.06 + i * 0.08}>
-                  <div className="group relative flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
+                  <div className="group relative flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
                     <span className="text-3xl font-black text-brand/15 transition-colors duration-300 group-hover:text-brand/30">
                       {step.number}
                     </span>
-                    <div className="mt-2 flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10 text-brand transition-all duration-300 group-hover:bg-brand group-hover:text-primary-foreground group-hover:scale-110">
+                    <div className="mt-2 flex h-10 w-10 items-center justify-center rounded-lg bg-brand/10 text-brand transition-[background-color,color,transform] duration-300 group-hover:bg-brand group-hover:text-primary-foreground group-hover:scale-110">
                       <step.Icon className="h-5 w-5" />
                     </div>
                     <h3 className="mt-3 text-base font-bold">{step.title}</h3>
@@ -495,8 +495,8 @@ export default async function LandingPage() {
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {businessValue.map((card, i) => (
                 <Reveal key={card.title} delay={0.08 + i * 0.07}>
-                  <div className="group rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-light text-teal transition-all duration-300 group-hover:bg-teal group-hover:text-primary-foreground group-hover:scale-110">
+                  <div className="group rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.08)]">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-teal-light text-teal transition-[background-color,color,transform] duration-300 group-hover:bg-teal group-hover:text-primary-foreground group-hover:scale-110">
                       <card.Icon className="h-5 w-5" />
                     </div>
                     <h3 className="mt-4 text-base font-bold">{card.title}</h3>
