@@ -305,3 +305,30 @@
   0%, 100% { box-shadow: 0 0 0 0 oklch(0.776 0.149 152 / 0.3); }
   50% { box-shadow: 0 0 20px 4px oklch(0.776 0.149 152 / 0.15); }
 }
+
+/*
+ * Reduced-motion: 전정 감각 민감 사용자를 위해 장식용 무한 애니메이션을
+ * 모두 정지하고, 트랜지션은 거의 순간 전환으로 축소. 실제 상태 변화
+ * 피드백(버튼 press, 토글)은 opacity/color로만 남는다.
+ *
+ * `.impeccable.md:124` — reduced-motion 엄격 존중.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-float,
+  .animate-float-soft,
+  .animate-fade-up,
+  .animate-slide-up,
+  .animate-scale-in,
+  .animate-glow-pulse,
+  .animate-urgent {
+    animation: none !important;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

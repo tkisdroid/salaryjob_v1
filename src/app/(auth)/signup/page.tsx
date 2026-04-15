@@ -37,7 +37,7 @@ function RoleSelect({ onRoleSelect }: { onRoleSelect: (role: Role) => void }) {
   return (
     <Card className="p-6 shadow-sm">
       <div className="text-center mb-6">
-        <CeleryMark className="mx-auto mb-3 h-14 w-14" />
+        <CeleryMark className="mx-auto mb-3 h-14 w-14 text-brand" />
         <h1 className="text-2xl font-bold">회원가입</h1>
         <p className="text-sm text-muted-foreground mt-1">
           샐러리잡을 어떻게 사용하실 건가요?
@@ -274,7 +274,7 @@ function BusinessSignupForm() {
 
   return (
     <Card className="p-6 shadow-sm text-center">
-      <CeleryMark className="mx-auto mb-3 h-14 w-14" />
+      <CeleryMark className="mx-auto mb-3 h-14 w-14 text-brand" />
       <h2 className="text-xl font-bold mb-2">업체 회원가입</h2>
       <p className="text-sm text-muted-foreground mb-6">
         사업자 인증 후 구인 공고를 등록할 수 있어요

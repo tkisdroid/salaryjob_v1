@@ -41,7 +41,7 @@ function formatDayLabel(workDate: string): string {
 }
 
 const NAV_HOVER =
-  "hover:text-foreground transition-colors relative after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0 after:bg-brand after:scale-x-0 after:origin-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-left";
+  "hover:text-foreground transition-colors relative rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0 after:bg-brand after:scale-x-0 after:origin-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-left";
 
 export default async function LandingPage() {
   const { jobs, nextCursor } = await getJobsPaginated({ limit: 12 });
@@ -161,8 +161,8 @@ export default async function LandingPage() {
       {/* ─── Header ─────────────────────────────────────────────────────── */}
       <header className="sticky top-0 z-50 border-b border-border/60 bg-background">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 group">
-            <CeleryMark className="h-10 w-10 transition-transform duration-300 group-hover:rotate-12" />
+          <Link href="/" className="flex items-center gap-2 group rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background">
+            <CeleryMark className="h-10 w-10 text-brand transition-transform duration-300 group-hover:rotate-12" />
             <div className="leading-tight">
               <p className="text-base font-bold tracking-tight text-foreground">
                 샐러리잡
@@ -289,7 +289,7 @@ export default async function LandingPage() {
                 <div className="absolute inset-0 rounded-[2.5rem] bg-brand/10 blur-2xl scale-95" />
                 <div className="relative w-72 h-[500px] rounded-[2.5rem] border-[6px] border-foreground/10 bg-card shadow-2xl overflow-hidden">
                   <div className="bg-gradient-to-r from-brand/15 to-brand/5 p-4 flex items-center gap-3">
-                    <CeleryMark className="h-8 w-8" />
+                    <CeleryMark className="h-8 w-8 text-brand" />
                     <div>
                       <p className="text-sm font-bold">샐러리잡</p>
                       <p className="text-[10px] text-muted-foreground">
@@ -365,25 +365,28 @@ export default async function LandingPage() {
         </section>
 
         {/* ─── Trust Stats ─────────────────────────────────────────────── */}
-        <section className="border-b border-border/60">
+        <section className="border-b border-border/60" aria-label="서비스 현황">
           <div className="mx-auto max-w-6xl px-5 sm:px-6 py-12 md:py-16">
-            <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
+            <ul className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
               {trustStats.map((stat, i) => (
-                <Reveal key={stat.label} delay={i * 0.07}>
-                  <div className="rounded-2xl border border-border bg-card p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
-                    <p className="text-2xl font-extrabold text-brand md:text-3xl">
-                      {stat.value}
-                    </p>
-                    <p className="mt-1 text-sm font-semibold text-foreground">
-                      {stat.label}
-                    </p>
-                    <p className="mt-0.5 text-[10px] text-muted-foreground">
-                      {stat.hint}
-                    </p>
-                  </div>
-                </Reveal>
+                <li key={stat.label}>
+                  <Reveal delay={i * 0.07}>
+                    <div className="rounded-2xl border border-border bg-card p-5 text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
+                      <p className="text-2xl font-extrabold text-brand md:text-3xl">
+                        <span className="sr-only">{stat.label}: </span>
+                        {stat.value}
+                      </p>
+                      <p className="mt-1 text-sm font-semibold text-foreground" aria-hidden="true">
+                        {stat.label}
+                      </p>
+                      <p className="mt-0.5 text-[10px] text-muted-foreground">
+                        {stat.hint}
+                      </p>
+                    </div>
+                  </Reveal>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
         </section>
 
@@ -551,7 +554,7 @@ export default async function LandingPage() {
         {/* ─── Final CTA ───────────────────────────────────────────────── */}
         <section className="border-t border-border/60 bg-brand-light">
           <div className="mx-auto max-w-5xl px-5 sm:px-6 py-16 text-center md:py-24">
-            <CeleryMark className="mx-auto h-16 w-16" />
+            <CeleryMark className="mx-auto h-16 w-16 text-brand" />
             <h2 className="mt-6 text-2xl font-extrabold tracking-tight sm:text-[28px] md:text-[38px]">
               지금 샐러리잡 시작하기
             </h2>
@@ -588,7 +591,7 @@ export default async function LandingPage() {
             <div className="mx-auto max-w-6xl px-5 sm:px-6 py-12">
               <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
                 <div className="flex items-center gap-2">
-                  <CeleryMark className="h-8 w-8" />
+                  <CeleryMark className="h-8 w-8 text-brand" />
                   <span className="text-sm font-bold">샐러리잡</span>
                 </div>
                 <div className="flex gap-6 text-xs text-muted-foreground">

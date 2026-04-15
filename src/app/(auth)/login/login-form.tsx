@@ -38,7 +38,7 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
   return (
     <div className="w-full max-w-sm">
       <div className="flex flex-col items-center mb-8">
-        <CeleryMark className="h-16 w-16 mb-4" />
+        <CeleryMark className="h-16 w-16 mb-4 text-brand" />
         <h1 className="text-2xl font-extrabold">샐러리잡</h1>
         <p className="text-sm text-muted-foreground mt-1">
           내 주변 로컬 잡 플랫폼

@@ -10,7 +10,7 @@ export default async function RoleSelectPage() {
 
   return (
     <Card className="p-6 shadow-sm max-w-md mx-auto">
-      <CeleryMark className="mx-auto mb-3 h-14 w-14" />
+      <CeleryMark className="mx-auto mb-3 h-14 w-14 text-brand" />
       <h1 className="text-2xl font-bold text-center mb-2">역할 선택</h1>
       <p className="text-sm text-muted-foreground text-center mb-6">
         샐러리잡을 어떻게 사용하실 건가요?

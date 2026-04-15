@@ -37,6 +37,9 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# 브라우저 다운로드 형태의 env 파일 (`env.download`, `env (1).download` 등)
+env*.download
+*env*.download
 
 # vercel
 .vercel
