@@ -84,6 +84,7 @@ Progress: 0/4 phases complete (0%)
 
 ### Roadmap Evolution
 
+- 2026-04-15: Phase 07.1 inserted after Phase 7: Automated Review Harness & Zero-Error Gate (URGENT) — 자가 완결 QA 하네스 (로컬 Supabase 스택 + Playwright + a11y/perf 게이트 + auto-fix 루프)
 - 2026-04-15: v1.1 ROADMAP 생성 — 4 phases (7–10) × 20 REQ-IDs (MIG×4, INFRA×3, UAT×5, QA×5, LEG×3). Phase 7 = DB migration + infra, Phase 8 = HUMAN-UAT, Phase 9 = UI/UX sweep, Phase 10 = legacy cleanup.
 - 2026-04-13: Phase 6 Plan 02 completed — Schema + Storage migration 9 columns + private bucket + RLS + 2 indexes (v1.0)
 - 2026-04-13: Phase 6 added — Admin Backoffice (v1.0)
