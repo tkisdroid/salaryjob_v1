@@ -77,15 +77,17 @@ const CARD_BASE =
 const ICON_TILE_BASE =
   "flex h-11 w-11 items-center justify-center rounded-xl transition-[background-color,color,transform] duration-300 group-hover:text-primary-foreground group-hover:scale-110";
 
+// `amber`/`lime`/`teal-deep` 등은 Tailwind 기본 팔레트와 suffix 충돌 위험이
+// 있어 arbitrary CSS var 참조로 확정. 모든 tone에서 surface + text 대비 4.5:1+.
 const iconTile = {
   brand:
     "bg-brand/10 text-brand group-hover:bg-brand",
   teal:
-    "bg-teal-light text-teal-deep group-hover:bg-teal",
+    "bg-teal-light text-[var(--teal-deep)] group-hover:bg-teal",
   amber:
-    "bg-amber-light text-amber-deep group-hover:bg-amber",
+    "bg-[var(--amber-light)] text-[var(--amber-deep)] group-hover:bg-[var(--amber)]",
   lime:
-    "bg-lime-light text-lime-deep group-hover:bg-[var(--lime-accent)]",
+    "bg-[var(--lime-light)] text-[var(--lime-deep)] group-hover:bg-[var(--lime-accent)]",
 } as const;
 
 type Tone = keyof typeof iconTile;
@@ -231,12 +233,13 @@ export default async function LandingPage() {
     },
   ];
 
-  // Trust stat value 색 매핑 — 타일 톤과 동일 축 사용
+  // Trust stat value 색 매핑 — 타일 톤과 동일 축 사용. Tailwind 기본 팔레트
+  // 충돌 회피 위해 amber/lime/teal-deep 은 arbitrary var 참조.
   const statValueText: Record<Tone, string> = {
     brand: "text-brand",
-    teal: "text-teal-deep",
-    amber: "text-amber-deep",
-    lime: "text-lime-deep",
+    teal: "text-[var(--teal-deep)]",
+    amber: "text-[var(--amber-deep)]",
+    lime: "text-[var(--lime-deep)]",
   };
 
   return (
