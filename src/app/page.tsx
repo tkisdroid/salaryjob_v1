@@ -149,7 +149,7 @@ export default async function LandingPage() {
       title: "원탭으로 지원",
       description: "시급과 근무 시간만 확인하면 끝. 서류 없이 바로 확정됩니다.",
       Icon: IconApply,
-      tone: "brand",
+      tone: "lime", // 지원 확정 = 인증 성취 모멘트
     },
     {
       number: "03",
@@ -563,26 +563,27 @@ export default async function LandingPage() {
                   delay={0.06 + i * 0.08}
                   className="h-full"
                 >
-                  <div className={cn(CARD_BASE, "relative")}>
-                    <span
-                      className={cn(
-                        "text-[28px] leading-none text-brand-deep/25 transition-colors duration-300 group-hover:text-brand-deep/40",
-                        T.numeric,
-                        "font-extrabold",
-                      )}
-                    >
-                      {step.number}
-                    </span>
-                    <div
-                      className={cn(
-                        ICON_TILE_BASE,
-                        iconTile[step.tone],
-                        "mt-3",
-                      )}
-                    >
-                      <step.Icon className="h-5 w-5" />
+                  <div className={CARD_BASE}>
+                    <div className="flex items-center gap-3">
+                      <div className={cn(ICON_TILE_BASE, iconTile[step.tone])}>
+                        <step.Icon className="h-5 w-5" />
+                      </div>
+                      <span
+                        className={cn(
+                          "text-[32px] leading-none font-extrabold text-foreground/15 transition-colors duration-300 group-hover:text-foreground/25",
+                          T.numeric,
+                        )}
+                        aria-hidden="true"
+                      >
+                        {step.number}
+                      </span>
                     </div>
-                    <h3 className={cn("mt-4", T.h3)}>{step.title}</h3>
+                    <h3 className={cn("mt-5", T.h3)}>
+                      <span className="sr-only">
+                        {step.number} 단계:{" "}
+                      </span>
+                      {step.title}
+                    </h3>
                     <p className={cn("mt-2 flex-1", T.bodySm)}>
                       {step.description}
                     </p>
