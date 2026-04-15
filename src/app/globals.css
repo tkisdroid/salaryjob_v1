@@ -183,14 +183,22 @@
      * allows very long words (links, emails) to wrap when absolutely
      * necessary. Applied at the body level so every <p>, <h1>, <button>,
      * etc. inherits the rule without per-component opt-in.
-     *
-     * Before this rule, sentences like '지원·수락까지 평균 수 분.' broke
-     * at character boundaries and stranded lone glyphs on their own line;
-     * after, the browser only breaks at whitespace and punctuation so
-     * each line holds a full Korean 의미 단위.
      */
     word-break: keep-all;
     overflow-wrap: break-word;
+    /*
+     * Crisp Korean rendering on Windows:
+     *  - subpixel-antialiased (auto) activates ClearType so Pretendard
+     *    strokes stay sharp instead of grey-washed.
+     *  - optimizeLegibility turns on kerning + ligatures, which tightens
+     *    한글 조합 spacing so words read as units, not loose glyphs.
+     *  - -webkit-text-size-adjust prevents mobile Safari from silently
+     *    inflating body text and smearing hinting.
+     */
+    -webkit-font-smoothing: auto;
+    -moz-osx-font-smoothing: auto;
+    text-rendering: optimizeLegibility;
+    -webkit-text-size-adjust: 100%;
   }
   html {
     @apply font-sans;
@@ -277,6 +285,21 @@
 @keyframes float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
+}
+/*
+ * Text-safe float: animates `top` instead of `transform` so Chrome on
+ * Windows keeps ClearType subpixel rendering for text inside the moving
+ * element. `transform` promotes the subtree to a compositor layer which
+ * forces grayscale AA — fine for images/blur blobs, bad for 10px Korean.
+ * Requires `position: relative` on the target.
+ */
+@keyframes float-soft {
+  0%, 100% { top: 0; }
+  50% { top: -8px; }
+}
+.animate-float-soft {
+  position: relative;
+  animation: float-soft 3s ease-in-out infinite;
 }
 @keyframes glowPulse {
   0%, 100% { box-shadow: 0 0 0 0 oklch(0.776 0.149 152 / 0.3); }

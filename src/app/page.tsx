@@ -286,7 +286,7 @@ export default async function LandingPage() {
 
             {/* Hero illustration — phone mockup (desktop only) */}
             <Reveal delay={0.3} className="hidden md:flex items-center justify-center">
-              <div className="relative animate-float">
+              <div className="animate-float-soft">
                 <div className="absolute inset-0 rounded-[2.5rem] bg-brand/10 blur-2xl scale-95" />
                 <div className="relative w-72 h-[500px] rounded-[2.5rem] border-[6px] border-foreground/10 bg-card shadow-2xl overflow-hidden">
                   <div className="bg-gradient-to-r from-brand/15 to-brand/5 p-4 flex items-center gap-3">
