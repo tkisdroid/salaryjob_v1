@@ -1,38 +1,33 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: completed
-last_updated: "2026-04-15T07:18:46.057Z"
+milestone: v1.1
+milestone_name: ship-ready
+status: defining_requirements
+last_updated: "2026-04-15T00:00:00.000Z"
 progress:
-  total_phases: 8
-  completed_phases: 4
-  total_plans: 38
-  completed_plans: 39
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # State: GigNow (NJob)
 
-**Last updated:** 2026-04-13
+**Last updated:** 2026-04-15
 
 ## Project Reference
 
 - **Core value:** 이력서·면접 제로. 탭 하나로 확정, 근무 후 즉시 정산.
-- **Current focus:** Phase 6 코드 완료 — HUMAN-UAT 5 시나리오 대기 (DB apply 후 실행 가능), 3 deferred (외부 deps)
-- **Exit criterion for current milestone:** ACHIEVED — `src/lib/mock-data.ts` 의존 경로 0개 (grep exit code 1 confirmed)
+- **Current focus:** v1.1 Ship-Ready — defining requirements (gap fill + HUMAN-UAT 13 + UI/UX QA full sweep + Phase 1 legacy cleanup)
+- **Exit criterion for current milestone:** 실 사용자 관점 "탐색→지원→확정→근무→리뷰→정산" 플로우가 브라우저에서 1분 이내 완료 + 13 HUMAN-UAT 시나리오 PASS(또는 MOCK-LOG 기록) + UI/UX QA 체크리스트 0 critical/high 이슈
 
 ## Current Position
 
-Phase: 06 (admin-backoffice) — CODE COMPLETE, HUMAN-UAT pending
-Plan: 08 of 08
-
-- **Milestone:** v1 MVP
-- **Phase:** 06
-- **Plan:** 08 (final)
-- **Node:** HUMAN CHECKPOINT — awaiting browser UAT (scenarios 1/2/4/5/6)
-- **Status:** v1.0 milestone complete
-- **Progress:** [██████████] 100%
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-04-15 — Milestone v1.1 started
 
 ## Phase Progress
 
