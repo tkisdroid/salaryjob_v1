@@ -305,7 +305,3 @@
   0%, 100% { box-shadow: 0 0 0 0 oklch(0.776 0.149 152 / 0.3); }
   50% { box-shadow: 0 0 20px 4px oklch(0.776 0.149 152 / 0.15); }
 }
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}

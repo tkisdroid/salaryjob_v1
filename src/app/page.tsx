@@ -158,8 +158,8 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
-      {/* ─── Header — glassmorphism ───────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/60 backdrop-blur-xl">
+      {/* ─── Header ─────────────────────────────────────────────────────── */}
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-6">
           <Link href="/" className="flex items-center gap-2 group">
             <CeleryMark className="h-10 w-10 transition-transform duration-300 group-hover:rotate-12" />
@@ -224,7 +224,7 @@ export default async function LandingPage() {
               <Reveal delay={0.1}>
                 <h1 className="text-[32px] font-extrabold leading-[1.15] tracking-tight text-foreground sm:text-[42px] md:text-[56px]">
                   <span className="block">내 주변 일자리,</span>
-                  <span className="block bg-gradient-to-r from-brand to-brand-dark bg-clip-text text-transparent">
+                  <span className="block text-brand-deep">
                     더 가볍고 빠르게
                   </span>
                 </h1>
@@ -246,14 +246,13 @@ export default async function LandingPage() {
                     href="/login?next=/home"
                     className={cn(
                       buttonVariants({ size: "lg" }),
-                      "relative overflow-hidden h-12 w-full rounded-full bg-brand px-6 text-sm font-semibold text-primary-foreground hover:bg-brand-dark sm:w-auto sm:text-base shadow-[0_6px_24px_hsl(var(--brand)/0.2)]",
+                      "h-12 w-full rounded-full bg-brand px-6 text-sm font-semibold text-primary-foreground hover:bg-brand-dark sm:w-auto sm:text-base shadow-[0_6px_24px_hsl(var(--brand)/0.2)]",
                     )}
                   >
-                    <span className="relative z-10 flex items-center gap-1.5">
+                    <span className="flex items-center gap-1.5">
                       내 주변 일자리 보기
                       <ArrowRight className="h-4 w-4" />
                     </span>
-                    <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2.5s_ease-in-out_infinite]" />
                   </Link>
                   <Link
                     href="/signup?role=business"
@@ -273,7 +272,7 @@ export default async function LandingPage() {
                     (text) => (
                       <li
                         key={text}
-                        className="flex items-center gap-1.5 rounded-full border border-border bg-card/80 backdrop-blur px-3 py-2"
+                        className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2"
                       >
                         <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand" />
                         <span className="truncate">{text}</span>
@@ -511,14 +510,13 @@ export default async function LandingPage() {
                   href="/signup?role=business"
                   className={cn(
                     buttonVariants({ size: "lg" }),
-                    "relative overflow-hidden h-12 rounded-full bg-brand px-8 text-sm font-semibold text-primary-foreground hover:bg-brand-dark sm:text-base shadow-[0_6px_24px_hsl(var(--brand)/0.2)]",
+                    "h-12 rounded-full bg-brand px-8 text-sm font-semibold text-primary-foreground hover:bg-brand-dark sm:text-base shadow-[0_6px_24px_hsl(var(--brand)/0.2)]",
                   )}
                 >
-                  <span className="relative z-10 flex items-center gap-1.5">
+                  <span className="flex items-center gap-1.5">
                     사업자로 시작하기
                     <ArrowRight className="h-4 w-4" />
                   </span>
-                  <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2.5s_ease-in-out_infinite]" />
                 </Link>
               </div>
             </Reveal>
@@ -566,11 +564,10 @@ export default async function LandingPage() {
                 href="/login?next=/home"
                 className={cn(
                   buttonVariants({ size: "lg" }),
-                  "relative overflow-hidden h-12 w-full rounded-full bg-brand px-6 text-sm font-semibold text-primary-foreground hover:bg-brand-dark sm:w-auto sm:text-base shadow-[0_6px_24px_hsl(var(--brand)/0.2)]",
+                  "h-12 w-full rounded-full bg-brand px-6 text-sm font-semibold text-primary-foreground hover:bg-brand-dark sm:w-auto sm:text-base shadow-[0_6px_24px_hsl(var(--brand)/0.2)]",
                 )}
               >
-                <span className="relative z-10">가까운 일자리 찾기</span>
-                <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2.5s_ease-in-out_infinite]" />
+                가까운 일자리 찾기
               </Link>
               <Link
                 href="/signup?role=business"
