@@ -222,7 +222,7 @@ export default async function LandingPage() {
               </Reveal>
 
               <Reveal delay={0.1}>
-                <h1 className="text-[32px] font-extrabold leading-[1.15] tracking-tight text-foreground sm:text-[42px] md:text-[56px]">
+                <h1 className="text-[clamp(2rem,5.5vw+0.5rem,3.5rem)] font-extrabold leading-[1.15] tracking-tight text-foreground">
                   <span className="block">내 주변 일자리,</span>
                   <span className="block text-brand-deep">
                     더 가볍고 빠르게
