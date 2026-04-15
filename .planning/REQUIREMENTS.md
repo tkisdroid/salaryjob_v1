@@ -74,29 +74,31 @@
 
 | REQ-ID | Phase | Plan | Status |
 |--------|-------|------|--------|
-| MIG-01 | TBD | TBD | pending |
-| MIG-02 | TBD | TBD | pending |
-| MIG-03 | TBD | TBD | pending |
-| MIG-04 | TBD | TBD | pending |
-| UAT-01 | TBD | TBD | pending |
-| UAT-02 | TBD | TBD | pending |
-| UAT-03 | TBD | TBD | pending |
-| UAT-04 | TBD | TBD | pending |
-| UAT-05 | TBD | TBD | pending |
-| QA-01  | TBD | TBD | pending |
-| QA-02  | TBD | TBD | pending |
-| QA-03  | TBD | TBD | pending |
-| QA-04  | TBD | TBD | pending |
-| QA-05  | TBD | TBD | pending |
-| LEG-01 | TBD | TBD | pending |
-| LEG-02 | TBD | TBD | pending |
-| LEG-03 | TBD | TBD | pending |
-| INFRA-01 | TBD | TBD | pending |
-| INFRA-02 | TBD | TBD | pending |
-| INFRA-03 | TBD | TBD | pending |
+| MIG-01 | Phase 7 | TBD | pending |
+| MIG-02 | Phase 7 | TBD | pending |
+| MIG-03 | Phase 7 | TBD | pending |
+| MIG-04 | Phase 7 | TBD | pending |
+| UAT-01 | Phase 8 | TBD | pending |
+| UAT-02 | Phase 8 | TBD | pending |
+| UAT-03 | Phase 8 | TBD | pending |
+| UAT-04 | Phase 8 | TBD | pending |
+| UAT-05 | Phase 8 | TBD | pending |
+| QA-01  | Phase 9 | TBD | pending |
+| QA-02  | Phase 9 | TBD | pending |
+| QA-03  | Phase 9 | TBD | pending |
+| QA-04  | Phase 9 | TBD | pending |
+| QA-05  | Phase 9 | TBD | pending |
+| LEG-01 | Phase 10 | TBD | pending |
+| LEG-02 | Phase 10 | TBD | pending |
+| LEG-03 | Phase 10 | TBD | pending |
+| INFRA-01 | Phase 7 | TBD | pending |
+| INFRA-02 | Phase 8 | TBD | pending |
+| INFRA-03 | Phase 7 | TBD | pending |
 
-Traceability는 ROADMAP.md 생성 시 gsd-roadmapper가 Phase/Plan 컬럼을 채운다.
+**Total mapped:** 20/20 (100%) — 0 orphaned, 0 duplicate.
+
+Plan 컬럼은 `/gsd-plan-phase {N}` 실행 시 해당 REQ-ID가 포함된 plan 번호로 채워진다.
 
 ---
 
-*Last updated: 2026-04-15 — v1.1 Ship-Ready milestone requirements defined (5 categories, 20 REQ-IDs).*
+*Last updated: 2026-04-15 — Traceability 컬럼에 Phase 매핑 적용 (gsd-roadmapper v1.1 로드맵 생성 직후). 5 categories, 20 REQ-IDs, 4 phases (7–10).*

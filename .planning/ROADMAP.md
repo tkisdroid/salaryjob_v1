@@ -1,75 +1,130 @@
-# Roadmap: GigNow (NJob)
+# Roadmap — Milestone v1.1 Ship-Ready
 
-**Core Value:** 이력서·면접 제로. 탭 하나로 확정, 근무 후 즉시 정산.
+**Milestone:** v1.1 Ship-Ready — Gap Fill & Full QA Sweep
+**Created:** 2026-04-15
+**Granularity:** standard
+**Phase numbering:** Phase 7 onward (continuing from v1.0 which closed at Phase 6)
+**Coverage:** 20/20 REQ-IDs mapped (100%)
 
-## Milestones
+## Milestone Goal
 
-- ✅ **v1.0 Timee 모델 한국 MVP** — Phases 1–6 (shipped 2026-04-15)
-- 📋 **v1.1+ Next Milestone** — TBD (run `/gsd-new-milestone`)
+v1.0 close 시점에 남은 모든 gap을 메우고 실 사용자 플로우가 전 경로에서 완벽하게 동작하도록 검증·수정한다. 신규 기능 추가 없이 **검증·정리·스테빌라이즈**만 수행.
+
+**Exit gate:** "탐색 → 지원 → 확정 → 근무 → 리뷰 → 정산" 루프가 실 DB + 실 브라우저에서 1분 이내 완료 + 13 HUMAN-UAT 시나리오 PASS(또는 MOCK-LOG 기록) + UI/UX QA 체크리스트 0 critical/high + Phase 1 legacy 잔재 제거.
 
 ## Phases
 
-<details>
-<summary>✅ v1.0 Timee 모델 한국 MVP (Phases 1–6) — SHIPPED 2026-04-15</summary>
+- [ ] **Phase 7: DB Migration Apply & Infra Foundation** — Phase 6 마이그레이션 적용 + Admin seed + 외부 키/MOCK 인프라 확립 (모든 후속 phase의 전제)
+- [ ] **Phase 8: HUMAN-UAT Execution (13 scenarios + E2E Loop)** — Phase 4/5/6 브라우저 UAT + 1-min end-to-end 플로우 실측
+- [ ] **Phase 9: UI/UX Full Sweep (55 routes × Desktop + Mobile 375px)** — Worker·Business·Admin 전 라우트 체크리스트 PASS + critical/high 이슈 fix
+- [ ] **Phase 10: Legacy Cleanup & Milestone Close** — Phase 1 legacy MOCK 제거 + stale 주석 정리 + CI 회귀 가드
 
-- [x] **Phase 1:** 목업 UI 파운데이션 — retroactive, completed 2026-04-10 (commit `55790d1`)
-- [x] **Phase 2:** Supabase·Prisma·Auth 기반 — 9/9 plans, completed 2026-04-10 (commit `fb06dfd`)
-- [x] **Phase 3:** 프로필·공고 DB 연결 — 6/6 plans, completed 2026-04-10 (commit `087874e`)
-- [x] **Phase 4:** 지원·근무 라이프사이클 DB 연결 + 탐색 고도화 — 10/10 plans, completed 2026-04-11 (commits `be311af → 864e4e5`)
-- [x] **Phase 5:** 리뷰·정산·목업 제거 — 7/7 plans, code complete 2026-04-11 (commit `d26e3bc`) — HUMAN-UAT 3 scenarios deferred
-- [x] **Phase 6:** Admin Backoffice — 8/8 plans, code complete 2026-04-13 (commits `4cc274c`, `84869ab`) — HUMAN-UAT 5 pending + 3 deferred, DB migration apply pending
+## Phase Details
 
-Archived:
-- [.planning/milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md) — full phase details
-- [.planning/milestones/v1.0-REQUIREMENTS.md](milestones/v1.0-REQUIREMENTS.md) — 43 v1 requirements + 17 Phase 6 decisions
-- [.planning/milestones/v1.0-MILESTONE-AUDIT.md](milestones/v1.0-MILESTONE-AUDIT.md) — `tech_debt` audit report
+### Phase 7: DB Migration Apply & Infra Foundation
+**Goal:** Phase 6 DB 마이그레이션과 Admin seed가 실제 Supabase에 적용되고, MOCK-LOG 및 외부 키 프로비저닝 인프라가 확립되어 후속 HUMAN-UAT와 QA가 실 DB 위에서 동작할 수 있다.
+**Depends on:** Nothing (first phase of v1.1; Supabase network access required)
+**Requirements:** MIG-01, MIG-02, MIG-03, MIG-04, INFRA-01, INFRA-03
+**Success Criteria** (what must be TRUE):
+  1. `npx prisma migrate status` + `npx prisma validate` + `npx prisma generate`가 drift/pending 0건으로 clean하게 끝난다
+  2. Business 사용자가 `business-reg-docs` bucket에 등록증 이미지를 업로드하면 Admin이 signed URL로 해당 이미지를 브라우저에서 열람할 수 있다 (RLS authenticated write + signed read 경로 검증)
+  3. 시드된 Admin 계정(regNumber + ADMIN role)으로 `/admin` 대시보드에 로그인하면 /admin · /admin/businesses · /admin/businesses/[id] 3개 라우트에 접근 가능하다
+  4. 신규 개발자가 `.env.example` + `docs/`를 참조하여 `CLOVA_OCR_SECRET` 발급·등록을 5분 내 완료할 수 있다
+  5. `.planning/phases/*/MOCK-LOG.md` 템플릿이 (mocked path / reason / real-key re-verify step / target milestone) 4필드를 포함한 표준 형태로 확립되어 있다
+**Plans:** TBD
 
-</details>
+### Phase 8: HUMAN-UAT Execution (13 scenarios + E2E Loop)
+**Goal:** v1.0이 코드-레벨에서 완성한 Worker/Business/Admin 플로우가 실 브라우저 + 실 DB 환경에서 13개 HUMAN-UAT 시나리오를 통해 기능적으로 동작함을 증명하고, 핵심 end-to-end 루프가 1분 이내 완료됨을 실측 기록한다.
+**Depends on:** Phase 7 (DB 마이그레이션 적용 + Admin 계정 필요)
+**Requirements:** UAT-01, UAT-02, UAT-03, UAT-04, UAT-05, INFRA-02
+**Success Criteria** (what must be TRUE):
+  1. Worker가 Kakao Maps 지도 탐색 / Web Push 알림 수신 / Realtime 2-tab 동기화 / 체크아웃 QR 스캔 / Geofence GPS 블록 5개 시나리오를 브라우저에서 실행한 PASS·FAIL·MOCK 결과가 `04-HUMAN-UAT.md`에 기록되어 있다
+  2. Phase 5 3개 시나리오(E2E 1분 루프 / 모바일 375px 가독성 / 리뷰 UX taste)가 PASS로 `05-HUMAN-UAT.md`에 기록되어 있다
+  3. Admin/Business 사용자가 Phase 6 5개 실행 가능 시나리오(admin 로그인 / businesses 검색·필터·정렬·페이지네이션 / commission rate 편집 / biz regNumber 자동 인증 / createJob 이미지 게이트)를 PASS로 `06-HUMAN-UAT.md`에 기록하고, 3개 deferred 시나리오(admin detail signed image / OCR happy path / OCR mismatch)는 MOCK 경로로 검증 + `MOCK-LOG.md`에 재검증 단계가 기록되어 있다
+  4. "Worker 탐색 → 원탭 지원 → Business 확정 → Worker 체크인 → 체크아웃 → 상호 리뷰 → 월말 정산 집계" end-to-end 루프가 실 브라우저 + 실 DB에서 60초 이내 완료되는 타임스탬프 증거(로그 또는 녹화본)가 존재한다
+  5. Phase 6 등록증 열람 시나리오에서 Supabase signed URL TTL 실측치가 `06-HUMAN-UAT.md` 또는 MOCK-LOG에 숫자로 기록되어 있다
+**Plans:** TBD
 
-### 🚧 v1.1+ (Not yet planned)
+### Phase 9: UI/UX Full Sweep (55 routes × Desktop + Mobile 375px)
+**Goal:** Worker·Business·Admin 전 55 라우트가 Desktop + Mobile 375px 두 뷰포트에서 버튼 중복/오동작, 빈 상태, 에러 토스트, 네비게이션, shadcn 토큰 드리프트를 기준으로 체크리스트 0 critical/high 상태로 수렴한다.
+**Depends on:** Phase 7 (실 DB 없이는 빈 상태/로딩/에러 경로를 끝까지 볼 수 없음); Phase 8과는 논리적으로 병렬이지만 단일 개발자 컨텍스트에서 순차 진행 권장
+**Requirements:** QA-01, QA-02, QA-03, QA-04, QA-05
+**Success Criteria** (what must be TRUE):
+  1. Worker 전 라우트(home · search · job detail · apply · my/schedule · my/applications · my/shifts · reviews · settlements · profile · auth 흐름)가 Desktop + Mobile 375px 체크리스트(버튼 중복/오동작/비활성 · 빈 상태 · 에러 토스트 · 네비게이션 누락) 전 항목 PASS이며 스크린샷 또는 체크 기록이 남아있다
+  2. Business 전 라우트(dashboard · jobs CRUD · applications inbox · shifts monitoring · reviews · profile · biz verify · settlements)가 동일 체크리스트 전 항목 PASS이다
+  3. Admin 전 라우트(/admin 대시보드 · /admin/businesses list + detail · commission edit · 등록증 열람)가 동일 체크리스트 전 항목 PASS이다
+  4. sweep 중 발견된 모든 critical·high 등급 이슈는 close 전에 수정되어 fix 커밋이 이슈 항목에 링크되어 있고, low/info 등급만 백로그 todo로 이월되어 있다
+  5. shadcn 디자인 토큰(spacing/typography/color) 드리프트, 동일 액션에 대한 중복 버튼, 모바일 하단 탭바로 가려진 CTA가 Worker·Business·Admin 전 화면에서 0건이다
+**Plans:** TBD
+**UI hint**: yes
 
-Run `/gsd-new-milestone` to scope the next milestone — recommended first items:
-- Apply pending Phase 6 DB migrations (`commissionRate`, `businessRegImageUrl`, `netEarnings`, `business-reg-docs` storage bucket).
-- Execute 8 HUMAN-UAT scenarios from Phase 5 + Phase 6.
-- Promote backlog Phase 999.1 (scout heart/notify) and/or 999.2 (Toss payments + business balance).
-- Wire `/my/schedule` off remaining local MOCK constants (Phase 1 legacy).
+### Phase 10: Legacy Cleanup & Milestone Close
+**Goal:** Phase 1 legacy 잔재(`/my/schedule` 로컬 MOCK · stale Clerk TODO)를 제거하고, `src/lib/mock-data` 재도입을 막는 CI 가드를 설치해 v1.0이 잡은 "실 DB 위에서 동작" 원칙이 v1.1 이후에도 기계적으로 유지되도록 마무리한다.
+**Depends on:** Phase 7 (실 DB wiring 필요); Phase 8/9와 순서 독립적이나 cleanup 후 회귀가 나지 않도록 UAT/QA 뒤에 두는 것이 안전
+**Requirements:** LEG-01, LEG-02, LEG-03
+**Success Criteria** (what must be TRUE):
+  1. Worker가 `/my/schedule`에 접근하면 본인의 실제 availability + 지원·매치 이력이 Supabase 쿼리 결과로 표시되며 로컬 MOCK 상수 흔적이 UI/소스 어디에도 없다
+  2. `src/app/api/push/register/route.ts`에 Clerk 관련 TODO 주석이 0건이며, 현재 인증 컨텍스트(Supabase Auth)를 반영한 주석 또는 주석 삭제 상태로 정리되어 있다
+  3. `src/lib/mock-data` 경로에 대한 import가 재도입되면 CI(또는 pre-commit 훅)가 즉시 실패하는 grep 게이트가 설치되어 있고 설치 확인 로그/스크린샷이 남아있다
+**Plans:** TBD
+
+## Requirements Coverage
+
+| REQ-ID | Phase | Category |
+|--------|-------|----------|
+| MIG-01 | Phase 7 | DB Migration |
+| MIG-02 | Phase 7 | DB Migration |
+| MIG-03 | Phase 7 | DB Migration |
+| MIG-04 | Phase 7 | DB Migration |
+| INFRA-01 | Phase 7 | Infra |
+| INFRA-03 | Phase 7 | Infra |
+| UAT-01 | Phase 8 | HUMAN-UAT |
+| UAT-02 | Phase 8 | HUMAN-UAT |
+| UAT-03 | Phase 8 | HUMAN-UAT |
+| UAT-04 | Phase 8 | HUMAN-UAT |
+| UAT-05 | Phase 8 | HUMAN-UAT |
+| INFRA-02 | Phase 8 | Infra (signed URL TTL 실측) |
+| QA-01 | Phase 9 | UI/UX QA |
+| QA-02 | Phase 9 | UI/UX QA |
+| QA-03 | Phase 9 | UI/UX QA |
+| QA-04 | Phase 9 | UI/UX QA |
+| QA-05 | Phase 9 | UI/UX QA |
+| LEG-01 | Phase 10 | Legacy Cleanup |
+| LEG-02 | Phase 10 | Legacy Cleanup |
+| LEG-03 | Phase 10 | Legacy Cleanup |
+
+**Total mapped:** 20/20 (100%)
+**Orphaned:** 0
+**Duplicates:** 0
 
 ## Progress
 
-| Phase | Milestone | Plans | Status | Completed |
-|-------|-----------|-------|--------|-----------|
-| 1. 목업 UI 파운데이션 | v1.0 | N/A | Complete | 2026-04-10 |
-| 2. Supabase·Prisma·Auth 기반 | v1.0 | 9/9 | Complete | 2026-04-10 (`fb06dfd`) |
-| 3. 프로필·공고 DB 연결 | v1.0 | 6/6 | Complete | 2026-04-10 (`087874e`) |
-| 4. 지원·근무 라이프사이클 DB 연결 | v1.0 | 10/10 | Complete | 2026-04-11 (`864e4e5`) |
-| 5. 리뷰·정산·목업 제거 | v1.0 | 7/7 | Code Complete (HUMAN-UAT deferred) | 2026-04-11 (`d26e3bc`) |
-| 6. Admin Backoffice | v1.0 | 8/8 | Code Complete (UAT pending, migration pending) | 2026-04-13 (`4cc274c`, `84869ab`) |
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 7. DB Migration Apply & Infra Foundation | 0/TBD | Not started | — |
+| 8. HUMAN-UAT Execution | 0/TBD | Not started | — |
+| 9. UI/UX Full Sweep | 0/TBD | Not started | — |
+| 10. Legacy Cleanup & Milestone Close | 0/TBD | Not started | — |
 
-## Backlog
+## Phase Dependency Graph
 
-### Phase 999.1: B4 — 하트(관심)→사업장 알림 + 워커 수신함 (BACKLOG)
+```
+Phase 7 (DB + Infra) ─┬─> Phase 8 (HUMAN-UAT)
+                      ├─> Phase 9 (UI/UX Sweep)
+                      └─> Phase 10 (Legacy Cleanup)
+```
 
-**Captured:** 2026-04-13
-**Goal:** 사업자가 /biz/workers 인재검색에서 워커에게 하트(관심)를 누르면 (1) 해당 워커에게 푸시/인앱 알림 발송 (2) 워커 /my에 "나에게 관심 보인 사업장" 수신함 페이지. Timee의 '스카우트' 유사 기능.
-**Requirements:** TBD (신규 `BusinessInterest` 테이블 신설 검토 — businessId, workerId, createdAt, seenAt)
-**Scope hint:** Phase 4 Web Push 인프라 재사용. 워커 /my 하위 새 라우트 + 알림 생성 trigger + admin read-only view 고려.
-**Plans:** 0 plans
+Phase 7은 hard prerequisite. Phase 8/9/10은 Phase 7 완료 후 실제로는 병렬 가능하나, 단일 개발자 컨텍스트에서 순차 권장 (8 → 9 → 10). Phase 10은 cleanup 후 회귀 감지를 위해 UAT/QA 후순위에 두는 것이 안전.
 
-Plans:
-- [ ] TBD (promote with /gsd-review-backlog when ready)
+## MOCK Policy (milestone-wide)
 
-### Phase 999.2: B5 — 사업자 포인트(현금) 충전 + Toss 결제 연동 (BACKLOG)
+외부 API 키(CLOVA OCR, 결제 등) 없이 완료 불가한 시나리오는:
+1. MOCK 경로로 검증 실행
+2. 해당 phase의 `MOCK-LOG.md`에 기록 (템플릿: mocked path / reason / real-key re-verify step / target milestone)
+3. 재검증은 v1.2 또는 v2로 이월
 
-**Captured:** 2026-04-13
-**Goal:** 사업자가 선충전(포인트/현금)으로 잔액을 확보하고, 임금 지급·수수료가 해당 잔액에서 자동 차감되는 구조. 현재 Phase 6에서 수수료 rate 모델링은 끝남 — 실 결제/출금이 v2 본체.
-**Requirements:** PAY-01..04 (v2)
-**Scope hint:** Toss Payments 위젯 + 가상계좌/카드 결제 웹훅(`/api/webhooks/toss`) + `BusinessBalance` 테이블 + 거래 원장(ledger) + 포인트 소진·환불 플로우. 원천징수·전자세금계산서는 3.71% 영세율 적용 정책 확인 필수.
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (promote with /gsd-review-backlog when ready)
+이 정책은 Phase 8 UAT-04와 Phase 7 INFRA-03에서 명시적으로 운용된다.
 
 ---
 
-*Roadmap created: 2026-04-10 by /gsd-new-project (brownfield — Phase 1 retroactive)*
-*v1.0 milestone archived: 2026-04-15 by /gsd-complete-milestone v1.0*
+*Roadmap created: 2026-04-15 by gsd-roadmapper. Phase numbering continues from v1.0 close (Phase 6) per milestone policy. Next: `/gsd-plan-phase 7`.*
