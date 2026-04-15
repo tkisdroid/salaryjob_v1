@@ -647,6 +647,7 @@ export default async function LandingPage() {
             <h2 className={cn("mt-7", T.h2Climax)}>지금 샐러리잡 시작하기</h2>
             <p className={cn("mx-auto mt-5 max-w-xl", T.lead)}>
               탭 한 번으로 지원하고, 근무 후 바로 정산까지.
+              <br className="hidden sm:block" />
               오늘 가능한 일부터 확인해 보세요.
             </p>
             <div className="mx-auto mt-9 flex w-full max-w-md flex-col justify-center gap-2.5 sm:max-w-none sm:flex-row sm:gap-3">
