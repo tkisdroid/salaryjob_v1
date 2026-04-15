@@ -196,7 +196,7 @@ export default async function LandingPage() {
               href="/login?next=/home"
               className={cn(
                 buttonVariants({ size: "sm" }),
-                "rounded-full bg-brand px-4 text-white shadow-sm hover:bg-brand-dark shadow-[0_4px_16px_hsl(var(--brand)/0.15)]",
+                "rounded-full bg-brand px-4 text-primary-foreground shadow-sm hover:bg-brand-dark shadow-[0_4px_16px_hsl(var(--brand)/0.15)]",
               )}
             >
               시작하기
