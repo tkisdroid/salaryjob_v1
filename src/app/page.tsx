@@ -344,15 +344,16 @@ export default async function LandingPage() {
               </Reveal>
 
               <Reveal delay={0.4}>
-                <ul className="mt-7 grid grid-cols-3 gap-1.5 text-[12px] text-muted-foreground sm:gap-2.5 sm:text-[13px]">
+                {/* 모바일: 세로 리스트 (텍스트 잘림 방지) · sm+: 가로 3칸 grid */}
+                <ul className="mt-7 flex flex-col gap-1.5 text-[13px] text-muted-foreground sm:grid sm:grid-cols-3 sm:gap-2.5">
                   {["이력서·면접 제로", "당일 근무 가능", "근무 후 즉시 정산"].map(
                     (text) => (
                       <li
                         key={text}
-                        className="flex items-center justify-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-2 sm:justify-start sm:px-3"
+                        className="flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-2"
                       >
                         <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand" />
-                        <span className="truncate font-medium">{text}</span>
+                        <span className="font-medium">{text}</span>
                       </li>
                     ),
                   )}
