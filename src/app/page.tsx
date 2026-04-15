@@ -245,13 +245,13 @@ export default async function LandingPage() {
     {
       value: `${jobs.length}+`,
       label: "실시간 공고",
-      hint: "지금 모집 중",
+      hint: "지금 이 시간 모집 중",
       tone: "brand",
     },
     {
       value: `${uniqueBusinesses}+`,
       label: "참여 사업장",
-      hint: "인증된 매장",
+      hint: "인증 완료된 매장",
       tone: "teal",
     },
     {
@@ -263,7 +263,7 @@ export default async function LandingPage() {
     {
       value: "3분",
       label: "지원까지",
-      hint: "탐색→확정 평균",
+      hint: "탐색부터 원탭 지원까지",
       tone: "lime",
     },
   ];
@@ -341,7 +341,7 @@ export default async function LandingPage() {
               <Reveal>
                 <div className="mb-7 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand-light px-3.5 py-1.5 text-[12px] font-bold tracking-[-0.005em] text-brand-deep">
                   <IconSparkle className="h-3.5 w-3.5" />
-                  산뜻한 로컬 잡 플랫폼
+                  샐러리처럼 산뜻한 로컬 잡 플랫폼
                 </div>
               </Reveal>
 
@@ -355,9 +355,12 @@ export default async function LandingPage() {
               </Reveal>
 
               <Reveal delay={0.2}>
-                <p className={cn("mt-6 max-w-md", T.lead)}>
-                  이력서도 면접도 없이, 오늘 가능한 일부터 탭 한 번으로.
-                  근무가 끝나면 바로 정산까지.
+                <p className={cn("mt-6 max-w-xl", T.lead)}>
+                  이력서도 면접도 필요 없어요.
+                  <br className="hidden sm:block" />
+                  오늘 가능한 일부터 안정적인 근무까지,
+                  <br className="hidden sm:block" />
+                  탭 한 번으로 지원하고 근무 후 바로 정산받으세요.
                 </p>
               </Reveal>
 
@@ -381,13 +384,7 @@ export default async function LandingPage() {
                 </div>
               </Reveal>
 
-              <Reveal delay={0.35}>
-                <p className="mt-3 text-[12px] text-muted-foreground sm:text-[13px]">
-                  이용료 무료 · 가입 1분 · 카드 등록 불필요
-                </p>
-              </Reveal>
-
-              <Reveal delay={0.45}>
+              <Reveal delay={0.4}>
                 <ul className="mt-7 grid grid-cols-1 gap-2 text-[13px] text-muted-foreground sm:grid-cols-3 sm:gap-2.5">
                   {["이력서·면접 제로", "당일 근무 가능", "근무 후 즉시 정산"].map(
                     (text) => (
@@ -521,7 +518,7 @@ export default async function LandingPage() {
             <Reveal>
               <SectionHeader
                 eyebrow="FOR WORKERS"
-                title="이력서·면접 없는 일자리"
+                title="왜 샐러리잡인가요?"
                 body="복잡한 과정 없이, 내 주변 일자리를 가장 빠르게 연결합니다."
               />
             </Reveal>
@@ -549,8 +546,7 @@ export default async function LandingPage() {
             <Reveal>
               <SectionHeader
                 eyebrow="HOW IT WORKS"
-                title="네 단계면 정산까지"
-                body="탐색 · 지원 · 체크인 · 정산. 중간에 기다리거나 확인할 게 없어요."
+                title="이렇게 쉬워요"
               />
             </Reveal>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
@@ -577,6 +573,19 @@ export default async function LandingPage() {
                 </Reveal>
               ))}
             </div>
+            <Reveal delay={0.4}>
+              <div className="mt-12 text-center">
+                <Link
+                  href="/login?next=/home"
+                  className={cn(buttonVariants({ size: "lg" }), CTA_PRIMARY)}
+                >
+                  <span className="flex items-center gap-1.5">
+                    지금 바로 일하기
+                    <ArrowRight className="h-4 w-4" />
+                  </span>
+                </Link>
+              </div>
+            </Reveal>
           </div>
         </section>
 
@@ -584,25 +593,12 @@ export default async function LandingPage() {
         <section className="border-t border-border/60">
           <div className="mx-auto max-w-6xl px-5 sm:px-6 py-20 md:py-24">
             <Reveal>
-              <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className={T.eyebrow}>LIVE FEED</p>
-                  <h2 className={cn("mt-3", T.h2)}>지금 지원 가능한 공고</h2>
-                  <p className={cn("mt-4 max-w-xl", T.body)}>
-                    실시간으로 올라오는 공고를 그대로 보여드려요. 바로 탭해서 확인하세요.
-                  </p>
-                </div>
-                <Link
-                  href="/login?next=/home"
-                  className={cn(
-                    buttonVariants({ variant: "ghost", size: "sm" }),
-                    "self-start rounded-full px-4 text-brand-deep hover:bg-brand-light sm:self-auto",
-                  )}
-                >
-                  <span className="flex items-center gap-1">
-                    전체 보기 <ArrowRight className="h-3.5 w-3.5" />
-                  </span>
-                </Link>
+              <div className="mb-10">
+                <p className={T.eyebrow}>LIVE FEED</p>
+                <h2 className={cn("mt-3", T.h2)}>지금 공개된 공고</h2>
+                <p className={cn("mt-4 max-w-xl", T.body)}>
+                  실제 서비스 홈에서 사용하는 목록을 그대로 보여드려요.
+                </p>
               </div>
             </Reveal>
 
@@ -621,14 +617,8 @@ export default async function LandingPage() {
           className="border-t border-border/60 bg-mint-bg/30"
           aria-label="서비스 규모"
         >
-          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-16 md:py-20">
-            <Reveal>
-              <p className={cn(T.eyebrow, "text-center")}>BY THE NUMBERS</p>
-              <h2 className={cn("mt-3 text-center", T.h2)}>
-                이미 많은 사람들이 쓰고 있어요
-              </h2>
-            </Reveal>
-            <ul className="mt-10 grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
+          <div className="mx-auto max-w-6xl px-5 sm:px-6 py-14 md:py-16">
+            <ul className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-5">
               {trustStats.map((stat, i) => (
                 <li key={stat.label} className="h-full">
                   <Reveal delay={i * 0.07} className="h-full">
@@ -664,7 +654,7 @@ export default async function LandingPage() {
             <Reveal>
               <div className="mb-12 text-center mx-auto">
                 <p className="text-[12px] font-bold uppercase tracking-[0.18em] text-[var(--teal-deep)]">
-                  FOR BUSINESS
+                  사업자 전용
                 </p>
                 <h2 className={cn("mt-3", T.h2)}>
                   인력이 급할 땐, 샐러리잡
@@ -700,7 +690,7 @@ export default async function LandingPage() {
                 >
                   <span className="flex items-center gap-1.5">
                     <IconStore className="h-4 w-4" />
-                    사업자 시작하기
+                    사업자로 시작하기
                     <ArrowRight className="h-4 w-4" />
                   </span>
                 </Link>
@@ -714,11 +704,11 @@ export default async function LandingPage() {
           <div className="mx-auto max-w-5xl px-5 sm:px-6 py-20 text-center md:py-28">
             <CeleryMark className="mx-auto h-14 w-14 text-brand" />
             <h2 className={cn("mt-7", T.h2Climax)}>
-              지금 바로 시작하세요
+              지금 샐러리잡 시작하기
             </h2>
             <p className={cn("mx-auto mt-5 max-w-xl", T.lead)}>
-              탭 한 번으로 지원하고, 근무 후 바로 정산까지.
-              오늘 가능한 일부터 확인해 보세요.
+              이력서도 면접도 긴 대기도 없이, 탭 한 번으로 지원하고
+              근무 후 바로 정산까지. 오늘 가능한 일부터 확인해 보세요.
             </p>
             <div className="mx-auto mt-9 flex w-full max-w-md flex-col justify-center gap-2.5 sm:max-w-none sm:flex-row sm:gap-3">
               <Link
@@ -737,9 +727,6 @@ export default async function LandingPage() {
                 사업장 등록하기
               </Link>
             </div>
-            <p className="mt-5 text-[12px] text-muted-foreground">
-              회원가입 1분 · 이용료 무료
-            </p>
           </div>
         </section>
 
