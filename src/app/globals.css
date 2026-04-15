@@ -32,11 +32,17 @@
   --color-brand-soft: var(--brand-soft);
   --color-brand-deep: var(--brand-deep);
   --color-lime-accent: var(--lime-accent);
+  --color-lime-deep:   var(--lime-deep);
+  --color-lime-light:  var(--lime-light);
   --color-ivory: var(--ivory);
   --color-mint-bg: var(--mint-bg);
   --color-teal: var(--teal);
   --color-teal-light: var(--teal-light);
+  --color-teal-deep:  var(--teal-deep);
   --color-urgent: var(--urgent);
+  --color-amber:       var(--amber);
+  --color-amber-light: var(--amber-light);
+  --color-amber-deep:  var(--amber-deep);
 
   /* Category colors — tuned to green-adjacent hues so they do not clash with
      the 브리프 rule against purples and strong blues. Warm categories keep
@@ -118,6 +124,11 @@
   /* Paired teal accent — harmonises with fresher brand */
   --teal:         oklch(0.670 0.084 184);
   --teal-light:   oklch(0.949 0.024 185);
+  --teal-deep:    oklch(0.450 0.080 186);  /* teal on light surface — 4.5:1+ on card */
+
+  /* Lime sub-accent — 인증/검증 같은 "따뜻한 성취" 포인트에만 */
+  --lime-light:   oklch(0.968 0.048 113);
+  --lime-deep:    oklch(0.475 0.115 112);  /* lime text on light surface */
 
   /* Backgrounds — warm ivory (main) + cool mint (section fill) */
   --ivory:        oklch(0.991 0.008 95);   /* Warm Ivory — app background */
@@ -125,6 +136,11 @@
 
   /* Reserved accents */
   --urgent:       oklch(0.726 0.152 58);   /* 긴급 — warm amber, distinct from destructive */
+  /* Amber family — "돈·시간·성취" 전용. --urgent 와 색상 공유하지만
+     light/deep 변형이 있어 surface + text 쌍으로 운용 가능. */
+  --amber:        oklch(0.726 0.152 58);   /* alias for --urgent, semantic name */
+  --amber-light:  oklch(0.957 0.050 60);   /* amber on light surface (tile bg) */
+  --amber-deep:   oklch(0.488 0.148 55);   /* amber text — 4.5:1 on card */
 
   /* ---- shadcn token layer ---- */
 

@@ -72,11 +72,23 @@ const NAV_HOVER =
 const CARD_BASE =
   "group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.07)]";
 
-const ICON_TILE_BRAND =
-  "flex h-11 w-11 items-center justify-center rounded-xl bg-brand/10 text-brand transition-[background-color,color,transform] duration-300 group-hover:bg-brand group-hover:text-primary-foreground group-hover:scale-110";
+// ── Icon tile tones ─────────────────────────────────────────────────────────
+// semantic 분배: brand=속도/핵심, teal=신뢰/매장, amber=돈/시간, lime=인증
+const ICON_TILE_BASE =
+  "flex h-11 w-11 items-center justify-center rounded-xl transition-[background-color,color,transform] duration-300 group-hover:text-primary-foreground group-hover:scale-110";
 
-const ICON_TILE_TEAL =
-  "flex h-11 w-11 items-center justify-center rounded-xl bg-teal-light text-teal transition-[background-color,color,transform] duration-300 group-hover:bg-teal group-hover:text-primary-foreground group-hover:scale-110";
+const iconTile = {
+  brand:
+    "bg-brand/10 text-brand group-hover:bg-brand",
+  teal:
+    "bg-teal-light text-teal-deep group-hover:bg-teal",
+  amber:
+    "bg-amber-light text-amber-deep group-hover:bg-amber",
+  lime:
+    "bg-lime-light text-lime-deep group-hover:bg-[var(--lime-accent)]",
+} as const;
+
+type Tone = keyof typeof iconTile;
 
 export default async function LandingPage() {
   const { jobs, nextCursor } = await getJobsPaginated({ limit: 12 });
@@ -89,57 +101,76 @@ export default async function LandingPage() {
         )
       : 0;
 
-  const valueCards = [
+  const valueCards: Array<{
+    Icon: typeof IconOneTap;
+    title: string;
+    description: string;
+    tone: Tone;
+  }> = [
     {
       Icon: IconOneTap,
       title: "원탭 지원",
       description:
         "이력서도 면접도 없어요. 조건이 맞으면 버튼 한 번으로 지원이 끝납니다.",
+      tone: "brand", // 핵심: 속도/원탭
     },
     {
       Icon: IconNearby,
       title: "내 주변만",
       description:
         "위치 기반으로 걸어갈 수 있는 거리의 일만 골라서 보여드려요.",
+      tone: "teal", // 지도/매장 계열
     },
     {
       Icon: IconInstantPay,
       title: "즉시 정산",
       description:
         "근무가 끝나면 시급·교통비·야간 할증까지 계산해 바로 입금됩니다.",
+      tone: "amber", // 돈/시간
     },
     {
       Icon: IconVerified,
       title: "검증된 사업장",
       description:
         "실제 근무한 사람들의 평점과 리뷰로 안심하고 지원할 수 있어요.",
+      tone: "lime", // 인증/성취
     },
   ];
 
-  const workerFlow = [
+  const workerFlow: Array<{
+    number: string;
+    title: string;
+    description: string;
+    Icon: typeof IconExplore;
+    tone: Tone;
+  }> = [
     {
       number: "01",
       title: "내 주변 일자리 탐색",
       description: "집에서 가까운 순서로, 오늘 가능한 일부터 먼저 보여드려요.",
       Icon: IconExplore,
+      tone: "brand",
     },
     {
       number: "02",
       title: "원탭으로 지원",
       description: "시급과 근무 시간만 확인하면 끝. 서류 없이 바로 확정됩니다.",
       Icon: IconApply,
+      tone: "brand",
     },
     {
       number: "03",
       title: "근무는 QR 체크인",
       description: "매장에서 QR만 찍으면 출근 인증. 복잡한 절차 없이 시작해요.",
       Icon: IconCheckin,
+      tone: "teal",
     },
     {
       number: "04",
       title: "끝나면 즉시 정산",
       description: "시간과 금액이 자동 계산돼 계좌로 바로 입금됩니다.",
       Icon: IconSettlement,
+      tone: "amber",
     },
   ];
 
@@ -168,28 +199,45 @@ export default async function LandingPage() {
     },
   ];
 
-  const trustStats = [
+  const trustStats: Array<{
+    value: string;
+    label: string;
+    hint: string;
+    tone: Tone;
+  }> = [
     {
       value: `${jobs.length}+`,
       label: "실시간 공고",
       hint: "지금 이 시간 모집 중",
+      tone: "brand",
     },
     {
       value: `${uniqueBusinesses}+`,
       label: "참여 사업장",
       hint: "인증 완료된 매장",
+      tone: "teal",
     },
     {
       value: averageHourlyPay > 0 ? formatWon(averageHourlyPay) : "—",
       label: "평균 시급",
       hint: "공개 공고 기준",
+      tone: "amber",
     },
     {
       value: "3분",
       label: "지원까지",
       hint: "탐색부터 원탭 지원까지",
+      tone: "lime",
     },
   ];
+
+  // Trust stat value 색 매핑 — 타일 톤과 동일 축 사용
+  const statValueText: Record<Tone, string> = {
+    brand: "text-brand",
+    teal: "text-teal-deep",
+    amber: "text-amber-deep",
+    lime: "text-lime-deep",
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
@@ -250,6 +298,8 @@ export default async function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-br from-brand-light via-background to-mint-bg" />
           <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full bg-brand/5 blur-3xl animate-float" />
           <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-brand/[0.08] blur-3xl animate-float [animation-delay:1.5s]" />
+          {/* 온도 대비: 주변 mint 블롭에 라임(따뜻) 한 방울로 단일 톤 완화 */}
+          <div className="absolute top-1/3 left-1/4 w-40 h-40 rounded-full bg-[var(--lime-accent)]/[0.08] blur-3xl animate-float [animation-delay:3s]" />
 
           <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 sm:px-6 py-20 md:grid-cols-[1.15fr_0.85fr] md:py-28">
             <div className="max-w-2xl">
@@ -410,7 +460,8 @@ export default async function LandingPage() {
                     <div className="flex h-full flex-col justify-center rounded-2xl border border-border bg-card px-5 py-6 text-center transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.06)]">
                       <p
                         className={cn(
-                          "text-[28px] md:text-[32px] font-extrabold text-brand leading-none",
+                          "text-[28px] md:text-[32px] font-extrabold leading-none",
+                          statValueText[stat.tone],
                           T.numeric,
                         )}
                       >
@@ -448,7 +499,7 @@ export default async function LandingPage() {
               {valueCards.map((card, i) => (
                 <Reveal key={card.title} delay={0.08 + i * 0.07} className="h-full">
                   <div className={CARD_BASE}>
-                    <div className={ICON_TILE_BRAND}>
+                    <div className={cn(ICON_TILE_BASE, iconTile[card.tone])}>
                       <card.Icon className="h-5 w-5" />
                     </div>
                     <h3 className={cn("mt-5", T.h3)}>{card.title}</h3>
@@ -477,14 +528,14 @@ export default async function LandingPage() {
                   <div className={cn(CARD_BASE, "relative")}>
                     <span
                       className={cn(
-                        "text-[28px] leading-none text-brand/20 transition-colors duration-300 group-hover:text-brand/35",
+                        "text-[28px] leading-none text-brand-deep/20 transition-colors duration-300 group-hover:text-brand-deep/35",
                         T.numeric,
                         "font-extrabold",
                       )}
                     >
                       {step.number}
                     </span>
-                    <div className={cn(ICON_TILE_BRAND, "mt-3")}>
+                    <div className={cn(ICON_TILE_BASE, iconTile[step.tone], "mt-3")}>
                       <step.Icon className="h-5 w-5" />
                     </div>
                     <h3 className={cn("mt-4", T.h3)}>{step.title}</h3>
@@ -533,7 +584,7 @@ export default async function LandingPage() {
               {businessValue.map((card, i) => (
                 <Reveal key={card.title} delay={0.08 + i * 0.07} className="h-full">
                   <div className={CARD_BASE}>
-                    <div className={ICON_TILE_TEAL}>
+                    <div className={cn(ICON_TILE_BASE, iconTile.teal)}>
                       <card.Icon className="h-5 w-5" />
                     </div>
                     <h3 className={cn("mt-5", T.h3)}>{card.title}</h3>
