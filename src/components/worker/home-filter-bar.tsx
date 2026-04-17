@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useTransition } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { TimePreset, TimeBucket } from "@/lib/time-filters";
+import { cn } from "@/lib/utils";
 
 /**
  * Phase 4 Plan 04-07 SEARCH-02 + SEARCH-03 — /home filter bar.
@@ -55,12 +57,16 @@ export function HomeFilterBar({
   const sp = useSearchParams();
   const [isPending, startTransition] = useTransition();
 
-  function mutate(cb: (params: URLSearchParams) => void) {
+  function buildHref(cb: (params: URLSearchParams) => void) {
     const params = new URLSearchParams(sp?.toString() ?? "");
     cb(params);
     const qs = params.toString();
+    return qs ? `${pathname}?${qs}` : (pathname ?? "/home");
+  }
+
+  function mutate(cb: (params: URLSearchParams) => void) {
     startTransition(() => {
-      router.replace(qs ? `${pathname}?${qs}` : (pathname ?? "/home"));
+      router.replace(buildHref(cb));
     });
   }
 
@@ -73,22 +79,39 @@ export function HomeFilterBar({
     >
       {/* View toggle: 리스트 | 지도 */}
       <div className="flex items-center justify-between">
-        <ToggleGroup
-          type="single"
-          value={currentView}
-          onValueChange={(v: string) => {
-            if (!v) return;
-            mutate((p) => p.set("view", v));
-          }}
+        <div
+          role="radiogroup"
           aria-label="보기 모드"
+          className="flex items-center gap-1"
         >
-          <ToggleGroupItem value="list" aria-label="리스트 보기">
-            리스트
-          </ToggleGroupItem>
-          <ToggleGroupItem value="map" aria-label="지도 보기" title="지도로 보기">
-            지도
-          </ToggleGroupItem>
-        </ToggleGroup>
+          {(["list", "map"] as const).map((view) => {
+            const checked = currentView === view;
+            return (
+              <Link
+                key={view}
+                href={buildHref((params) => {
+                  if (view === "list") {
+                    params.delete("view");
+                    return;
+                  }
+                  params.set("view", view);
+                })}
+                role="radio"
+                aria-checked={checked}
+                aria-label={view === "list" ? "리스트 보기" : "지도 보기"}
+                title={view === "map" ? "지도로 보기" : undefined}
+                className={cn(
+                  "inline-flex h-11 items-center justify-center whitespace-nowrap rounded-md border border-input px-4 text-sm font-medium transition-colors",
+                  checked
+                    ? "bg-brand text-white"
+                    : "hover:bg-muted hover:text-foreground",
+                )}
+              >
+                {view === "list" ? "리스트" : "지도"}
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
       {/* Distance stepper 1/3/5/10 km */}
