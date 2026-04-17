@@ -1,8 +1,13 @@
 "use client";
 
-import { Suspense, useState, useMemo, useTransition } from "react";
+import {
+  useState,
+  useMemo,
+  useTransition,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { formatMoney } from "@/lib/format";
 import { createJob } from "../actions";
 import {
@@ -73,18 +78,19 @@ const STEP_TITLES: Record<Step, string> = {
   5: "미리보기",
 };
 
+type SetFormState = Dispatch<SetStateAction<FormShape>>;
+
 // ---------------------------------------------------------------------------
 // Main flow
 // ---------------------------------------------------------------------------
 
 function NewPostFlow({
   businessProfiles,
+  initialUrgent,
 }: {
   businessProfiles: BusinessProfileLite[];
+  initialUrgent: boolean;
 }) {
-  const searchParams = useSearchParams();
-  const initialUrgent = searchParams.get("urgent") === "1";
-
   const [step, setStep] = useState<Step>(1);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -369,7 +375,7 @@ function Step1Basic({
   setForm,
 }: {
   form: FormShape;
-  setForm: (f: FormShape) => void;
+  setForm: SetFormState;
 }) {
   return (
     <>
@@ -385,7 +391,9 @@ function Step1Basic({
           type="text"
           data-testid="job-title-input"
           value={form.title}
-          onChange={(e) => setForm({ ...form, title: e.target.value })}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, title: e.target.value }))
+          }
           placeholder="예: 주말 카페 바리스타 보조"
           maxLength={40}
           className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
@@ -398,31 +406,49 @@ function Step1Basic({
       </Field>
 
       <Field label="카테고리" required hint="업무 유형을 하나 선택해 주세요">
-        <div className="grid grid-cols-4 gap-2">
+        <fieldset>
+          <legend className="sr-only">카테고리</legend>
+          <div className="grid grid-cols-4 gap-2">
           {CATEGORIES.map((c) => (
-            <button
+            <label
               key={c.id}
-              type="button"
+              htmlFor={`job-category-input-${c.id}`}
               data-testid={`job-category-${c.id}`}
-              onClick={() => setForm({ ...form, category: c.id })}
+              role="radio"
+              aria-checked={form.category === c.id}
               className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all active:scale-95 ${
                 form.category === c.id
-                  ? "border-brand bg-brand/5 shadow-sm"
-                  : "border-border bg-card hover:border-brand/30"
+                  ? "border-brand bg-brand/5 shadow-sm cursor-pointer"
+                  : "border-border bg-card hover:border-brand/30 cursor-pointer"
               }`}
             >
+              <input
+                id={`job-category-input-${c.id}`}
+                type="radio"
+                name="job-category"
+                value={c.id}
+                checked={form.category === c.id}
+                onChange={(e) => {
+                  if (!e.target.checked) return;
+                  setForm((prev) => ({ ...prev, category: c.id }));
+                }}
+                className="sr-only"
+              />
               <span className="text-2xl">{c.emoji}</span>
               <span className="text-[10px] font-medium">{c.label}</span>
-            </button>
+            </label>
           ))}
-        </div>
+          </div>
+        </fieldset>
       </Field>
 
       <Field label="업무 소개" required hint="10자 이상, 업무 내용·분위기 등 자유롭게">
         <textarea
           data-testid="job-description-input"
           value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, description: e.target.value }))
+          }
           placeholder="예: 주문 받기, 음료 제조 보조, 매장 정리를 함께 해주실 분을 찾습니다."
           rows={5}
           maxLength={500}
@@ -451,7 +477,7 @@ function Step2Schedule({
   setForm,
 }: {
   form: FormShape;
-  setForm: (f: FormShape) => void;
+  setForm: SetFormState;
 }) {
   const today = new Date().toISOString().slice(0, 10);
   return (
@@ -466,7 +492,9 @@ function Step2Schedule({
           type="date"
           min={today}
           value={form.workDate}
-          onChange={(e) => setForm({ ...form, workDate: e.target.value })}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, workDate: e.target.value }))
+          }
           className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
         />
       </Field>
@@ -476,7 +504,9 @@ function Step2Schedule({
           <input
             type="time"
             value={form.startTime}
-            onChange={(e) => setForm({ ...form, startTime: e.target.value })}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, startTime: e.target.value }))
+            }
             className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
           {form.endTime !== "" && form.startTime === "" && (
@@ -489,7 +519,9 @@ function Step2Schedule({
           <input
             type="time"
             value={form.endTime}
-            onChange={(e) => setForm({ ...form, endTime: e.target.value })}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, endTime: e.target.value }))
+            }
             className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
           {form.startTime !== "" && form.endTime === "" && (
@@ -505,7 +537,10 @@ function Step2Schedule({
           <button
             type="button"
             onClick={() =>
-              setForm({ ...form, headcount: Math.max(1, form.headcount - 1) })
+              setForm((prev) => ({
+                ...prev,
+                headcount: Math.max(1, prev.headcount - 1),
+              }))
             }
             className="w-12 h-12 rounded-2xl border border-border bg-card hover:bg-accent active:scale-95 flex items-center justify-center text-xl font-bold transition-all"
           >
@@ -517,7 +552,10 @@ function Step2Schedule({
           <button
             type="button"
             onClick={() =>
-              setForm({ ...form, headcount: Math.min(50, form.headcount + 1) })
+              setForm((prev) => ({
+                ...prev,
+                headcount: Math.min(50, prev.headcount + 1),
+              }))
             }
             className="w-12 h-12 rounded-2xl border border-border bg-card hover:bg-accent active:scale-95 flex items-center justify-center text-xl font-bold transition-all"
           >
@@ -529,7 +567,9 @@ function Step2Schedule({
       <Field label="급구 여부">
         <button
           type="button"
-          onClick={() => setForm({ ...form, isUrgent: !form.isUrgent })}
+          onClick={() =>
+            setForm((prev) => ({ ...prev, isUrgent: !prev.isUrgent }))
+          }
           className={`flex w-full items-center gap-3 rounded-xl border-2 p-4 transition-all ${
             form.isUrgent
               ? "border-[color:var(--urgent)] bg-[color:var(--urgent)]/5"
@@ -579,7 +619,7 @@ function Step3Compensation({
   totalCost,
 }: {
   form: FormShape;
-  setForm: (f: FormShape) => void;
+  setForm: SetFormState;
   workHours: number;
   basePay: number;
   totalPerPerson: number;
@@ -602,7 +642,10 @@ function Step3Compensation({
             type="number"
             value={form.hourlyPay}
             onChange={(e) =>
-              setForm({ ...form, hourlyPay: Number(e.target.value) })
+              setForm((prev) => ({
+                ...prev,
+                hourlyPay: Number(e.target.value),
+              }))
             }
             step={100}
             min={MINIMUM_WAGE}
@@ -623,7 +666,10 @@ function Step3Compensation({
             type="number"
             value={form.transportFee}
             onChange={(e) =>
-              setForm({ ...form, transportFee: Number(e.target.value) })
+              setForm((prev) => ({
+                ...prev,
+                transportFee: Number(e.target.value),
+              }))
             }
             step={500}
             min={0}
@@ -672,7 +718,7 @@ function Step4Details({
   setForm,
 }: {
   form: FormShape;
-  setForm: (f: FormShape) => void;
+  setForm: SetFormState;
 }) {
   return (
     <>
@@ -686,7 +732,9 @@ function Step4Details({
       <Field label="주요 업무" hint="한 줄에 하나씩">
         <textarea
           value={form.duties}
-          onChange={(e) => setForm({ ...form, duties: e.target.value })}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, duties: e.target.value }))
+          }
           placeholder="POS 주문 접수&#10;음료 재료 준비&#10;매장 정리 및 청소"
           rows={4}
           className="w-full px-4 py-3 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
@@ -696,7 +744,9 @@ function Step4Details({
       <Field label="지원 조건" hint="한 줄에 하나씩">
         <textarea
           value={form.requirements}
-          onChange={(e) => setForm({ ...form, requirements: e.target.value })}
+          onChange={(e) =>
+            setForm((prev) => ({ ...prev, requirements: e.target.value }))
+          }
           placeholder="18세 이상&#10;2시간 이상 서서 근무 가능"
           rows={3}
           className="w-full px-4 py-3 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
@@ -709,7 +759,9 @@ function Step4Details({
           <input
             type="text"
             value={form.dressCode}
-            onChange={(e) => setForm({ ...form, dressCode: e.target.value })}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, dressCode: e.target.value }))
+            }
             placeholder="예: 검정 상의 + 어두운 색 바지"
             className="w-full h-12 pl-10 pr-4 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
@@ -722,7 +774,9 @@ function Step4Details({
           <input
             type="text"
             value={form.whatToBring}
-            onChange={(e) => setForm({ ...form, whatToBring: e.target.value })}
+            onChange={(e) =>
+              setForm((prev) => ({ ...prev, whatToBring: e.target.value }))
+            }
             placeholder="예: 신분증, 마스크"
             className="w-full h-12 pl-10 pr-4 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
           />
@@ -846,12 +900,15 @@ function Step5Preview({
 
 export function NewJobForm({
   businessProfiles,
+  initialUrgent,
 }: {
   businessProfiles: BusinessProfileLite[];
+  initialUrgent: boolean;
 }) {
   return (
-    <Suspense fallback={null}>
-      <NewPostFlow businessProfiles={businessProfiles} />
-    </Suspense>
+    <NewPostFlow
+      businessProfiles={businessProfiles}
+      initialUrgent={initialUrgent}
+    />
   );
 }
