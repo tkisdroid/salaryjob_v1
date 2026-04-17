@@ -12,7 +12,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { requireJobOwner } from "@/lib/dal";
-import { getApplicationsByJob, getReviewsForUser } from "@/lib/db/queries";
+import { prisma } from "@/lib/db";
+import { getReviewsForUser } from "@/lib/db/queries";
 import { formatBirthDate, getInternationalAge } from "@/lib/worker-age";
 
 function formatDateTime(value: string | Date | null) {
@@ -52,15 +53,42 @@ export default async function BizApplicantDetailPage({
 }) {
   const { id, applicantId } = await params;
   const { job } = await requireJobOwner(id);
-  const applications = await getApplicationsByJob(id);
-  const application = applications.find((item) => item.id === applicantId);
+  const application = await prisma.application.findUnique({
+    where: { id: applicantId },
+    select: {
+      id: true,
+      jobId: true,
+      workerId: true,
+      status: true,
+      appliedAt: true,
+      checkInAt: true,
+      worker: {
+        select: {
+          email: true,
+          workerProfile: {
+            select: {
+              name: true,
+              nickname: true,
+              avatar: true,
+              badgeLevel: true,
+              rating: true,
+              completionRate: true,
+              totalJobs: true,
+              noShowCount: true,
+              birthDate: true,
+            },
+          },
+        },
+      },
+    },
+  });
 
-  if (!application) {
+  if (!application || application.jobId !== id) {
     notFound();
   }
 
   const reviews = await getReviewsForUser(application.workerId, { limit: 5 });
-  const profile = application.workerProfile;
+  const profile = application.worker.workerProfile;
   const status = getStatusBadge(application.status);
   const rating = Number(profile?.rating ?? 0);
   const completionRate = Number(profile?.completionRate ?? 0);
@@ -68,6 +96,9 @@ export default async function BizApplicantDetailPage({
   const noShowCount = profile?.noShowCount ?? 0;
   const age = getInternationalAge(profile?.birthDate);
   const birthDateLabel = formatBirthDate(profile?.birthDate);
+  const workerName = profile?.name ?? application.worker.email ?? "익명";
+  const workerNickname = profile?.nickname ?? "닉네임 미등록";
+  const workerAvatar = profile?.avatar ?? "👤";
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
@@ -85,13 +116,11 @@ export default async function BizApplicantDetailPage({
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-3">
                 <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10 text-2xl">
-                  {application.worker.avatar ?? "👤"}
+                  {workerAvatar}
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <CardTitle className="text-xl">
-                      {application.worker.name}
-                    </CardTitle>
+                    <CardTitle className="text-xl">{workerName}</CardTitle>
                     <Badge className={status.className}>{status.label}</Badge>
                   </div>
                   <p className="mt-1 text-sm text-muted-foreground">
@@ -150,7 +179,7 @@ export default async function BizApplicantDetailPage({
               </div>
               <div className="flex items-start gap-2 text-sm">
                 <UserRound className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <span>{application.worker.nickname ?? "닉네임 미등록"}</span>
+                <span>{workerNickname}</span>
               </div>
               <div className="flex items-start gap-2 text-sm">
                 <CalendarClock className="mt-0.5 h-4 w-4 text-muted-foreground" />
