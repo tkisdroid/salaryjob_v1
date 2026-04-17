@@ -39,7 +39,7 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
   const mapRef = useRef<kakao.maps.Map | null>(null);
   const markersRef = useRef<kakao.maps.Marker[]>([]);
   const circleRef = useRef<kakao.maps.Circle | null>(null);
-  const { ready, error, hasKey } = useKakaoMapsSDK();
+  const { ready, error, blockedMessage, hasKey } = useKakaoMapsSDK();
 
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
@@ -132,11 +132,21 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
     );
   }
 
+  if (blockedMessage) {
+    return (
+      <div className="px-4 py-6">
+        <Alert>
+          <AlertDescription>{blockedMessage}</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   if (error) {
     return (
       <div className="px-4 py-6">
         <Alert variant="destructive">
-          <AlertDescription>지도를 불러올 수 없습니다: {error}</AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
       </div>
     );
