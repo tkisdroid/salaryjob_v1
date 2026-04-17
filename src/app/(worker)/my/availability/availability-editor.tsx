@@ -87,6 +87,63 @@ function serializeSlots(slots: Set<SlotKey>): string[] {
   return [...slots];
 }
 
+function parseSlotKey(slotKey: SlotKey) {
+  const [dayKey, hour] = slotKey.split("-");
+  return {
+    dayKey: dayKey as (typeof DAY_KEYS)[number],
+    hour: Number(hour),
+  };
+}
+
+function getSlotRange(from: SlotKey | null, to: SlotKey): SlotKey[] {
+  if (!from) return [to];
+
+  const start = parseSlotKey(from);
+  const end = parseSlotKey(to);
+
+  if (start.dayKey === end.dayKey) {
+    const min = Math.min(start.hour, end.hour);
+    const max = Math.max(start.hour, end.hour);
+    const slots: SlotKey[] = [];
+    for (let hour = min; hour <= max; hour += 1) {
+      slots.push(`${start.dayKey}-${hour}` as SlotKey);
+    }
+    return slots;
+  }
+
+  if (start.hour === end.hour) {
+    const fromIndex = DAY_KEYS.indexOf(start.dayKey);
+    const toIndex = DAY_KEYS.indexOf(end.dayKey);
+    const min = Math.min(fromIndex, toIndex);
+    const max = Math.max(fromIndex, toIndex);
+    const slots: SlotKey[] = [];
+    for (let index = min; index <= max; index += 1) {
+      slots.push(`${DAY_KEYS[index]}-${start.hour}` as SlotKey);
+    }
+    return slots;
+  }
+
+  return [to];
+}
+
+function getSlotElementAtPoint(clientX: number, clientY: number) {
+  const hitStack =
+    typeof document.elementsFromPoint === "function"
+      ? document.elementsFromPoint(clientX, clientY)
+      : [document.elementFromPoint(clientX, clientY)].filter(
+          (element): element is Element => element instanceof Element,
+        );
+
+  for (const element of hitStack) {
+    const cell = element.closest("[data-slot-key]");
+    if (cell instanceof HTMLElement) {
+      return cell;
+    }
+  }
+
+  return null;
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
@@ -133,6 +190,8 @@ export function AvailabilityEditor({
   const gridRef = useRef<HTMLDivElement | null>(null);
   const lastVisitedRef = useRef<SlotKey | null>(null);
   const dragModeRef = useRef<"add" | "remove">("add");
+  const slotRectsRef = useRef<Array<{ slotKey: SlotKey; rect: DOMRect }>>([]);
+  const dragTouchTargetRef = useRef<HTMLElement | null>(null);
   // A ref that reflects selectedSlots without forcing re-renders of the
   // mousedown handler. We use this to decide the initial drag mode
   // without re-binding the grid listeners on every selection change.
@@ -141,26 +200,60 @@ export function AvailabilityEditor({
     selectedSlotsRef.current = selectedSlots;
   }, [selectedSlots]);
 
+  const refreshSlotRects = useCallback(() => {
+    const grid = gridRef.current;
+    if (!grid) {
+      slotRectsRef.current = [];
+      return;
+    }
+
+    slotRectsRef.current = Array.from(
+      grid.querySelectorAll<HTMLElement>("[data-slot-key]"),
+    )
+      .map((cell) => {
+        const slotKey = cell.dataset.slotKey as SlotKey | undefined;
+        if (!slotKey) return null;
+        return {
+          slotKey,
+          rect: cell.getBoundingClientRect(),
+        };
+      })
+      .filter((entry): entry is { slotKey: SlotKey; rect: DOMRect } => entry !== null);
+  }, []);
+
+  const getSlotKeyAtPoint = useCallback((clientX: number, clientY: number) => {
+    const cached = slotRectsRef.current.find(
+      ({ rect }) =>
+        clientX >= rect.left &&
+        clientX <= rect.right &&
+        clientY >= rect.top &&
+        clientY <= rect.bottom,
+    );
+    if (cached) return cached.slotKey;
+
+    const cell = getSlotElementAtPoint(clientX, clientY);
+    return (cell?.dataset.slotKey as SlotKey | undefined) ?? null;
+  }, []);
+
   const applySlotAtPoint = useCallback((clientX: number, clientY: number) => {
-    const el = document.elementFromPoint(clientX, clientY);
-    if (!el) return;
-    const cell = el.closest("[data-slot-key]") as HTMLElement | null;
-    if (!cell) return;
-    const slotKey = cell.dataset.slotKey as SlotKey | undefined;
+    const slotKey = getSlotKeyAtPoint(clientX, clientY);
     if (!slotKey) return;
     if (lastVisitedRef.current === slotKey) return;
+    const slotKeys = getSlotRange(lastVisitedRef.current, slotKey);
     lastVisitedRef.current = slotKey;
     const mode = dragModeRef.current;
     setSelectedSlots((prev) => {
       const next = new Set(prev);
-      if (mode === "add") {
-        next.add(slotKey);
-      } else {
-        next.delete(slotKey);
+      for (const key of slotKeys) {
+        if (mode === "add") {
+          next.add(key);
+        } else {
+          next.delete(key);
+        }
       }
       return next;
     });
-  }, []);
+  }, [getSlotKeyAtPoint]);
 
   // Native window-level drag listeners. Attached lazily from
   // pointerdown/touchstart and torn down on pointerup/touchend/cancel.
@@ -181,10 +274,8 @@ export function AvailabilityEditor({
   // even if the finger drifts outside the grid card entirely.
   const beginDrag = useCallback(
     (clientX: number, clientY: number) => {
-      const el = document.elementFromPoint(clientX, clientY);
-      const cell = el?.closest("[data-slot-key]") as HTMLElement | null;
-      if (!cell) return false;
-      const slotKey = cell.dataset.slotKey as SlotKey | undefined;
+      refreshSlotRects();
+      const slotKey = getSlotKeyAtPoint(clientX, clientY);
       if (!slotKey) return false;
 
       const mode: "add" | "remove" = selectedSlotsRef.current.has(slotKey)
@@ -203,7 +294,7 @@ export function AvailabilityEditor({
       });
       return true;
     },
-    [],
+    [getSlotKeyAtPoint, refreshSlotRects],
   );
 
   const endDrag = useCallback(() => {
@@ -226,21 +317,54 @@ export function AvailabilityEditor({
     const grid = gridRef.current;
     if (!grid) return;
 
-    const onTouchStart = (ev: TouchEvent) => {
-      const touch = ev.touches[0];
-      if (!touch) return;
-      if (beginDrag(touch.clientX, touch.clientY)) {
-        ev.preventDefault();
-      }
-    };
     const onTouchMove = (ev: TouchEvent) => {
-      const touch = ev.touches[0];
+      const touch = ev.changedTouches[0] ?? ev.touches[0];
       if (!touch) return;
       ev.preventDefault();
       applySlotAtPoint(touch.clientX, touch.clientY);
     };
-    const onTouchEnd = () => {
+
+    const detachTouchListeners = () => {
+      const dragTouchTarget = dragTouchTargetRef.current;
+      if (dragTouchTarget) {
+        dragTouchTarget.removeEventListener("touchmove", onTouchMove);
+        dragTouchTarget.removeEventListener("touchend", onTouchEnd);
+        dragTouchTarget.removeEventListener("touchcancel", onTouchEnd);
+      }
+      dragTouchTargetRef.current = null;
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("touchcancel", onTouchEnd);
+    };
+
+    const onTouchEnd = (ev: TouchEvent) => {
+      const touch = ev.changedTouches[0];
+      if (touch) {
+        applySlotAtPoint(touch.clientX, touch.clientY);
+      }
       endDrag();
+      detachTouchListeners();
+    };
+
+    const onTouchStart = (ev: TouchEvent) => {
+      const touch = ev.changedTouches[0] ?? ev.touches[0];
+      if (!touch) return;
+      if (beginDrag(touch.clientX, touch.clientY)) {
+        ev.preventDefault();
+        const dragTouchTarget =
+          ev.target instanceof HTMLElement ? ev.target : null;
+        dragTouchTargetRef.current = dragTouchTarget;
+        if (dragTouchTarget) {
+          dragTouchTarget.addEventListener("touchmove", onTouchMove, {
+            passive: false,
+          });
+          dragTouchTarget.addEventListener("touchend", onTouchEnd);
+          dragTouchTarget.addEventListener("touchcancel", onTouchEnd);
+        }
+        window.addEventListener("touchmove", onTouchMove, { passive: false });
+        window.addEventListener("touchend", onTouchEnd);
+        window.addEventListener("touchcancel", onTouchEnd);
+      }
     };
 
     grid.addEventListener("touchstart", onTouchStart, { passive: false });
@@ -253,6 +377,7 @@ export function AvailabilityEditor({
       grid.removeEventListener("touchmove", onTouchMove);
       grid.removeEventListener("touchend", onTouchEnd);
       grid.removeEventListener("touchcancel", onTouchEnd);
+      detachTouchListeners();
     };
   }, [beginDrag, applySlotAtPoint, endDrag]);
 
@@ -353,6 +478,7 @@ export function AvailabilityEditor({
         <CardContent>
           <div
             ref={gridRef}
+            data-testid="availability-grid"
             className="grid select-none touch-none"
             style={{
               gridTemplateColumns: "28px repeat(7, minmax(0, 1fr))",
