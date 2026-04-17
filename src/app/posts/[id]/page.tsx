@@ -11,6 +11,7 @@ import {
 import { formatMoney } from "@/lib/format";
 import { createClient } from "@/lib/supabase/server";
 import { BackButton } from "@/components/shared/back-button";
+import { JobLocationCard } from "./job-location-card";
 import {
   ArrowLeft,
   ArrowRight,
@@ -27,6 +28,8 @@ import { cn } from "@/lib/utils";
 interface Props {
   params: Promise<{ id: string }>;
 }
+
+const DETAIL_PAGE_WIDTH = "max-w-3xl";
 
 function isJobExpired(workDate: string, startTime: string): boolean {
   const workDateTime = new Date(`${workDate}T${startTime}:00`);
@@ -75,7 +78,9 @@ export default async function PublicJobDetailPage({ params }: Props) {
   const ctaDisabled = isExpired || isFull;
 
   return (
-    <main className="mx-auto max-w-2xl px-5 sm:px-6 pb-28 pt-4">
+    <main
+      className={cn("mx-auto w-full px-5 pb-28 pt-4 sm:px-6", DETAIL_PAGE_WIDTH)}
+    >
       {/* ── Back button ─────────────────────────────────────────────── */}
       <nav className="mb-5">
         <BackButton
@@ -175,14 +180,13 @@ export default async function PublicJobDetailPage({ params }: Props) {
           <MapPin className="h-4 w-4 text-muted-foreground" />
           근무 장소
         </h2>
-        <div className="rounded-2xl border border-border bg-card p-4">
-          <p className="text-[15px] font-semibold tracking-[-0.008em] text-foreground">
-            {job.business.address}
-          </p>
-          {job.business.addressDetail && (
-            <p className={cn("mt-1", T.micro)}>{job.business.addressDetail}</p>
-          )}
-        </div>
+        <JobLocationCard
+          businessName={job.business.name}
+          address={job.business.address}
+          addressDetail={job.business.addressDetail}
+          lat={job.business.lat}
+          lng={job.business.lng}
+        />
       </section>
 
       {/* ── Description ─────────────────────────────────────────────── */}
@@ -272,7 +276,12 @@ export default async function PublicJobDetailPage({ params }: Props) {
       {/* ── Sticky CTA ──────────────────────────────────────────────── */}
       {!ctaDisabled && (
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-background pb-[env(safe-area-inset-bottom)]">
-          <div className="mx-auto flex max-w-2xl items-center gap-3 px-5 py-3 sm:px-6">
+          <div
+            className={cn(
+              "mx-auto flex items-center gap-3 px-5 py-3 sm:px-6",
+              DETAIL_PAGE_WIDTH,
+            )}
+          >
             {/* 요약 — 데스크톱/큰 모바일에서 가격 미리보기 */}
             <div className="hidden min-w-0 flex-1 sm:block">
               <p className="text-[11px] font-medium uppercase tracking-[0.15em] text-muted-foreground">
