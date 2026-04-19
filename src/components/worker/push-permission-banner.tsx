@@ -100,20 +100,22 @@ export function PushPermissionBanner() {
   }
 
   return (
-    <div className="mx-4 my-3 flex items-center gap-3 rounded-2xl border border-brand/30 bg-brand-light p-3 text-sm">
-      <Bell className="h-5 w-5 text-brand-deep shrink-0" aria-hidden />
-      <div className="flex-1">
-        <p className="font-semibold text-brand-deep">
+    <div className="grid grid-cols-[36px_1fr_auto_auto] items-center gap-3 rounded-[18px] border border-[color-mix(in_oklch,var(--brand)_30%,var(--border))] bg-[color-mix(in_oklch,var(--brand)_14%,var(--surface))] p-[14px]">
+      <span className="grid h-9 w-9 place-items-center rounded-[12px] border border-border-soft bg-surface text-brand-deep">
+        <Bell className="h-[18px] w-[18px]" aria-hidden />
+      </span>
+      <div className="min-w-0">
+        <p className="text-[13px] font-extrabold leading-tight tracking-[-0.02em] text-ink">
           알림을 켜서 빠르게 수락 소식을 받아보세요
         </p>
-        <p className="mt-0.5 text-xs text-brand-deep/80">
+        <p className="mt-1 text-[11.5px] font-medium leading-snug text-muted-foreground">
           사업장이 수락하면 OS 알림으로 즉시 안내드립니다.
         </p>
       </div>
       <button
         type="button"
         onClick={handleEnable}
-        className="inline-flex h-11 shrink-0 items-center justify-center rounded-full bg-brand px-4 text-xs font-bold text-white hover:bg-brand-dark"
+        className="inline-flex h-9 shrink-0 items-center justify-center rounded-full bg-ink px-4 text-[12px] font-extrabold tracking-tight text-white transition-all hover:bg-black hover:shadow-soft-dark"
       >
         켜기
       </button>
@@ -121,9 +123,9 @@ export function PushPermissionBanner() {
         type="button"
         onClick={handleDismiss}
         aria-label="닫기"
-        className="-mr-1 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-brand-deep/70 hover:bg-brand/10"
+        className="grid h-6 w-6 shrink-0 place-items-center rounded-full text-text-subtle hover:bg-surface-2 hover:text-ink"
       >
-        <X className="h-4 w-4" />
+        <X className="h-3.5 w-3.5" />
       </button>
     </div>
   );

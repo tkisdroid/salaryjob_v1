@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useTransition } from "react";
 import { useRouter, useSearchParams, usePathname } from "next/navigation";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { List, Map as MapIcon } from "lucide-react";
 import type { TimePreset, TimeBucket } from "@/lib/time-filters";
 import { cn } from "@/lib/utils";
 
@@ -73,115 +73,142 @@ export function HomeFilterBar({
   return (
     <div
       data-testid="home-filter-bar"
-      className={`sticky top-0 z-20 space-y-3 border-b border-border bg-background/95 px-4 py-3 backdrop-blur ${
-        isPending ? "opacity-80" : ""
-      }`}
+      className={cn(
+        "sticky top-0 z-20 space-y-3 border-b border-border-soft bg-[color-mix(in_oklch,var(--bg)_92%,transparent)] px-4 py-3 [backdrop-filter:saturate(1.4)_blur(12px)]",
+        isPending && "opacity-80",
+      )}
     >
-      {/* View toggle: 리스트 | 지도 */}
-      <div className="flex items-center justify-between">
-        <div
-          role="radiogroup"
-          aria-label="보기 모드"
-          className="flex items-center gap-1"
-        >
-          {(["list", "map"] as const).map((view) => {
-            const checked = currentView === view;
+      {/* View toggle — premium pill segmented (리스트 | 지도) */}
+      <div className="flex gap-0.5 rounded-full border border-border bg-surface p-1">
+        {(
+          [
+            { v: "list" as const, label: "리스트", Icon: List },
+            { v: "map" as const, label: "지도", Icon: MapIcon },
+          ]
+        ).map(({ v, label, Icon }) => {
+          const checked = currentView === v;
+          return (
+            <Link
+              key={v}
+              href={buildHref((params) => {
+                if (v === "list") {
+                  params.delete("view");
+                  return;
+                }
+                params.set("view", v);
+              })}
+              role="radio"
+              aria-checked={checked}
+              aria-label={`${label} 보기`}
+              className={cn(
+                "inline-flex flex-1 items-center justify-center gap-1.5 rounded-full py-2.5 text-[12.5px] font-bold tracking-tight transition-colors",
+                checked
+                  ? "bg-ink text-white"
+                  : "text-muted-foreground hover:text-ink",
+              )}
+            >
+              <Icon className="h-[14px] w-[14px]" />
+              {label}
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* Distance stepper 1/3/5/10 km */}
+      <div>
+        <p className="mb-2 px-0.5 text-[11px] font-bold tracking-tight text-muted-foreground">
+          거리
+        </p>
+        <div className="chip-scroll">
+          {RADIUS_STEPS.map((km) => {
+            const checked = currentRadius === km;
             return (
-              <Link
-                key={view}
-                href={buildHref((params) => {
-                  if (view === "list") {
-                    params.delete("view");
-                    return;
-                  }
-                  params.set("view", view);
-                })}
-                role="radio"
-                aria-checked={checked}
-                aria-label={view === "list" ? "리스트 보기" : "지도 보기"}
-                title={view === "map" ? "지도로 보기" : undefined}
+              <button
+                key={km}
+                type="button"
+                onClick={() => mutate((p) => p.set("radius", String(km)))}
+                aria-pressed={checked}
                 className={cn(
-                  "inline-flex h-11 items-center justify-center whitespace-nowrap rounded-md border border-input px-4 text-sm font-medium transition-colors",
+                  "shrink-0 rounded-full border px-3.5 py-2 text-[12.5px] font-bold leading-none tracking-tight transition-colors",
                   checked
-                    ? "bg-brand text-white"
-                    : "hover:bg-muted hover:text-foreground",
+                    ? "border-ink bg-ink text-white"
+                    : "border-border bg-surface text-ink hover:border-ink",
                 )}
               >
-                {view === "list" ? "리스트" : "지도"}
-              </Link>
+                {km}km
+              </button>
             );
           })}
         </div>
       </div>
 
-      {/* Distance stepper 1/3/5/10 km */}
-      <div>
-        <p className="mb-1 text-[10px] font-medium text-muted-foreground">
-          거리
-        </p>
-        <ToggleGroup
-          type="single"
-          value={String(currentRadius)}
-          onValueChange={(v: string) => {
-            if (!v) return;
-            mutate((p) => p.set("radius", v));
-          }}
-          aria-label="검색 반경"
-        >
-          {RADIUS_STEPS.map((km) => (
-            <ToggleGroupItem key={km} value={String(km)}>
-              {km}km
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
-      </div>
-
       {/* Time preset (single) */}
       <div>
-        <p className="mb-1 text-[10px] font-medium text-muted-foreground">
+        <p className="mb-2 px-0.5 text-[11px] font-bold tracking-tight text-muted-foreground">
           시기
         </p>
-        <ToggleGroup
-          type="single"
-          value={currentPreset ?? ""}
-          onValueChange={(v: string) => {
-            mutate((p) => {
-              if (v) p.set("preset", v);
-              else p.delete("preset");
-            });
-          }}
-          aria-label="시간 프리셋"
-        >
-          {PRESETS.map((preset) => (
-            <ToggleGroupItem key={preset} value={preset}>
-              {preset}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+        <div className="chip-scroll">
+          {PRESETS.map((preset) => {
+            const checked = currentPreset === preset;
+            return (
+              <button
+                key={preset}
+                type="button"
+                onClick={() =>
+                  mutate((p) => {
+                    if (checked) p.delete("preset");
+                    else p.set("preset", preset);
+                  })
+                }
+                aria-pressed={checked}
+                className={cn(
+                  "shrink-0 rounded-full border px-3.5 py-2 text-[12.5px] font-bold leading-none tracking-tight transition-colors",
+                  checked
+                    ? "border-ink bg-ink text-white"
+                    : "border-border bg-surface text-ink hover:border-ink",
+                )}
+              >
+                {preset}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Time buckets (multiple) */}
       <div>
-        <p className="mb-1 text-[10px] font-medium text-muted-foreground">
+        <p className="mb-2 px-0.5 text-[11px] font-bold tracking-tight text-muted-foreground">
           시간대
         </p>
-        <ToggleGroup
-          type="multiple"
-          value={currentBuckets}
-          onValueChange={(values: string[]) => {
-            mutate((p) => {
-              p.delete("buckets");
-              for (const v of values) p.append("buckets", v);
-            });
-          }}
-          aria-label="시간대 필터"
-        >
-          {BUCKETS.map((bucket) => (
-            <ToggleGroupItem key={bucket} value={bucket}>
-              {bucket}
-            </ToggleGroupItem>
-          ))}
-        </ToggleGroup>
+        <div className="chip-scroll">
+          {BUCKETS.map((bucket) => {
+            const checked = currentBuckets.includes(bucket);
+            return (
+              <button
+                key={bucket}
+                type="button"
+                onClick={() =>
+                  mutate((p) => {
+                    const next = checked
+                      ? currentBuckets.filter((b) => b !== bucket)
+                      : [...currentBuckets, bucket];
+                    p.delete("buckets");
+                    for (const b of next) p.append("buckets", b);
+                  })
+                }
+                aria-pressed={checked}
+                className={cn(
+                  "shrink-0 rounded-full border px-3.5 py-2 text-[12.5px] font-bold leading-none tracking-tight transition-colors",
+                  checked
+                    ? "border-ink bg-ink text-white"
+                    : "border-border bg-surface text-ink hover:border-ink",
+                )}
+              >
+                {bucket}
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
