@@ -30,23 +30,23 @@ function LoginErrorBanner() {
   return (
     <div
       role="alert"
-      className="mb-5 rounded-xl border border-destructive/20 bg-destructive/5 px-4 py-3 text-[13px] font-medium text-destructive"
+      className="mb-5 rounded-[14px] border border-destructive/25 bg-destructive/5 px-4 py-3 text-[13px] font-bold text-destructive"
     >
       {messages[error] ?? "로그인 오류가 발생했습니다."}
     </div>
   );
 }
 
-// ── 공통 토큰 ──────────────────────────────────────────────────────────────
-const LABEL = "mb-1.5 block text-[13px] font-semibold text-foreground";
+// ── 공통 토큰 (Premium 정합) ──────────────────────────────────────────────
+const LABEL = "mb-1.5 block text-[12.5px] font-bold tracking-tight text-ink";
 const INPUT_BASE =
-  "h-12 w-full rounded-xl border border-input bg-background text-[15px] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:border-brand/40";
+  "h-12 w-full rounded-[14px] border border-border bg-surface text-[15px] text-ink placeholder:text-text-subtle transition-colors focus-visible:outline-none focus-visible:border-ink";
 const BTN_PRIMARY =
-  "h-12 w-full rounded-full bg-brand text-[15px] font-semibold text-primary-foreground shadow-[0_6px_20px_hsl(var(--brand)/0.2)] hover:bg-brand-dark disabled:opacity-60 disabled:cursor-not-allowed";
+  "h-12 w-full rounded-full bg-ink text-[15px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark disabled:opacity-60 disabled:cursor-not-allowed";
 const BTN_OUTLINE =
-  "h-12 w-full rounded-full border border-border bg-card text-[15px] font-semibold text-foreground hover:bg-muted";
+  "h-12 w-full rounded-full border border-border bg-surface text-[15px] font-bold text-ink transition-colors hover:bg-surface-2";
 const BTN_KAKAO =
-  "h-12 w-full rounded-full border-0 bg-[#FEE500] text-[15px] font-semibold text-[#1f1a17] hover:bg-[#F7D800]";
+  "h-12 w-full rounded-full border-0 bg-[#FEE500] text-[15px] font-bold text-[#1f1a17] hover:bg-[#F7D800]";
 
 export function LoginForm({ nextPath }: { nextPath: string | null }) {
   const [state, formAction, pending] = useActionState(signInWithPassword, null);
@@ -58,16 +58,19 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
     <div className="w-full">
       {/* ── Header ──────────────────────────────────────────────────── */}
       <div className="mb-7 flex flex-col items-center text-center">
-        <CeleryMark className="h-14 w-14 text-brand" />
-        <h1 className="mt-4 text-[22px] font-extrabold tracking-[-0.025em] text-foreground">
+        <span className="grid h-14 w-14 place-items-center rounded-[18px] border border-border bg-surface">
+          <CeleryMark className="h-8 w-8 text-brand" />
+        </span>
+        <h1 className="mt-4 flex items-baseline gap-px text-[22px] font-extrabold tracking-[-0.035em] text-ink">
           샐러리잡
+          <span className="ml-[3px] inline-block h-[5px] w-[5px] -translate-y-[1px] rounded-full bg-brand" />
         </h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">
+        <p className="mt-1.5 text-[12.5px] font-semibold tracking-tight text-muted-foreground">
           내 주변 로컬 잡 플랫폼
         </p>
       </div>
 
-      <div className="rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8">
+      <div className="rounded-[28px] border border-border-soft bg-surface p-6 shadow-soft-md sm:p-8">
         <Suspense fallback={null}>
           <LoginErrorBanner />
         </Suspense>
@@ -98,10 +101,10 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
         {/* ── Divider ────────────────────────────────────────────── */}
         <div className="relative my-7">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
+            <span className="w-full border-t border-border-soft" />
           </div>
           <div className="relative flex justify-center">
-            <span className="bg-card px-3 text-[12px] font-medium text-muted-foreground">
+            <span className="bg-surface px-3 text-[11px] font-bold uppercase tracking-wider text-text-subtle">
               또는 이메일로
             </span>
           </div>
@@ -168,7 +171,7 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
         {/* ── Magic link (compact alternative) ─────────────────── */}
         <form action={signInWithMagicLink} className="mt-5 space-y-2.5">
           {nextPath && <input type="hidden" name="next" value={nextPath} />}
-          <p className="text-[12px] text-muted-foreground">
+          <p className="text-[11.5px] font-semibold tracking-tight text-muted-foreground">
             비밀번호 없이 이메일 링크로 로그인하고 싶다면
           </p>
           <div className="flex gap-2">
@@ -182,8 +185,8 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
             />
             <Button
               type="submit"
-              variant="outline"
-              className="h-12 shrink-0 rounded-full border-brand/30 bg-card px-5 text-[14px] font-semibold text-brand-deep hover:bg-brand-light"
+              variant="ghost-premium"
+              className="h-12 shrink-0 px-5 text-[14px]"
             >
               링크 받기
             </Button>
@@ -193,11 +196,11 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
 
       {/* ── Signup CTA ─────────────────────────────────────────── */}
       <div className="mt-6 text-center">
-        <p className="text-[13px] text-muted-foreground">
+        <p className="text-[13px] font-medium text-muted-foreground">
           아직 계정이 없으신가요?{" "}
           <Link
             href={signupHref}
-            className="font-semibold text-brand-deep underline-offset-4 hover:underline"
+            className="font-extrabold text-brand-deep underline-offset-4 hover:underline"
           >
             회원가입
           </Link>
@@ -205,15 +208,18 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
       </div>
 
       {/* ── Terms ──────────────────────────────────────────────── */}
-      <p className="mt-6 text-center text-[12px] leading-relaxed text-muted-foreground">
+      <p className="mt-6 text-center text-[11.5px] font-medium leading-relaxed text-text-subtle">
         로그인하면{" "}
-        <Link href="/terms" className="underline underline-offset-2 hover:text-foreground">
+        <Link
+          href="/terms"
+          className="underline underline-offset-2 hover:text-ink"
+        >
           이용약관
         </Link>
         과{" "}
         <Link
           href="/privacy"
-          className="underline underline-offset-2 hover:text-foreground"
+          className="underline underline-offset-2 hover:text-ink"
         >
           개인정보처리방침
         </Link>
