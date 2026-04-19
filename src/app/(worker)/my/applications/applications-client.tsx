@@ -18,14 +18,8 @@ import {
   MapPin,
   Clock,
 } from "lucide-react";
-import {
-  Tabs,
-  TabsList,
-  TabsTrigger,
-  TabsContent,
-} from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format";
 import { formatWorkDate } from "@/lib/job-utils";
 import { subscribeApplicationsForWorker } from "@/lib/supabase/realtime";
@@ -189,55 +183,68 @@ export function ApplicationsClient({
     return () => clearInterval(id);
   }, [pollingActive, router]);
 
+  const currentItems =
+    currentTab === "upcoming" ? upcoming : currentTab === "active" ? active : done;
+  const currentEmpty =
+    currentTab === "upcoming"
+      ? "예정된 지원이 없어요"
+      : currentTab === "active"
+        ? "진행 중인 근무가 없어요"
+        : "완료된 근무가 없어요";
+
+  const tabs: Array<{ v: TabValue; label: string; count: number }> = [
+    { v: "upcoming", label: "예정", count: upcoming.length },
+    { v: "active", label: "진행중", count: active.length },
+    { v: "done", label: "완료", count: done.length },
+  ];
+
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
-      <header>
-        <div className="flex items-center gap-2">
-          <Link href="/my" className="p-1 -ml-1 hover:bg-muted rounded-md">
-            <ChevronLeft className="w-5 h-5" />
-          </Link>
-          <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
-            <FileText className="w-5 h-5 text-brand" />
-            지원 내역
-          </h1>
-        </div>
+    <div className="mx-auto max-w-lg px-4 py-5">
+      {/* Premium chat-back style header */}
+      <header className="flex items-center gap-2 pb-1">
+        <Link
+          href="/my"
+          aria-label="뒤로"
+          className="-ml-1 grid h-9 w-9 place-items-center rounded-full text-ink hover:bg-surface-2"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="flex items-center gap-2 text-[22px] font-extrabold tracking-[-0.035em] text-ink">
+          <FileText className="h-[22px] w-[22px] text-brand-deep" />
+          지원 내역
+        </h1>
       </header>
 
-      <Tabs
-        value={currentTab}
-        onValueChange={(value: string) => setCurrentTab(value as TabValue)}
-      >
-        <TabsList className="w-full">
-          <TabsTrigger value="upcoming" className="flex-1">
-            예정 ({upcoming.length})
-          </TabsTrigger>
-          <TabsTrigger value="active" className="flex-1">
-            진행중 ({active.length})
-          </TabsTrigger>
-          <TabsTrigger value="done" className="flex-1">
-            완료 ({done.length})
-          </TabsTrigger>
-        </TabsList>
+      {/* 3-way segmented pill */}
+      <div className="mt-3 flex gap-0.5 rounded-full border border-border bg-surface p-1">
+        {tabs.map((t) => (
+          <button
+            key={t.v}
+            type="button"
+            onClick={() => setCurrentTab(t.v)}
+            className={cn(
+              "inline-flex flex-1 items-center justify-center gap-1.5 rounded-full py-2.5 text-[12.5px] font-bold tracking-tight transition-colors",
+              currentTab === t.v
+                ? "bg-ink text-white"
+                : "text-muted-foreground hover:text-ink",
+            )}
+          >
+            {t.label}
+            <span
+              className={cn(
+                "tabnum text-[11px] font-extrabold",
+                currentTab === t.v ? "text-brand" : "text-text-subtle",
+              )}
+            >
+              {t.count}
+            </span>
+          </button>
+        ))}
+      </div>
 
-        <TabsContent value="upcoming" className="pt-4">
-          <ApplicationList
-            items={upcoming}
-            emptyMessage="예정된 지원이 없어요"
-          />
-        </TabsContent>
-        <TabsContent value="active" className="pt-4">
-          <ApplicationList
-            items={active}
-            emptyMessage="진행 중인 근무가 없어요"
-          />
-        </TabsContent>
-        <TabsContent value="done" className="pt-4">
-          <ApplicationList
-            items={done}
-            emptyMessage="완료된 근무가 없어요"
-          />
-        </TabsContent>
-      </Tabs>
+      <div className="pt-4">
+        <ApplicationList items={currentItems} emptyMessage={currentEmpty} />
+      </div>
     </div>
   );
 }
@@ -261,25 +268,42 @@ function ApplicationList({
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-16 text-center">
-      <Inbox className="w-12 h-12 text-muted-foreground/40 mb-4" />
-      <p className="text-muted-foreground font-medium">{message}</p>
-      <p className="text-sm text-muted-foreground/70 mt-1">
+    <div className="flex flex-col items-center justify-center rounded-[22px] border border-border bg-surface py-16 text-center">
+      <Inbox className="mb-4 h-12 w-12 text-text-subtle" />
+      <p className="text-[15px] font-extrabold tracking-tight text-ink">
+        {message}
+      </p>
+      <p className="mt-1 text-[12.5px] font-semibold text-muted-foreground">
         마음에 드는 공고에 지원해보세요
       </p>
-      <Button variant="outline" className="mt-4" asChild>
+      <Button variant="ghost-premium" className="mt-4" asChild>
         <Link href="/home">공고 둘러보기</Link>
       </Button>
     </div>
   );
 }
 
+/** Status → premium tag-state pill color classes. */
+function statusPillClasses(status: AppRow["status"]): string {
+  switch (status) {
+    case "in_progress":
+      return "bg-surface-2 text-ink";
+    case "confirmed":
+      return "bg-brand text-ink";
+    case "pending":
+      return "bg-lime-chip text-lime-chip-fg";
+    case "completed":
+    case "settled":
+      return "bg-ink text-white";
+    case "cancelled":
+      return "bg-destructive text-white";
+  }
+}
+
 function ApplicationCard({ app }: { app: AppRow }) {
   const status = STATUS_CONFIG[app.status];
   const Icon = status.icon;
 
-  // Combine workDate + startTime into a Date for the 24h cancel rule.
-  // Workdate is ISO "YYYY-MM-DD..." (Prisma Date -> UTC midnight string).
   const workDateStartAt = combineWorkDateTime(
     app.job.workDate,
     app.job.startTime,
@@ -289,65 +313,73 @@ function ApplicationCard({ app }: { app: AppRow }) {
     app.status === "pending" || app.status === "confirmed";
   const canCheckIn = app.status === "confirmed";
   const isInProgress = app.status === "in_progress";
-  // Phase 5: both 'completed' (legacy) and 'settled' (new) are terminal
-  // states that should show the earnings card. Treating settled as a
-  // non-completed row hid the KRW payout from every post-Phase-5 shift.
   const isCompleted =
     app.status === "completed" || app.status === "settled";
 
   return (
-    <article className="group rounded-2xl border border-border bg-card p-4 space-y-3 transition-all duration-300 hover:shadow-md hover:border-brand/20 hover:-translate-y-0.5">
-      <div className="flex items-start justify-between gap-2 mb-1">
+    <article className="rounded-[22px] border border-border-soft bg-surface p-[18px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-md">
+      {/* top row — store/title + tag-state pill */}
+      <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[11px] text-muted-foreground truncate flex items-center gap-1">
-            <Building2 className="w-3.5 h-3.5" />
+          <p className="flex items-center gap-1 truncate text-[11.5px] font-semibold text-muted-foreground">
+            <Building2 className="h-[13px] w-[13px]" />
             {app.job.business.name}
           </p>
-          <h3 className="font-bold text-sm line-clamp-1 mt-0.5">
+          <h3 className="mt-0.5 line-clamp-1 text-[14.5px] font-extrabold tracking-[-0.02em] text-ink">
             {app.job.title}
           </h3>
         </div>
-        <Badge variant={status.badgeVariant} className="shrink-0 gap-1">
-          <Icon className={`w-3 h-3 ${status.accentClass}`} />
+        <span
+          className={cn(
+            "shrink-0 inline-flex items-center gap-1 rounded-[6px] px-2 py-1 text-[10px] font-extrabold tracking-tight",
+            statusPillClasses(app.status),
+          )}
+        >
+          <Icon className="h-3 w-3" />
           {status.label}
-        </Badge>
+        </span>
       </div>
 
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1">
-          <Calendar className="w-3 h-3" />
-          {formatWorkDate(app.job.workDate)}
+      {/* meta row */}
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] font-semibold text-muted-foreground">
+        <span className="inline-flex items-center gap-1">
+          <Calendar className="h-3 w-3" />
+          <b className="font-bold text-ink">{formatWorkDate(app.job.workDate)}</b>
         </span>
-        <span className="flex items-center gap-1">
-          <Clock className="w-3 h-3" />
-          {app.job.startTime}~{app.job.endTime}
+        <span className="tabnum inline-flex items-center gap-1">
+          <Clock className="h-3 w-3" />
+          <b className="font-bold text-ink">
+            {app.job.startTime}~{app.job.endTime}
+          </b>
         </span>
-        <span className="flex items-center gap-1">
-          <MapPin className="w-3 h-3" />
-          <span className="truncate max-w-[140px]">
+        <span className="inline-flex items-center gap-1">
+          <MapPin className="h-3 w-3" />
+          <span className="max-w-[140px] truncate">
             {app.job.business.address.split(" ").slice(0, 2).join(" ")}
           </span>
         </span>
       </div>
 
+      {/* earnings row — only for completed/settled with earnings */}
       {isCompleted && app.earnings !== null && (
-        <div className="flex items-center justify-between pt-2.5 border-t border-border">
-          <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-            <Wallet className="w-3 h-3" />
+        <div className="mt-3 flex items-center justify-between border-t border-dashed border-border pt-3">
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
+            <Wallet className="h-3 w-3" />
             정산 금액
           </span>
-          <span className="font-bold text-sm text-brand transition-transform duration-200 group-hover:scale-105">
+          <span className="tabnum text-[16px] font-extrabold tracking-[-0.025em] text-brand-deep">
             {formatMoney(app.earnings)}
           </span>
         </div>
       )}
 
+      {/* action buttons */}
       {(canCancel || canCheckIn || isInProgress) && (
-        <div className="flex items-center gap-2 pt-3 border-t border-border">
+        <div className="mt-3 grid grid-cols-[1fr_auto] gap-2 border-t border-dashed border-border pt-3">
           {canCheckIn && (
             <Link
               href={`/my/applications/${app.id}/check-in`}
-              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-brand/10 text-xs font-semibold text-brand transition-all duration-200 hover:bg-brand/15 active:scale-[0.96]"
+              className="inline-flex h-11 items-center justify-center gap-1.5 rounded-[12px] border border-dashed border-ink bg-[color-mix(in_oklch,var(--brand)_10%,var(--surface))] text-[12.5px] font-bold text-ink transition-all hover:bg-[color-mix(in_oklch,var(--brand)_16%,var(--surface))]"
             >
               <QrCode className="h-4 w-4" /> 체크인
             </Link>
@@ -355,7 +387,7 @@ function ApplicationCard({ app }: { app: AppRow }) {
           {isInProgress && (
             <Link
               href={`/my/applications/${app.id}/check-in`}
-              className="flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-destructive/10 text-xs font-semibold text-destructive transition-all duration-200 hover:bg-destructive/20 active:scale-[0.96]"
+              className="inline-flex h-11 items-center justify-center gap-1.5 rounded-[12px] bg-ink text-[12.5px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
             >
               <Zap className="h-4 w-4" /> 체크아웃
             </Link>
@@ -367,7 +399,7 @@ function ApplicationCard({ app }: { app: AppRow }) {
               trigger={
                 <button
                   type="button"
-                  className="inline-flex h-11 items-center justify-center rounded-xl border border-border px-5 text-xs font-medium text-muted-foreground transition-all duration-200 hover:bg-secondary active:scale-[0.96]"
+                  className="inline-flex h-11 items-center justify-center rounded-[12px] border border-border bg-surface px-5 text-[12.5px] font-bold text-muted-foreground transition-colors hover:bg-surface-2 hover:text-ink"
                 >
                   취소
                 </button>

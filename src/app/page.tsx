@@ -40,32 +40,30 @@ function formatDayLabel(workDate: string): string {
   });
 }
 
-// ── 타이포 토큰 ──────────────────────────────────────────────────────────────
-// 한글 가독성 기준: 본문 15~16px, line-height 1.7~1.75, heading 대형에서
-// 음수 tracking(-0.02~-0.035em)으로 Pretendard 음절 간 여백을 압축.
+// ── 타이포 토큰 (Premium 정합) ────────────────────────────────────────────
 const T = {
-  h1: "text-[clamp(2.1rem,5.5vw+0.5rem,3.75rem)] font-extrabold leading-[1.15] tracking-[-0.035em]",
-  h2: "text-[clamp(1.625rem,2.4vw+0.75rem,2.125rem)] font-extrabold leading-[1.2] tracking-[-0.025em]",
+  h1: "text-[clamp(2.1rem,5.5vw+0.5rem,3.75rem)] font-extrabold leading-[1.1] tracking-[-0.045em] text-ink",
+  h2: "text-[clamp(1.625rem,2.4vw+0.75rem,2.125rem)] font-extrabold leading-[1.15] tracking-[-0.035em] text-ink",
   h2Climax:
-    "text-[clamp(1.875rem,3vw+0.75rem,2.625rem)] font-extrabold leading-[1.15] tracking-[-0.03em]",
-  h3: "text-[17px] sm:text-[18px] font-bold leading-[1.4] tracking-[-0.012em]",
-  eyebrow: "text-[11px] font-bold uppercase tracking-[0.2em] text-brand",
-  lead: "text-[15px] sm:text-base leading-[1.75] text-muted-foreground",
+    "text-[clamp(1.875rem,3vw+0.75rem,2.625rem)] font-extrabold leading-[1.1] tracking-[-0.04em] text-ink",
+  h3: "text-[17px] sm:text-[18px] font-extrabold leading-[1.35] tracking-[-0.02em] text-ink",
+  eyebrow: "text-[11px] font-extrabold uppercase tracking-[0.2em] text-brand-deep",
+  lead: "text-[15px] sm:text-base leading-[1.7] text-muted-foreground font-medium",
   body: "text-[15px] leading-[1.7] text-muted-foreground",
   bodySm: "text-sm leading-[1.7] text-muted-foreground",
-  hint: "text-[12px] leading-[1.5] text-muted-foreground",
-  numeric: "font-mono tabular-nums tracking-tight",
+  hint: "text-[12px] leading-[1.5] text-muted-foreground font-medium",
+  numeric: "tabular-nums tracking-tight",
 } as const;
 
 const NAV_HOVER =
-  "hover:text-foreground transition-colors relative rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background after:content-[''] after:absolute after:w-full after:h-[2px] after:bottom-[-4px] after:left-0 after:bg-brand after:scale-x-0 after:origin-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-left";
+  "hover:text-ink transition-colors rounded-full px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background hover:bg-surface-2";
 
-// 카드 공통 — 통일된 shadow (rgba 0.07)
+// 카드 공통 — 프리미엄 surface + border-soft
 const CARD_BASE =
-  "group flex h-full flex-col rounded-2xl border border-border bg-card p-6 transition-[transform,box-shadow] duration-300 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(15,23,42,0.07)]";
+  "group flex h-full flex-col rounded-[22px] border border-border-soft bg-surface p-6 transition-[transform,box-shadow,border-color] duration-300 hover:-translate-y-1 hover:border-ink hover:shadow-soft-md";
 
 const ICON_TILE_BASE =
-  "flex h-11 w-11 items-center justify-center rounded-xl transition-[background-color,color,transform] duration-300 group-hover:text-primary-foreground group-hover:scale-110";
+  "flex h-11 w-11 items-center justify-center rounded-[14px] transition-[background-color,color,transform] duration-300 group-hover:text-white group-hover:scale-110";
 
 // semantic 분배: brand=속도/핵심, teal=신뢰/매장, amber=돈/시간, lime=인증
 const iconTile = {
@@ -233,25 +231,28 @@ export default async function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-hidden">
-      {/* ─── Header ─────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5 sm:px-6">
+      {/* ─── Header (premium: blur sticky + wordmark with dot) ──────── */}
+      <header className="sticky top-0 z-50 border-b border-border-soft bg-[color-mix(in_oklch,var(--bg)_85%,transparent)] [backdrop-filter:saturate(1.4)_blur(12px)]">
+        <div className="mx-auto flex h-[72px] max-w-6xl items-center justify-between px-5 sm:px-6">
           <Link
             href="/"
-            className="group flex items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="group flex items-center gap-[11px] rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
-            <CeleryMark className="h-9 w-9 text-brand transition-transform duration-300 group-hover:rotate-12" />
+            <span className="grid h-[38px] w-[38px] place-items-center rounded-[12px] border border-border bg-surface transition-transform duration-300 group-hover:-rotate-6">
+              <CeleryMark className="h-[22px] w-[22px] text-brand" />
+            </span>
             <div className="leading-tight">
-              <p className="text-[15px] font-bold tracking-[-0.015em] text-foreground">
+              <p className="flex items-baseline gap-px text-[19px] font-extrabold tracking-[-0.035em] text-ink">
                 샐러리잡
+                <span className="ml-[3px] inline-block h-[5px] w-[5px] -translate-y-[1px] rounded-full bg-brand" />
               </p>
-              <p className="text-[11px] text-muted-foreground">
+              <p className="mt-1 text-[10.5px] font-semibold tracking-tight text-muted-foreground">
                 내 주변 로컬 잡
               </p>
             </div>
           </Link>
 
-          <nav className="hidden items-center gap-7 text-sm font-medium text-muted-foreground md:flex">
+          <nav className="hidden items-center gap-1.5 text-[14px] font-semibold text-muted-foreground md:flex">
             <a href="#worker" className={NAV_HOVER}>
               일자리 찾기
             </a>
@@ -263,7 +264,7 @@ export default async function LandingPage() {
             </a>
           </nav>
 
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <Link
               href="/login"
               className={cn(buttonVariants({ variant: "ghost", size: "sm" }))}
@@ -272,10 +273,7 @@ export default async function LandingPage() {
             </Link>
             <Link
               href="/login?next=/home"
-              className={cn(
-                buttonVariants({ size: "sm" }),
-                "rounded-full bg-brand px-4 text-primary-foreground shadow-[0_2px_10px_hsl(var(--brand)/0.18)] hover:bg-brand-dark",
-              )}
+              className={cn(buttonVariants({ size: "sm" }))}
             >
               시작하기
             </Link>
@@ -295,14 +293,15 @@ export default async function LandingPage() {
           <div className="relative mx-auto grid max-w-6xl items-center gap-14 px-5 sm:px-6 py-20 md:grid-cols-[1.15fr_0.85fr] md:py-28">
             <div className="max-w-2xl">
               <Reveal>
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-brand/20 bg-brand-light px-3.5 py-1.5 text-[12px] font-bold tracking-[-0.005em] text-brand-deep">
-                  <IconSparkle className="h-3.5 w-3.5" />
+                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-[14px] py-2 text-[12px] font-bold tracking-tight text-ink shadow-soft-sm">
+                  <span className="inline-block h-[7px] w-[7px] rounded-full bg-brand shadow-[0_0_0_4px_color-mix(in_oklch,var(--brand)_25%,transparent)]" />
                   산뜻한 로컬 잡 플랫폼
+                  <IconSparkle className="h-3.5 w-3.5 text-brand-deep" />
                 </div>
               </Reveal>
 
               <Reveal delay={0.1}>
-                <h1 className={cn(T.h1, "text-foreground")}>
+                <h1 className={T.h1}>
                   <span className="block">내 주변 일자리,</span>
                   <span className="block text-brand-deep">
                     더 가볍고 빠르게
@@ -322,8 +321,8 @@ export default async function LandingPage() {
                   <Link
                     href="/login?next=/home"
                     className={cn(
-                      buttonVariants({ size: "lg" }),
-                      "h-12 w-full rounded-full bg-brand px-6 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.25)] hover:bg-brand-dark sm:w-auto sm:text-base",
+                      buttonVariants({ variant: "brand", size: "lg" }),
+                      "h-12 w-full px-6 sm:w-auto",
                     )}
                   >
                     <span className="flex items-center gap-1.5">
@@ -334,8 +333,8 @@ export default async function LandingPage() {
                   <Link
                     href="/signup?role=business"
                     className={cn(
-                      buttonVariants({ variant: "outline", size: "lg" }),
-                      "h-12 w-full rounded-full border-brand/30 bg-card px-6 text-[15px] font-semibold text-brand-deep hover:bg-brand-light sm:w-auto sm:text-base",
+                      buttonVariants({ variant: "ghost-premium", size: "lg" }),
+                      "h-12 w-full px-6 sm:w-auto",
                     )}
                   >
                     사업자로 시작하기
@@ -597,8 +596,8 @@ export default async function LandingPage() {
                 <Link
                   href="/login?next=/home"
                   className={cn(
-                    buttonVariants({ size: "lg" }),
-                    "h-12 rounded-full bg-brand px-8 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.2)] hover:bg-brand-dark sm:text-base",
+                    buttonVariants({ variant: "brand", size: "lg" }),
+                    "h-12 px-8",
                   )}
                 >
                   <span className="flex items-center gap-1.5">
@@ -614,13 +613,13 @@ export default async function LandingPage() {
         {/* ─── Business section ─────────────────────────────────────────── */}
         <section
           id="business"
-          className="border-t border-border/60 scroll-mt-20"
+          className="border-t border-border-soft scroll-mt-20 bg-surface-2"
         >
           <div className={cn("mx-auto max-w-6xl px-5 sm:px-6", SECTION_PY)}>
             <Reveal>
               <div className="mb-12 text-center">
-                <div className="inline-flex items-center gap-2 rounded-full border border-teal/20 bg-teal-light px-3.5 py-1.5 text-[12px] font-bold tracking-[-0.005em] text-[var(--teal-deep)] mb-4">
-                  <IconStore className="h-3.5 w-3.5" />
+                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-[14px] py-2 text-[12px] font-bold tracking-tight text-ink shadow-soft-sm">
+                  <IconStore className="h-3.5 w-3.5 text-brand-deep" />
                   사업자 전용
                 </div>
                 <h2 className={T.h2}>인력이 급할 땐, 샐러리잡</h2>
@@ -654,7 +653,7 @@ export default async function LandingPage() {
                   href="/signup?role=business"
                   className={cn(
                     buttonVariants({ size: "lg" }),
-                    "h-12 rounded-full bg-[var(--teal-deep)] px-8 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_oklch(0.45_0.08_186/0.25)] hover:bg-teal sm:text-base",
+                    "h-12 px-8",
                   )}
                 >
                   <span className="flex items-center gap-1.5">
@@ -668,7 +667,7 @@ export default async function LandingPage() {
         </section>
 
         {/* ─── Live Feed ───────────────────────────────────────────────── */}
-        <section className="border-t border-border/60">
+        <section className="border-t border-border-soft">
           <div className={cn("mx-auto max-w-6xl px-5 sm:px-6", SECTION_PY)}>
             <Reveal>
               <div className="mb-10">
@@ -680,7 +679,7 @@ export default async function LandingPage() {
               </div>
             </Reveal>
 
-            <div className="rounded-3xl border border-border bg-card p-4 md:p-6">
+            <div className="rounded-[28px] border border-border-soft bg-surface p-4 md:p-6">
               <JobListInfinite
                 initialJobs={jobs}
                 initialCursor={nextCursor}
@@ -690,12 +689,14 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ─── Final CTA ───────────────────────────────────────────────── */}
-        <section className="border-t border-border/60 bg-brand-light">
+        {/* ─── Final CTA (ink surface with brand highlight) ──────────── */}
+        <section className="border-t border-border-soft bg-ink text-white">
           <div className="mx-auto max-w-5xl px-5 sm:px-6 py-20 text-center md:py-28">
             <CeleryMark className="mx-auto h-14 w-14 text-brand" />
-            <h2 className={cn("mt-7", T.h2Climax)}>지금 샐러리잡 시작하기</h2>
-            <p className={cn("mx-auto mt-5 max-w-xl", T.lead)}>
+            <h2 className={cn("mt-7 text-white", T.h2Climax.replace("text-ink", ""))}>
+              지금 <span className="text-brand">샐러리잡</span> 시작하기
+            </h2>
+            <p className="mx-auto mt-5 max-w-xl text-[15px] font-medium leading-[1.7] text-[color-mix(in_oklch,#fff_75%,transparent)]">
               탭 한 번으로 지원하고, 근무 후 바로 정산까지.
               <br className="hidden sm:block" />
               오늘 가능한 일부터 확인해 보세요.
@@ -704,18 +705,18 @@ export default async function LandingPage() {
               <Link
                 href="/login?next=/home"
                 className={cn(
-                  buttonVariants({ size: "lg" }),
-                  "h-12 w-full rounded-full bg-brand px-6 text-[15px] font-semibold text-primary-foreground shadow-[0_8px_28px_hsl(var(--brand)/0.25)] hover:bg-brand-dark sm:w-auto sm:text-base",
+                  buttonVariants({ variant: "brand", size: "lg" }),
+                  "h-12 w-full px-6 sm:w-auto",
                 )}
               >
-                가까운 일자리 찾기
+                <span className="flex items-center gap-1.5">
+                  가까운 일자리 찾기
+                  <ArrowRight className="h-4 w-4" />
+                </span>
               </Link>
               <Link
                 href="/signup?role=business"
-                className={cn(
-                  buttonVariants({ variant: "outline", size: "lg" }),
-                  "h-12 w-full rounded-full border-brand/30 bg-card px-6 text-[15px] font-semibold text-brand-deep hover:bg-mint-bg sm:w-auto sm:text-base",
-                )}
+                className="inline-flex h-12 w-full items-center justify-center rounded-full border border-[color-mix(in_oklch,#fff_20%,transparent)] bg-transparent px-6 text-[15px] font-bold text-white transition-all hover:bg-[color-mix(in_oklch,#fff_10%,transparent)] sm:w-auto"
               >
                 사업장 등록하기
               </Link>

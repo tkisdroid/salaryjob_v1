@@ -114,123 +114,169 @@ export default async function WorkerHomePage({
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur">
-        <div className="mx-auto flex h-14 max-w-lg items-center justify-between px-4">
+      {/* Header — Premium greet pattern (small label + bold name + wave) */}
+      <header className="sticky top-0 z-40 border-b border-border-soft bg-[color-mix(in_oklch,var(--surface)_92%,transparent)] [backdrop-filter:saturate(1.4)_blur(12px)]">
+        <div className="mx-auto flex h-[72px] max-w-lg items-center justify-between px-4">
           <div>
-            <p className="text-[11px] text-muted-foreground">안녕하세요</p>
-            <p className="text-base font-bold">{worker?.name ?? "게스트"}님 👋</p>
+            <p className="text-[12px] font-semibold tracking-tight text-muted-foreground">
+              안녕하세요
+            </p>
+            <p className="mt-1 flex items-center gap-2 text-[22px] font-extrabold tracking-tight text-ink">
+              {worker?.name ?? "게스트"}
+              <span className="text-[20px]">👋</span>
+            </p>
           </div>
           <Link
             href="/notifications"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-muted"
+            aria-label="알림"
+            className="relative flex h-10 w-10 items-center justify-center rounded-[14px] border border-border bg-surface text-ink transition-colors hover:border-ink"
           >
             <Bell className="h-5 w-5" />
-            <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive" />
+            <span className="absolute top-[9px] right-[9px] h-[7px] w-[7px] rounded-full bg-[#ff4d4f] shadow-[0_0_0_2px_var(--bg)]" />
           </Link>
         </div>
       </header>
 
-      <div className="mx-auto max-w-lg space-y-6 py-4">
-        {/* Earnings Card */}
-        <section className="mx-4">
-          <div className="rounded-2xl bg-brand p-5 text-white">
-            <div className="mb-3 flex items-center justify-between">
-              <p className="text-sm opacity-90">이번 달 수입</p>
-              <TrendingUp className="h-4 w-4 opacity-80" />
+      <div className="mx-auto max-w-lg space-y-2 px-4 pt-3 pb-6">
+        {/* Income hero card — gradient brand→brand-dark + lime radial highlight */}
+        <section>
+          <div
+            className="relative overflow-hidden rounded-[26px] p-[22px] pb-5 text-ink shadow-[0_18px_40px_-10px_color-mix(in_oklch,var(--brand)_40%,transparent)]"
+            style={{
+              background:
+                "radial-gradient(120% 160% at 100% 0%, color-mix(in oklch, var(--lime-accent) 70%, transparent), transparent 60%), linear-gradient(180deg, var(--brand) 0%, var(--brand-dark) 100%)",
+            }}
+          >
+            <div
+              aria-hidden
+              className="pointer-events-none absolute -top-10 -right-14 h-[200px] w-[200px] rounded-full"
+              style={{
+                background:
+                  "radial-gradient(circle, color-mix(in oklch, var(--lime-accent) 50%, transparent), transparent 70%)",
+              }}
+            />
+            <div className="relative flex items-start justify-between">
+              <span className="inline-flex items-center rounded-full bg-[color-mix(in_oklch,var(--ink)_85%,transparent)] px-[11px] py-[5px] text-[12px] font-bold text-white">
+                이번 달 수입
+              </span>
+              <span className="grid h-[34px] w-[34px] place-items-center rounded-[12px] bg-[color-mix(in_oklch,var(--ink)_90%,transparent)] text-lime-accent">
+                <TrendingUp className="h-[18px] w-[18px]" />
+              </span>
             </div>
-            <p className="text-3xl font-bold">
+
+            <p className="tabnum relative mt-[14px] flex items-baseline text-[44px] font-extrabold tracking-[-0.045em]">
               {formatMoney(worker?.thisMonthEarnings ?? 0)}
             </p>
-            <div className="mt-4 flex justify-between border-t border-white/20 pt-4 text-sm">
-              <div>
-                <p className="text-xs opacity-80">누적 근무</p>
-                <p className="font-bold">{worker?.totalJobs ?? 0}회</p>
+            <p className="relative mt-0.5 text-[12px] font-semibold text-[color-mix(in_oklch,var(--ink)_75%,transparent)]">
+              지난 달 대비 꾸준히
+            </p>
+
+            <div className="relative mt-5 grid grid-cols-3 border-t border-[color-mix(in_oklch,var(--ink)_15%,transparent)] pt-4">
+              <div className="pr-2">
+                <p className="text-[11px] font-semibold tracking-tight text-[color-mix(in_oklch,var(--ink)_70%,transparent)]">
+                  누적 근무
+                </p>
+                <p className="tabnum mt-[3px] text-[17px] font-extrabold tracking-[-0.03em]">
+                  {worker?.totalJobs ?? 0}회
+                </p>
               </div>
-              <div>
-                <p className="text-xs opacity-80">평점</p>
-                <p className="flex items-center gap-1 font-bold">
-                  <Star className="h-3 w-3 fill-white" />
+              <div className="border-l border-[color-mix(in_oklch,var(--ink)_12%,transparent)] pl-4 pr-2">
+                <p className="text-[11px] font-semibold tracking-tight text-[color-mix(in_oklch,var(--ink)_70%,transparent)]">
+                  평점
+                </p>
+                <p className="tabnum mt-[3px] flex items-center gap-[3px] text-[17px] font-extrabold tracking-[-0.03em]">
+                  <Star className="h-[14px] w-[14px] fill-[#fbbf24] text-[#fbbf24]" />
                   {worker?.rating ?? 0}
                 </p>
               </div>
-              <div>
-                <p className="text-xs opacity-80">완료율</p>
-                <p className="font-bold">{worker?.completionRate ?? 0}%</p>
+              <div className="border-l border-[color-mix(in_oklch,var(--ink)_12%,transparent)] pl-4">
+                <p className="text-[11px] font-semibold tracking-tight text-[color-mix(in_oklch,var(--ink)_70%,transparent)]">
+                  완료율
+                </p>
+                <p className="tabnum mt-[3px] text-[17px] font-extrabold tracking-[-0.03em]">
+                  {worker?.completionRate ?? 0}%
+                </p>
               </div>
             </div>
           </div>
         </section>
 
-        {/* Category Chips */}
-        <section className="mx-4">
-          <h2 className="mb-3 text-sm font-bold">카테고리</h2>
-          <div className="grid grid-cols-6 gap-2">
+        {/* Category pills — 6 columns, surface tile with border */}
+        <section>
+          <h2 className="sec-label">
+            <span className="mark">✨</span>카테고리
+          </h2>
+          <div className="grid grid-cols-6 gap-1.5">
             {CATEGORIES.map((cat) => (
               <Link
                 key={cat.id}
                 href={`/search?category=${cat.id}`}
-                className="flex flex-col items-center gap-1 rounded-xl p-2 transition-colors hover:bg-muted"
+                className="group flex min-w-0 flex-col items-center gap-2"
               >
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand/10 text-xl">
+                <div className="grid aspect-square w-full max-w-[52px] place-items-center rounded-[16px] border border-border bg-surface text-xl transition-all group-hover:-translate-y-0.5 group-hover:border-ink">
                   {cat.emoji}
                 </div>
-                <span className="text-xs font-medium">{cat.label}</span>
+                <span className="whitespace-nowrap text-[11px] font-bold tracking-tight text-ink">
+                  {cat.label}
+                </span>
               </Link>
             ))}
           </div>
         </section>
 
-        {/* Urgent Jobs */}
+        {/* Urgent jobs — lime-chip badge + dashed foot separator */}
         {urgentJobs.length > 0 && (
-          <section className="mx-4">
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="flex items-center gap-1.5 text-base font-bold">
-                <Zap className="h-4 w-4 fill-[color:var(--urgent)] text-[color:var(--urgent)]" />
+          <section>
+            <div className="mb-[10px] mt-6 flex items-center justify-between px-0.5">
+              <h2 className="flex items-center gap-2 text-[15px] font-extrabold tracking-tight text-ink">
+                <Zap className="h-[18px] w-[18px] fill-[color:var(--urgent)] text-[color:var(--urgent)]" />
                 급구 · 오늘 바로 근무
               </h2>
               <Link
                 href="/search?urgent=1"
-                className="text-xs font-medium text-brand"
+                className="text-[11.5px] font-bold text-brand-deep"
               >
                 더보기 →
               </Link>
             </div>
-            <div className="scrollbar-none -mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-2">
+            <div className="chip-scroll -mx-4 px-4 pb-2">
               {urgentJobs.map((job) => (
                 <Link
                   key={job.id}
                   href={`/posts/${job.id}`}
-                  className="w-64 shrink-0 snap-start rounded-2xl border-2 border-[color:var(--urgent)]/30 bg-card p-4 transition-all hover:shadow-lg"
+                  className="relative w-64 shrink-0 rounded-[22px] border border-border bg-surface p-[18px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-md"
                 >
-                  <div className="mb-2 flex items-start gap-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[color:var(--urgent)]/10 text-lg">
+                  <span className="absolute top-[14px] right-[14px] inline-flex items-center gap-1 rounded-full bg-lime-chip px-[9px] py-[4px] text-[10.5px] font-extrabold tracking-tight text-lime-chip-fg">
+                    급구
+                  </span>
+                  <div className="mb-2 flex items-start gap-3">
+                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] border border-border-soft bg-surface-2 text-xl">
                       {job.business.logo}
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="truncate text-xs text-muted-foreground">
+                    <div className="min-w-0 flex-1 pr-10">
+                      <p className="truncate text-[11px] font-bold tracking-tight text-muted-foreground">
                         {job.business.name}
                       </p>
-                      <h3 className="line-clamp-1 text-sm font-bold">
+                      <h3 className="line-clamp-1 text-[15.5px] font-extrabold tracking-[-0.03em] text-ink">
                         {job.title}
                       </h3>
                     </div>
                   </div>
-                  <div className="mb-2 flex items-center gap-3 text-xs text-muted-foreground">
-                    <div className="flex items-center gap-1">
+                  <div className="mt-2 flex flex-wrap gap-2.5 text-[11.5px] font-semibold text-muted-foreground">
+                    <span className="inline-flex items-center gap-1">
                       <Clock className="h-3 w-3" />
                       {formatWorkDate(job.workDate)} {job.startTime}
-                    </div>
-                    <div className="flex items-center gap-1">
+                    </span>
+                    <span className="inline-flex items-center gap-1">
                       <MapPin className="h-3 w-3" />
                       {formatDistance(job.distanceM)}
-                    </div>
+                    </span>
                   </div>
-                  <div className="flex items-center justify-between border-t border-border pt-2">
-                    <span className="text-xs text-muted-foreground">
+                  <div className="mt-[14px] flex items-center justify-between border-t border-dashed border-border pt-3">
+                    <span className="text-[12px] font-bold text-muted-foreground">
                       시급 {formatMoney(job.hourlyPay)}
                     </span>
-                    <span className="text-sm font-bold text-[color:var(--urgent)]">
+                    <span className="tabnum text-[17px] font-extrabold tracking-[-0.03em] text-brand-deep">
                       {formatMoney(calculateEarnings(job))}
                     </span>
                   </div>
@@ -240,11 +286,11 @@ export default async function WorkerHomePage({
           </section>
         )}
 
-        {/* Recommended — Plan 04-07: HomeClient (list/map toggle + filters) */}
+        {/* Recommended — HomeClient owns list/map toggle + filter bar */}
         <section>
-          <div className="mx-4 mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-1.5 text-base font-bold">
-              <Sparkles className="h-4 w-4 text-brand" />내 주변 공고
+          <div className="mb-[10px] mt-6 flex items-center justify-between px-0.5">
+            <h2 className="flex items-center gap-2 text-[15px] font-extrabold tracking-tight text-ink">
+              <Sparkles className="h-[18px] w-[18px] text-brand-deep" />내 주변 공고
             </h2>
           </div>
           <HomeClient

@@ -57,29 +57,34 @@ export default async function WorkerChatDetailPage({
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-lg flex-col px-4 py-6">
+    <div className="mx-auto flex min-h-screen max-w-lg flex-col px-4 py-5 pb-28">
       <MarkChatRead roomId={id} />
+      {/* Premium chat-back row */}
       <Link
         href="/chat"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="inline-flex items-center gap-2 pb-1 text-[13px] font-bold tracking-tight text-ink transition-colors hover:text-brand-deep"
       >
         <ArrowLeft className="h-4 w-4" />
-        채팅 목록으로
+        채팅 목록
       </Link>
 
-      <div className="mt-5 rounded-3xl border border-border bg-card p-5">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand/10">
-            <MessageCircle className="h-5 w-5 text-brand" />
-          </div>
-          <div>
-            <h1 className="text-lg font-bold">{thread.company}</h1>
-            <p className="text-sm text-muted-foreground">{thread.postTitle}</p>
-          </div>
+      {/* thread-peer card: brand-tint avatar + name/role */}
+      <div className="mt-3 flex items-center gap-3 rounded-[18px] border border-border-soft bg-surface p-[14px]">
+        <div className="grid h-11 w-11 place-items-center rounded-[14px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep">
+          <MessageCircle className="h-[18px] w-[18px]" />
+        </div>
+        <div>
+          <h1 className="text-[15px] font-extrabold tracking-[-0.02em] text-ink">
+            {thread.company}
+          </h1>
+          <p className="mt-0.5 text-[12px] font-semibold text-muted-foreground">
+            {thread.postTitle}
+          </p>
         </div>
       </div>
 
-      <div className="mt-4 space-y-3">
+      {/* thread — asymmetric bubbles, ink out / surface in */}
+      <div className="mt-4 flex flex-col gap-2.5">
         {thread.messages.map((message) => {
           const isWorker = message.sender === "worker";
 
@@ -89,16 +94,18 @@ export default async function WorkerChatDetailPage({
               className={`flex ${isWorker ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-[85%] rounded-2xl px-4 py-3 text-sm ${
+                className={`max-w-[78%] px-3.5 pt-2.5 pb-2 text-[13.5px] leading-[1.5] tracking-[-0.015em] ${
                   isWorker
-                    ? "bg-brand text-white"
-                    : "border border-border bg-card text-foreground"
+                    ? "rounded-[18px] rounded-br-[6px] bg-ink text-white"
+                    : "rounded-[18px] rounded-bl-[6px] border border-border-soft bg-surface text-ink"
                 }`}
               >
                 <p>{message.body}</p>
                 <p
-                  className={`mt-2 text-xs ${
-                    isWorker ? "text-white/80" : "text-muted-foreground"
+                  className={`tabnum mt-1 text-[10.5px] font-semibold ${
+                    isWorker
+                      ? "text-[color-mix(in_oklch,#fff_70%,transparent)]"
+                      : "text-text-subtle"
                   }`}
                 >
                   {message.time}

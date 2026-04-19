@@ -95,72 +95,79 @@ export default function ChatListPage() {
   const totalUnread = rooms.reduce((sum, r) => sum + r.unreadCount, 0);
 
   return (
-    <div className="mx-auto max-w-lg space-y-5 px-4 py-6">
-      <header>
-        <div className="flex items-center justify-between">
-          <h1 className="flex items-center gap-2 text-xl font-bold tracking-tight">
-            <MessageCircle className="h-5 w-5 text-brand" />
-            채팅
-          </h1>
-          {totalUnread > 0 && (
-            <Badge variant="default" className="bg-brand">
-              {totalUnread}개 안 읽음
-            </Badge>
-          )}
-        </div>
+    <div className="mx-auto max-w-lg space-y-4 px-4 py-5">
+      {/* Premium chat-head: bold title + ink pill unread count */}
+      <header className="flex items-center justify-between pb-1">
+        <h1 className="flex items-center gap-2.5 text-[24px] font-extrabold tracking-[-0.035em] text-ink">
+          <MessageCircle className="h-[22px] w-[22px] text-brand-deep" />
+          채팅
+        </h1>
+        {totalUnread > 0 && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-[11px] py-1.5 text-[11.5px] font-bold tracking-tight text-white">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+            {totalUnread}개 안 읽음
+          </span>
+        )}
       </header>
 
       {rooms.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <MessageCircle className="mb-4 h-12 w-12 text-muted-foreground/40" />
-          <p className="font-bold text-muted-foreground">
+        <div className="flex flex-col items-center justify-center rounded-[22px] border border-border bg-surface py-16 text-center">
+          <MessageCircle className="mb-4 h-12 w-12 text-text-subtle" />
+          <p className="text-[15px] font-extrabold tracking-tight text-ink">
             아직 채팅이 없어요
           </p>
-          <p className="mt-1 text-sm text-muted-foreground/70">
+          <p className="mt-1 text-[12.5px] font-semibold text-muted-foreground">
             공고에 지원하면 사업주와 채팅을 시작할 수 있어요
           </p>
-          <Button variant="outline" className="mt-4" asChild>
+          <Button variant="ghost-premium" className="mt-4" asChild>
             <Link href="/explore">공고 둘러보기</Link>
           </Button>
         </div>
       ) : (
-        <div className="space-y-2">
-          {rooms.map((room) => (
-            <Link
-              key={room.id}
-              href={`/chat/${room.id}`}
-              className="block w-full rounded-2xl bg-brand-light/60 border border-brand/[0.08] p-4 transition-colors hover:bg-brand-light/80"
-            >
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-full bg-brand/10 flex items-center justify-center shrink-0">
-                  <span className="text-xs font-bold text-brand">
-                    {room.initials}
-                  </span>
+        <div className="space-y-2.5">
+          {rooms.map((room) => {
+            const isUnread = room.unreadCount > 0;
+            return (
+              <Link
+                key={room.id}
+                href={`/chat/${room.id}`}
+                className={`grid grid-cols-[48px_1fr_auto] items-start gap-3 rounded-[18px] p-[14px] transition-all hover:-translate-y-0.5 hover:shadow-soft-sm ${
+                  isUnread
+                    ? "bg-[color-mix(in_oklch,var(--brand)_8%,var(--surface))] border border-[color-mix(in_oklch,var(--brand)_24%,var(--border))]"
+                    : "bg-surface border border-border-soft"
+                }`}
+              >
+                <div
+                  className={`grid h-12 w-12 place-items-center rounded-[14px] text-[13px] font-extrabold tracking-tight ${
+                    isUnread ? "bg-brand text-ink" : "bg-surface-2 text-ink"
+                  }`}
+                >
+                  {room.initials}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-sm truncate">
-                      {room.company}
-                    </span>
-                    <span className="text-[10px] text-muted-foreground shrink-0 ml-2">
-                      {room.time}
-                    </span>
-                  </div>
-                  <p className="text-xs text-brand font-medium">
+                <div className="min-w-0">
+                  <p className="truncate text-[14px] font-extrabold leading-tight tracking-[-0.02em] text-ink">
+                    {room.company}
+                  </p>
+                  <p className="mt-0.5 text-[11.5px] font-semibold tracking-tight text-brand-deep">
                     {room.postTitle}
                   </p>
-                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                  <p className="mt-1.5 truncate text-[12.5px] font-medium leading-snug text-muted-foreground">
                     {room.lastMessage}
                   </p>
                 </div>
-                {room.unreadCount > 0 && (
-                  <span className="w-5 h-5 rounded-full bg-brand text-primary-foreground text-[10px] font-bold flex items-center justify-center shrink-0">
-                    {room.unreadCount}
+                <div className="flex flex-col items-end gap-1.5 pl-1">
+                  <span className="tabnum text-[10.5px] font-semibold text-text-subtle">
+                    {room.time}
                   </span>
-                )}
-              </div>
-            </Link>
-          ))}
+                  {isUnread && (
+                    <span className="tabnum grid h-5 min-w-[20px] place-items-center rounded-full bg-ink px-1.5 text-[11px] font-extrabold text-white">
+                      {room.unreadCount}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

@@ -34,6 +34,8 @@
   --color-lime-accent: var(--lime-accent);
   --color-lime-deep:   var(--lime-deep);
   --color-lime-light:  var(--lime-light);
+  --color-lime-chip:    var(--lime-chip);
+  --color-lime-chip-fg: var(--lime-chip-fg);
   --color-ivory: var(--ivory);
   --color-mint-bg: var(--mint-bg);
   --color-teal: var(--teal);
@@ -43,6 +45,14 @@
   --color-amber:       var(--amber);
   --color-amber-light: var(--amber-light);
   --color-amber-deep:  var(--amber-deep);
+
+  /* Neobank ink palette — dark CTA signature (Premium redesign) */
+  --color-ink:         var(--ink);
+  --color-ink-soft:    var(--ink-soft);
+  --color-surface:     var(--surface);
+  --color-surface-2:   var(--surface-2);
+  --color-border-soft: var(--border-soft);
+  --color-text-subtle: var(--text-subtle);
 
   /* Category colors — tuned to green-adjacent hues so they do not clash with
      the 브리프 rule against purples and strong blues. Warm categories keep
@@ -93,6 +103,20 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* Premium redesign — fixed radius tokens (pixel-perfect neobank spec) */
+  --radius-r-pill: var(--r-pill);
+  --radius-r-sm:   var(--r-sm);
+  --radius-r-md:   var(--r-md);
+  --radius-r-lg:   var(--r-lg);
+  --radius-r-xl:   var(--r-xl);
+
+  /* Premium redesign — shadow tokens */
+  --shadow-soft-sm:    var(--shadow-sm);
+  --shadow-soft-md:    var(--shadow-md);
+  --shadow-soft-lg:    var(--shadow-lg);
+  --shadow-soft-dark:  var(--shadow-dark);
+  --shadow-soft-brand: var(--shadow-brand);
 }
 
 :root {
@@ -131,8 +155,35 @@
   --lime-deep:    oklch(0.475 0.115 112);  /* lime text on light surface */
 
   /* Backgrounds — warm ivory (main) + cool mint (section fill) */
-  --ivory:        oklch(0.991 0.008 95);   /* Warm Ivory — app background */
+  --ivory:        oklch(0.991 0.008 95);   /* Warm Ivory — legacy, aliased to --bg */
   --mint-bg:      oklch(0.986 0.011 147);  /* Mint Background — section fills */
+
+  /* ── Premium redesign tokens (neobank-inspired) ──
+     Worker/Main Premium 디자인에서 도입. 기존 ivory 시스템과 공존하며,
+     새 화면은 --bg + --surface 조합, 레거시 화면은 --ivory 유지. */
+  --ink:          oklch(0.18 0.009 160);   /* Primary CTA & text — near-black with faint green */
+  --ink-soft:     oklch(0.26 0.012 160);   /* Secondary dark — softer variant */
+  --lime-chip:    oklch(0.905 0.135 120);  /* Saturated lime — save/cashback pills */
+  --lime-chip-fg: oklch(0.35 0.09 135);    /* Lime chip foreground — high contrast */
+  --bg:           oklch(0.988 0.006 120);  /* Premium app bg — very slight off-white neutral */
+  --surface:      #ffffff;                  /* Pure white — card surface in neobank spec */
+  --surface-2:    oklch(0.975 0.006 140);  /* Secondary surface — dividers, nested fills */
+  --border-soft:  oklch(0.955 0.006 150);  /* Softer than --border, for inner partitions */
+  --text-subtle:  oklch(0.62 0.010 155);   /* Lightest legible text — timestamps, hints */
+
+  /* Fixed radius tokens — premium spec uses explicit pixels, not calc */
+  --r-pill: 999px;
+  --r-sm:   12px;
+  --r-md:   18px;
+  --r-lg:   24px;
+  --r-xl:   32px;
+
+  /* Shadow tokens — very soft, ink-tinted */
+  --shadow-sm:    0 1px 2px oklch(0.2 0.02 160 / 0.04);
+  --shadow-md:    0 8px 24px oklch(0.2 0.02 160 / 0.06);
+  --shadow-lg:    0 24px 48px oklch(0.2 0.02 160 / 0.08);
+  --shadow-dark:  0 10px 28px oklch(0.18 0.009 160 / 0.2);
+  --shadow-brand: 0 10px 28px oklch(0.776 0.149 152 / 0.28);
 
   /* Reserved accents */
   --urgent:       oklch(0.726 0.152 58);   /* 긴급 — warm amber, distinct from destructive */
@@ -144,29 +195,31 @@
 
   /* ---- shadcn token layer ---- */
 
-  /* Surfaces — neutrals slightly mint-tinted so the green spine runs
-     through the chrome without ever reading as coloured. Chroma stays
-     ≤ 0.013 which is below typical JND for large surfaces. */
-  --background:         oklch(0.991 0.008 95);   /* = ivory */
-  --foreground:         oklch(0.259 0.013 160);  /* near-black, faint green */
-  --card:               oklch(0.995 0.003 150);  /* just-off-white mint (was #ffffff) */
-  --card-foreground:    oklch(0.259 0.013 160);
-  --popover:            oklch(0.995 0.003 150);
-  --popover-foreground: oklch(0.259 0.013 160);
+  /* Surfaces — premium redesign switches to neobank bg/surface pair.
+     --background = very slight off-white neutral (--bg)
+     --card / --popover = pure white surface (--surface)
+     --foreground = near-black ink (--ink) for strong CTA contrast.
+     기존 --ivory / --mint-bg 토큰은 그대로 유지해 레거시 컴포넌트 호환. */
+  --background:         oklch(0.988 0.006 120);  /* = --bg */
+  --foreground:         oklch(0.18 0.009 160);   /* = --ink */
+  --card:               #ffffff;                  /* = --surface */
+  --card-foreground:    oklch(0.18 0.009 160);
+  --popover:            #ffffff;
+  --popover-foreground: oklch(0.18 0.009 160);
 
-  --primary:            oklch(0.776 0.149 152);  /* = brand */
-  --primary-foreground: oklch(0.995 0.003 150);  /* not pure white — tinted card */
-  --secondary:          oklch(0.986 0.011 147);  /* = mint-bg */
-  --secondary-foreground: oklch(0.518 0.128 152); /* = brand-deep */
-  --muted:              oklch(0.986 0.011 147);
-  --muted-foreground:   oklch(0.474 0.020 154);  /* Text Body — slightly lifted */
+  --primary:            oklch(0.18 0.009 160);   /* = --ink — neobank dark CTA */
+  --primary-foreground: #ffffff;                  /* pure white on ink */
+  --secondary:          oklch(0.975 0.006 140);  /* = --surface-2 */
+  --secondary-foreground: oklch(0.18 0.009 160); /* ink on surface-2 */
+  --muted:              oklch(0.975 0.006 140);  /* = --surface-2 */
+  --muted-foreground:   oklch(0.50 0.012 155);   /* premium --text-muted */
   --accent:             oklch(0.978 0.027 151);  /* = brand-light */
   --accent-foreground:  oklch(0.518 0.128 152);  /* = brand-deep */
 
   --destructive:        oklch(0.576 0.208 28);   /* reserved — errors/cancellation */
 
-  --border:             oklch(0.940 0.013 152);
-  --input:              oklch(0.940 0.013 152);
+  --border:             oklch(0.925 0.008 150);  /* premium --border (was 0.940 0.013 152) */
+  --input:              oklch(0.925 0.008 150);
   --ring:               oklch(0.776 0.149 152);
 
   --chart-1:            oklch(0.776 0.149 152);
@@ -177,14 +230,19 @@
 
   --radius: 0.875rem;   /* 카드 radius 20~28px */
 
-  --sidebar:                    oklch(0.991 0.008 95);
-  --sidebar-foreground:         oklch(0.259 0.013 160);
-  --sidebar-primary:            oklch(0.776 0.149 152);
-  --sidebar-primary-foreground: oklch(0.995 0.003 150);
-  --sidebar-accent:             oklch(0.978 0.027 151);
-  --sidebar-accent-foreground:  oklch(0.518 0.128 152);
-  --sidebar-border:             oklch(0.940 0.013 152);
+  --sidebar:                    #ffffff;                  /* = --surface */
+  --sidebar-foreground:         oklch(0.18 0.009 160);    /* = --ink */
+  --sidebar-primary:            oklch(0.18 0.009 160);    /* ink active state */
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent:             oklch(0.975 0.006 140);   /* = --surface-2 hover */
+  --sidebar-accent-foreground:  oklch(0.18 0.009 160);
+  --sidebar-border:             oklch(0.955 0.006 150);   /* = --border-soft */
   --sidebar-ring:               oklch(0.776 0.149 152);
+
+  /* Semantic alias — premium --text / --text-muted readability tokens.
+     --text = --foreground, exposed as var so utility classes can opt in. */
+  --text:         oklch(0.18 0.009 160);
+  --text-muted:   oklch(0.50 0.012 155);
 }
 
 @layer base {
@@ -348,3 +406,218 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* ============================================================================
+ * Premium redesign — shared utility classes
+ *
+ * 샐러리잡 Premium Worker/Main 디자인 언어. 각 화면이 중복 구현하지 않도록
+ * 핵심 반복 패턴을 전역 유틸리티로 캡슐화. 변경 1회로 전체 화면 동기화.
+ * ========================================================================== */
+
+/* Tabular numerals — prices, counts, timestamps */
+.tabnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* ── Pill chips (filter / tag / segment) ─────────────────────────────────── */
+.chip-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink);
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+  white-space: nowrap;
+}
+.chip-pill:hover { border-color: var(--ink); }
+.chip-pill.is-active,
+.chip-pill[data-active="true"] {
+  background: var(--ink);
+  color: #fff;
+  border-color: var(--ink);
+}
+
+/* Save/cashback pill — lime signature */
+.pill-save {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: var(--r-pill);
+  background: var(--lime-chip);
+  color: var(--lime-chip-fg);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+.pill-mint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--brand-light);
+  color: var(--brand-deep);
+  font-size: 12px;
+  font-weight: 700;
+}
+.pill-ink {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--ink);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ── Segmented view toggle (list / map / tag) ────────────────────────────── */
+.view-toggle {
+  display: inline-flex;
+  padding: 4px;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+}
+.view-toggle > button {
+  border: 0;
+  background: transparent;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 999px;
+  color: var(--muted-foreground);
+  cursor: pointer;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: background 0.18s, color 0.18s;
+}
+.view-toggle > button.is-active,
+.view-toggle > button[data-active="true"] {
+  background: var(--ink);
+  color: #fff;
+}
+
+/* ── Section label (emoji + title row) ───────────────────────────────────── */
+.sec-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  margin: 28px 2px 14px;
+  color: var(--ink);
+}
+.sec-label .mark {
+  color: var(--brand-deep);
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* ── Card shells ─────────────────────────────────────────────────────────── */
+.card-premium {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 18px;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.card-premium.is-interactive {
+  cursor: pointer;
+}
+.card-premium.is-interactive:hover {
+  border-color: var(--ink);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* ── Chip scroll row (horizontal overflow filter) ────────────────────────── */
+.chip-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.chip-scroll::-webkit-scrollbar { display: none; }
+
+/* ── Premium buttons (neobank ink-first CTA) ─────────────────────────────── */
+.btn-premium {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: inherit;
+  font-weight: 600;
+  font-size: 14px;
+  border-radius: var(--r-pill);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.15s ease, background 0.18s, color 0.18s,
+              border-color 0.18s, box-shadow 0.18s;
+  white-space: nowrap;
+  padding: 10px 18px;
+  line-height: 1.2;
+}
+.btn-premium:active { transform: translateY(1px); }
+.btn-premium.is-sm { padding: 8px 14px; font-size: 13px; }
+.btn-premium.is-lg { padding: 16px 26px; font-size: 15px; font-weight: 700; }
+.btn-premium.is-xl { padding: 20px 32px; font-size: 16px; font-weight: 700; }
+
+.btn-premium.is-primary {
+  background: var(--ink);
+  color: #fff;
+}
+.btn-premium.is-primary:hover {
+  background: #000;
+  box-shadow: var(--shadow-dark);
+}
+.btn-premium.is-brand {
+  background: var(--brand);
+  color: var(--ink);
+}
+.btn-premium.is-brand:hover {
+  background: var(--brand-dark);
+  color: #fff;
+  box-shadow: var(--shadow-brand);
+}
+.btn-premium.is-ghost {
+  background: var(--surface);
+  color: var(--ink);
+  border-color: var(--border);
+}
+.btn-premium.is-ghost:hover {
+  background: var(--surface-2);
+}
+.btn-premium.is-text {
+  background: transparent;
+  color: var(--foreground);
+}
+.btn-premium.is-text:hover {
+  background: var(--surface-2);
+}
+
+/* ── Shadow utilities exposed to Tailwind ────────────────────────────────── */
+.shadow-soft-sm    { box-shadow: var(--shadow-sm); }
+.shadow-soft-md    { box-shadow: var(--shadow-md); }
+.shadow-soft-lg    { box-shadow: var(--shadow-lg); }
+.shadow-soft-dark  { box-shadow: var(--shadow-dark); }
+.shadow-soft-brand { box-shadow: var(--shadow-brand); }

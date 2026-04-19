@@ -56,62 +56,72 @@ export function HomeClient({
       />
 
       {currentView === "map" ? (
-        <div className="px-4 py-3">
+        <div className="py-3">
           <MapView
             center={center}
             jobs={initialJobs}
             radiusM={radiusKm * 1000}
             onMarkerClick={(jobId) => router.push(`/posts/${jobId}`)}
           />
-          <p className="mt-3 text-center text-xs text-muted-foreground">
-            반경 {radiusKm}km 이내 {initialJobs.length}건
+          <p className="mt-3 text-center text-[12px] font-semibold text-muted-foreground">
+            반경 <b className="font-extrabold text-ink">{radiusKm}km</b> 이내{" "}
+            <b className="tabnum font-extrabold text-ink">
+              {initialJobs.length}
+            </b>
+            건
           </p>
         </div>
       ) : (
-        <div className="px-4 py-3">
-          <p className="mb-3 text-xs text-muted-foreground">
-            {initialJobs.length}건의 공고
-          </p>
+        <div className="py-3">
+          <div className="mb-2.5 flex items-center justify-between px-0.5">
+            <p className="text-[12px] font-bold text-muted-foreground">
+              공고{" "}
+              <b className="tabnum font-extrabold text-ink">
+                {initialJobs.length}
+              </b>
+              건
+            </p>
+          </div>
           {initialJobs.length === 0 ? (
             <p className="py-16 text-center text-sm text-muted-foreground">
               해당 조건의 공고가 없습니다. 필터를 조정해 보세요.
             </p>
           ) : (
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               {initialJobs.map((job) => (
                 <li key={job.id}>
                   <Link
                     href={`/posts/${job.id}`}
-                    className="group block rounded-2xl border border-border bg-card p-4 transition-all duration-200 hover:shadow-lg hover:border-brand/30 hover:bg-card/95"
+                    className="group relative block rounded-[22px] border border-border bg-surface p-[18px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-md"
                   >
-                    <div className="mb-2 flex items-start gap-3">
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-lg shrink-0 transition-colors duration-200 group-hover:bg-brand/15">
+                    <div className="flex items-start gap-3">
+                      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] border border-border-soft bg-surface-2 text-xl">
                         {job.business.logo}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <p className="truncate text-xs text-foreground/70">
+                        <p className="truncate text-[11px] font-bold tracking-tight text-muted-foreground">
                           {job.business.name}
                         </p>
-                        <h3 className="line-clamp-1 text-sm font-bold mt-0.5 group-hover:text-brand-deep transition-colors">
+                        <h3 className="mt-0.5 line-clamp-1 text-[15.5px] font-extrabold tracking-[-0.03em] text-ink">
                           {job.title}
                         </h3>
+                        <div className="mt-2 flex flex-wrap gap-2.5 text-[11.5px] font-semibold text-muted-foreground">
+                          <span className="inline-flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {formatWorkDate(job.workDate)} {job.startTime}
+                          </span>
+                          <span className="inline-flex items-center gap-1">
+                            <MapPin className="h-3 w-3" />
+                            {formatDistance(job.distanceM)}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                    <div className="mb-2.5 flex items-center gap-3 text-xs text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {formatWorkDate(job.workDate)} {job.startTime}
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MapPin className="h-3 w-3" />
-                        {formatDistance(job.distanceM)}
-                      </div>
-                    </div>
-                    <div className="flex items-center justify-between border-t border-border pt-2.5">
-                      <span className="text-xs text-muted-foreground">
+                    <div className="mt-[14px] flex items-center justify-between border-t border-dashed border-border pt-3">
+                      <span className="text-[12px] font-bold text-muted-foreground">
                         시급 {formatMoney(job.hourlyPay)}
                       </span>
-                      <span className="text-sm font-bold text-brand">
+                      <span className="tabnum text-[17px] font-extrabold tracking-[-0.03em] text-brand-deep">
                         {formatMoney(calculateEarnings(job))}
                       </span>
                     </div>

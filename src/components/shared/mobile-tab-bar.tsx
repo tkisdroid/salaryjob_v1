@@ -21,12 +21,10 @@ const NAV_ITEMS: readonly { href: string; icon: typeof Home; label: string; isFa
 
 // Routes that replace the bottom tab bar with their own focused action bar.
 // Both the check-in flow and the apply-confirm flow are "focused conversion"
-// experiences that render their own sticky CTA at the bottom. Keeping
-// MobileTabBar (z-50) visible causes it to stack over the CTA (z-40) and
-// hide the primary action button entirely.
+// experiences that render their own sticky CTA at the bottom.
 const HIDE_TAB_BAR_PATTERNS: readonly RegExp[] = [
-  /^\/my\/applications\/[^/]+\/check-in$/, // 체크인/체크아웃 플로우
-  /^\/posts\/[^/]+\/apply$/, // 지원 확정 플로우 — sticky CTA가 tab bar에 가려지지 않도록 숨김
+  /^\/my\/applications\/[^/]+\/check-in$/,
+  /^\/posts\/[^/]+\/apply$/,
 ];
 
 export function MobileTabBar() {
@@ -37,8 +35,22 @@ export function MobileTabBar() {
   }
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80 pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
+    <nav
+      className={cn(
+        "fixed bottom-0 left-0 right-0 z-50",
+        "border-t border-border-soft",
+        "bg-[color-mix(in_oklch,var(--surface)_96%,transparent)]",
+        "[backdrop-filter:saturate(1.6)_blur(16px)]",
+        "pb-[env(safe-area-inset-bottom)]",
+      )}
+    >
+      <div
+        className={cn(
+          "mx-auto max-w-lg",
+          "grid grid-cols-[1fr_1fr_78px_1fr_1fr] items-center gap-1",
+          "px-3.5 pt-3 pb-7",
+        )}
+      >
         {NAV_ITEMS.map((item) => {
           const isActive =
             item.href === "/home"
@@ -50,12 +62,16 @@ export function MobileTabBar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className="flex flex-col items-center justify-center -mt-5"
+                aria-label={item.label}
+                className={cn(
+                  "mx-auto -mt-5 flex h-[58px] w-[58px] flex-col items-center justify-center gap-0.5",
+                  "rounded-[20px] bg-brand text-ink",
+                  "shadow-[0_10px_24px_-4px_color-mix(in_oklch,var(--brand)_50%,transparent),0_0_0_4px_var(--surface)]",
+                  "transition-transform hover:-translate-y-0.5 active:scale-95",
+                )}
               >
-                <div className="flex items-center justify-center w-14 h-14 rounded-full bg-brand text-primary-foreground shadow-lg shadow-brand/30 active:scale-95 transition-transform">
-                  <item.icon className="w-6 h-6" />
-                </div>
-                <span className="text-[10px] mt-0.5 font-medium text-brand">
+                <item.icon className="h-5 w-5" />
+                <span className="text-[10px] font-extrabold tracking-tight">
                   {item.label}
                 </span>
               </Link>
@@ -66,15 +82,15 @@ export function MobileTabBar() {
             <Link
               key={item.href}
               href={item.href}
+              aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex flex-col items-center justify-center w-16 h-full gap-0.5 transition-colors",
-                isActive
-                  ? "text-brand"
-                  : "text-muted-foreground hover:text-foreground"
+                "flex flex-col items-center justify-center gap-1 py-1.5",
+                "text-[10.5px] font-bold tracking-tight transition-colors",
+                isActive ? "text-ink" : "text-text-subtle hover:text-ink",
               )}
             >
-              <item.icon className="w-5 h-5" />
-              <span className="text-[10px] font-medium">{item.label}</span>
+              <item.icon className="h-5 w-5" />
+              <span>{item.label}</span>
             </Link>
           );
         })}

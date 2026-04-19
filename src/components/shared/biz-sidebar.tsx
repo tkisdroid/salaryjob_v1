@@ -67,12 +67,12 @@ export function BizSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-border bg-card md:flex">
-      <div className="flex h-16 items-center gap-3 border-b border-border px-6">
+    <aside className="sticky top-0 hidden h-screen w-64 flex-col border-r border-border-soft bg-surface md:flex">
+      <div className="flex h-16 items-center gap-3 border-b border-border-soft px-6">
         <CeleryMark className="h-9 w-9 text-brand" />
         <div className="leading-tight">
-          <p className="text-sm font-bold tracking-tight">샐러리잡</p>
-          <p className="text-[10px] text-muted-foreground">사업자 관리</p>
+          <p className="text-sm font-extrabold tracking-tight text-ink">샐러리잡</p>
+          <p className="text-[10px] font-semibold text-text-subtle">사업자 관리</p>
         </div>
       </div>
 
@@ -80,11 +80,11 @@ export function BizSidebar() {
         {NAV_SECTIONS.map((section, idx) => (
           <div key={section.label ?? `section-${idx}`} className={idx > 0 ? "mt-6" : undefined}>
             {section.label && (
-              <p className="mb-2 px-3 text-[11px] font-bold text-muted-foreground">
+              <p className="mb-2 px-3 text-[11px] font-bold uppercase tracking-wider text-text-subtle">
                 {section.label}
               </p>
             )}
-            <div className="space-y-0.5">
+            <div className="space-y-1">
               {section.items.map((item) => {
                 const isActive = isNavItemActive(item.href, pathname);
                 return (
@@ -93,10 +93,10 @@ export function BizSidebar() {
                     href={item.href}
                     aria-current={isActive ? "page" : undefined}
                     className={cn(
-                      "flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-colors",
+                      "flex items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm transition-colors",
                       isActive
-                        ? "bg-brand/10 font-bold text-brand-deep"
-                        : "font-medium text-muted-foreground hover:bg-mint-bg hover:text-foreground",
+                        ? "bg-ink font-bold text-white shadow-soft-dark"
+                        : "font-semibold text-muted-foreground hover:bg-surface-2 hover:text-ink",
                     )}
                   >
                     <item.icon className="h-5 w-5" />
@@ -109,11 +109,11 @@ export function BizSidebar() {
         ))}
       </nav>
 
-      <div className="border-t border-border p-3">
+      <div className="border-t border-border-soft p-3">
         <form action={logout}>
           <button
             type="submit"
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-mint-bg hover:text-foreground"
+            className="flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-colors hover:bg-surface-2 hover:text-ink"
           >
             <LogOut className="h-5 w-5" />
             로그아웃
@@ -128,7 +128,15 @@ export function BizMobileNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(15,23,42,0.08)] backdrop-blur md:hidden">
+    <nav
+      className={cn(
+        "fixed bottom-0 left-0 right-0 z-50 md:hidden",
+        "border-t border-border-soft",
+        "bg-[color-mix(in_oklch,var(--surface)_96%,transparent)]",
+        "[backdrop-filter:saturate(1.6)_blur(16px)]",
+        "pb-[env(safe-area-inset-bottom)]",
+      )}
+    >
       <div className="mx-auto grid h-16 w-full grid-cols-6 items-stretch px-1">
         {MOBILE_NAV_ITEMS.map((item) => {
           const isActive = isNavItemActive(item.href, pathname);
@@ -138,17 +146,14 @@ export function BizMobileNav() {
               href={item.href}
               aria-current={isActive ? "page" : undefined}
               className={cn(
-                "flex h-full min-w-0 flex-col items-center justify-center gap-0.5 rounded-md px-0.5 transition-colors",
-                isActive
-                  ? "text-brand-deep"
-                  : "text-muted-foreground hover:text-foreground",
+                "flex h-full min-w-0 flex-col items-center justify-center gap-0.5 rounded-[12px] px-0.5 transition-colors",
+                isActive ? "text-ink" : "text-text-subtle hover:text-ink",
               )}
             >
               <item.icon className="h-[18px] w-[18px] shrink-0" />
               <span
                 className={cn(
-                  "truncate text-[9px] leading-none",
-                  isActive ? "font-bold" : "font-medium",
+                  "truncate text-[9px] font-bold leading-none tracking-tight",
                 )}
               >
                 {item.mobileLabel}
