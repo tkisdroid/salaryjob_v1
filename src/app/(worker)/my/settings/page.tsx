@@ -1,7 +1,8 @@
 import Link from "next/link";
 import {
-  ArrowLeft,
+  ChevronLeft,
   CalendarDays,
+  ChevronRight,
   Clock3,
   Heart,
   LogOut,
@@ -10,7 +11,6 @@ import {
   Wallet,
 } from "lucide-react";
 import { logout } from "@/app/(auth)/login/actions";
-import { Card, CardContent } from "@/components/ui/card";
 
 const SETTINGS_LINKS = [
   {
@@ -47,73 +47,72 @@ const SETTINGS_LINKS = [
 
 export default function MySettingsPage() {
   return (
-    <div className="mx-auto max-w-lg px-4 py-6">
-      <Link
-        href="/my"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        MY로 돌아가기
-      </Link>
+    <div className="mx-auto max-w-lg px-4 pt-5 pb-6">
+      <div className="flex items-center gap-2 pb-1">
+        <Link
+          href="/my"
+          aria-label="뒤로"
+          className="-ml-1 grid h-9 w-9 place-items-center rounded-full text-ink hover:bg-surface-2"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="flex items-center gap-2 text-[22px] font-extrabold tracking-[-0.035em] text-ink">
+          <Settings className="h-[20px] w-[20px] text-brand-deep" />
+          설정
+        </h1>
+      </div>
+      <p className="mt-1 text-[12.5px] font-medium tracking-tight text-muted-foreground">
+        자주 쓰는 계정 설정과 개인 메뉴를 한곳에서 관리합니다.
+      </p>
 
-      <div className="mt-4 mb-5">
-        <div className="flex items-center gap-2">
-          <Settings className="h-5 w-5 text-brand" />
-          <h1 className="text-2xl font-bold">설정</h1>
-        </div>
-        <p className="mt-1 text-sm text-muted-foreground">
-          자주 쓰는 계정 설정과 개인 메뉴를 한곳에서 관리합니다.
-        </p>
+      <div className="mt-5 overflow-hidden rounded-[22px] border border-border-soft bg-surface">
+        {SETTINGS_LINKS.map((item, idx) => {
+          const Icon = item.icon;
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex items-center gap-4 px-4 py-3.5 transition-colors hover:bg-surface-2 ${
+                idx > 0 ? "border-t border-border-soft" : ""
+              }`}
+            >
+              <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep">
+                <Icon className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-extrabold tracking-tight text-ink">
+                  {item.label}
+                </p>
+                <p className="mt-0.5 line-clamp-1 text-[11.5px] font-medium text-muted-foreground">
+                  {item.description}
+                </p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-text-subtle" />
+            </Link>
+          );
+        })}
       </div>
 
-      <Card>
-        <CardContent className="divide-y divide-border">
-          {SETTINGS_LINKS.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="mx-[-16px] flex items-center gap-4 px-4 py-4 transition-colors hover:bg-muted/30 first:pt-2 last:pb-2"
-              >
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-brand/10">
-                  <Icon className="h-5 w-5 text-brand" />
-                </div>
-                <div className="min-w-0">
-                  <p className="text-sm font-semibold">{item.label}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {item.description}
-                  </p>
-                </div>
-              </Link>
-            );
-          })}
-        </CardContent>
-      </Card>
-
-      <Card className="mt-4">
-        <CardContent>
-          <form action={logout}>
-            <button
-              type="submit"
-              className="flex w-full items-center gap-4 py-2 text-left transition-opacity hover:opacity-70"
-            >
-              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-destructive/10">
-                <LogOut className="h-5 w-5 text-destructive" />
-              </div>
-              <div>
-                <p className="text-sm font-semibold text-destructive">
-                  로그아웃
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  현재 로그인 세션을 종료합니다.
-                </p>
-              </div>
-            </button>
-          </form>
-        </CardContent>
-      </Card>
+      <div className="mt-4 rounded-[22px] border border-border-soft bg-surface">
+        <form action={logout}>
+          <button
+            type="submit"
+            className="flex w-full items-center gap-4 px-4 py-3.5 text-left transition-colors hover:bg-surface-2"
+          >
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] bg-destructive/10 text-destructive">
+              <LogOut className="h-5 w-5" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[14px] font-extrabold tracking-tight text-destructive">
+                로그아웃
+              </p>
+              <p className="mt-0.5 text-[11.5px] font-medium text-muted-foreground">
+                현재 로그인 세션을 종료합니다.
+              </p>
+            </div>
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

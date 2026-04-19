@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { BackButton } from "@/components/shared/back-button";
 import {
+  ChevronLeft,
   Bell,
   CheckCircle2,
   Sparkles,
@@ -11,11 +10,6 @@ import {
   MessageCircle,
   Info,
 } from "lucide-react";
-import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 // ---------------------------------------------------------------------------
@@ -160,111 +154,112 @@ export default function NotificationsPage() {
   );
 
   return (
-    <div className="max-w-lg mx-auto px-4 py-6 space-y-6">
-      <header>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <BackButton
-              fallbackHref="/home"
-              ariaLabel="뒤로"
-              className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </BackButton>
-            <h1 className="text-xl font-bold tracking-tight flex items-center gap-2">
-              <Bell className="w-5 h-5 text-brand" />
-              알림
-            </h1>
-          </div>
-          {unreadCount > 0 && (
-            <Badge variant="default" className="bg-brand">
-              {unreadCount}개 새 알림
-            </Badge>
-          )}
+    <div className="mx-auto max-w-lg px-4 pt-5 pb-6">
+      <header className="flex items-center justify-between pb-1">
+        <div className="flex items-center gap-2">
+          <Link
+            href="/home"
+            aria-label="뒤로"
+            className="-ml-1 grid h-9 w-9 place-items-center rounded-full text-ink hover:bg-surface-2"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Link>
+          <h1 className="flex items-center gap-2 text-[22px] font-extrabold tracking-[-0.035em] text-ink">
+            <Bell className="h-[20px] w-[20px] text-brand-deep" />
+            알림
+          </h1>
         </div>
+        {unreadCount > 0 && (
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-[11px] py-1.5 text-[11.5px] font-bold tracking-tight text-white">
+            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
+            {unreadCount}개 새 알림
+          </span>
+        )}
       </header>
 
       {NOTIFICATION_GROUPS.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-16 text-center">
-          <Bell className="w-12 h-12 text-muted-foreground/40 mb-4" />
-          <p className="text-muted-foreground font-medium">
+        <div className="mt-4 flex flex-col items-center justify-center rounded-[22px] border border-border bg-surface py-16 text-center">
+          <Bell className="mb-4 h-12 w-12 text-text-subtle" />
+          <p className="text-[15px] font-extrabold tracking-tight text-ink">
             아직 알림이 없어요
           </p>
-          <p className="text-sm text-muted-foreground/70 mt-1">
+          <p className="mt-1 text-[12.5px] font-semibold text-muted-foreground">
             공고 지원, AI 추천 등 새 소식이 여기에 표시됩니다
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="mt-4 space-y-6">
           {NOTIFICATION_GROUPS.map((group) => (
             <section key={group.date}>
-              <h2 className="mb-3 text-xs font-bold text-muted-foreground">
+              <h2 className="mb-2.5 px-0.5 text-[11.5px] font-extrabold uppercase tracking-wider text-muted-foreground">
                 {group.date}
               </h2>
               <div className="space-y-2">
                 {group.notifications.map((notification) => {
                   const iconConfig = NOTIFICATION_ICON_MAP[notification.type];
                   const IconComponent = iconConfig.icon;
+                  const isUnread = !notification.read;
 
                   const content = (
-                    <Card
-                      size="sm"
+                    <article
                       className={cn(
-                        "transition-shadow",
-                        !notification.read &&
-                          "ring-1 ring-brand/20 bg-brand/[0.02]",
-                        notification.link && "hover:ring-brand/30 cursor-pointer"
+                        "grid grid-cols-[36px_1fr_auto] items-start gap-3 rounded-[18px] p-[14px] transition-all",
+                        isUnread
+                          ? "bg-[color-mix(in_oklch,var(--brand)_8%,var(--surface))] border border-[color-mix(in_oklch,var(--brand)_24%,var(--border))]"
+                          : "bg-surface border border-border-soft",
+                        notification.link &&
+                          "hover:-translate-y-0.5 hover:shadow-soft-sm cursor-pointer",
                       )}
                     >
-                      <CardContent className="flex gap-3">
-                        <div
-                          className={cn(
-                            "flex items-center justify-center w-9 h-9 rounded-full bg-muted shrink-0 mt-0.5",
-                            iconConfig.className
-                          )}
-                        >
-                          <IconComponent className="w-4 h-4" />
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <h3
-                              className={cn(
-                                "text-sm truncate",
-                                !notification.read
-                                  ? "font-semibold"
-                                  : "font-medium"
-                              )}
-                            >
-                              {notification.title}
-                            </h3>
-                            <span className="text-xs text-muted-foreground shrink-0 pt-0.5">
-                              {notification.time}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
-                            {notification.body}
-                          </p>
-                        </div>
-
-                        {!notification.read && (
-                          <div className="w-2 h-2 rounded-full bg-brand shrink-0 mt-2" />
+                      <div
+                        className={cn(
+                          "grid h-9 w-9 place-items-center rounded-[12px] border border-border-soft bg-surface",
+                          iconConfig.className,
                         )}
-                      </CardContent>
-                    </Card>
+                      >
+                        <IconComponent className="h-[18px] w-[18px]" />
+                      </div>
+
+                      <div className="min-w-0">
+                        <div className="flex items-start justify-between gap-2">
+                          <h3
+                            className={cn(
+                              "truncate text-[13.5px] tracking-[-0.02em] text-ink",
+                              isUnread ? "font-extrabold" : "font-bold",
+                            )}
+                          >
+                            {notification.title}
+                          </h3>
+                        </div>
+                        <p className="mt-1 line-clamp-2 text-[12px] font-medium leading-snug text-muted-foreground">
+                          {notification.body}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col items-end gap-1.5 pl-1">
+                        <span className="tabnum whitespace-nowrap text-[10.5px] font-semibold text-text-subtle">
+                          {notification.time}
+                        </span>
+                        {isUnread && (
+                          <span className="h-[7px] w-[7px] rounded-full bg-brand" />
+                        )}
+                      </div>
+                    </article>
                   );
 
                   if (notification.link) {
                     return (
-                      <Link key={notification.id} href={notification.link}>
+                      <Link
+                        key={notification.id}
+                        href={notification.link}
+                        className="block"
+                      >
                         {content}
                       </Link>
                     );
                   }
 
-                  return (
-                    <div key={notification.id}>{content}</div>
-                  );
+                  return <div key={notification.id}>{content}</div>;
                 })}
               </div>
             </section>
