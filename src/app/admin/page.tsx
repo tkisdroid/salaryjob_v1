@@ -1,6 +1,5 @@
 import { requireAdmin } from "@/lib/dal";
 import { prisma } from "@/lib/db";
-import { Card } from "@/components/ui/card";
 
 /**
  * Admin dashboard — overview stats for business profiles.
@@ -55,37 +54,49 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">대시보드</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <h1 className="text-[26px] font-extrabold tracking-[-0.035em] text-ink">
+          대시보드
+        </h1>
+        <p className="mt-1 text-[13px] font-medium tracking-tight text-muted-foreground">
           사업장 현황 요약
         </p>
       </div>
 
       {/* Stats grid */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {stats.map((stat) => (
-          <Card
+          <div
             key={stat.label}
-            className={`p-5 ${
+            className={`rounded-[22px] border p-5 transition-colors ${
               stat.highlight
-                ? "border-amber-300 bg-amber-50 dark:border-amber-700 dark:bg-amber-950"
-                : ""
+                ? "border-transparent bg-lime-chip"
+                : "border-border-soft bg-surface"
             }`}
           >
-            <p className="text-sm font-medium text-muted-foreground">
+            <p
+              className={`text-[12px] font-bold tracking-tight ${
+                stat.highlight ? "text-lime-chip-fg" : "text-muted-foreground"
+              }`}
+            >
               {stat.label}
             </p>
             <p
-              className={`mt-1 text-3xl font-bold tabular-nums ${
-                stat.highlight ? "text-amber-600 dark:text-amber-400" : ""
+              className={`tabnum mt-2 text-[28px] font-extrabold tracking-[-0.035em] ${
+                stat.highlight ? "text-lime-chip-fg" : "text-ink"
               }`}
             >
               {stat.value.toLocaleString("ko-KR")}
             </p>
-            <p className="mt-1 text-xs text-muted-foreground">
+            <p
+              className={`mt-1 text-[11.5px] font-medium ${
+                stat.highlight
+                  ? "text-[color-mix(in_oklch,var(--lime-chip-fg)_70%,transparent)]"
+                  : "text-muted-foreground"
+              }`}
+            >
               {stat.description}
             </p>
-          </Card>
+          </div>
         ))}
       </div>
 
@@ -93,14 +104,14 @@ export default async function AdminDashboardPage() {
       <div className="flex flex-wrap gap-3 pt-2">
         <a
           href="/admin/businesses"
-          className="inline-flex min-h-[44px] items-center rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          className="inline-flex h-11 items-center rounded-full bg-ink px-5 text-[13px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
         >
           사업장 목록 보기
         </a>
         {pendingReviewCount > 0 && (
           <a
             href="/admin/businesses?verified=no"
-            className="inline-flex min-h-[44px] items-center rounded-md border border-amber-300 bg-amber-50 px-5 text-sm font-medium text-amber-700 hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-400"
+            className="inline-flex h-11 items-center rounded-full bg-lime-chip px-5 text-[13px] font-extrabold text-lime-chip-fg transition-all hover:shadow-soft-sm"
           >
             검토 대기 {pendingReviewCount}건 보기
           </a>

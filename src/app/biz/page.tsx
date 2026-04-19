@@ -35,17 +35,19 @@ export default async function BizDashboardPage() {
   if (!primaryProfile) {
     return (
       <div className="mx-auto max-w-5xl px-6 py-8">
-        <div className="rounded-3xl border border-dashed border-border bg-card p-8 text-center">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-brand/10 text-3xl">
-            <Building2 className="h-7 w-7 text-brand" />
+        <div className="rounded-[28px] border-2 border-dashed border-border bg-surface p-10 text-center">
+          <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-[18px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))]">
+            <Building2 className="h-7 w-7 text-brand-deep" />
           </div>
-          <h1 className="text-2xl font-extrabold tracking-tight">사업자 프로필이 없습니다</h1>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <h1 className="text-[22px] font-extrabold tracking-[-0.035em] text-ink">
+            사업자 프로필이 없습니다
+          </h1>
+          <p className="mt-2 text-[13px] font-medium text-muted-foreground">
             대시보드를 사용하려면 먼저 사업장 정보를 등록해야 합니다.
           </p>
           <Link
             href="/biz/profile"
-            className="mt-5 inline-flex h-12 items-center justify-center rounded-2xl bg-brand px-5 text-sm font-bold text-white shadow-sm transition-colors hover:bg-brand/90"
+            className="mt-5 inline-flex h-11 items-center justify-center rounded-full bg-ink px-5 text-[13px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
           >
             사업자 프로필 등록
           </Link>
@@ -70,27 +72,29 @@ export default async function BizDashboardPage() {
     <div className="mx-auto max-w-5xl px-6 py-8">
       <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand/10 text-2xl shrink-0">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-border-soft bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-2xl">
             {primaryProfile.logo}
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-lg font-extrabold tracking-tight truncate md:text-2xl">{primaryProfile.name}</h1>
+              <h1 className="truncate text-[20px] font-extrabold tracking-[-0.035em] text-ink md:text-[24px]">
+                {primaryProfile.name}
+              </h1>
               {primaryProfile.verified && (
-                <span className="inline-flex items-center gap-0.5 rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-brand">
-                  <ShieldCheck className="h-3 w-3" />
+                <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-ink px-[9px] py-[3px] text-[10px] font-extrabold tracking-tight text-white">
+                  <ShieldCheck className="h-3 w-3 text-brand" />
                   인증 완료
                 </span>
               )}
             </div>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="mt-1 text-[12px] font-semibold text-muted-foreground">
               {primaryProfile.address}
             </p>
           </div>
         </div>
         <Link
           href="/biz/posts/new"
-          className="inline-flex h-12 items-center justify-center gap-2 rounded-2xl bg-brand px-5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-brand-dark"
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-ink px-5 text-[13px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
         >
           <Plus className="h-4 w-4" />
           공고 등록
@@ -98,140 +102,144 @@ export default async function BizDashboardPage() {
       </header>
 
       <section className="mt-8 grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <div className="rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md">
-          <p className="text-xs text-muted-foreground font-semibold">전체 공고</p>
-          <p className="mt-1 text-2xl font-extrabold tracking-tight">{jobs.length}</p>
-          <p className="text-xs text-muted-foreground mt-1">
+        <div className="rounded-[22px] border border-border-soft bg-surface p-4 transition-colors hover:border-ink">
+          <p className="text-[11.5px] font-bold tracking-tight text-muted-foreground">
+            전체 공고
+          </p>
+          <p className="tabnum mt-1 text-[24px] font-extrabold tracking-[-0.03em] text-ink">
+            {jobs.length}
+          </p>
+          <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
             모집 중 {openJobs.length}건
           </p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md">
-          <p className="text-xs text-muted-foreground font-semibold">긴급 공고</p>
-          <p className="mt-1 text-2xl font-extrabold tracking-tight text-brand">
+        <div className="rounded-[22px] border border-border bg-[color-mix(in_oklch,var(--brand)_6%,var(--surface))] p-4 transition-colors hover:border-ink">
+          <p className="text-[11.5px] font-bold tracking-tight text-muted-foreground">
+            긴급 공고
+          </p>
+          <p className="tabnum mt-1 text-[24px] font-extrabold tracking-[-0.03em] text-brand-deep">
             {urgentJobs.length}
           </p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
             즉시 확인이 필요한 공고
           </p>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md">
-          <p className="text-xs text-muted-foreground font-semibold">충원율</p>
-          <p className="mt-1 text-2xl font-extrabold tracking-tight">{fillRate}%</p>
-          <p className="text-xs text-muted-foreground mt-1">
+        <div className="rounded-[22px] border border-border-soft bg-surface p-4 transition-colors hover:border-ink">
+          <p className="text-[11.5px] font-bold tracking-tight text-muted-foreground">
+            충원율
+          </p>
+          <p className="tabnum mt-1 text-[24px] font-extrabold tracking-[-0.03em] text-ink">
+            {fillRate}%
+          </p>
+          <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
             {totalFilled}/{totalHeadcount}명 매칭
           </p>
         </div>
-        <div className="col-span-2 xl:col-span-1 rounded-2xl border border-border bg-card p-4 transition-shadow hover:shadow-md">
-          <p className="text-xs text-muted-foreground font-semibold">예상 총 지급</p>
-          <p className="mt-1 text-2xl font-extrabold tracking-tight">{formatMoney(forecastBudget)}</p>
-          <p className="text-xs text-muted-foreground mt-1">
+        <div className="col-span-2 rounded-[22px] border border-border-soft bg-surface p-4 transition-colors hover:border-ink xl:col-span-1">
+          <p className="text-[11.5px] font-bold tracking-tight text-muted-foreground">
+            예상 총 지급
+          </p>
+          <p className="tabnum mt-1 text-[24px] font-extrabold tracking-[-0.03em] text-ink">
+            {formatMoney(forecastBudget)}
+          </p>
+          <p className="mt-1 text-[11px] font-semibold text-muted-foreground">
             등록된 공고 기준 합계
           </p>
         </div>
       </section>
 
-      <section className="mt-8 grid gap-6 lg:grid-cols-[1.2fr_1.8fr]">
-        <div className="rounded-2xl border border-border bg-card">
+      <section className="mt-8 grid gap-5 lg:grid-cols-[1.2fr_1.8fr]">
+        <div className="rounded-[22px] border border-border-soft bg-surface">
           <div className="flex items-center justify-between px-5 pt-5 pb-2">
-            <h2 className="text-sm font-bold">빠른 작업</h2>
-            <Settings className="h-4 w-4 text-muted-foreground" />
+            <h2 className="text-[14px] font-extrabold tracking-[-0.02em] text-ink">
+              빠른 작업
+            </h2>
+            <Settings className="h-4 w-4 text-text-subtle" />
           </div>
-          <div className="divide-y divide-border">
-            <Link
-              href="/biz/posts"
-              className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-accent/50 active:bg-accent group"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand shrink-0 transition-transform group-hover:scale-105">
-                <FileText className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold">공고 관리</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  등록한 공고와 지원자를 확인합니다.
-                </p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-            </Link>
-            <Link
-              href="/biz/workers"
-              className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-accent/50 active:bg-accent group"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand shrink-0 transition-transform group-hover:scale-105">
-                <Users className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold">인재 탐색</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  지원자와 추천 인재 프로필을 확인합니다.
-                </p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-            </Link>
-            <Link
-              href="/biz/settlements"
-              className="flex items-center gap-3 px-5 py-4 transition-colors hover:bg-accent/50 active:bg-accent group"
-            >
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/10 text-brand shrink-0 transition-transform group-hover:scale-105">
-                <Wallet className="h-5 w-5" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-semibold">정산 확인</p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  지급 현황과 정산 내역을 확인합니다.
-                </p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-            </Link>
+          <div>
+            {[
+              { href: "/biz/posts", label: "공고 관리", desc: "등록한 공고와 지원자를 확인합니다.", Icon: FileText },
+              { href: "/biz/workers", label: "인재 탐색", desc: "지원자와 추천 인재 프로필을 확인합니다.", Icon: Users },
+              { href: "/biz/settlements", label: "정산 확인", desc: "지급 현황과 정산 내역을 확인합니다.", Icon: Wallet },
+            ].map((item, idx) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex items-center gap-3 px-5 py-4 transition-colors hover:bg-surface-2 ${
+                  idx > 0 ? "border-t border-border-soft" : ""
+                }`}
+              >
+                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep">
+                  <item.Icon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13.5px] font-extrabold tracking-tight text-ink">
+                    {item.label}
+                  </p>
+                  <p className="mt-0.5 text-[11.5px] font-medium text-muted-foreground">
+                    {item.desc}
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-text-subtle" />
+              </Link>
+            ))}
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card">
+        <div className="rounded-[22px] border border-border-soft bg-surface">
           <div className="flex items-center justify-between px-5 pt-5 pb-2">
             <div>
-              <h2 className="text-sm font-bold">최근 공고</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
+              <h2 className="text-[14px] font-extrabold tracking-[-0.02em] text-ink">
+                최근 공고
+              </h2>
+              <p className="mt-0.5 text-[11.5px] font-medium text-muted-foreground">
                 대시보드에서 바로 상세와 지원자를 확인할 수 있습니다.
               </p>
             </div>
             <Link
               href="/biz/posts"
-              className="text-[11px] font-semibold text-brand hover:underline shrink-0"
+              className="shrink-0 text-[11.5px] font-bold text-brand-deep hover:underline"
             >
               전체 보기
             </Link>
           </div>
 
           {recentJobs.length === 0 ? (
-            <div className="mx-5 my-4 rounded-2xl border border-dashed border-border p-8 text-center">
-              <p className="font-bold">등록된 공고가 없습니다.</p>
-              <p className="mt-1 text-sm text-muted-foreground">
+            <div className="mx-5 my-4 rounded-[18px] border-2 border-dashed border-border bg-surface p-8 text-center">
+              <p className="text-[14px] font-extrabold text-ink">
+                등록된 공고가 없습니다.
+              </p>
+              <p className="mt-1 text-[12.5px] font-medium text-muted-foreground">
                 첫 공고를 등록하면 여기에서 바로 확인할 수 있습니다.
               </p>
               <Link
                 href="/biz/posts/new"
-                className="mt-4 inline-flex h-11 items-center justify-center rounded-xl bg-brand px-5 text-sm font-bold text-white transition-colors hover:bg-brand-dark"
+                className="mt-4 inline-flex h-11 items-center justify-center rounded-full bg-ink px-5 text-[13px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
               >
                 공고 작성하기
               </Link>
             </div>
           ) : (
-            <div className="divide-y divide-border">
-              {recentJobs.map((job) => {
+            <div>
+              {recentJobs.map((job, idx) => {
                 const isFilled = job.filled >= job.headcount;
                 return (
-                  <div key={job.id} className="px-5 py-4">
-                    <div className="flex items-center gap-2 mb-1.5">
+                  <div
+                    key={job.id}
+                    className={`px-5 py-4 ${idx > 0 ? "border-t border-border-soft" : ""}`}
+                  >
+                    <div className="mb-1.5 flex items-center gap-2">
                       <span
-                        className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                        className={`rounded-[6px] px-2 py-1 text-[10px] font-extrabold tracking-tight ${
                           isFilled
-                            ? "bg-muted text-muted-foreground"
-                            : "bg-brand/10 text-brand"
+                            ? "bg-surface-2 text-muted-foreground"
+                            : "bg-brand text-ink"
                         }`}
                       >
                         {isFilled ? "충원 완료" : "모집 중"}
                       </span>
                       {job.isUrgent && (
-                        <span className="inline-flex items-center gap-0.5 rounded-full bg-[color:var(--urgent)]/10 px-2 py-0.5 text-[10px] font-semibold text-[color:var(--urgent)]">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-lime-chip px-[9px] py-[3px] text-[10px] font-extrabold tracking-tight text-lime-chip-fg">
                           <Flame className="h-3 w-3" />
                           긴급
                         </span>
@@ -239,26 +247,26 @@ export default async function BizDashboardPage() {
                     </div>
                     <Link
                       href={`/biz/posts/${job.id}`}
-                      className="block text-sm font-bold hover:text-brand"
+                      className="block text-[14.5px] font-extrabold tracking-[-0.02em] text-ink hover:text-brand-deep"
                     >
                       {job.title}
                     </Link>
-                    <p className="text-xs text-muted-foreground mt-1">
+                    <p className="mt-1 text-[11.5px] font-medium text-muted-foreground">
                       {formatWorkSummary(job)}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="tabnum text-[11.5px] font-semibold text-muted-foreground">
                       {job.filled}/{job.headcount}명 · 지원 {job.appliedCount}건
                     </p>
-                    <div className="flex gap-2 mt-3">
+                    <div className="mt-3 flex gap-2">
                       <Link
                         href={`/biz/posts/${job.id}`}
-                        className="inline-flex h-8 items-center justify-center rounded-xl border border-border px-3 text-xs font-medium transition-colors hover:bg-muted"
+                        className="inline-flex h-9 items-center justify-center rounded-full border border-border bg-surface px-3.5 text-[12px] font-bold text-ink transition-colors hover:border-ink hover:bg-surface-2"
                       >
                         공고 상세
                       </Link>
                       <Link
                         href={`/biz/posts/${job.id}/applicants`}
-                        className="inline-flex h-8 items-center justify-center rounded-xl bg-foreground px-3 text-xs font-medium text-background transition-colors hover:bg-foreground/90"
+                        className="inline-flex h-9 items-center justify-center rounded-full bg-ink px-3.5 text-[12px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
                       >
                         지원자 보기
                       </Link>
