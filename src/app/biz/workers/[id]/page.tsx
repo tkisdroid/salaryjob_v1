@@ -1,6 +1,6 @@
 import Link from "next/link"
 import {
-  ArrowLeft,
+  ChevronLeft,
   Star,
   Heart,
   Send,
@@ -11,16 +11,6 @@ import {
   Award,
   ThumbsUp,
 } from "lucide-react"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Separator } from "@/components/ui/separator"
 
 /* ── Mock Data ── */
 
@@ -90,13 +80,13 @@ const WORKER = {
 function badgeLevelColor(level: string) {
   switch (level) {
     case "골드":
-      return "bg-brand text-white border-brand-dark"
+      return "bg-brand text-ink"
     case "실버":
-      return "bg-muted text-foreground border-border"
+      return "bg-surface-2 text-ink"
     case "브론즈":
-      return "bg-brand-light text-brand-deep border-brand/30"
+      return "bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep"
     default:
-      return "bg-muted text-muted-foreground"
+      return "bg-surface-2 text-muted-foreground"
   }
 }
 
@@ -106,12 +96,18 @@ function renderStars(rating: number) {
   const stars = []
   for (let i = 0; i < full; i++) {
     stars.push(
-      <Star key={`f-${i}`} className="w-3.5 h-3.5 fill-brand text-brand" />
+      <Star
+        key={`f-${i}`}
+        className="h-3.5 w-3.5 fill-[#fbbf24] text-[#fbbf24]"
+      />
     )
   }
   if (hasHalf) {
     stars.push(
-      <Star key="h" className="w-3.5 h-3.5 fill-brand/50 text-brand" />
+      <Star
+        key="h"
+        className="h-3.5 w-3.5 fill-[#fbbf24]/50 text-[#fbbf24]"
+      />
     )
   }
   return stars
@@ -121,184 +117,197 @@ function renderStars(rating: number) {
 
 export default async function BizWorkerDetailPage() {
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
+    <div className="mx-auto max-w-5xl px-6 py-8">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href="/biz/workers">
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-        </Button>
-        <h1 className="text-2xl font-bold text-foreground">인재 상세</h1>
+      <div className="mb-6 flex items-center gap-3">
+        <Link
+          href="/biz/workers"
+          aria-label="뒤로"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border bg-surface text-ink transition-colors hover:border-ink hover:bg-surface-2"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="text-[24px] font-extrabold tracking-[-0.035em] text-ink">
+          인재 상세
+        </h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
         {/* Left Column: Profile */}
-        <div className="md:col-span-1 space-y-4">
+        <div className="space-y-4 md:col-span-1">
           {/* Profile Card */}
-          <Card>
-            <CardContent className="flex flex-col items-center text-center pt-2">
-              <Avatar className="w-20 h-20 text-2xl mb-3">
-                <AvatarFallback className="text-2xl">
-                  {WORKER.name[0]}
-                </AvatarFallback>
-              </Avatar>
-              <h2 className="text-lg font-bold">{WORKER.name}</h2>
-              <div className="flex items-center gap-1.5 mt-1">
-                <div className="flex">{renderStars(WORKER.rating)}</div>
-                <span className="text-sm font-medium">{WORKER.rating}</span>
-                <span className="text-xs text-muted-foreground">
-                  ({WORKER.reviewCount})
-                </span>
-              </div>
-              <span
-                className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium border mt-2 ${badgeLevelColor(WORKER.badgeLevel)}`}
-              >
-                <Award className="w-3 h-3" />
-                {WORKER.badgeLevel}
+          <div className="rounded-[22px] border border-border-soft bg-surface p-6 text-center">
+            <div className="mx-auto grid h-20 w-20 place-items-center rounded-[22px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-[28px] font-extrabold text-brand-deep">
+              {WORKER.name[0]}
+            </div>
+            <h2 className="mt-3 text-[18px] font-extrabold tracking-[-0.02em] text-ink">
+              {WORKER.name}
+            </h2>
+            <div className="mt-1 flex items-center justify-center gap-1.5">
+              <div className="flex">{renderStars(WORKER.rating)}</div>
+              <span className="tabnum text-[13px] font-bold text-ink">
+                {WORKER.rating}
               </span>
-              <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
-                {WORKER.bio}
-              </p>
+              <span className="tabnum text-[11.5px] font-semibold text-text-subtle">
+                ({WORKER.reviewCount})
+              </span>
+            </div>
+            <span
+              className={`mt-2 inline-flex items-center gap-1 rounded-full px-3 py-1 text-[11px] font-extrabold tracking-tight ${badgeLevelColor(
+                WORKER.badgeLevel,
+              )}`}
+            >
+              <Award className="h-3 w-3" />
+              {WORKER.badgeLevel}
+            </span>
+            <p className="mt-3 text-[12.5px] font-medium leading-relaxed text-muted-foreground">
+              {WORKER.bio}
+            </p>
 
-              <Separator className="my-4" />
+            <div className="my-4 border-t border-dashed border-border" />
 
-              <div className="w-full space-y-2 text-sm">
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <MapPin className="w-4 h-4" />
-                  {WORKER.location}
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Calendar className="w-4 h-4" />
-                  가입 {WORKER.joinDate}
-                </div>
-                <div className="flex items-center gap-2 text-muted-foreground">
-                  <Briefcase className="w-4 h-4" />
-                  {WORKER.completedJobs}회 근무 완료
-                </div>
+            <div className="space-y-2 text-left text-[12.5px] font-medium text-muted-foreground">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                {WORKER.location}
               </div>
-
-              <div className="flex gap-2 w-full mt-4">
-                <Button
-                  className="flex-1 bg-teal text-white hover:bg-teal/90"
-                >
-                  <Send className="w-4 h-4" />
-                  제안 보내기
-                </Button>
-                <Button variant="outline" size="icon">
-                  <Heart className="w-4 h-4" />
-                </Button>
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                가입 <span className="tabnum font-bold text-ink">{WORKER.joinDate}</span>
               </div>
-            </CardContent>
-          </Card>
+              <div className="flex items-center gap-2">
+                <Briefcase className="h-4 w-4" />
+                <span className="tabnum font-bold text-ink">{WORKER.completedJobs}회</span>{" "}
+                근무 완료
+              </div>
+            </div>
+
+            <div className="mt-4 flex gap-2">
+              <button
+                type="button"
+                className="inline-flex h-11 flex-1 items-center justify-center gap-1.5 rounded-full bg-ink text-[13px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
+              >
+                <Send className="h-4 w-4" />
+                제안 보내기
+              </button>
+              <button
+                type="button"
+                aria-label="단골 등록"
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border bg-surface text-ink transition-colors hover:border-ink hover:bg-surface-2"
+              >
+                <Heart className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
 
           {/* Skills */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">보유 스킬</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-1.5">
-                {WORKER.skills.map((skill) => (
-                  <Badge key={skill} variant="secondary">
-                    {skill}
-                  </Badge>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="rounded-[22px] border border-border-soft bg-surface p-5">
+            <h3 className="text-[13px] font-extrabold tracking-tight text-ink">
+              보유 스킬
+            </h3>
+            <div className="mt-3 flex flex-wrap gap-1.5">
+              {WORKER.skills.map((skill) => (
+                <span
+                  key={skill}
+                  className="inline-flex items-center rounded-full bg-[color-mix(in_oklch,var(--brand)_14%,var(--surface))] px-2.5 py-1 text-[11px] font-bold text-brand-deep"
+                >
+                  {skill}
+                </span>
+              ))}
+            </div>
+          </div>
 
           {/* Experience Badges */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm">경험 배지</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {WORKER.experiences.map((exp) => (
-                  <span
-                    key={exp.category}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-teal/10 text-sm font-medium text-teal"
-                  >
-                    <Briefcase className="w-3.5 h-3.5" />
-                    {exp.category} {exp.count}회
-                  </span>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="rounded-[22px] border border-border-soft bg-surface p-5">
+            <h3 className="text-[13px] font-extrabold tracking-tight text-ink">
+              경험 배지
+            </h3>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {WORKER.experiences.map((exp) => (
+                <span
+                  key={exp.category}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-[12px] font-extrabold tracking-tight text-white"
+                >
+                  <Briefcase className="h-3.5 w-3.5 text-brand" />
+                  {exp.category}{" "}
+                  <span className="tabnum text-brand">{exp.count}회</span>
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
 
         {/* Right Column: Details */}
-        <div className="md:col-span-2 space-y-4">
+        <div className="space-y-4 md:col-span-2">
           {/* Availability Calendar */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm flex items-center gap-2">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                가용 시간표
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-7 gap-2">
-                {WORKER.availability.map((day) => (
-                  <div key={day.day} className="text-center">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">
-                      {day.day}
-                    </p>
-                    <div className="space-y-1">
-                      {(["오전", "오후", "저녁"] as const).map((slot) => (
+          <div className="rounded-[22px] border border-border-soft bg-surface p-5">
+            <h3 className="flex items-center gap-2 text-[13px] font-extrabold tracking-tight text-ink">
+              <Clock className="h-4 w-4 text-brand-deep" />
+              가용 시간표
+            </h3>
+            <div className="mt-4 grid grid-cols-7 gap-2">
+              {WORKER.availability.map((day) => (
+                <div key={day.day} className="text-center">
+                  <p className="mb-2 text-[11px] font-extrabold tracking-tight text-muted-foreground">
+                    {day.day}
+                  </p>
+                  <div className="space-y-1">
+                    {(["오전", "오후", "저녁"] as const).map((slot) => {
+                      const on = (day.slots as readonly string[]).includes(slot);
+                      return (
                         <div
                           key={slot}
-                          className={`px-1 py-1.5 rounded text-xs ${
-                            (day.slots as readonly string[]).includes(slot)
-                              ? "bg-teal/15 text-teal font-medium"
-                              : "bg-muted/50 text-muted-foreground/50"
+                          className={`rounded-[8px] px-1 py-1.5 text-[10.5px] font-bold tracking-tight ${
+                            on
+                              ? "bg-brand text-ink"
+                              : "bg-surface-2 text-text-subtle"
                           }`}
                         >
                           {slot}
                         </div>
-                      ))}
-                    </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Reviews */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-sm flex items-center gap-2">
-                <ThumbsUp className="w-4 h-4 text-muted-foreground" />
-                고용주 리뷰 ({WORKER.reviews.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
+          <div className="rounded-[22px] border border-border-soft bg-surface p-5">
+            <h3 className="flex items-center gap-2 text-[13px] font-extrabold tracking-tight text-ink">
+              <ThumbsUp className="h-4 w-4 text-brand-deep" />
+              고용주 리뷰{" "}
+              <span className="tabnum text-text-subtle">
+                ({WORKER.reviews.length})
+              </span>
+            </h3>
+            <div className="mt-4 divide-y divide-dashed divide-border">
               {WORKER.reviews.map((review) => (
-                <div key={review.id}>
-                  <div className="flex items-center justify-between mb-1.5">
+                <div key={review.id} className="py-4 first:pt-0 last:pb-0">
+                  <div className="mb-2 flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium">{review.employer}</p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-[13.5px] font-extrabold tracking-tight text-ink">
+                        {review.employer}
+                      </p>
+                      <p className="tabnum mt-0.5 text-[11px] font-semibold text-text-subtle">
                         {review.date}
                       </p>
                     </div>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3.5 h-3.5 fill-brand text-brand" />
-                      <span className="text-sm font-medium">
+                    <div className="inline-flex items-center gap-1 rounded-full bg-surface-2 px-2 py-1">
+                      <Star className="h-3.5 w-3.5 fill-[#fbbf24] text-[#fbbf24]" />
+                      <span className="tabnum text-[12.5px] font-extrabold text-ink">
                         {review.rating}
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
+                  <p className="text-[13px] font-medium leading-relaxed text-muted-foreground">
                     {review.comment}
                   </p>
-                  <Separator className="mt-4" />
                 </div>
               ))}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>
