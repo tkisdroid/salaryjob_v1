@@ -82,7 +82,7 @@ export function WorkerProfileEditForm(props: Props) {
         </h2>
         <form action={avatarAction} className="flex items-center gap-4">
           <div className="relative">
-            <div className="grid h-16 w-16 place-items-center overflow-hidden rounded-[18px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))]">
+            <div className="grid h-16 w-16 place-items-center overflow-hidden rounded-[20px] bg-[color-mix(in_oklch,var(--brand)_22%,var(--surface))]">
               {displayAvatar ? (
                 displayAvatar.startsWith("http") ||
                 displayAvatar.startsWith("blob:") ? (
@@ -154,7 +154,7 @@ export function WorkerProfileEditForm(props: Props) {
             htmlFor="name"
             className="text-[12.5px] font-bold tracking-tight text-ink"
           >
-            이름 <span className="text-destructive">*</span>
+            이름 <span className="text-brand-deep">*</span>
           </label>
           <input
             id="name"
@@ -288,29 +288,37 @@ export function WorkerProfileEditForm(props: Props) {
           <p className="mb-3 text-[11px] font-extrabold uppercase tracking-wider text-text-subtle">
             시스템 기록
           </p>
-          <div className="divide-y divide-border-soft rounded-[18px] border border-border-soft bg-surface">
-            {[
-              { k: "뱃지", v: props.badgeLevel },
-              {
-                k: "평점",
-                v: (
-                  <span className="inline-flex items-center gap-1">
-                    <span className="tabnum">{props.rating.toFixed(2)}</span>
-                    <Star className="h-3.5 w-3.5 fill-[#fbbf24] text-[#fbbf24]" />
-                  </span>
-                ),
-              },
-              { k: "근무 횟수", v: props.totalJobs },
-              { k: "완료율", v: `${props.completionRate}%` },
-            ].map((row) => (
+          <div className="rounded-[16px] border border-border-soft bg-surface px-4">
+            {(
+              [
+                { k: "뱃지", v: props.badgeLevel },
+                {
+                  k: "평점",
+                  v: (
+                    <span className="inline-flex items-center gap-1">
+                      <span className="tabnum">
+                        {props.rating.toFixed(2)}
+                      </span>
+                      <Star className="h-3.5 w-3.5 fill-[#fbbf24] text-[#fbbf24]" />
+                    </span>
+                  ),
+                },
+                { k: "근무 횟수", v: props.totalJobs },
+                { k: "완료율", v: `${props.completionRate}%` },
+              ] as const
+            ).map((row, i, arr) => (
               <div
                 key={row.k}
-                className="flex items-center justify-between px-4 py-3"
+                className={`flex items-center justify-between py-3 ${
+                  i < arr.length - 1
+                    ? "border-b border-dashed border-border-soft"
+                    : ""
+                }`}
               >
-                <span className="text-[12.5px] font-medium text-muted-foreground">
+                <span className="text-[13px] font-semibold text-muted-foreground">
                   {row.k}
                 </span>
-                <span className="tabnum text-[13.5px] font-extrabold tracking-tight text-ink">
+                <span className="tabnum text-[13px] font-extrabold tracking-[-0.02em] text-ink">
                   {row.v}
                 </span>
               </div>
@@ -338,10 +346,12 @@ export function WorkerProfileEditForm(props: Props) {
         {/* Sticky ink save — §04: "sticky 잉크 블랙 → 폼 어디서든 즉시 저장" */}
         <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border-soft bg-[color-mix(in_oklch,var(--surface)_96%,transparent)] px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)] [backdrop-filter:saturate(1.6)_blur(16px)]">
           <div className="mx-auto max-w-md">
+            {/* Design spec .pe-save uses rounded-[16px] rectangle, NOT the
+                app-wide pill CTA — intentional exception for this screen. */}
             <button
               type="submit"
               disabled={isProfilePending}
-              className="flex w-full items-center justify-center rounded-full bg-ink py-3.5 text-[14px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark active:scale-[0.98] disabled:opacity-50"
+              className="flex w-full items-center justify-center rounded-[16px] bg-ink py-4 text-[14px] font-extrabold tracking-[-0.02em] text-white transition-all hover:bg-black hover:shadow-soft-dark active:scale-[0.98] disabled:opacity-50"
             >
               {isProfilePending ? "저장 중…" : "저장"}
             </button>

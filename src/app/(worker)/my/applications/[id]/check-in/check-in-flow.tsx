@@ -15,7 +15,6 @@ import {
   LogOut,
   Zap,
   AlertTriangle,
-  CheckCircle2,
 } from "lucide-react";
 import { checkIn, checkOut } from "./actions";
 import { applicationErrorToKorean } from "@/lib/errors/application-errors";
@@ -491,9 +490,9 @@ export function CheckInFlow({ application }: Props) {
           </div>
         )}
 
-        {/* ci-shop — premium shop card */}
+        {/* ci-shop — dashed divider between top/bottom per design spec */}
         <div className="rounded-[18px] border border-border-soft bg-surface p-4">
-          <div className="flex items-start gap-3">
+          <div className="flex items-start gap-3 border-b border-dashed border-border pb-3">
             <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-border-soft bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-2xl">
               {businessLogo}
             </div>
@@ -512,7 +511,7 @@ export function CheckInFlow({ application }: Props) {
               </div>
             </div>
           </div>
-          <div className="mt-3 flex items-center justify-between border-t border-border-soft pt-3 text-[11.5px]">
+          <div className="mt-3 flex items-center justify-between text-[12.5px]">
             <span className="inline-flex items-center gap-1.5 font-bold text-ink">
               <MapPin className="h-3.5 w-3.5" />
               {job.business.address}
@@ -524,13 +523,22 @@ export function CheckInFlow({ application }: Props) {
           </div>
         </div>
 
-        {/* ci-guide — premium checklist with brand dots */}
-        <div className="mt-3 rounded-[18px] border border-border-soft bg-surface p-4">
-          <div className="flex items-center gap-2 text-[13px] font-extrabold tracking-tight text-ink">
-            <Zap className="h-[16px] w-[16px] text-brand-deep" />
+        {/* ci-guide — brand-tint background with ink-filled check-circle bullets.
+            Two-color bullet (ink body + brand-green tick) can't be expressed via
+            a single-color lucide icon, so the SVG is inline with design tokens. */}
+        <div
+          className="mt-3 rounded-[18px] border p-4"
+          style={{
+            background: "color-mix(in oklch, var(--brand) 10%, var(--surface))",
+            borderColor:
+              "color-mix(in oklch, var(--brand) 22%, var(--border))",
+          }}
+        >
+          <div className="flex items-center gap-1.5 text-[13px] font-extrabold tracking-tight text-brand-deep">
+            <Zap className="h-[16px] w-[16px]" />
             체크인 안내
           </div>
-          <ul className="mt-3 space-y-2">
+          <ul className="mt-2.5 space-y-1">
             {[
               <>
                 체크인은 근무 시작{" "}
@@ -549,9 +557,23 @@ export function CheckInFlow({ application }: Props) {
             ].map((content, i) => (
               <li
                 key={i}
-                className="flex items-start gap-2.5 text-[12.5px] leading-relaxed text-muted-foreground"
+                className="flex items-start gap-2 py-[6px] text-[12.5px] font-medium leading-[1.55] text-ink"
               >
-                <span className="mt-[6px] grid h-[6px] w-[6px] shrink-0 place-items-center rounded-full bg-brand" />
+                <svg
+                  aria-hidden
+                  viewBox="0 0 16 16"
+                  className="mt-[2px] h-4 w-4 shrink-0"
+                >
+                  <circle cx="8" cy="8" r="8" fill="#113628" />
+                  <path
+                    d="M4.5 8.2l2.3 2.3L11.7 5.5"
+                    stroke="#b9f227"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    fill="none"
+                  />
+                </svg>
                 <span>{content}</span>
               </li>
             ))}

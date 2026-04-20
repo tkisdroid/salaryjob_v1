@@ -91,9 +91,9 @@ function ScheduleBlock({
   const isPeak = recommendation.matchScore >= 100;
   return (
     <div className="flex items-start gap-3 rounded-[18px] border border-border-soft bg-surface p-[14px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-sm">
-      {/* Category icon tile */}
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep">
-        {renderCategoryIcon(recommendation.category, "h-5 w-5")}
+      {/* Category icon tile — 36x36 per .ai-slot .ico spec */}
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[12px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep">
+        {renderCategoryIcon(recommendation.category, "h-[18px] w-[18px]")}
       </div>
 
       {/* Details */}
@@ -118,10 +118,11 @@ function ScheduleBlock({
         </p>
       </div>
 
-      {/* Match % pill — peak (100%+) uses inverse ink+brand for "오늘 반드시 잡아야 할" slots */}
+      {/* Match % pill — peak (100%+) uses inverse ink+brand for "오늘 반드시 잡아야 할" slots.
+          Padding 4px 9px matches .ai-slot .pct design spec. */}
       <span
         className={cn(
-          "tabnum shrink-0 rounded-full px-2 py-1 text-[10.5px] font-extrabold tracking-tight",
+          "tabnum shrink-0 rounded-full px-[9px] py-1 text-[10.5px] font-extrabold tracking-[-0.01em]",
           isPeak ? "bg-ink text-brand" : "bg-brand text-ink",
         )}
       >
@@ -246,8 +247,8 @@ export default function SchedulePage() {
         >
           <ChevronLeft className="h-5 w-5" />
         </Link>
-        <h1 className="flex items-center gap-2 text-[22px] font-extrabold tracking-[-0.035em] text-ink">
-          <Sparkles className="h-[20px] w-[20px] text-brand-deep" />
+        <h1 className="flex items-center gap-1.5 text-[19px] font-extrabold tracking-[-0.03em] text-ink">
+          <Sparkles className="h-4 w-4 text-brand-deep" />
           AI 추천 스케줄
         </h1>
       </header>
@@ -287,15 +288,16 @@ export default function SchedulePage() {
       {/* Schedule results */}
       {!isLoading && hasAvailability && recommendations.length > 0 && (
         <>
-          {/* ai-hero — ink bg + brand-green amount ("이 수치가 당신의 기회") */}
-          <div className="rounded-[22px] bg-ink p-[22px] text-white">
-            <p className="text-[11.5px] font-bold tracking-tight text-[color-mix(in_oklch,#fff_75%,transparent)]">
+          {/* ai-hero — ink bg + brand-green amount ("이 수치가 당신의 기회").
+              radius 20px, pad 18px, amt 34px per design spec. */}
+          <div className="rounded-[20px] bg-ink p-[18px] text-white">
+            <p className="text-[11.5px] font-bold tracking-[-0.01em] text-[color-mix(in_oklch,#fff_75%,transparent)]">
               이번 주 예상 수입
             </p>
-            <p className="tabnum mt-2 text-[32px] font-extrabold tracking-[-0.035em] text-brand">
+            <p className="tabnum mt-2 text-[34px] font-extrabold tracking-[-0.035em] text-brand">
               {formatMoney(weeklyTotal)}
             </p>
-            <p className="mt-1 text-[10.5px] font-semibold text-[color-mix(in_oklch,#fff_55%,transparent)]">
+            <p className="mt-0.5 text-[10.5px] font-semibold text-[color-mix(in_oklch,#fff_55%,transparent)]">
               {recommendations.length}개 추천 스케줄 · 총 {totalHours}시간
             </p>
           </div>
@@ -312,22 +314,25 @@ export default function SchedulePage() {
             ))}
           </div>
 
-          {/* ai-actionbar: ink primary + ghost secondary */}
-          <div className="mt-5 flex flex-col gap-2.5">
-            <Button size="lg" className="w-full" asChild>
-              <Link href="/my/availability">
-                <CalendarDays className="h-4 w-4" />
-                이 스케줄로 가용시간 등록
-              </Link>
-            </Button>
+          {/* ai-actionbar: ink primary + ghost secondary.
+              Design-specific exception: .ai-btn uses rounded-[14px] rectangle,
+              NOT the app-wide pill CTA — intentional per design spec. */}
+          <div className="mt-[18px] flex flex-col gap-2.5 pb-1">
+            <Link
+              href="/my/availability"
+              className="inline-flex w-full items-center justify-center gap-1.5 rounded-[14px] bg-ink px-4 py-[14px] text-[13.5px] font-extrabold tracking-[-0.02em] text-white transition-all hover:bg-black hover:shadow-soft-dark"
+            >
+              <CalendarDays className="h-4 w-4" />
+              이 스케줄로 가용시간 등록
+            </Link>
             <button
               type="button"
               onClick={loadSchedule}
               disabled={isLoading}
-              className="inline-flex items-center justify-center gap-1.5 rounded-full py-2 text-[12.5px] font-bold text-muted-foreground transition-colors hover:text-ink disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-1.5 p-2 text-[12.5px] font-bold text-muted-foreground transition-colors hover:text-ink disabled:opacity-50"
             >
               <RefreshCw
-                className={cn("h-3.5 w-3.5", isLoading && "animate-spin")}
+                className={cn("h-3 w-3", isLoading && "animate-spin")}
               />
               다시 추천받기
             </button>
