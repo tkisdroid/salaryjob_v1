@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
-  ArrowLeft,
+  ChevronLeft,
   BriefcaseBusiness,
   CalendarClock,
   Mail,
@@ -9,8 +9,6 @@ import {
   Star,
   UserRound,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { requireJobOwner } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { getReviewsForUser } from "@/lib/db/queries";
@@ -28,21 +26,21 @@ function formatDateTime(value: string | Date | null) {
 function getStatusBadge(status: string) {
   switch (status) {
     case "pending":
-      return { label: "대기 중", className: "bg-muted text-muted-foreground" };
+      return { label: "대기 중", className: "bg-surface-2 text-muted-foreground" };
     case "confirmed":
-      return { label: "수락됨", className: "bg-teal/10 text-teal" };
+      return { label: "수락됨", className: "bg-brand text-ink" };
     case "checked_in":
-      return { label: "체크인", className: "bg-sky-500/10 text-sky-700" };
+      return { label: "체크인", className: "bg-lime-chip text-lime-chip-fg" };
     case "in_progress":
-      return { label: "근무 중", className: "bg-emerald-500/10 text-emerald-700" };
+      return { label: "근무 중", className: "bg-lime-chip text-lime-chip-fg" };
     case "completed":
-      return { label: "완료", className: "bg-muted text-muted-foreground" };
+      return { label: "완료", className: "bg-ink text-white" };
     case "settled":
-      return { label: "정산 완료", className: "bg-brand/10 text-brand-deep" };
+      return { label: "정산 완료", className: "bg-ink text-white" };
     case "cancelled":
       return { label: "거절됨", className: "bg-destructive/10 text-destructive" };
     default:
-      return { label: status, className: "bg-muted text-muted-foreground" };
+      return { label: status, className: "bg-surface-2 text-muted-foreground" };
   }
 }
 
@@ -104,131 +102,145 @@ export default async function BizApplicantDetailPage({
     <div className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
       <Link
         href={`/biz/posts/${id}/applicants`}
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 py-2 text-[13px] font-bold text-ink transition-colors hover:border-ink hover:bg-surface-2"
       >
-        <ArrowLeft className="h-4 w-4" />
-        지원자 목록으로
+        <ChevronLeft className="h-4 w-4" />
+        지원자 목록
       </Link>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
-        <Card>
-          <CardHeader className="gap-3">
-            <div className="flex items-start justify-between gap-3">
-              <div className="flex items-start gap-3">
-                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand/10 text-2xl">
-                  {workerAvatar}
-                </div>
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <CardTitle className="text-xl">{workerName}</CardTitle>
-                    <Badge className={status.className}>{status.label}</Badge>
-                  </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {job.title}
-                  </p>
-                </div>
+      <div className="mt-5 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+        <section className="rounded-[22px] border border-border-soft bg-surface p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start gap-3">
+              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-[18px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-2xl">
+                {workerAvatar}
               </div>
-              {profile?.badgeLevel && (
-                <Badge variant="outline" className="shrink-0">
-                  {profile.badgeLevel}
-                </Badge>
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-[20px] font-extrabold tracking-[-0.025em] text-ink">
+                    {workerName}
+                  </h1>
+                  <span
+                    className={`inline-flex items-center rounded-[6px] px-2 py-1 text-[10px] font-extrabold tracking-tight ${status.className}`}
+                  >
+                    {status.label}
+                  </span>
+                </div>
+                <p className="mt-1 text-[13px] font-semibold text-muted-foreground">
+                  {job.title}
+                </p>
+              </div>
+            </div>
+            {profile?.badgeLevel && (
+              <span className="inline-flex shrink-0 items-center rounded-full border border-border bg-surface px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-ink">
+                {profile.badgeLevel}
+              </span>
+            )}
+          </div>
+
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-[18px] border border-border-soft bg-surface p-4">
+              <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
+                평점
+              </p>
+              <p className="tabnum mt-1 flex items-center gap-1 text-[18px] font-extrabold tracking-tight text-ink">
+                <Star className="h-4 w-4 fill-[#fbbf24] text-[#fbbf24]" />
+                {rating.toFixed(1)}
+              </p>
+            </div>
+            <div className="rounded-[18px] border border-border-soft bg-surface p-4">
+              <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
+                완료 근무
+              </p>
+              <p className="tabnum mt-1 text-[18px] font-extrabold tracking-tight text-ink">
+                {totalJobs}회
+              </p>
+            </div>
+            <div className="rounded-[18px] border border-border-soft bg-surface p-4">
+              <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
+                완료율
+              </p>
+              <p className="tabnum mt-1 text-[18px] font-extrabold tracking-tight text-brand-deep">
+                {completionRate.toFixed(0)}%
+              </p>
+            </div>
+            <div className="rounded-[18px] border border-border-soft bg-surface p-4">
+              <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
+                나이
+              </p>
+              <p className="tabnum mt-1 text-[18px] font-extrabold tracking-tight text-ink">
+                {age === null ? "미등록" : `만 ${age}세`}
+              </p>
+              {birthDateLabel && (
+                <p className="tabnum mt-1 text-[11px] font-semibold text-text-subtle">
+                  {birthDateLabel}
+                </p>
               )}
             </div>
-          </CardHeader>
-
-          <CardContent className="space-y-5">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <div className="rounded-2xl border border-border p-4">
-                <p className="text-xs text-muted-foreground">평점</p>
-                <p className="mt-1 flex items-center gap-1 text-lg font-bold">
-                  <Star className="h-4 w-4 fill-brand text-brand" />
-                  {rating.toFixed(1)}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-border p-4">
-                <p className="text-xs text-muted-foreground">완료 근무</p>
-                <p className="mt-1 text-lg font-bold">{totalJobs}회</p>
-              </div>
-              <div className="rounded-2xl border border-border p-4">
-                <p className="text-xs text-muted-foreground">완료율</p>
-                <p className="mt-1 text-lg font-bold">
-                  {completionRate.toFixed(0)}%
-                </p>
-              </div>
-              <div className="rounded-2xl border border-border p-4">
-                <p className="text-xs text-muted-foreground">나이</p>
-                <p className="mt-1 text-lg font-bold">
-                  {age === null ? "미등록" : `만 ${age}세`}
-                </p>
-                {birthDateLabel && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {birthDateLabel}
-                  </p>
-                )}
-              </div>
-              <div className="rounded-2xl border border-border p-4">
-                <p className="text-xs text-muted-foreground">노쇼</p>
-                <p className="mt-1 text-lg font-bold">{noShowCount}회</p>
-              </div>
+            <div className="rounded-[18px] border border-border-soft bg-surface p-4 sm:col-span-2">
+              <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
+                노쇼
+              </p>
+              <p
+                className={`tabnum mt-1 text-[18px] font-extrabold tracking-tight ${
+                  noShowCount === 0 ? "text-text-subtle" : "text-destructive"
+                }`}
+              >
+                {noShowCount}회
+              </p>
             </div>
+          </div>
 
-            <div className="space-y-3 rounded-2xl border border-border p-4">
-              <div className="flex items-start gap-2 text-sm">
-                <Mail className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <span>{application.worker.email ?? "이메일 정보 없음"}</span>
+          <div className="mt-5 space-y-3 rounded-[18px] border border-dashed border-border bg-surface-2/50 p-4">
+            {[
+              { Icon: Mail, value: application.worker.email ?? "이메일 정보 없음" },
+              { Icon: UserRound, value: workerNickname },
+              { Icon: CalendarClock, value: `지원 시각: ${formatDateTime(application.appliedAt)}` },
+              { Icon: BriefcaseBusiness, value: `공고: ${job.title}` },
+              { Icon: ShieldCheck, value: `최근 체크인: ${formatDateTime(application.checkInAt)}` },
+            ].map(({ Icon, value }, i) => (
+              <div key={i} className="flex items-start gap-2 text-[12.5px] font-medium text-ink">
+                <Icon className="mt-0.5 h-4 w-4 shrink-0 text-text-subtle" />
+                <span>{value}</span>
               </div>
-              <div className="flex items-start gap-2 text-sm">
-                <UserRound className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <span>{workerNickname}</span>
-              </div>
-              <div className="flex items-start gap-2 text-sm">
-                <CalendarClock className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <span>지원 시각: {formatDateTime(application.appliedAt)}</span>
-              </div>
-              <div className="flex items-start gap-2 text-sm">
-                <BriefcaseBusiness className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <span>공고: {job.title}</span>
-              </div>
-              <div className="flex items-start gap-2 text-sm">
-                <ShieldCheck className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                <span>최근 체크인: {formatDateTime(application.checkInAt)}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+            ))}
+          </div>
+        </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">최근 리뷰</CardTitle>
-          </CardHeader>
-          <CardContent>
+        <section className="rounded-[22px] border border-border-soft bg-surface p-5">
+          <h2 className="text-[14px] font-extrabold tracking-tight text-ink">
+            최근 리뷰
+          </h2>
+          <div className="mt-4">
             {reviews.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+              <div className="rounded-[18px] border-2 border-dashed border-border bg-surface p-6 text-center text-[12.5px] font-semibold text-muted-foreground">
                 아직 표시할 리뷰가 없습니다.
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {reviews.map((review) => (
                   <div
                     key={review.id}
-                    className="rounded-2xl border border-border p-4"
+                    className="rounded-[18px] border border-border-soft bg-surface p-4"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-semibold">
+                        <p className="truncate text-[13px] font-extrabold tracking-tight text-ink">
                           {review.application.job.business.name}
                         </p>
-                        <p className="mt-0.5 text-xs text-muted-foreground">
+                        <p className="tabnum mt-0.5 text-[11px] font-semibold text-text-subtle">
                           {formatDateTime(review.createdAt)}
                         </p>
                       </div>
-                      <div className="flex shrink-0 items-center gap-1 text-sm font-bold">
-                        <Star className="h-4 w-4 fill-brand text-brand" />
-                        {Number(review.rating).toFixed(1)}
+                      <div className="inline-flex shrink-0 items-center gap-1 rounded-full bg-surface-2 px-2 py-1">
+                        <Star className="h-3.5 w-3.5 fill-[#fbbf24] text-[#fbbf24]" />
+                        <span className="tabnum text-[12.5px] font-extrabold text-ink">
+                          {Number(review.rating).toFixed(1)}
+                        </span>
                       </div>
                     </div>
                     {review.comment && (
-                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                      <p className="mt-3 text-[12.5px] font-medium leading-relaxed text-muted-foreground">
                         {review.comment}
                       </p>
                     )}
@@ -236,8 +248,8 @@ export default async function BizApplicantDetailPage({
                 ))}
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
     </div>
   );
