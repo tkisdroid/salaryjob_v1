@@ -61,35 +61,41 @@ export function ReviewForm({
         e.preventDefault();
         onSubmit();
       }}
-      className="flex flex-col gap-6"
+      className="flex flex-col gap-4"
     >
-      <section>
-        <h2 className="mb-3 text-sm font-bold">별점</h2>
+      <section className="rounded-[22px] border border-border-soft bg-surface p-5">
+        <h2 className="mb-3 text-[13px] font-extrabold tracking-tight text-ink">
+          별점
+        </h2>
         <StarRatingInput value={rating} onChange={setRating} size="lg" />
       </section>
-      <section>
-        <h2 className="mb-3 text-sm font-bold">
+      <section className="rounded-[22px] border border-border-soft bg-surface p-5">
+        <h2 className="mb-3 text-[13px] font-extrabold tracking-tight text-ink">
           어떤 점이{" "}
           {direction === "worker_to_business" ? "좋았나요" : "인상적이었나요"}?
         </h2>
         <TagChipPicker options={tagSet} value={tags} onChange={setTags} max={8} />
       </section>
-      <section>
-        <h2 className="mb-3 text-sm font-bold">코멘트 (선택)</h2>
+      <section className="rounded-[22px] border border-border-soft bg-surface p-5">
+        <h2 className="mb-3 text-[13px] font-extrabold tracking-tight text-ink">
+          코멘트 <span className="font-medium text-text-subtle">(선택)</span>
+        </h2>
         <textarea
           value={comment}
           onChange={(e) => setComment(e.target.value)}
           maxLength={500}
           rows={4}
           placeholder="후기를 남겨주세요 (최대 500자)"
-          className="w-full rounded-md border border-border bg-background p-3 text-sm"
+          className="w-full resize-none rounded-[14px] border border-border bg-surface px-4 py-3 text-[14px] font-medium text-ink placeholder:text-text-subtle transition-colors focus:border-ink focus:outline-none"
         />
-        <p className="mt-1 text-xs text-muted-foreground">{comment.length}/500</p>
+        <p className="tabnum mt-1.5 text-right text-[11px] font-semibold text-text-subtle">
+          {comment.length}/500
+        </p>
       </section>
       <Button
         type="submit"
         disabled={pending || rating < 1}
-        className="sticky bottom-4"
+        className="sticky bottom-4 h-12 rounded-full bg-ink text-[14px] font-extrabold tracking-tight text-white transition-all hover:bg-black hover:shadow-soft-dark disabled:opacity-50"
       >
         {pending ? "제출 중…" : "리뷰 제출"}
       </Button>
