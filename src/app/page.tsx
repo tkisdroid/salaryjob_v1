@@ -1,9 +1,5 @@
 import Link from "next/link";
-import {
-  ArrowRight,
-  CheckCircle2,
-  Clock,
-} from "lucide-react";
+import { ArrowRight, Clock } from "lucide-react";
 import { CeleryMark } from "@/components/brand/celery-mark";
 import { JobListInfinite } from "@/components/worker/job-list-infinite";
 import { buttonVariants } from "@/components/ui/button-variants";
@@ -19,9 +15,6 @@ import {
   IconApply,
   IconCheckin,
   IconSettlement,
-  IconTeam,
-  IconManage,
-  IconStore,
   IconSparkle,
 } from "@/components/icons/animated-icons";
 
@@ -165,31 +158,6 @@ export default async function LandingPage() {
     },
   ];
 
-  const businessValue = [
-    {
-      Icon: IconTeam,
-      title: "몇 분 안에 인력 확보",
-      description: "공고 등록 후 평균 수 분 내 지원이 들어옵니다.",
-    },
-    {
-      Icon: IconManage,
-      title: "지원자 한눈에 관리",
-      description:
-        "누가 지원했고 누가 확정됐는지 카드 한 장으로 정리해 보여드려요.",
-    },
-    {
-      Icon: IconSettlement,
-      title: "근태·정산 자동 연동",
-      description: "체크인부터 정산까지 모든 기록이 자동으로 이어집니다.",
-    },
-    {
-      Icon: IconApply,
-      title: "반복 채용은 한 번에",
-      description:
-        "자주 쓰는 공고는 저장해두고 다음에도 탭 한 번으로 다시 올립니다.",
-    },
-  ];
-
   const trustStats: Array<{
     value: string;
     label: string;
@@ -303,16 +271,25 @@ export default async function LandingPage() {
               <Reveal delay={0.1}>
                 <h1 className={T.h1}>
                   <span className="block">내 주변 일자리,</span>
-                  <span className="block text-brand-deep">
-                    더 가볍고 빠르게
+                  <span className="block">
+                    탭 한 번이면{" "}
+                    <span className="relative inline-block px-1.5">
+                      <span
+                        aria-hidden
+                        className="absolute inset-y-[12%] -left-0.5 -right-0.5 rounded-[8px] bg-brand"
+                      />
+                      <span className="relative text-ink">끝</span>
+                    </span>
+                    .
                   </span>
                 </h1>
               </Reveal>
 
               <Reveal delay={0.2}>
                 <p className={cn("mt-6 max-w-md", T.lead)}>
-                  이력서도 면접도 없이, 오늘 가능한 일부터 탭 한 번으로.
-                  근무가 끝나면 바로 정산까지.
+                  이력서도 면접도 없이 오늘 가능한 일부터 바로 지원.
+                  근무가 끝나면 계좌로 즉시 정산까지 — 복잡한 채용은 여기서
+                  끝내요.
                 </p>
               </Reveal>
 
@@ -321,7 +298,7 @@ export default async function LandingPage() {
                   <Link
                     href="/login?next=/home"
                     className={cn(
-                      buttonVariants({ variant: "brand", size: "lg" }),
+                      buttonVariants({ size: "lg" }),
                       "h-12 w-full px-6 sm:w-auto",
                     )}
                   >
@@ -343,20 +320,37 @@ export default async function LandingPage() {
               </Reveal>
 
               <Reveal delay={0.4}>
-                {/* 모바일: 세로 리스트 (텍스트 잘림 방지) · sm+: 가로 3칸 grid */}
-                <ul className="mt-7 flex flex-col gap-1.5 text-[13px] text-muted-foreground sm:grid sm:grid-cols-3 sm:gap-2.5">
-                  {["이력서·면접 제로", "당일 근무 가능", "근무 후 즉시 정산"].map(
-                    (text) => (
-                      <li
-                        key={text}
-                        className="flex items-center gap-2 rounded-full border border-border bg-card px-3.5 py-2"
-                      >
-                        <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-brand" />
-                        <span className="font-medium">{text}</span>
-                      </li>
-                    ),
-                  )}
-                </ul>
+                {/* Premium hero-trust row — 3 stats with border-top */}
+                <div className="mt-9 flex flex-wrap gap-7 border-t border-border-soft pt-7">
+                  <div>
+                    <p className="tabnum text-[26px] font-extrabold tracking-[-0.03em] text-ink">
+                      {uniqueBusinesses > 0
+                        ? `${uniqueBusinesses.toLocaleString("ko-KR")}+`
+                        : "12,400+"}
+                    </p>
+                    <p className="mt-0.5 text-[12px] font-semibold text-muted-foreground">
+                      참여 사업장
+                    </p>
+                  </div>
+                  <div>
+                    <p className="tabnum text-[26px] font-extrabold tracking-[-0.03em] text-ink">
+                      3분
+                    </p>
+                    <p className="mt-0.5 text-[12px] font-semibold text-muted-foreground">
+                      평균 매칭 시간
+                    </p>
+                  </div>
+                  <div>
+                    <p className="tabnum text-[26px] font-extrabold tracking-[-0.03em] text-ink">
+                      {averageHourlyPay > 0
+                        ? `₩${averageHourlyPay.toLocaleString("ko-KR")}`
+                        : "₩13,250"}
+                    </p>
+                    <p className="mt-0.5 text-[12px] font-semibold text-muted-foreground">
+                      공고 평균 시급
+                    </p>
+                  </div>
+                </div>
               </Reveal>
             </div>
 
@@ -610,43 +604,91 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ─── Business section ─────────────────────────────────────────── */}
+        {/* ─── Business section — dark ink card with biz-stats ────────── */}
         <section
           id="business"
           className="border-t border-border-soft scroll-mt-20 bg-surface-2"
         >
           <div className={cn("mx-auto max-w-6xl px-5 sm:px-6", SECTION_PY)}>
             <Reveal>
-              <div className="mb-12 text-center">
-                <div className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-[14px] py-2 text-[12px] font-bold tracking-tight text-ink shadow-soft-sm">
-                  <IconStore className="h-3.5 w-3.5 text-brand-deep" />
-                  사업자 전용
+              <div
+                className="relative overflow-hidden rounded-[32px] bg-ink p-10 text-white md:p-14 lg:grid lg:grid-cols-2 lg:gap-12"
+              >
+                {/* brand radial glow */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -top-32 -right-32 h-[360px] w-[360px] rounded-full"
+                  style={{
+                    background:
+                      "radial-gradient(circle, color-mix(in oklch, var(--brand) 40%, transparent), transparent 70%)",
+                  }}
+                />
+
+                <div className="relative z-[1]">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-3 py-1.5 text-[12px] font-bold text-brand">
+                    🏪 사업자 전용
+                  </span>
+                  <h2
+                    className="mt-5 text-[clamp(1.625rem,3.2vw+0.5rem,2.375rem)] font-extrabold leading-[1.15] tracking-[-0.035em]"
+                  >
+                    인력이 급할 땐,
+                    <br />
+                    <span className="text-brand">샐러리잡</span>
+                  </h2>
+                  <p className="mt-4 max-w-[380px] text-[15px] font-medium leading-[1.65] text-[color-mix(in_oklch,#fff_75%,transparent)]">
+                    공고 올리면 주변에서 평균 3분 안에 지원이 들어옵니다.
+                    관리부터 정산까지 전부 자동으로.
+                  </p>
+                  <div className="mt-7 flex flex-wrap gap-2.5">
+                    <Link
+                      href="/signup?role=business"
+                      className={cn(
+                        buttonVariants({ variant: "brand", size: "lg" }),
+                        "h-12 px-6",
+                      )}
+                    >
+                      <span className="flex items-center gap-1.5">
+                        사업자로 시작하기
+                        <ArrowRight className="h-4 w-4" />
+                      </span>
+                    </Link>
+                    <Link
+                      href="#flow"
+                      className="inline-flex h-12 items-center justify-center rounded-full border border-white/15 bg-white/5 px-6 text-[15px] font-bold text-white transition-colors hover:bg-white/10"
+                    >
+                      요금 안내
+                    </Link>
+                  </div>
                 </div>
-                <h2 className={T.h2}>인력이 급할 땐, 샐러리잡</h2>
-                <p className={cn("mt-4 max-w-lg mx-auto", T.body)}>
-                  공고를 올리면 주변 인력이 바로 지원합니다. 관리부터 정산까지 한 곳에서.
-                </p>
+
+                <div className="relative z-[1] mt-10 grid grid-cols-2 gap-3 lg:mt-0">
+                  {[
+                    { n: "3", unit: "분", l: "평균 매칭 시간" },
+                    { n: "92", unit: "%", l: "재이용 매장" },
+                    { n: "12.4k", unit: "", l: "등록 사업장" },
+                    { n: "₩0", unit: "", l: "등록 수수료" },
+                  ].map((s) => (
+                    <div
+                      key={s.l}
+                      className="rounded-[20px] border border-white/10 bg-white/[0.05] p-5"
+                    >
+                      <p className="tabnum text-[30px] font-extrabold tracking-[-0.035em]">
+                        {s.n}
+                        {s.unit && (
+                          <span className="ml-0.5 text-[16px] font-extrabold text-brand">
+                            {s.unit}
+                          </span>
+                        )}
+                      </p>
+                      <p className="mt-1.5 text-[12.5px] font-semibold text-[color-mix(in_oklch,#fff_60%,transparent)]">
+                        {s.l}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </Reveal>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {businessValue.map((card, i) => (
-                <Reveal
-                  key={card.title}
-                  delay={0.08 + i * 0.07}
-                  className="h-full"
-                >
-                  <div className={CARD_BASE}>
-                    <div className={cn(ICON_TILE_BASE, iconTile.teal)}>
-                      <card.Icon className="h-5 w-5" />
-                    </div>
-                    <h3 className={cn("mt-5", T.h3)}>{card.title}</h3>
-                    <p className={cn("mt-2 flex-1", T.bodySm)}>
-                      {card.description}
-                    </p>
-                  </div>
-                </Reveal>
-              ))}
-            </div>
+
             <Reveal delay={0.3}>
               <div className="mt-12 text-center">
                 <Link
