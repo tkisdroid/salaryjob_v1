@@ -1,4 +1,6 @@
+import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
+import { ChevronLeft, Star } from "lucide-react";
 import { requireJobOwner } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { getReviewByApplication } from "@/lib/db/queries";
@@ -41,9 +43,21 @@ export default async function BizReviewPage({
     "근무자";
 
   return (
-    <main className="mx-auto max-w-lg p-4 pb-24">
-      <h1 className="mb-1 text-xl font-bold">{workerName} 님 리뷰 작성</h1>
-      <p className="mb-6 text-sm text-muted-foreground">
+    <main className="mx-auto max-w-lg px-4 pt-5 pb-24">
+      <div className="mb-4 flex items-center gap-2">
+        <Link
+          href={`/biz/posts/${id}/applicants`}
+          aria-label="뒤로"
+          className="-ml-1 grid h-9 w-9 place-items-center rounded-full text-ink hover:bg-surface-2"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Link>
+        <h1 className="flex items-center gap-2 text-[22px] font-extrabold tracking-[-0.035em] text-ink">
+          <Star className="h-[20px] w-[20px] fill-[#fbbf24] text-[#fbbf24]" />
+          {workerName} 님 리뷰 작성
+        </h1>
+      </div>
+      <p className="mb-6 px-0.5 text-[12.5px] font-medium tracking-tight text-muted-foreground">
         수고하셨습니다. 근무 후기를 남겨주세요.
       </p>
       <ReviewForm
