@@ -1,16 +1,19 @@
 import { type SVGProps } from "react";
 
 /**
- * 샐러리잡 brand mark — minimal tilted celery.
+ * 샐러리잡 brand mark — matches Main Page Premium §brand-glyph.
  *
- * 기본적으로 decorative(aria-hidden). 랜딩에서 이 마크는 항상 인접
- * 텍스트("샐러리잡", "사업자 전용" 등)와 함께 등장하므로 스크린리더가
- * 같은 이름을 두 번 읽지 않도록 숨긴다. 단독으로 링크 접근 이름이 되어야
- * 한다면 consumer 에서 `aria-label` + `role="img"` 를 직접 지정한다.
+ * Geometric minimal celery: a stalk (rotated -42°) with a darker cut-end
+ * band on the right, and a single angular leaf on the top-right.
  *
- * 색은 `currentColor` 로 상속받는다. 호출부에서 `text-brand` /
- * `text-brand-deep` 등을 지정하면 OKLCH 토큰 마이그레이션을 자동 추종.
- * 잎/줄기 톤 차이는 stroke+fill opacity 조합으로 재현.
+ * Colors are mapped to the brand palette via CSS custom properties so the
+ * glyph scales with the OKLCH token system:
+ *   stalk body  → var(--brand)       (#7ec744 in the reference SVG)
+ *   cut-end     → var(--brand-dark)  (#5aa82a)
+ *   leaf        → var(--brand-deep)  (#4a9a2f)
+ *
+ * `aria-hidden` by default — the mark always renders next to the
+ * wordmark in consumer layouts.
  */
 export function CeleryMark({
   className,
@@ -18,24 +21,39 @@ export function CeleryMark({
 }: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      viewBox="0 0 64 64"
+      viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
+      fill="none"
       className={className}
       aria-hidden="true"
       focusable="false"
       {...rest}
     >
-      <g transform="rotate(-14 32 32)" fill="currentColor">
-        {/* Stalk — single rounded shape (deeper tone) */}
-        <path
-          d="M24 56 Q24 60, 28 60 L36 60 Q40 60, 40 56 L40 30 Q40 22, 32 22 Q24 22, 24 30 Z"
-          fillOpacity="0.78"
+      <g transform="rotate(-42 12 12)">
+        {/* Stalk: sharp rectangle, slight corner radius */}
+        <rect
+          x="2"
+          y="10"
+          width="20"
+          height="7"
+          rx="1.2"
+          fill="var(--brand)"
         />
-        {/* Leaf trefoil on top */}
-        <circle cx="23" cy="20" r="6" />
-        <circle cx="32" cy="13" r="7" />
-        <circle cx="41" cy="20" r="6" />
+        {/* Cut-end darker band on the right edge */}
+        <rect
+          x="18.5"
+          y="10"
+          width="3.5"
+          height="7"
+          rx="1.2"
+          fill="var(--brand-dark)"
+        />
       </g>
+      {/* Single angular leaf, top-right */}
+      <path
+        d="M17.5 2.5 L21.5 4 L20 8 L16 6.5 Z"
+        fill="var(--brand-deep)"
+      />
     </svg>
   );
 }

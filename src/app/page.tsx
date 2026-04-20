@@ -543,48 +543,77 @@ export default async function LandingPage() {
           id="flow"
           className="border-t border-border/60 bg-mint-bg/30 scroll-mt-20"
         >
-          <div className={cn("mx-auto max-w-6xl px-5 sm:px-6", SECTION_PY)}>
+          <div className={cn("mx-auto max-w-3xl px-5 sm:px-6", SECTION_PY)}>
             <Reveal>
               <div className="mb-12 text-center">
                 <p className={T.eyebrow}>HOW IT WORKS</p>
-                <h2 className={cn("mt-3", T.h2)}>이렇게 쉬워요</h2>
+                <h2 className={cn("mt-3", T.h2)}>4단계, 1분 이내</h2>
+                <p className={cn("mt-4", T.body)}>
+                  탐색부터 정산까지, 이게 전부입니다.
+                </p>
               </div>
             </Reveal>
-            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-              {workerFlow.map((step, i) => (
-                <Reveal
-                  key={step.number}
-                  delay={0.06 + i * 0.08}
-                  className="h-full"
-                >
-                  <div className={CARD_BASE}>
-                    <div className="flex items-center gap-3">
-                      <div className={cn(ICON_TILE_BASE, iconTile[step.tone])}>
+
+            {/* Settings-style flow list — step 2 is the "featured" ink row */}
+            <div className="flex flex-col gap-2.5">
+              {workerFlow.map((step, i) => {
+                const isFeatured = step.number === "02";
+                return (
+                  <Reveal key={step.number} delay={0.06 + i * 0.08}>
+                    <div
+                      className={cn(
+                        "flex items-center gap-4 rounded-[24px] border p-5 transition-colors",
+                        isFeatured
+                          ? "border-ink bg-ink text-white"
+                          : "border-border-soft bg-surface hover:border-ink",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "grid h-12 w-12 shrink-0 place-items-center rounded-[14px]",
+                          isFeatured
+                            ? "bg-white/10 text-brand"
+                            : "bg-surface-2 text-ink",
+                        )}
+                      >
                         <step.Icon className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div
+                          className={cn(
+                            "text-[16px] font-extrabold tracking-[-0.02em]",
+                            isFeatured ? "text-white" : "text-ink",
+                          )}
+                        >
+                          {step.title}
+                        </div>
+                        <div
+                          className={cn(
+                            "mt-1 text-[13.5px] font-medium leading-snug",
+                            isFeatured
+                              ? "text-[color-mix(in_oklch,#fff_70%,transparent)]"
+                              : "text-muted-foreground",
+                          )}
+                        >
+                          {step.description}
+                        </div>
                       </div>
                       <span
                         className={cn(
-                          "text-[32px] leading-none font-extrabold text-foreground/15 transition-colors duration-300 group-hover:text-foreground/25",
-                          T.numeric,
+                          "tabnum shrink-0 rounded-full px-3 py-1.5 text-[11px] font-extrabold tracking-[0.06em]",
+                          isFeatured
+                            ? "bg-white/10 text-brand"
+                            : "bg-surface-2 text-text-subtle",
                         )}
-                        aria-hidden="true"
                       >
-                        {step.number}
+                        STEP {step.number}
                       </span>
                     </div>
-                    <h3 className={cn("mt-5", T.h3)}>
-                      <span className="sr-only">
-                        {step.number} 단계:{" "}
-                      </span>
-                      {step.title}
-                    </h3>
-                    <p className={cn("mt-2 flex-1", T.bodySm)}>
-                      {step.description}
-                    </p>
-                  </div>
-                </Reveal>
-              ))}
+                  </Reveal>
+                );
+              })}
             </div>
+
             <Reveal delay={0.4}>
               <div className="mt-12 text-center">
                 <Link
@@ -766,40 +795,46 @@ export default async function LandingPage() {
           </div>
         </section>
 
-        {/* ─── Footer ──────────────────────────────────────────────────── */}
+        {/* ─── Footer — matches design §footer ──────────────────────── */}
         <Reveal>
-          <footer className="border-t border-border/60 bg-foreground/[0.02]">
-            <div className="mx-auto max-w-6xl px-5 sm:px-6 py-12">
-              <div className="flex flex-col items-center gap-5 sm:flex-row sm:justify-between">
-                <div className="flex items-center gap-2.5">
-                  <CeleryMark className="h-7 w-7 text-brand" />
-                  <span className="text-[14px] font-bold tracking-[-0.018em]">
-                    샐러리잡
+          <footer className="mt-20 border-t border-border-soft py-10">
+            <div className="mx-auto max-w-6xl px-5 sm:px-6">
+              <div className="flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+                <Link
+                  href="/"
+                  className="flex items-center gap-[11px]"
+                >
+                  <span className="grid h-[30px] w-[30px] place-items-center rounded-[10px] border border-border bg-surface">
+                    <CeleryMark className="h-[18px] w-[18px] text-brand" />
                   </span>
-                </div>
-                <div className="flex gap-6 text-[13px] text-muted-foreground">
+                  <span className="flex items-baseline gap-px text-[15px] font-extrabold tracking-[-0.025em] text-ink">
+                    샐러리잡
+                    <span className="ml-[2px] inline-block h-[4px] w-[4px] -translate-y-[1px] rounded-full bg-brand" />
+                  </span>
+                </Link>
+                <div className="flex gap-[22px] text-[13px] font-medium text-muted-foreground">
                   <Link
                     href="/terms"
-                    className="hover:text-foreground transition-colors"
+                    className="hover:text-ink transition-colors"
                   >
                     이용약관
                   </Link>
                   <Link
                     href="/privacy"
-                    className="hover:text-foreground transition-colors"
+                    className="hover:text-ink transition-colors"
                   >
                     개인정보처리방침
                   </Link>
                   <Link
                     href="/licenses"
-                    className="hover:text-foreground transition-colors"
+                    className="hover:text-ink transition-colors"
                   >
                     오픈소스 라이선스
                   </Link>
                 </div>
               </div>
-              <p className={cn("mt-7 text-center", T.hint)}>
-                &copy; {new Date().getFullYear()} 샐러리잡. All rights reserved.
+              <p className="mt-5 text-center text-[12px] font-medium text-text-subtle">
+                © {new Date().getFullYear()} 샐러리잡. All rights reserved.
               </p>
             </div>
           </footer>
