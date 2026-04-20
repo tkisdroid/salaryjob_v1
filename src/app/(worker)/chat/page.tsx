@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { MessageCircle } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 // ---------------------------------------------------------------------------
@@ -25,7 +24,7 @@ const CHAT_ROOMS: ChatRoom[] = [
     id: "chat-1",
     company: "블루보틀 강남점",
     initials: "BB",
-    lastMessage: "안녕하세요! 내일 출근 가능하신가요?",
+    lastMessage: "안녕하세요. 내일 출근 가능하실까요?",
     time: "방금",
     unreadCount: 2,
     postTitle: "카페 바리스타",
@@ -34,25 +33,25 @@ const CHAT_ROOMS: ChatRoom[] = [
     id: "chat-2",
     company: "이벤트플러스",
     initials: "EP",
-    lastMessage: "행사 당일 복장은 검정색 상의 부탁드립니다.",
+    lastMessage: "행사 당일 복장은 검정색 상의 부탁드려요.",
     time: "10분 전",
     unreadCount: 1,
     postTitle: "행사 스태프",
   },
   {
     id: "chat-3",
-    company: "CU 삼성역점",
+    company: "CU 역삼역점",
     initials: "CU",
-    lastMessage: "네, 확인했습니다. 감사합니다!",
+    lastMessage: "네, 확인했습니다. 감사합니다.",
     time: "1시간 전",
     unreadCount: 0,
     postTitle: "편의점 주간",
   },
   {
     id: "chat-4",
-    company: "쿠팡 풀필먼트",
+    company: "쿠팡 물류센터",
     initials: "CP",
-    lastMessage: "근무 완료 확인되었습니다. 정산은 3일 내 처리됩니다.",
+    lastMessage: "근무 완료 확인했습니다. 정산은 3일 안에 처리됩니다.",
     time: "어제",
     unreadCount: 0,
     postTitle: "물류 분류 작업",
@@ -61,10 +60,10 @@ const CHAT_ROOMS: ChatRoom[] = [
     id: "chat-5",
     company: "스타벅스 선릉점",
     initials: "SB",
-    lastMessage: "지원해주셔서 감사합니다. 검토 후 연락드리겠습니다.",
+    lastMessage: "지원해주셔서 감사합니다. 검토 후 연락드릴게요.",
     time: "3일 전",
     unreadCount: 0,
-    postTitle: "서빙 알바",
+    postTitle: "주말 오픈 알바",
   },
 ];
 
@@ -105,7 +104,7 @@ export default function ChatListPage() {
         {totalUnread > 0 && (
           <span className="inline-flex items-center gap-1.5 rounded-full bg-ink px-[11px] py-1.5 text-[11.5px] font-bold tracking-tight text-white">
             <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            {totalUnread}개 안 읽음
+            {totalUnread}개 안읽음
           </span>
         )}
       </header>
@@ -117,7 +116,7 @@ export default function ChatListPage() {
             아직 채팅이 없어요
           </p>
           <p className="mt-1 text-[12.5px] font-semibold text-muted-foreground">
-            공고에 지원하면 사업주와 채팅을 시작할 수 있어요
+            공고에 지원하면 사업주와 채팅을 시작할 수 있어요.
           </p>
           <Button variant="ghost-premium" className="mt-4" asChild>
             <Link href="/explore">공고 둘러보기</Link>
@@ -133,8 +132,8 @@ export default function ChatListPage() {
                 href={`/chat/${room.id}`}
                 className={`grid grid-cols-[48px_1fr_auto] items-start gap-3 rounded-[18px] p-[14px] transition-all hover:-translate-y-0.5 hover:shadow-soft-sm ${
                   isUnread
-                    ? "bg-[color-mix(in_oklch,var(--brand)_8%,var(--surface))] border border-[color-mix(in_oklch,var(--brand)_24%,var(--border))]"
-                    : "bg-surface border border-border-soft"
+                    ? "border border-[color-mix(in_oklch,var(--brand)_24%,var(--border))] bg-[color-mix(in_oklch,var(--brand)_8%,var(--surface))]"
+                    : "border border-border-soft bg-surface"
                 }`}
               >
                 <div

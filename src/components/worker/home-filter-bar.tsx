@@ -50,7 +50,6 @@ export function HomeFilterBar({
   currentPreset,
   currentBuckets,
   currentView,
-  mapAvailable: _mapAvailable,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();

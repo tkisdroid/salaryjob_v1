@@ -29,7 +29,10 @@ test.describe("login destination recovery", () => {
 
     await page.locator("#email").fill(DEV_USERS.worker2.email);
     await page.locator("#password").fill(DEV_USERS.worker2.password);
-    await page.locator("form").first().locator('button[type="submit"]').click();
+    await page
+      .getByTestId("password-login-form")
+      .locator('button[type="submit"]')
+      .click();
 
     await page.waitForURL(new RegExp(`${escapeRegExp(postPath)}/apply$`), {
       timeout: 15_000,

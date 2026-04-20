@@ -27,6 +27,14 @@ import { uploadBusinessRegFile } from '@/lib/supabase/storage-biz-reg'
 import { runBizLicenseOcr } from '@/lib/ocr/clova'
 import { revalidatePath } from 'next/cache'
 
+const IS_ACTION_TEST_MODE =
+  process.env.NODE_ENV === 'test' && process.env.VITEST === 'true'
+
+function revalidatePathSafe(path: string) {
+  if (IS_ACTION_TEST_MODE) return
+  revalidatePath(path)
+}
+
 /**
  * Void-returning form action wrapper for use in <form action={...}>.
  * Next.js form action prop requires (formData: FormData) => void | Promise<void>.
@@ -116,6 +124,6 @@ export async function uploadBusinessRegImage(
     // Swallow all OCR errors — D-33: image save is authoritative; OCR is advisory.
   }
 
-  revalidatePath('/biz/verify')
+  revalidatePathSafe('/biz/verify')
   return { ok: true, ocr }
 }

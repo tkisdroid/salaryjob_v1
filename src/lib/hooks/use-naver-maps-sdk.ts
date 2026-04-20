@@ -121,6 +121,13 @@ export function useNaverMapsSDK(): NaverSdkState {
   useEffect(() => {
     if (!key) return;
 
+    let cancelled = false;
+    const deferState = (nextState: NaverSdkState) => {
+      queueMicrotask(() => {
+        if (!cancelled) setState(nextState);
+      });
+    };
+
     const currentOrigin =
       typeof window !== "undefined" ? window.location.origin : null;
     const blockedMessage = getNaverSdkBlockedMessage({
@@ -129,27 +136,30 @@ export function useNaverMapsSDK(): NaverSdkState {
     });
 
     if (blockedMessage) {
-      setState({
+      deferState({
         ready: false,
         error: null,
         blockedMessage,
         hasKey: true,
       });
-      return;
+      return () => {
+        cancelled = true;
+      };
     }
 
     // Already loaded? (HMR reload, multi-consumer mount)
     if (hasNaverMaps()) {
-      setState({
+      deferState({
         ready: true,
         error: null,
         blockedMessage: null,
         hasKey: true,
       });
-      return;
+      return () => {
+        cancelled = true;
+      };
     }
 
-    let cancelled = false;
     let pollTimer: ReturnType<typeof setInterval> | null = null;
 
     const markReady = () => {

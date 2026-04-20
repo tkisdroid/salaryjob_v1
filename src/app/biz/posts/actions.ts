@@ -23,6 +23,14 @@ type JobCategoryLiteral = (typeof JOB_CATEGORIES)[number];
 // HH:MM validation regex
 const HHMM = /^([01]\d|2[0-3]):[0-5]\d$/;
 
+const IS_ACTION_TEST_MODE =
+  process.env.NODE_ENV === "test" && process.env.VITEST === "true";
+
+function revalidatePathSafe(path: string) {
+  if (IS_ACTION_TEST_MODE) return;
+  revalidatePath(path);
+}
+
 const JobCreateSchema = z.object({
   businessId: z.string().uuid("사업장 ID가 올바르지 않습니다"),
   title: z
@@ -279,9 +287,9 @@ export async function createJob(
     return { error: "공고 생성에 실패했습니다. 잠시 후 다시 시도해주세요" };
   }
 
-  revalidatePath("/biz/posts");
-  revalidatePath("/");
-  revalidatePath("/home");
+  revalidatePathSafe("/biz/posts");
+  revalidatePathSafe("/");
+  revalidatePathSafe("/home");
   redirect(`/biz/posts/${newJobId}`);
 }
 
@@ -383,11 +391,11 @@ export async function updateJob(
     return { error: "공고 수정에 실패했습니다" };
   }
 
-  revalidatePath("/biz/posts");
-  revalidatePath(`/biz/posts/${d.jobId}`);
-  revalidatePath(`/posts/${d.jobId}`);
-  revalidatePath("/");
-  revalidatePath("/home");
+  revalidatePathSafe("/biz/posts");
+  revalidatePathSafe(`/biz/posts/${d.jobId}`);
+  revalidatePathSafe(`/posts/${d.jobId}`);
+  revalidatePathSafe("/");
+  revalidatePathSafe("/home");
 
   return {
     success: true,
@@ -430,8 +438,8 @@ export async function deleteJob(
     return { error: "공고 삭제에 실패했습니다" };
   }
 
-  revalidatePath("/biz/posts");
-  revalidatePath("/");
-  revalidatePath("/home");
+  revalidatePathSafe("/biz/posts");
+  revalidatePathSafe("/");
+  revalidatePathSafe("/home");
   return { success: true };
 }

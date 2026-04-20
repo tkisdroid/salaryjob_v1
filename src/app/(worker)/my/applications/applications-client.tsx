@@ -1,60 +1,34 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import {
-  ChevronLeft,
-  FileText,
   Building2,
   Calendar,
-  Wallet,
-  Inbox,
-  Hourglass,
-  CheckCircle2,
-  Zap,
   CheckCheck,
-  QrCode,
-  MapPin,
+  CheckCircle2,
+  ChevronLeft,
   Clock,
+  FileText,
+  Hourglass,
+  Inbox,
+  MapPin,
+  QrCode,
+  Wallet,
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { CancelApplicationDialog } from "@/components/worker/cancel-application-dialog";
 import { formatMoney } from "@/lib/format";
 import { formatWorkDate } from "@/lib/job-utils";
 import { subscribeApplicationsForWorker } from "@/lib/supabase/realtime";
-import { CancelApplicationDialog } from "@/components/worker/cancel-application-dialog";
+import { cn } from "@/lib/utils";
 
-/**
- * Phase 4 Plan 04-08 — /my/applications client runtime.
- *
- * Tab-based filter across three DB-derived buckets (pre-fetched server-side
- * in page.tsx). Supabase Realtime postgres_changes subscription flips the
- * `isStale` flag and calls `router.refresh()` whenever the worker's own
- * applications row changes — typical triggers are Business accept/reject,
- * the auto-accept pg_cron sweep, or shift state transitions.
- *
- * D-08 polling fallback: if the Realtime channel fails (CHANNEL_ERROR /
- * TIMED_OUT), a 60-second `setInterval` kicks in to router.refresh. This is
- * the MUST fallback committed in Plan 04-CONTEXT.md — Realtime is best
- * effort, but the 완료/수락 UX must not silently stall.
- */
-
-// Shape returned by getApplicationsByWorker after JSON round-trip through
-// the server → client boundary. Decimals become strings, Dates become
-// strings — everything we touch is displayed, not operated on, so string
-// is fine.
 type AppRow = {
   id: string;
   jobId: string;
   workerId: string;
-  // Phase 5 added 'settled' as the new terminal state for checked-out
-  // applications. 'completed' is kept for legacy pre-Phase-5 rows that
-  // the data migration did not catch (rows with checkOutAt IS NULL, or
-  // partial states). STATUS_CONFIG must have an entry for every value
-  // here — when it didn't, rendering ApplicationCard for a settled row
-  // crashed because `STATUS_CONFIG[app.status].icon` blew up on
-  // undefined, and the 완료 tab silently showed nothing.
   status:
     | "pending"
     | "confirmed"
@@ -92,55 +66,50 @@ type Props = {
   done: AppRow[];
 };
 
-/** UI-SPEC status → visual config. `cancelled` only surfaces if present. */
 const STATUS_CONFIG: Record<
   AppRow["status"],
   {
     label: string;
     icon: typeof Hourglass;
-    badgeVariant: "default" | "secondary" | "outline" | "destructive";
     accentClass: string;
   }
 > = {
   pending: {
     label: "대기 중",
     icon: Hourglass,
-    badgeVariant: "secondary",
     accentClass: "text-muted-foreground",
   },
   confirmed: {
-    label: "수락됨",
+    label: "확정됨",
     icon: CheckCircle2,
-    badgeVariant: "default",
     accentClass: "text-teal-600",
   },
   in_progress: {
     label: "근무 중",
     icon: Zap,
-    badgeVariant: "default",
     accentClass: "text-emerald-600",
   },
   completed: {
     label: "완료",
     icon: CheckCheck,
-    badgeVariant: "outline",
     accentClass: "text-muted-foreground",
   },
-  // Phase 5 terminal state: checkOut now writes status='settled' instead
-  // of 'completed'. Rendered identically to 완료 but with a distinct
-  // label so the user knows their earnings landed.
   settled: {
     label: "정산 완료",
     icon: CheckCheck,
-    badgeVariant: "outline",
     accentClass: "text-brand",
   },
   cancelled: {
     label: "취소됨",
     icon: Inbox,
-    badgeVariant: "destructive",
     accentClass: "text-destructive",
   },
+};
+
+const TAB_EMPTY_COPY: Record<TabValue, string> = {
+  upcoming: "예정된 지원이 없어요",
+  active: "진행 중인 근무가 없어요",
+  done: "완료된 근무가 없어요",
 };
 
 export function ApplicationsClient({
@@ -152,17 +121,12 @@ export function ApplicationsClient({
 }: Props) {
   const router = useRouter();
   const [currentTab, setCurrentTab] = useState<TabValue>(initialTab);
-  // D-08 fallback: set to true when Realtime reports CHANNEL_ERROR / TIMED_OUT.
-  // We MUST NOT rename this identifier — verify step greps for "pollingActive".
   const [pollingActive, setPollingActive] = useState(false);
 
-  // Realtime subscription — primary update path.
   useEffect(() => {
     const unsubscribe = subscribeApplicationsForWorker(
       workerId,
       () => {
-        // Any INSERT / UPDATE / DELETE on this worker's rows → refresh server
-        // component to pick up fresh bucket contents.
         router.refresh();
       },
       (status) => {
@@ -176,7 +140,6 @@ export function ApplicationsClient({
     return unsubscribe;
   }, [workerId, router]);
 
-  // D-08 polling fallback — only runs while Realtime is unhealthy.
   useEffect(() => {
     if (!pollingActive) return;
     const id = setInterval(() => router.refresh(), 60_000);
@@ -185,22 +148,15 @@ export function ApplicationsClient({
 
   const currentItems =
     currentTab === "upcoming" ? upcoming : currentTab === "active" ? active : done;
-  const currentEmpty =
-    currentTab === "upcoming"
-      ? "예정된 지원이 없어요"
-      : currentTab === "active"
-        ? "진행 중인 근무가 없어요"
-        : "완료된 근무가 없어요";
 
-  const tabs: Array<{ v: TabValue; label: string; count: number }> = [
-    { v: "upcoming", label: "예정", count: upcoming.length },
-    { v: "active", label: "진행중", count: active.length },
-    { v: "done", label: "완료", count: done.length },
+  const tabs: Array<{ value: TabValue; label: string; count: number }> = [
+    { value: "upcoming", label: "예정", count: upcoming.length },
+    { value: "active", label: "진행중", count: active.length },
+    { value: "done", label: "완료", count: done.length },
   ];
 
   return (
     <div className="mx-auto max-w-lg px-4 py-5">
-      {/* Premium chat-back style header */}
       <header className="flex items-center gap-2 pb-1">
         <Link
           href="/my"
@@ -215,35 +171,50 @@ export function ApplicationsClient({
         </h1>
       </header>
 
-      {/* 3-way segmented pill */}
-      <div className="mt-3 flex gap-0.5 rounded-full border border-border bg-surface p-1">
-        {tabs.map((t) => (
+      <div
+        role="tablist"
+        aria-label="지원 내역 상태"
+        className="mt-3 flex gap-0.5 rounded-full border border-border bg-surface p-1"
+      >
+        {tabs.map((tab) => (
           <button
-            key={t.v}
+            key={tab.value}
             type="button"
-            onClick={() => setCurrentTab(t.v)}
+            role="tab"
+            id={`applications-tab-${tab.value}`}
+            aria-controls={`applications-panel-${tab.value}`}
+            aria-selected={currentTab === tab.value}
+            onClick={() => setCurrentTab(tab.value)}
             className={cn(
               "inline-flex flex-1 items-center justify-center gap-1.5 rounded-full py-2.5 text-[12.5px] font-bold tracking-tight transition-colors",
-              currentTab === t.v
+              currentTab === tab.value
                 ? "bg-ink text-white"
                 : "text-muted-foreground hover:text-ink",
             )}
           >
-            {t.label}
+            {tab.label}
             <span
               className={cn(
                 "tabnum text-[11px] font-extrabold",
-                currentTab === t.v ? "text-brand" : "text-text-subtle",
+                currentTab === tab.value ? "text-brand" : "text-text-subtle",
               )}
             >
-              {t.count}
+              ({tab.count})
             </span>
           </button>
         ))}
       </div>
 
-      <div className="pt-4">
-        <ApplicationList items={currentItems} emptyMessage={currentEmpty} />
+      <div
+        id={`applications-panel-${currentTab}`}
+        role="tabpanel"
+        aria-labelledby={`applications-tab-${currentTab}`}
+        className="pt-4"
+      >
+        <ApplicationList
+          items={currentItems}
+          emptyMessage={TAB_EMPTY_COPY[currentTab]}
+        />
       </div>
     </div>
   );
@@ -257,6 +228,7 @@ function ApplicationList({
   emptyMessage: string;
 }) {
   if (items.length === 0) return <EmptyState message={emptyMessage} />;
+
   return (
     <div className="space-y-3">
       {items.map((app) => (
@@ -283,7 +255,6 @@ function EmptyState({ message }: { message: string }) {
   );
 }
 
-/** Status → premium tag-state pill color classes. */
 function statusPillClasses(status: AppRow["status"]): string {
   switch (status) {
     case "in_progress":
@@ -309,16 +280,13 @@ function ApplicationCard({ app }: { app: AppRow }) {
     app.job.startTime,
   );
 
-  const canCancel =
-    app.status === "pending" || app.status === "confirmed";
+  const canCancel = app.status === "pending" || app.status === "confirmed";
   const canCheckIn = app.status === "confirmed";
   const isInProgress = app.status === "in_progress";
-  const isCompleted =
-    app.status === "completed" || app.status === "settled";
+  const isCompleted = app.status === "completed" || app.status === "settled";
 
   return (
     <article className="rounded-[22px] border border-border-soft bg-surface p-[18px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-md">
-      {/* top row — store/title + tag-state pill */}
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
           <p className="flex items-center gap-1 truncate text-[11.5px] font-semibold text-muted-foreground">
@@ -331,7 +299,7 @@ function ApplicationCard({ app }: { app: AppRow }) {
         </div>
         <span
           className={cn(
-            "shrink-0 inline-flex items-center gap-1 rounded-[6px] px-2 py-1 text-[10px] font-extrabold tracking-tight",
+            "inline-flex shrink-0 items-center gap-1 rounded-[6px] px-2 py-1 text-[10px] font-extrabold tracking-tight",
             statusPillClasses(app.status),
           )}
         >
@@ -340,7 +308,6 @@ function ApplicationCard({ app }: { app: AppRow }) {
         </span>
       </div>
 
-      {/* meta row */}
       <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] font-semibold text-muted-foreground">
         <span className="inline-flex items-center gap-1">
           <Calendar className="h-3 w-3" />
@@ -360,7 +327,6 @@ function ApplicationCard({ app }: { app: AppRow }) {
         </span>
       </div>
 
-      {/* earnings row — only for completed/settled with earnings */}
       {isCompleted && app.earnings !== null && (
         <div className="mt-3 flex items-center justify-between border-t border-dashed border-border pt-3">
           <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-muted-foreground">
@@ -373,7 +339,6 @@ function ApplicationCard({ app }: { app: AppRow }) {
         </div>
       )}
 
-      {/* action buttons */}
       {(canCancel || canCheckIn || isInProgress) && (
         <div className="mt-3 grid grid-cols-[1fr_auto] gap-2 border-t border-dashed border-border pt-3">
           {canCheckIn && (
@@ -381,7 +346,8 @@ function ApplicationCard({ app }: { app: AppRow }) {
               href={`/my/applications/${app.id}/check-in`}
               className="inline-flex h-11 items-center justify-center gap-1.5 rounded-[12px] border border-dashed border-ink bg-[color-mix(in_oklch,var(--brand)_10%,var(--surface))] text-[12.5px] font-bold text-ink transition-all hover:bg-[color-mix(in_oklch,var(--brand)_16%,var(--surface))]"
             >
-              <QrCode className="h-4 w-4" /> 체크인
+              <QrCode className="h-4 w-4" />
+              체크인
             </Link>
           )}
           {isInProgress && (
@@ -389,7 +355,8 @@ function ApplicationCard({ app }: { app: AppRow }) {
               href={`/my/applications/${app.id}/check-in`}
               className="inline-flex h-11 items-center justify-center gap-1.5 rounded-[12px] bg-ink text-[12.5px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
             >
-              <Zap className="h-4 w-4" /> 체크아웃
+              <Zap className="h-4 w-4" />
+              체크아웃
             </Link>
           )}
           {canCancel && (
@@ -412,12 +379,6 @@ function ApplicationCard({ app }: { app: AppRow }) {
   );
 }
 
-/**
- * Combine a workDate ISO string (UTC midnight) with an "HH:MM" startTime
- * into a Date representing the shift start instant. Mirrors the
- * combineWorkDateTime helper inside cancelApplication — keep logic
- * identical so the client 24h check matches the server-side rule.
- */
 function combineWorkDateTime(workDateIso: string, startTime: string): Date {
   const [h, m] = startTime.split(":").map((n) => Number(n));
   const combined = new Date(workDateIso);

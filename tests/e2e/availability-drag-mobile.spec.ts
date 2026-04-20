@@ -53,7 +53,7 @@ test.describe("availability mobile drag + save", () => {
     await page.goto("/my/availability");
     const resetButton = page.getByRole("button", { name: /초기화/ });
     await resetButton.click();
-    const saveBtn = page.getByRole("button", { name: /^저장$/ });
+    const saveBtn = page.getByRole("button", { name: /^저장/ });
     if (await saveBtn.isEnabled().catch(() => false)) {
       await saveBtn.click();
       await expect(page.locator("text=/저장되었어요|모두 저장됨/").first())
@@ -145,7 +145,7 @@ test.describe("availability mobile drag + save", () => {
     }
 
     // Save — the button should become enabled once isDirty flips to true.
-    const saveButton = page.getByRole("button", { name: /^저장$/ });
+    const saveButton = page.getByRole("button", { name: /^저장/ });
     await expect(saveButton).toBeEnabled({ timeout: 5_000 });
     await saveButton.click();
 

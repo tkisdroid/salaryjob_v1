@@ -42,8 +42,8 @@ describe.skipIf(!process.env.DATABASE_URL)(
     beforeAll(async () => {
       await cleanupPhase6Fixtures();
 
-      const module = await import("@/lib/db/admin-queries");
-      getBusinessesPaginated = module.getBusinessesPaginated;
+      const adminQueries = await import("@/lib/db/admin-queries");
+      getBusinessesPaginated = adminQueries.getBusinessesPaginated;
     });
 
     afterAll(async () => {

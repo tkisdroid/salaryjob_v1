@@ -41,7 +41,10 @@ export async function loginAs(page: Page, key: DevUserKey): Promise<void> {
   await page.goto("/login");
   await page.locator("#email").fill(email);
   await page.locator("#password").fill(password);
-  await page.locator("form").first().locator('button[type="submit"]').click();
+  await page
+    .getByTestId("password-login-form")
+    .locator('button[type="submit"]')
+    .click();
   await page.waitForURL((url) => !url.pathname.startsWith("/login"), {
     timeout: 15_000,
   });

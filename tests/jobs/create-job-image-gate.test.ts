@@ -6,7 +6,7 @@
 // Flip to GREEN: Plan 06-07 must:
 //   1. Add a guard in createJob (src/app/biz/posts/actions.ts) that:
 //      - Queries BusinessProfile.businessRegImageUrl for the given businessId
-//      - If null → returns { error: 'verify_required', redirectTo: '/biz/verify' } (NO Job insert)
+//      - If null → returns { error: 'verify_required', redirectTo: '/biz/verify?businessId=...' } (NO Job insert)
 //      - If NOT null → proceeds normally and inserts 1 Job row
 //   2. Gate checks businessRegImageUrl IS NOT NULL — NOT the `verified` column (per Pitfall 3)
 //
@@ -91,7 +91,9 @@ describe.skipIf(!process.env.DATABASE_URL)(
       });
       // redirectTo field is optional but preferred
       if ("redirectTo" in (result ?? {})) {
-        expect((result as { redirectTo?: string }).redirectTo).toBe("/biz/verify");
+        expect((result as { redirectTo?: string }).redirectTo).toBe(
+          `/biz/verify?businessId=${bizId}`,
+        );
       }
 
       const after = await prisma.job.count({
@@ -155,7 +157,7 @@ describe.skipIf(!process.env.DATABASE_URL)(
 
       try {
         await createJob({} as Parameters<typeof createJob>[0], formData);
-      } catch (_e) {
+      } catch {
         // redirect on success is fine
       }
 

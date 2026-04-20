@@ -1,14 +1,20 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import type { ReactNode } from "react";
 import {
-  ChevronLeft,
   BriefcaseBusiness,
   CalendarClock,
+  ChevronLeft,
   Mail,
   ShieldCheck,
   Star,
   UserRound,
 } from "lucide-react";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar";
 import { requireJobOwner } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { getReviewsForUser } from "@/lib/db/queries";
@@ -28,7 +34,7 @@ function getStatusBadge(status: string) {
     case "pending":
       return { label: "대기 중", className: "bg-surface-2 text-muted-foreground" };
     case "confirmed":
-      return { label: "수락됨", className: "bg-brand text-ink" };
+      return { label: "확정됨", className: "bg-brand text-ink" };
     case "checked_in":
       return { label: "체크인", className: "bg-lime-chip text-lime-chip-fg" };
     case "in_progress":
@@ -38,7 +44,7 @@ function getStatusBadge(status: string) {
     case "settled":
       return { label: "정산 완료", className: "bg-ink text-white" };
     case "cancelled":
-      return { label: "거절됨", className: "bg-destructive/10 text-destructive" };
+      return { label: "취소됨", className: "bg-destructive/10 text-destructive" };
     default:
       return { label: status, className: "bg-surface-2 text-muted-foreground" };
   }
@@ -96,7 +102,7 @@ export default async function BizApplicantDetailPage({
   const birthDateLabel = formatBirthDate(profile?.birthDate);
   const workerName = profile?.name ?? application.worker.email ?? "익명";
   const workerNickname = profile?.nickname ?? "닉네임 미등록";
-  const workerAvatar = profile?.avatar ?? "👤";
+  const workerInitial = workerName.trim().charAt(0) || "구";
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-5 sm:px-6 sm:py-8">
@@ -105,16 +111,21 @@ export default async function BizApplicantDetailPage({
         className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 py-2 text-[13px] font-bold text-ink transition-colors hover:border-ink hover:bg-surface-2"
       >
         <ChevronLeft className="h-4 w-4" />
-        지원자 목록
+        지원자 목록으로
       </Link>
 
       <div className="mt-5 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
         <section className="rounded-[22px] border border-border-soft bg-surface p-5">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-start gap-3">
-              <div className="grid h-14 w-14 shrink-0 place-items-center rounded-[18px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-2xl">
-                {workerAvatar}
-              </div>
+              <Avatar className="h-14 w-14 rounded-[18px]" size="lg">
+                {profile?.avatar ? (
+                  <AvatarImage src={profile.avatar} alt={`${workerName} 프로필`} />
+                ) : null}
+                <AvatarFallback className="rounded-[18px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-[18px] font-extrabold text-ink">
+                  {workerInitial}
+                </AvatarFallback>
+              </Avatar>
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
                   <h1 className="text-[20px] font-extrabold tracking-[-0.025em] text-ink">
@@ -139,67 +150,61 @@ export default async function BizApplicantDetailPage({
           </div>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2">
-            <div className="rounded-[18px] border border-border-soft bg-surface p-4">
-              <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
-                평점
-              </p>
-              <p className="tabnum mt-1 flex items-center gap-1 text-[18px] font-extrabold tracking-tight text-ink">
+            <MetricCard label="평점">
+              <span className="tabnum mt-1 flex items-center gap-1 text-[18px] font-extrabold tracking-tight text-ink">
                 <Star className="h-4 w-4 fill-[#fbbf24] text-[#fbbf24]" />
                 {rating.toFixed(1)}
-              </p>
-            </div>
-            <div className="rounded-[18px] border border-border-soft bg-surface p-4">
-              <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
-                완료 근무
-              </p>
-              <p className="tabnum mt-1 text-[18px] font-extrabold tracking-tight text-ink">
-                {totalJobs}회
-              </p>
-            </div>
-            <div className="rounded-[18px] border border-border-soft bg-surface p-4">
-              <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
-                완료율
-              </p>
-              <p className="tabnum mt-1 text-[18px] font-extrabold tracking-tight text-brand-deep">
+              </span>
+            </MetricCard>
+            <MetricCard label="완료 근무">
+              <span className="tabnum mt-1 text-[18px] font-extrabold tracking-tight text-ink">
+                {totalJobs}건
+              </span>
+            </MetricCard>
+            <MetricCard label="완료율">
+              <span className="tabnum mt-1 text-[18px] font-extrabold tracking-tight text-brand-deep">
                 {completionRate.toFixed(0)}%
-              </p>
-            </div>
-            <div className="rounded-[18px] border border-border-soft bg-surface p-4">
-              <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
-                나이
-              </p>
-              <p className="tabnum mt-1 text-[18px] font-extrabold tracking-tight text-ink">
+              </span>
+            </MetricCard>
+            <MetricCard label="나이">
+              <span className="tabnum mt-1 text-[18px] font-extrabold tracking-tight text-ink">
                 {age === null ? "미등록" : `만 ${age}세`}
-              </p>
+              </span>
               {birthDateLabel && (
-                <p className="tabnum mt-1 text-[11px] font-semibold text-text-subtle">
+                <span className="tabnum mt-1 text-[11px] font-semibold text-text-subtle">
                   {birthDateLabel}
-                </p>
+                </span>
               )}
-            </div>
-            <div className="rounded-[18px] border border-border-soft bg-surface p-4 sm:col-span-2">
-              <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
-                노쇼
-              </p>
-              <p
+            </MetricCard>
+            <MetricCard label="노쇼" className="sm:col-span-2">
+              <span
                 className={`tabnum mt-1 text-[18px] font-extrabold tracking-tight ${
                   noShowCount === 0 ? "text-text-subtle" : "text-destructive"
                 }`}
               >
-                {noShowCount}회
-              </p>
-            </div>
+                {noShowCount}건
+              </span>
+            </MetricCard>
           </div>
 
           <div className="mt-5 space-y-3 rounded-[18px] border border-dashed border-border bg-surface-2/50 p-4">
             {[
               { Icon: Mail, value: application.worker.email ?? "이메일 정보 없음" },
               { Icon: UserRound, value: workerNickname },
-              { Icon: CalendarClock, value: `지원 시각: ${formatDateTime(application.appliedAt)}` },
+              {
+                Icon: CalendarClock,
+                value: `지원 시각: ${formatDateTime(application.appliedAt)}`,
+              },
               { Icon: BriefcaseBusiness, value: `공고: ${job.title}` },
-              { Icon: ShieldCheck, value: `최근 체크인: ${formatDateTime(application.checkInAt)}` },
-            ].map(({ Icon, value }, i) => (
-              <div key={i} className="flex items-start gap-2 text-[12.5px] font-medium text-ink">
+              {
+                Icon: ShieldCheck,
+                value: `최근 체크인: ${formatDateTime(application.checkInAt)}`,
+              },
+            ].map(({ Icon, value }, index) => (
+              <div
+                key={index}
+                className="flex items-start gap-2 text-[12.5px] font-medium text-ink"
+              >
                 <Icon className="mt-0.5 h-4 w-4 shrink-0 text-text-subtle" />
                 <span>{value}</span>
               </div>
@@ -251,6 +256,29 @@ export default async function BizApplicantDetailPage({
           </div>
         </section>
       </div>
+    </div>
+  );
+}
+
+function MetricCard({
+  label,
+  className,
+  children,
+}: {
+  label: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <div
+      className={`rounded-[18px] border border-border-soft bg-surface p-4 ${
+        className ?? ""
+      }`}
+    >
+      <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
+        {label}
+      </p>
+      {children}
     </div>
   );
 }

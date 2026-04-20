@@ -3,18 +3,18 @@
 import { Suspense, useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Mail, Lock, ArrowRight } from "lucide-react";
+import { ArrowRight, Lock, Mail } from "lucide-react";
 import {
   signInWithGoogle,
   signInWithKakao,
   signInWithMagicLink,
 } from "@/app/(auth)/signup/actions";
+import { CeleryMark } from "@/components/brand/celery-mark";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { signInWithPassword } from "./actions";
-import { CeleryMark } from "@/components/brand/celery-mark";
 import { cn } from "@/lib/utils";
+import { signInWithPassword } from "./actions";
 
 function LoginErrorBanner() {
   const searchParams = useSearchParams();
@@ -22,9 +22,9 @@ function LoginErrorBanner() {
   if (!error) return null;
 
   const messages: Record<string, string> = {
-    worker_required: "Worker 권한이 필요합니다.",
-    business_required: "Business 권한이 필요합니다.",
-    user_not_found: "사용자를 찾을 수 없습니다. 다시 로그인해 주세요.",
+    worker_required: "구직자 권한이 필요합니다.",
+    business_required: "사업자 권한이 필요합니다.",
+    user_not_found: "사용자를 찾을 수 없습니다. 다시 로그인해주세요.",
   };
 
   return (
@@ -32,17 +32,16 @@ function LoginErrorBanner() {
       role="alert"
       className="mb-5 rounded-[14px] border border-destructive/25 bg-destructive/5 px-4 py-3 text-[13px] font-bold text-destructive"
     >
-      {messages[error] ?? "로그인 오류가 발생했습니다."}
+      {messages[error] ?? "로그인 중 오류가 발생했습니다."}
     </div>
   );
 }
 
-// ── 공통 토큰 (Premium 정합) ──────────────────────────────────────────────
 const LABEL = "mb-1.5 block text-[12.5px] font-bold tracking-tight text-ink";
 const INPUT_BASE =
-  "h-12 w-full rounded-[14px] border border-border bg-surface text-[15px] text-ink placeholder:text-text-subtle transition-colors focus-visible:outline-none focus-visible:border-ink";
+  "h-12 w-full rounded-[14px] border border-border bg-surface text-[15px] text-ink placeholder:text-text-subtle transition-colors focus-visible:border-ink focus-visible:outline-none";
 const BTN_PRIMARY =
-  "h-12 w-full rounded-full bg-ink text-[15px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark disabled:opacity-60 disabled:cursor-not-allowed";
+  "h-12 w-full rounded-full bg-ink text-[15px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark disabled:cursor-not-allowed disabled:opacity-60";
 const BTN_OUTLINE =
   "h-12 w-full rounded-full border border-border bg-surface text-[15px] font-bold text-ink transition-colors hover:bg-surface-2";
 const BTN_KAKAO =
@@ -56,7 +55,6 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
 
   return (
     <div className="w-full">
-      {/* ── Header ──────────────────────────────────────────────────── */}
       <div className="mb-7 flex flex-col items-center text-center">
         <span className="grid h-14 w-14 place-items-center rounded-[18px] border border-border bg-surface">
           <CeleryMark className="h-8 w-8 text-brand" />
@@ -66,7 +64,7 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
           <span className="ml-[3px] inline-block h-[5px] w-[5px] -translate-y-[1px] rounded-full bg-brand" />
         </h1>
         <p className="mt-1.5 text-[12.5px] font-semibold tracking-tight text-muted-foreground">
-          내 주변 로컬 잡 플랫폼
+          내 주변 일자리, 더 가볍고 빠르게
         </p>
       </div>
 
@@ -75,7 +73,6 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
           <LoginErrorBanner />
         </Suspense>
 
-        {/* ── Social (primary path for Korean users) ─────────────── */}
         <div className="space-y-2.5">
           <form action={signInWithKakao}>
             {nextPath && <input type="hidden" name="next" value={nextPath} />}
@@ -98,7 +95,6 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
           </form>
         </div>
 
-        {/* ── Divider ────────────────────────────────────────────── */}
         <div className="relative my-7">
           <div className="absolute inset-0 flex items-center">
             <span className="w-full border-t border-border-soft" />
@@ -110,8 +106,11 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
           </div>
         </div>
 
-        {/* ── Password login ─────────────────────────────────────── */}
-        <form action={formAction} className="space-y-4">
+        <form
+          action={formAction}
+          className="space-y-4"
+          data-testid="password-login-form"
+        >
           {nextPath && <input type="hidden" name="next" value={nextPath} />}
 
           <div>
@@ -168,11 +167,10 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
           </Button>
         </form>
 
-        {/* ── Magic link (compact alternative) ─────────────────── */}
         <form action={signInWithMagicLink} className="mt-5 space-y-2.5">
           {nextPath && <input type="hidden" name="next" value={nextPath} />}
           <p className="text-[11.5px] font-semibold tracking-tight text-muted-foreground">
-            비밀번호 없이 이메일 링크로 로그인하고 싶다면
+            비밀번호 없이 이메일 링크로 로그인할 수 있습니다.
           </p>
           <div className="flex gap-2">
             <Input
@@ -194,7 +192,6 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
         </form>
       </div>
 
-      {/* ── Signup CTA ─────────────────────────────────────────── */}
       <div className="mt-6 text-center">
         <p className="text-[13px] font-medium text-muted-foreground">
           아직 계정이 없으신가요?{" "}
@@ -207,7 +204,6 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
         </p>
       </div>
 
-      {/* ── Terms ──────────────────────────────────────────────── */}
       <p className="mt-6 text-center text-[11.5px] font-medium leading-relaxed text-text-subtle">
         로그인하면{" "}
         <Link
@@ -229,7 +225,6 @@ export function LoginForm({ nextPath }: { nextPath: string | null }) {
   );
 }
 
-// ── 브랜드 글리프 (카카오/구글 공식 로고 단순화) ──────────────────────────
 function KakaoGlyph() {
   return (
     <svg

@@ -7,7 +7,7 @@
 //   - Server Action `verifyBusinessRegNumber(formData)` at
 //     src/app/biz/signup/actions.ts (or biz/verify/actions.ts)
 //   - Valid 10-digit format (NNN-NN-NNNNN) → writes businessRegNumber (digit-only)
-//     AND sets verified=true on BusinessProfile
+//     WITHOUT setting verified=true (OCR match is the only auto-verification path)
 //   - Invalid format → returns field error, no DB write
 //   - Duplicate regNumber across distinct businesses is ALLOWED (no uniqueness per D-30)
 //
@@ -52,7 +52,7 @@ describe.skipIf(skipIfNoSupabase())(
       await cleanupPhase6Fixtures();
     });
 
-    it("valid format '123-45-67890' → writes digit-only regNumber AND sets verified=true", async () => {
+    it("valid format '123-45-67890' → writes digit-only regNumber without auto-verifying", async () => {
       const { verifyBusinessRegNumber } = await import(
         "@/app/biz/signup/actions"
       );
@@ -77,7 +77,7 @@ describe.skipIf(skipIfNoSupabase())(
         bizId,
       );
       expect(row[0]?.businessRegNumber).toBe("1234567890"); // digit-only
-      expect(row[0]?.verified).toBe(true);
+      expect(row[0]?.verified).toBe(false);
     });
 
     it("invalid format 'abc-12-34567' → returns field error, no DB write, verified stays false", async () => {
@@ -116,14 +116,13 @@ describe.skipIf(skipIfNoSupabase())(
       );
 
       const { id: admin1 } = await createTestAdmin({ email: `admin-dup1-${Date.now()}@test.local` });
-      const { id: admin2 } = await createTestAdmin({ email: `admin-dup2-${Date.now()}@test.local` });
 
       const { id: biz1 } = await createTestBusinessWithReg({
         userId: admin1,
         verified: false,
       });
       const { id: biz2 } = await createTestBusinessWithReg({
-        userId: admin2,
+        userId: admin1,
         verified: false,
       });
 
@@ -156,6 +155,14 @@ describe(
     // Mock the OCR module before imports resolve
     vi.mock("@/lib/ocr/clova", () => ({
       runBizLicenseOcr: vi.fn(),
+    }));
+    vi.mock("@/lib/supabase/storage-biz-reg", () => ({
+      uploadBusinessRegFile: vi.fn(
+        async (_file: File, opts: { userId: string; businessId: string }) => ({
+          ok: true as const,
+          path: `${opts.userId}/${opts.businessId}.png`,
+        }),
+      ),
     }));
 
     beforeAll(async () => {

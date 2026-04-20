@@ -1,5 +1,12 @@
 import Link from "next/link";
-import { Calendar, FileText, Flame, Plus, Sparkles, Users, Zap } from "lucide-react";
+import {
+  Calendar,
+  FileText,
+  Flame,
+  Plus,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { requireBusiness } from "@/lib/dal";
 import {
   getBusinessProfilesByUserId,

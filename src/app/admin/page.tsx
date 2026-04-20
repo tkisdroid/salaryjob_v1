@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { requireAdmin } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 
@@ -102,19 +104,19 @@ export default async function AdminDashboardPage() {
 
       {/* Quick links */}
       <div className="flex flex-wrap gap-3 pt-2">
-        <a
+        <Link
           href="/admin/businesses"
           className="inline-flex h-11 items-center rounded-full bg-ink px-5 text-[13px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
         >
           사업장 목록 보기
-        </a>
+        </Link>
         {pendingReviewCount > 0 && (
-          <a
+          <Link
             href="/admin/businesses?verified=no"
             className="inline-flex h-11 items-center rounded-full bg-lime-chip px-5 text-[13px] font-extrabold text-lime-chip-fg transition-all hover:shadow-soft-sm"
           >
             검토 대기 {pendingReviewCount}건 보기
-          </a>
+          </Link>
         )}
       </div>
     </div>

@@ -41,7 +41,7 @@ self.addEventListener("push", (event) => {
     body: payload.body,
     icon: "/favicon.ico",
     badge: "/favicon.ico",
-    data: { url: payload.url, type: payload.type },
+    data: { url: payload.url, type: payload.type, swVersion: SW_VERSION },
     tag: payload.type || "default",
     renotify: true,
   };
