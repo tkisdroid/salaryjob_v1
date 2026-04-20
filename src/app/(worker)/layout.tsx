@@ -13,11 +13,12 @@ export default async function WorkerLayout({
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* pb-24 (= 96px) covers MobileTabBar h-16 (64px) + safe-area-inset-bottom (~34px on iOS). */}
-      {/* Previously used `md:pb-0` which removed desktop padding while MobileTabBar was still */}
-      {/* visible, causing content at the bottom to be hidden behind the bar on desktop — */}
-      {/* observed as "/home 스크롤이 끝까지 안 내려감". */}
-      <main className="flex-1 pb-24">{children}</main>
+      {/* MobileTabBar actual inner content is ~6.25rem (100px): pt-3 + ~58px FAB row + pb-7. */}
+      {/* Plus env(safe-area-inset-bottom) outer padding on iOS (~34px). */}
+      {/* pb-24 (96px) was undersized and left content peeking under the tab bar on mobile. */}
+      <main className="flex-1 pb-[calc(6.25rem+env(safe-area-inset-bottom))]">
+        {children}
+      </main>
       <MobileTabBar />
     </div>
   );

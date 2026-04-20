@@ -28,12 +28,13 @@ import { saveAvailability } from "./actions";
 const DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
 const DAY_KEYS = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"] as const;
 
-const START_HOUR = 6;
-const END_HOUR = 24;
-const HOURS = Array.from(
-  { length: END_HOUR - START_HOUR },
-  (_, i) => i + START_HOUR,
-);
+// 24 selectable hours with early-morning (0-5) rendered AFTER late-night (23)
+// so overnight shifts (e.g., 22:00-02:00) read as a visually continuous block
+// in the grid rather than wrapping to the top of the next day.
+const HOURS: readonly number[] = [
+  6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+  0, 1, 2, 3, 4, 5,
+];
 
 type SlotKey = `${(typeof DAY_KEYS)[number]}-${number}`;
 
@@ -59,16 +60,21 @@ function getContiguousBlocks(
   const daySlots = HOURS.filter((h) => slots.has(`${dayKey}-${h}` as SlotKey));
   if (daySlots.length === 0) return [];
 
+  // Contiguity is defined against HOURS' display order so an overnight
+  // selection like 22,23,0,1 collapses into a single 22:00-02:00 block.
   const blocks: Array<{ start: number; end: number }> = [];
   let start = daySlots[0];
   let prev = daySlots[0];
+  let prevIdx = HOURS.indexOf(daySlots[0]);
 
   for (let i = 1; i < daySlots.length; i++) {
-    if (daySlots[i] !== prev + 1) {
+    const currIdx = HOURS.indexOf(daySlots[i]);
+    if (currIdx !== prevIdx + 1) {
       blocks.push({ start, end: prev + 1 });
       start = daySlots[i];
     }
     prev = daySlots[i];
+    prevIdx = currIdx;
   }
   blocks.push({ start, end: prev + 1 });
   return blocks;
@@ -93,11 +99,16 @@ function getSlotRange(from: SlotKey | null, to: SlotKey): SlotKey[] {
   const end = parseSlotKey(to);
 
   if (start.dayKey === end.dayKey) {
-    const min = Math.min(start.hour, end.hour);
-    const max = Math.max(start.hour, end.hour);
+    // Use HOURS array position (not raw hour value) so that an overnight
+    // drag such as 22→02 fills [22, 23, 0, 1, 2] instead of [2..22].
+    const startIdx = HOURS.indexOf(start.hour);
+    const endIdx = HOURS.indexOf(end.hour);
+    if (startIdx === -1 || endIdx === -1) return [to];
+    const minIdx = Math.min(startIdx, endIdx);
+    const maxIdx = Math.max(startIdx, endIdx);
     const slots: SlotKey[] = [];
-    for (let hour = min; hour <= max; hour += 1) {
-      slots.push(`${start.dayKey}-${hour}` as SlotKey);
+    for (let i = minIdx; i <= maxIdx; i += 1) {
+      slots.push(`${start.dayKey}-${HOURS[i]}` as SlotKey);
     }
     return slots;
   }
@@ -608,8 +619,10 @@ export function AvailabilityEditor({
         </div>
       )}
 
-      {/* Sticky bottom action bar: sits above MobileTabBar (h-16 + safe-area) */}
-      <div className="fixed bottom-16 left-0 right-0 z-40 border-t border-border bg-surface/95 backdrop-blur-[12px] pb-[env(safe-area-inset-bottom)]">
+      {/* Sticky save bar stacks above MobileTabBar.
+          bottom = tab bar height (6.25rem = 100px) + iOS safe-area-inset-bottom.
+          No inner safe-area padding needed — the tab bar underneath already owns that zone. */}
+      <div className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 border-t border-border bg-surface/95 backdrop-blur-[12px]">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0 flex-1">
             {isDirty ? (

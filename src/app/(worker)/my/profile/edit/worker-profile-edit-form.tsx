@@ -343,8 +343,9 @@ export function WorkerProfileEditForm(props: Props) {
           </p>
         )}
 
-        {/* Sticky ink save — §04: "sticky 잉크 블랙 → 폼 어디서든 즉시 저장" */}
-        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border-soft bg-[color-mix(in_oklch,var(--surface)_96%,transparent)] px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)] [backdrop-filter:saturate(1.6)_blur(16px)]">
+        {/* Sticky ink save — §04: "sticky 잉크 블랙 → 폼 어디서든 즉시 저장".
+            Must sit ABOVE MobileTabBar (tab bar height = 6.25rem + iOS safe-area). */}
+        <div className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 border-t border-border-soft bg-[color-mix(in_oklch,var(--surface)_96%,transparent)] px-4 py-3 [backdrop-filter:saturate(1.6)_blur(16px)]">
           <div className="mx-auto max-w-md">
             {/* Design spec .pe-save uses rounded-[16px] rectangle, NOT the
                 app-wide pill CTA — intentional exception for this screen. */}
