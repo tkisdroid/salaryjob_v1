@@ -3,8 +3,8 @@ import { requireAdmin } from "@/lib/dal";
 import { getBusinessById } from "@/lib/db/admin-queries";
 import { createSignedBusinessRegUrl } from "@/lib/supabase/storage-biz-reg";
 import { getEffectiveCommissionRate } from "@/lib/commission";
-import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import { ChevronLeft } from "lucide-react";
 import { updateCommissionRate as _updateCommissionRate } from "./actions";
 
 // Void wrapper so form action= prop is satisfied by TypeScript.
@@ -33,12 +33,12 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <Card className="p-5">
-      <h2 className="mb-3 text-sm font-semibold text-muted-foreground uppercase tracking-wide">
+    <section className="rounded-[22px] border border-border-soft bg-surface p-5">
+      <h2 className="mb-3 text-[11px] font-extrabold uppercase tracking-wider text-muted-foreground">
         {title}
       </h2>
       {children}
-    </Card>
+    </section>
   );
 }
 
@@ -50,9 +50,13 @@ function Field({
   value: React.ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-0.5 py-1.5">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <span className="text-sm font-medium">{value ?? "-"}</span>
+    <div className="flex flex-col gap-0.5 py-2">
+      <span className="text-[11.5px] font-semibold text-muted-foreground">
+        {label}
+      </span>
+      <span className="text-[13.5px] font-bold tracking-tight text-ink">
+        {value ?? "-"}
+      </span>
     </div>
   );
 }
@@ -87,22 +91,25 @@ export default async function AdminBusinessDetailPage({
         <div className="flex-1">
           <Link
             href="/admin/businesses"
-            className="mb-1 inline-flex text-xs text-muted-foreground hover:text-foreground"
+            className="mb-2 inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1.5 text-[12px] font-bold text-ink transition-colors hover:border-ink hover:bg-surface-2"
           >
-            ← 사업장 목록
+            <ChevronLeft className="h-3.5 w-3.5" />
+            사업장 목록
           </Link>
-          <h1 className="text-2xl font-bold">{business.name}</h1>
-          <div className="mt-1 flex items-center gap-2">
+          <h1 className="text-[26px] font-extrabold tracking-[-0.035em] text-ink">
+            {business.name}
+          </h1>
+          <div className="mt-2 flex items-center gap-2">
             <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+              className={`inline-flex items-center gap-1 rounded-[6px] px-2 py-1 text-[10px] font-extrabold tracking-tight ${
                 business.verified
-                  ? "bg-emerald-100 text-emerald-700"
-                  : "bg-amber-100 text-amber-700"
+                  ? "bg-brand text-ink"
+                  : "bg-lime-chip text-lime-chip-fg"
               }`}
             >
               {business.verified ? "인증됨" : "미인증"}
             </span>
-            <span className="text-xs text-muted-foreground">
+            <span className="tabnum text-[11.5px] font-semibold text-text-subtle">
               등록일{" "}
               {business.createdAt.toLocaleDateString("ko-KR", {
                 year: "numeric",
@@ -117,7 +124,7 @@ export default async function AdminBusinessDetailPage({
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         {/* 사업장 정보 */}
         <Section title="사업장 정보">
-          <div className="divide-y divide-border">
+          <div className="divide-y divide-border-soft">
             <Field label="사업장명" value={business.name} />
             <Field label="카테고리" value={business.category} />
             <Field label="주소" value={business.address} />
@@ -129,7 +136,7 @@ export default async function AdminBusinessDetailPage({
 
         {/* 사업자 정보 */}
         <Section title="사업자 정보">
-          <div className="divide-y divide-border">
+          <div className="divide-y divide-border-soft">
             <Field
               label="사업자등록번호"
               value={formatRegNumber(business.businessRegNumber)}
@@ -141,7 +148,7 @@ export default async function AdminBusinessDetailPage({
 
         {/* 계정 정보 */}
         <Section title="계정 정보">
-          <div className="divide-y divide-border">
+          <div className="divide-y divide-border-soft">
             <Field label="User ID" value={business.user.id} />
             <Field label="이메일" value={business.user.email} />
             <Field label="전화번호" value={business.user.phone} />
@@ -150,10 +157,14 @@ export default async function AdminBusinessDetailPage({
 
         {/* 실적 */}
         <Section title="실적">
-          <div className="divide-y divide-border">
+          <div className="divide-y divide-border-soft">
             <Field
               label="등록된 공고"
-              value={`${business._counts.jobs.toLocaleString("ko-KR")}건`}
+              value={
+                <span className="tabnum">
+                  {business._counts.jobs.toLocaleString("ko-KR")}건
+                </span>
+              }
             />
           </div>
         </Section>
@@ -164,21 +175,22 @@ export default async function AdminBusinessDetailPage({
         {business.businessRegImageUrl ? (
           signedUrl ? (
             <div className="space-y-3">
-              <p className="text-xs text-muted-foreground">
-                서명된 URL은 1시간 후 만료됩니다. 페이지를 새로고침하면 갱신됩니다.
+              <p className="text-[11.5px] font-medium text-text-subtle">
+                서명된 URL은 1시간 후 만료됩니다. 페이지를 새로고침하면
+                갱신됩니다.
               </p>
               {business.businessRegImageUrl.endsWith(".pdf") ? (
                 <object
                   data={signedUrl}
                   type="application/pdf"
-                  className="h-[600px] w-full rounded-md border border-border"
+                  className="h-[600px] w-full rounded-[18px] border border-border-soft"
                   aria-label="사업자등록증 PDF"
                 >
                   <a
                     href={signedUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-primary underline"
+                    className="text-[13px] font-bold text-brand-deep underline"
                   >
                     PDF 열기
                   </a>
@@ -188,17 +200,17 @@ export default async function AdminBusinessDetailPage({
                 <img
                   src={signedUrl}
                   alt="사업자등록증"
-                  className="max-h-[600px] w-auto rounded-md border border-border object-contain"
+                  className="max-h-[600px] w-auto rounded-[18px] border border-border-soft bg-surface-2 object-contain"
                 />
               )}
             </div>
           ) : (
-            <p className="text-sm text-destructive">
+            <p className="text-[13px] font-bold text-destructive">
               이미지 열람에 실패했습니다. 잠시 후 다시 시도해주세요.
             </p>
           )
         ) : (
-          <span className="inline-flex items-center rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground">
+          <span className="inline-flex items-center rounded-full bg-surface-2 px-3 py-1 text-[11.5px] font-bold text-muted-foreground">
             업로드 전
           </span>
         )}
@@ -208,14 +220,14 @@ export default async function AdminBusinessDetailPage({
       <Section title="수수료 설정">
         <div className="space-y-4">
           {/* Current effective rate display */}
-          <div className="rounded-md bg-muted/50 p-3 text-sm">
-            <p>
-              <span className="font-medium">현재 적용 수수료율:</span>{" "}
-              <span className="font-bold text-primary">
+          <div className="rounded-[14px] border border-border-soft bg-[color-mix(in_oklch,var(--brand)_6%,var(--surface))] p-4">
+            <p className="text-[13px] font-semibold text-ink">
+              현재 적용 수수료율:{" "}
+              <span className="tabnum text-[16px] font-extrabold tracking-tight text-brand-deep">
                 {effectiveRate.toString()}%
               </span>
             </p>
-            <p className="mt-0.5 text-xs text-muted-foreground">
+            <p className="mt-1 text-[11.5px] font-medium text-muted-foreground">
               {isOverride
                 ? `관리자 설정값 (플랫폼 기본값: ${envDefault}%)`
                 : `플랫폼 기본값 (PLATFORM_DEFAULT_COMMISSION_RATE=${envDefault}%)`}
@@ -228,12 +240,13 @@ export default async function AdminBusinessDetailPage({
             <div className="flex flex-col gap-1.5">
               <label
                 htmlFor="rate"
-                className="text-sm font-medium"
+                className="text-[12.5px] font-bold tracking-tight text-ink"
               >
                 수수료율 변경 (%)
               </label>
-              <p className="text-xs text-muted-foreground">
-                0–100 사이의 값, 소수점 둘째 자리까지 허용. 비워두면 플랫폼 기본값으로 초기화됩니다.
+              <p className="text-[11.5px] font-medium text-text-subtle">
+                0–100 사이의 값, 소수점 둘째 자리까지 허용. 비워두면 플랫폼
+                기본값으로 초기화됩니다.
               </p>
               <input
                 id="rate"
@@ -248,13 +261,13 @@ export default async function AdminBusinessDetailPage({
                     : ""
                 }
                 placeholder={`기본값 (${envDefault}%)`}
-                className="min-h-[44px] w-full max-w-xs rounded-md border border-border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                className="tabnum h-11 w-full max-w-xs rounded-[14px] border border-border bg-surface px-3.5 text-[14px] text-ink outline-none transition-colors placeholder:text-text-subtle focus:border-ink"
                 aria-label="수수료율"
               />
             </div>
             <button
               type="submit"
-              className="inline-flex min-h-[44px] items-center rounded-md bg-primary px-5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+              className="inline-flex h-11 items-center rounded-full bg-ink px-5 text-[13px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
             >
               수수료율 저장
             </button>

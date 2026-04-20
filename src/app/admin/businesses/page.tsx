@@ -5,7 +5,7 @@ import {
 } from "@/lib/db/admin-queries";
 import { BusinessesClient } from "./businesses-client";
 import Link from "next/link";
-import { Card } from "@/components/ui/card";
+import { Building2 } from "lucide-react";
 
 // Valid enum values for URL params — coerces unknown input to defaults
 const VALID_FIELDS = ["name", "reg", "owner", "phone"] as const;
@@ -98,9 +98,15 @@ export default async function AdminBusinessesPage({
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">사업장 관리</h1>
-        <span className="text-sm text-muted-foreground">
-          {items.length === 0 ? "0건" : `${items.length}건 표시 중`}
+        <h1 className="flex items-center gap-2 text-[26px] font-extrabold tracking-[-0.035em] text-ink">
+          <Building2 className="h-[22px] w-[22px] text-brand-deep" />
+          사업장 관리
+        </h1>
+        <span className="inline-flex items-center rounded-full bg-surface-2 px-3 py-1 text-[11.5px] font-bold text-muted-foreground">
+          <span className="tabnum">
+            {items.length === 0 ? "0" : items.length}
+          </span>
+          건 표시 중
         </span>
       </div>
 
@@ -114,63 +120,67 @@ export default async function AdminBusinessesPage({
 
       {/* Results */}
       {items.length === 0 ? (
-        <div className="flex flex-col items-center gap-4 py-16 text-center">
-          <p className="text-muted-foreground">
+        <div className="flex flex-col items-center gap-4 rounded-[22px] border border-border bg-surface py-16 text-center">
+          <p className="text-[14px] font-semibold text-muted-foreground">
             조건에 해당하는 사업장이 없습니다.
           </p>
           <Link
             href={buildResetUrl()}
-            className="text-sm text-primary underline"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 py-2 text-[12.5px] font-bold text-ink transition-colors hover:border-ink hover:bg-surface-2"
           >
             필터 초기화
           </Link>
         </div>
       ) : (
         <>
-          <div className="space-y-2">
+          <div className="space-y-2.5">
             {items.map((biz) => (
               <Link
                 key={biz.id}
                 href={`/admin/businesses/${biz.id}`}
-                className="block"
+                className="flex min-h-[60px] flex-col gap-2 rounded-[18px] border border-border-soft bg-surface p-4 transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-sm sm:flex-row sm:items-center sm:justify-between"
               >
-                <Card className="flex min-h-[60px] flex-col gap-1 p-4 transition-colors hover:bg-muted/50 sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex flex-col gap-0.5">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{biz.name}</span>
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          biz.verified
-                            ? "bg-emerald-100 text-emerald-700"
-                            : "bg-amber-100 text-amber-700"
-                        }`}
-                      >
-                        {biz.verified ? "인증됨" : "미인증"}
-                      </span>
-                    </div>
-                    <span className="text-xs text-muted-foreground">
-                      {formatRegNumber(biz.businessRegNumber)} ·{" "}
-                      {biz.ownerName ?? "대표자 미등록"} ·{" "}
-                      {biz.ownerPhone ?? "연락처 미등록"}
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="truncate text-[14.5px] font-extrabold tracking-[-0.02em] text-ink">
+                      {biz.name}
+                    </span>
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-1 rounded-[6px] px-2 py-0.5 text-[10px] font-extrabold tracking-tight ${
+                        biz.verified
+                          ? "bg-brand text-ink"
+                          : "bg-lime-chip text-lime-chip-fg"
+                      }`}
+                    >
+                      {biz.verified ? "인증됨" : "미인증"}
                     </span>
                   </div>
-                  <div className="flex flex-col items-start gap-0.5 text-right sm:items-end">
-                    <span className="text-sm font-medium">
-                      수수료:{" "}
+                  <p className="tabnum mt-1 truncate text-[11.5px] font-medium text-muted-foreground">
+                    <b className="font-bold text-ink">
+                      {formatRegNumber(biz.businessRegNumber)}
+                    </b>{" "}
+                    · {biz.ownerName ?? "대표자 미등록"} ·{" "}
+                    {biz.ownerPhone ?? "연락처 미등록"}
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col items-start gap-0.5 text-right sm:items-end">
+                  <span className="tabnum text-[13px] font-extrabold tracking-tight text-ink">
+                    수수료{" "}
+                    <span className="text-brand-deep">
                       {biz.commissionRate != null
                         ? `${biz.commissionRate.toString()}%`
                         : "기본값"}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      등록일{" "}
-                      {biz.createdAt.toLocaleDateString("ko-KR", {
-                        year: "numeric",
-                        month: "2-digit",
-                        day: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                </Card>
+                  </span>
+                  <span className="tabnum text-[10.5px] font-semibold text-text-subtle">
+                    등록일{" "}
+                    {biz.createdAt.toLocaleDateString("ko-KR", {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    })}
+                  </span>
+                </div>
               </Link>
             ))}
           </div>
@@ -180,7 +190,7 @@ export default async function AdminBusinessesPage({
             <div className="flex justify-center py-4">
               <Link
                 href={buildNextUrl()}
-                className="inline-flex min-h-[44px] items-center rounded-md border border-border bg-background px-6 text-sm hover:bg-muted"
+                className="inline-flex h-11 items-center rounded-full border border-border bg-surface px-6 text-[13px] font-bold text-ink transition-colors hover:border-ink hover:bg-surface-2"
               >
                 다음 페이지
               </Link>
