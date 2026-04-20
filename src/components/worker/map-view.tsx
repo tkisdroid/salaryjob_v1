@@ -118,11 +118,11 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
   if (!hasKey) {
     return (
       <div className="px-1 py-6">
-        <div className="flex h-[60vh] min-h-[400px] w-full flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-mint-bg/40 p-6 text-center">
-          <p className="text-sm font-semibold text-foreground">
+        <div className="flex h-[60vh] min-h-[400px] w-full flex-col items-center justify-center gap-3 rounded-[22px] border-2 border-dashed border-border bg-surface p-6 text-center">
+          <p className="text-[14px] font-extrabold tracking-tight text-ink">
             지도 보기는 곧 제공됩니다
           </p>
-          <p className="max-w-xs text-xs leading-5 text-muted-foreground">
+          <p className="max-w-xs text-[12.5px] font-medium leading-relaxed text-muted-foreground">
             현재는 리스트로만 확인할 수 있어요.
             <br />
             리스트 탭으로 돌아가 내 주변 공고를 살펴보세요.
@@ -157,41 +157,41 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
       <div
         ref={containerRef}
         data-testid="kakao-map-container"
-        className="h-[60vh] min-h-[400px] w-full overflow-hidden rounded-lg bg-muted"
+        className="h-[60vh] min-h-[400px] w-full overflow-hidden rounded-[22px] border border-border-soft bg-surface-2"
       />
       {!ready && (
-        <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-xs text-muted-foreground">
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-[12px] font-bold tracking-tight text-text-subtle">
           지도 로딩 중...
         </div>
       )}
       {selectedJob && (
         <div
-          className="absolute left-4 right-4 bottom-4 z-10 rounded-xl border border-border bg-background p-4 shadow-lg"
+          className="absolute bottom-4 left-4 right-4 z-10 rounded-[18px] border border-border-soft bg-surface p-4 shadow-soft-md"
           data-testid="map-preview-card"
         >
           <div className="mb-2 flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[11px] text-muted-foreground">
+              <p className="truncate text-[11px] font-semibold text-muted-foreground">
                 {selectedJob.business.name}
               </p>
-              <h3 className="line-clamp-1 text-sm font-bold">
+              <h3 className="line-clamp-1 text-[14px] font-extrabold tracking-[-0.02em] text-ink">
                 {selectedJob.title}
               </h3>
             </div>
             <button
               type="button"
               aria-label="미리보기 닫기"
-              className="-mr-2 -mt-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl leading-none text-muted-foreground hover:bg-muted hover:text-foreground"
+              className="-mr-2 -mt-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-xl leading-none text-text-subtle transition-colors hover:bg-surface-2 hover:text-ink"
               onClick={() => setSelectedJob(null)}
             >
               ×
             </button>
           </div>
-          <div className="flex items-center justify-between border-t border-border pt-2 text-xs">
-            <span className="text-muted-foreground">
+          <div className="tabnum flex items-center justify-between border-t border-border-soft pt-2 text-[12px]">
+            <span className="font-medium text-muted-foreground">
               {selectedJob.workDate} {selectedJob.startTime}
             </span>
-            <span className="font-bold text-brand">
+            <span className="font-extrabold text-brand-deep">
               {formatMoney(calculateEarnings(selectedJob))}
             </span>
           </div>
@@ -199,7 +199,7 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
             <button
               type="button"
               onClick={() => onMarkerClick(selectedJob.id)}
-              className="mt-3 w-full rounded-lg bg-brand py-2 text-xs font-bold text-white hover:bg-brand-dark"
+              className="mt-3 inline-flex h-10 w-full items-center justify-center rounded-full bg-ink text-[12.5px] font-extrabold tracking-tight text-white transition-all hover:bg-black hover:shadow-soft-dark"
             >
               상세보기
             </button>

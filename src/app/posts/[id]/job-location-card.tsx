@@ -262,32 +262,32 @@ export function JobLocationCard({
   }, []);
 
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
+    <div className="rounded-[22px] border border-border-soft bg-surface p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[15px] font-semibold tracking-[-0.008em] text-foreground">
+          <p className="text-[15px] font-extrabold tracking-[-0.02em] text-ink">
             {address}
           </p>
           {addressDetail ? (
-            <p className="mt-1 text-[12px] text-muted-foreground">
+            <p className="mt-1 text-[12px] font-medium text-muted-foreground">
               {addressDetail}
             </p>
           ) : null}
         </div>
         {distanceM !== null ? (
-          <span className="inline-flex items-center rounded-full bg-brand-light px-3 py-1 text-[12px] font-semibold text-brand-deep">
+          <span className="tabnum inline-flex items-center rounded-full bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] px-3 py-1 text-[12px] font-extrabold tracking-tight text-brand-deep">
             현재 위치에서 {formatDistance(distanceM)}
           </span>
         ) : null}
       </div>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+        <span className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-bold text-muted-foreground">
           <span className="h-2 w-2 rounded-full bg-brand" />
           근무지
         </span>
         {userCoords ? (
-          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-background px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+          <span className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-bold text-muted-foreground">
             <span className="h-2 w-2 rounded-full bg-[#2382F7]" />
             내 위치
           </span>
@@ -296,7 +296,7 @@ export function JobLocationCard({
           type="button"
           variant="outline"
           size="sm"
-          className="ml-auto rounded-full border-brand/25 text-xs text-brand-deep hover:bg-brand-light"
+          className="ml-auto rounded-full border-border text-[12px] font-extrabold text-ink transition-colors hover:border-ink hover:bg-surface-2"
           onClick={() => requestCurrentLocation()}
           disabled={locationStatus === "loading"}
         >
@@ -322,7 +322,7 @@ export function JobLocationCard({
       {locationMessage ? (
         <p
           className={cn(
-            "mt-2 text-[12px] leading-[1.6]",
+            "mt-2 text-[12px] font-medium leading-[1.6]",
             locationStatus === "denied" || locationStatus === "error"
               ? "text-[color:var(--amber-deep)]"
               : "text-muted-foreground",
@@ -332,13 +332,13 @@ export function JobLocationCard({
         </p>
       ) : null}
 
-      <div className="mt-4 overflow-hidden rounded-2xl border border-border bg-muted/40">
+      <div className="mt-4 overflow-hidden rounded-[18px] border border-border-soft bg-surface-2">
         {!hasMapCoordinates ? (
-          <div className="flex h-56 items-center justify-center px-4 text-center text-sm text-muted-foreground">
+          <div className="flex h-56 items-center justify-center px-4 text-center text-[13px] font-semibold text-muted-foreground">
             저장된 좌표가 없어 지도를 표시할 수 없습니다.
           </div>
         ) : !hasKey ? (
-          <div className="flex h-56 items-center justify-center px-4 text-center text-sm text-muted-foreground">
+          <div className="flex h-56 items-center justify-center px-4 text-center text-[13px] font-semibold text-muted-foreground">
             카카오 지도 키가 설정되면 근무 위치 지도를 바로 보여드릴게요.
           </div>
         ) : blockedMessage ? (
@@ -358,10 +358,10 @@ export function JobLocationCard({
             <div
               ref={containerRef}
               data-testid="job-location-map"
-              className="h-56 w-full bg-muted"
+              className="h-56 w-full bg-surface-2"
             />
             {!ready ? (
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-background/60 text-xs font-medium text-muted-foreground">
+              <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-surface/60 text-[12px] font-bold text-text-subtle">
                 지도를 불러오는 중...
               </div>
             ) : null}
