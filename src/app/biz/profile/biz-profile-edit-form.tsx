@@ -54,23 +54,29 @@ export function BizProfileEditForm(props: Props) {
     }
   }
 
+  const LABEL = "mb-1.5 block text-[12.5px] font-bold tracking-tight text-ink";
+  const LABEL_ICON =
+    "mb-1.5 flex items-center gap-1.5 text-[12.5px] font-bold tracking-tight text-ink";
+  const INPUT =
+    "h-12 w-full rounded-[14px] border border-border bg-surface px-3.5 text-[14px] font-medium text-ink placeholder:text-text-subtle transition-colors focus:border-ink focus:outline-none";
+  const ERROR_P = "mt-1 text-[11.5px] font-semibold text-destructive";
+
   return (
     <form action={action} className="space-y-5">
-      {/* BIZ-03: profileId is the ONLY identity the Server Action trusts.
-          The owner check compares this profile's userId to session.id. */}
       <input type="hidden" name="profileId" value={props.profileId} />
 
       {/* Store name header */}
-      <div className="flex items-center gap-2">
-        <span className="text-xl">{props.initialLogo || "🏢"}</span>
-        <h2 className="text-base font-bold">{props.initialName}</h2>
+      <div className="flex items-center gap-2.5 rounded-[18px] border border-border-soft bg-surface p-3">
+        <span className="grid h-10 w-10 place-items-center rounded-[12px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-xl">
+          {props.initialLogo || "🏢"}
+        </span>
+        <h2 className="text-[15px] font-extrabold tracking-[-0.02em] text-ink">
+          {props.initialName}
+        </h2>
       </div>
 
       <div>
-        <label
-          htmlFor={`name-${props.profileId}`}
-          className="mb-1.5 block text-xs font-semibold"
-        >
+        <label htmlFor={`name-${props.profileId}`} className={LABEL}>
           상호명 <span className="text-destructive">*</span>
         </label>
         <input
@@ -79,19 +85,16 @@ export function BizProfileEditForm(props: Props) {
           type="text"
           required
           defaultValue={props.initialName}
-          className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className={INPUT}
         />
         {err?.fieldErrors?.name && (
-          <p className="mt-1 text-xs text-destructive">{err.fieldErrors.name}</p>
+          <p className={ERROR_P}>{err.fieldErrors.name}</p>
         )}
       </div>
 
       <div>
-        <label
-          htmlFor={`category-${props.profileId}`}
-          className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold"
-        >
-          <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+        <label htmlFor={`category-${props.profileId}`} className={LABEL_ICON}>
+          <Building2 className="h-3.5 w-3.5 text-text-subtle" />
           카테고리 <span className="text-destructive">*</span>
         </label>
         <select
@@ -99,7 +102,7 @@ export function BizProfileEditForm(props: Props) {
           name="category"
           required
           defaultValue={props.initialCategory}
-          className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className={INPUT}
         >
           {CATEGORIES.map((c) => (
             <option key={c.value} value={c.value}>
@@ -108,20 +111,15 @@ export function BizProfileEditForm(props: Props) {
           ))}
         </select>
         {err?.fieldErrors?.category && (
-          <p className="mt-1 text-xs text-destructive">
-            {err.fieldErrors.category}
-          </p>
+          <p className={ERROR_P}>{err.fieldErrors.category}</p>
         )}
       </div>
 
       <div>
-        <label
-          htmlFor={`logo-${props.profileId}`}
-          className="mb-1.5 block text-xs font-semibold"
-        >
+        <label htmlFor={`logo-${props.profileId}`} className={LABEL}>
           로고 이모지
         </label>
-        <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-border bg-muted/30 text-2xl">
+        <div className="grid h-14 w-14 place-items-center rounded-[14px] border border-border bg-surface text-2xl">
           <input
             id={`logo-${props.profileId}`}
             name="logo"
@@ -129,17 +127,14 @@ export function BizProfileEditForm(props: Props) {
             maxLength={10}
             placeholder="🏢"
             defaultValue={props.initialLogo}
-            className="w-full h-full bg-transparent text-center text-xl focus:outline-none"
+            className="h-full w-full bg-transparent text-center text-xl focus:outline-none"
           />
         </div>
       </div>
 
       <div>
-        <label
-          htmlFor={`address-${props.profileId}`}
-          className="mb-1.5 flex items-center gap-1.5 text-xs font-semibold"
-        >
-          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+        <label htmlFor={`address-${props.profileId}`} className={LABEL_ICON}>
+          <MapPin className="h-3.5 w-3.5 text-text-subtle" />
           주소 <span className="text-destructive">*</span>
         </label>
         <input
@@ -148,18 +143,15 @@ export function BizProfileEditForm(props: Props) {
           type="text"
           required
           defaultValue={props.initialAddress}
-          className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className={INPUT}
         />
         {err?.fieldErrors?.address && (
-          <p className="mt-1 text-xs text-destructive">{err.fieldErrors.address}</p>
+          <p className={ERROR_P}>{err.fieldErrors.address}</p>
         )}
       </div>
 
       <div>
-        <label
-          htmlFor={`addressDetail-${props.profileId}`}
-          className="mb-1.5 block text-xs font-semibold"
-        >
+        <label htmlFor={`addressDetail-${props.profileId}`} className={LABEL}>
           상세주소
         </label>
         <input
@@ -167,16 +159,13 @@ export function BizProfileEditForm(props: Props) {
           name="addressDetail"
           type="text"
           defaultValue={props.initialAddressDetail}
-          className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className={INPUT}
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label
-            htmlFor={`lat-${props.profileId}`}
-            className="mb-1.5 block text-xs font-semibold"
-          >
+          <label htmlFor={`lat-${props.profileId}`} className={LABEL}>
             위도 (lat)
           </label>
           <input
@@ -185,17 +174,14 @@ export function BizProfileEditForm(props: Props) {
             type="number"
             step="0.0000001"
             defaultValue={props.initialLat}
-            className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className={`${INPUT} tabnum`}
           />
           {err?.fieldErrors?.lat && (
-            <p className="mt-1 text-xs text-destructive">{err.fieldErrors.lat}</p>
+            <p className={ERROR_P}>{err.fieldErrors.lat}</p>
           )}
         </div>
         <div>
-          <label
-            htmlFor={`lng-${props.profileId}`}
-            className="mb-1.5 block text-xs font-semibold"
-          >
+          <label htmlFor={`lng-${props.profileId}`} className={LABEL}>
             경도 (lng)
           </label>
           <input
@@ -204,19 +190,16 @@ export function BizProfileEditForm(props: Props) {
             type="number"
             step="0.0000001"
             defaultValue={props.initialLng}
-            className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+            className={`${INPUT} tabnum`}
           />
           {err?.fieldErrors?.lng && (
-            <p className="mt-1 text-xs text-destructive">{err.fieldErrors.lng}</p>
+            <p className={ERROR_P}>{err.fieldErrors.lng}</p>
           )}
         </div>
       </div>
 
       <div>
-        <label
-          htmlFor={`description-${props.profileId}`}
-          className="mb-1.5 block text-xs font-semibold"
-        >
+        <label htmlFor={`description-${props.profileId}`} className={LABEL}>
           사업장 설명
         </label>
         <textarea
@@ -225,23 +208,26 @@ export function BizProfileEditForm(props: Props) {
           rows={3}
           maxLength={500}
           defaultValue={props.initialDescription}
-          className="w-full min-h-[80px] rounded-xl border border-border bg-muted/30 px-3 py-2 text-sm resize-none focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
+          className="min-h-[96px] w-full resize-none rounded-[14px] border border-border bg-surface px-3.5 py-2.5 text-[14px] font-medium text-ink placeholder:text-text-subtle transition-colors focus:border-ink focus:outline-none"
         />
       </div>
 
       {/* ── 사업자 인증 정보 (D-30 / D-37) ── */}
-      <section className="space-y-4 rounded-xl border border-border p-4">
+      <section className="space-y-4 rounded-[22px] border border-border-soft bg-surface-2/60 p-5">
         <div>
-          <h3 className="text-sm font-semibold text-foreground">사업자 인증 정보</h3>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            사업자등록번호를 입력하면 형식 검증 후 자동 인증됩니다. 공고 등록 시 사업자등록증 이미지가 추가로 필요합니다.
+          <h3 className="text-[13px] font-extrabold tracking-tight text-ink">
+            사업자 인증 정보
+          </h3>
+          <p className="mt-0.5 text-[11.5px] font-medium leading-relaxed text-muted-foreground">
+            사업자등록번호를 입력하면 형식 검증 후 자동 인증됩니다. 공고 등록 시
+            사업자등록증 이미지가 추가로 필요합니다.
           </p>
         </div>
 
         <div>
           <label
             htmlFor={`businessRegNumber-${props.profileId}`}
-            className="mb-1.5 block text-xs font-semibold"
+            className={LABEL}
           >
             사업자등록번호
           </label>
@@ -257,24 +243,24 @@ export function BizProfileEditForm(props: Props) {
                 : ""
             }
             onBlur={handleRegNumberBlur}
-            className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
-            style={{ minHeight: "44px" }}
+            className={`${INPUT} tabnum`}
           />
           {err?.fieldErrors?.businessRegNumber && (
-            <p className="mt-1 text-xs text-destructive">
-              {err.fieldErrors.businessRegNumber}
-            </p>
+            <p className={ERROR_P}>{err.fieldErrors.businessRegNumber}</p>
           )}
-          <p className="mt-1 text-xs text-muted-foreground">
-            {props.verified ? "✅ 인증됨" : "미인증 — 번호 입력 후 저장하면 자동 인증됩니다"}
+          <p
+            className={`mt-1 text-[11.5px] font-semibold ${
+              props.verified ? "text-brand-deep" : "text-muted-foreground"
+            }`}
+          >
+            {props.verified
+              ? "✅ 인증됨"
+              : "미인증 — 번호 입력 후 저장하면 자동 인증됩니다"}
           </p>
         </div>
 
         <div>
-          <label
-            htmlFor={`ownerName-${props.profileId}`}
-            className="mb-1.5 block text-xs font-semibold"
-          >
+          <label htmlFor={`ownerName-${props.profileId}`} className={LABEL}>
             대표자명
           </label>
           <input
@@ -283,19 +269,15 @@ export function BizProfileEditForm(props: Props) {
             type="text"
             placeholder="홍길동"
             defaultValue={props.initialOwnerName ?? ""}
-            className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
-            style={{ minHeight: "44px" }}
+            className={INPUT}
           />
           {err?.fieldErrors?.ownerName && (
-            <p className="mt-1 text-xs text-destructive">{err.fieldErrors.ownerName}</p>
+            <p className={ERROR_P}>{err.fieldErrors.ownerName}</p>
           )}
         </div>
 
         <div>
-          <label
-            htmlFor={`ownerPhone-${props.profileId}`}
-            className="mb-1.5 block text-xs font-semibold"
-          >
+          <label htmlFor={`ownerPhone-${props.profileId}`} className={LABEL}>
             대표자 연락처
           </label>
           <input
@@ -304,11 +286,10 @@ export function BizProfileEditForm(props: Props) {
             type="tel"
             placeholder="010-0000-0000"
             defaultValue={props.initialOwnerPhone ?? ""}
-            className="w-full h-11 rounded-xl border border-border bg-muted/30 px-3 text-sm focus:border-brand focus:outline-none focus:ring-2 focus:ring-brand/30"
-            style={{ minHeight: "44px" }}
+            className={`${INPUT} tabnum`}
           />
           {err?.fieldErrors?.ownerPhone && (
-            <p className="mt-1 text-xs text-destructive">{err.fieldErrors.ownerPhone}</p>
+            <p className={ERROR_P}>{err.fieldErrors.ownerPhone}</p>
           )}
         </div>
       </section>
@@ -316,28 +297,60 @@ export function BizProfileEditForm(props: Props) {
       {/* Read-only BIZ-02 display — NOT submitted with the form */}
       <section
         aria-label="읽기 전용 지표"
-        className="rounded-xl border border-border bg-muted/20 p-4 text-xs text-muted-foreground space-y-1"
+        className="divide-y divide-border-soft rounded-[18px] border border-border-soft bg-surface"
       >
-        <p>평점: {props.rating.toFixed(2)} <Star className="inline h-3 w-3 text-yellow-500" /> ({props.reviewCount}개 리뷰)</p>
-        <p>완료율: {props.completionRate}%</p>
-        <p>인증: {props.verified ? "✅ 인증됨" : "미인증"}</p>
+        {[
+          {
+            k: "평점",
+            v: (
+              <span className="inline-flex items-center gap-1">
+                <span className="tabnum">{props.rating.toFixed(2)}</span>
+                <Star className="h-3.5 w-3.5 fill-[#fbbf24] text-[#fbbf24]" />
+                <span className="tabnum font-semibold text-text-subtle">
+                  ({props.reviewCount})
+                </span>
+              </span>
+            ),
+          },
+          { k: "완료율", v: `${props.completionRate}%` },
+          { k: "인증", v: props.verified ? "✅ 인증됨" : "미인증" },
+        ].map((row) => (
+          <div
+            key={row.k}
+            className="flex items-center justify-between px-4 py-3"
+          >
+            <span className="text-[12.5px] font-medium text-muted-foreground">
+              {row.k}
+            </span>
+            <span className="tabnum text-[13.5px] font-extrabold tracking-tight text-ink">
+              {row.v}
+            </span>
+          </div>
+        ))}
       </section>
 
       <button
         type="submit"
         disabled={isPending}
-        className="inline-flex h-12 w-full items-center justify-center rounded-2xl bg-brand text-sm font-semibold text-primary-foreground transition-colors hover:bg-brand-dark disabled:opacity-50"
+        className="inline-flex h-12 w-full items-center justify-center rounded-full bg-ink text-[14px] font-extrabold tracking-tight text-white transition-all hover:bg-black hover:shadow-soft-dark disabled:opacity-50"
       >
         {isPending ? "저장 중..." : "저장"}
       </button>
 
       {err && !err.fieldErrors && (
-        <p role="alert" aria-live="polite" className="text-sm text-destructive">
+        <p
+          role="alert"
+          aria-live="polite"
+          className="text-[13px] font-semibold text-destructive"
+        >
           {err.error}
         </p>
       )}
       {ok && (
-        <p role="status" className="text-sm font-bold text-brand-deep">
+        <p
+          role="status"
+          className="text-[13px] font-extrabold text-brand-deep"
+        >
           {ok.message}
         </p>
       )}
