@@ -202,32 +202,38 @@ export function CheckInFlow({ application }: Props) {
   if (phase === "done") {
     const earnings = result?.earnings ?? 0;
     return (
-      <div className="min-h-screen bg-background flex flex-col">
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center">
-          <div className="w-24 h-24 rounded-full bg-brand/10 flex items-center justify-center mb-5">
-            <PartyPopper className="w-12 h-12 text-brand" />
+      <div className="flex min-h-screen flex-col bg-background">
+        <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
+          <div className="mb-5 grid h-24 w-24 place-items-center rounded-full bg-brand text-ink shadow-soft-green">
+            <PartyPopper className="h-12 w-12" />
           </div>
-          <h1 className="text-2xl font-bold mb-1">수고하셨습니다!</h1>
-          <p className="text-sm text-muted-foreground mb-6">
+          <h1 className="mb-1 text-[24px] font-extrabold tracking-[-0.03em] text-ink">
+            수고하셨습니다!
+          </h1>
+          <p className="mb-6 text-[13px] font-semibold text-muted-foreground">
             근무가 완료되었어요. 정산을 진행합니다.
           </p>
 
-          <div className="w-full max-w-sm rounded-2xl bg-brand text-white p-5 mb-4">
-            <p className="text-xs opacity-90 mb-1">정산 금액</p>
-            <p className="text-3xl font-bold">{formatMoney(earnings)}</p>
+          <div className="mb-4 w-full max-w-sm rounded-[22px] bg-ink p-5 text-white shadow-soft-dark">
+            <p className="text-[11.5px] font-bold uppercase tracking-wider text-white/70">
+              정산 금액
+            </p>
+            <p className="tabnum mt-1 text-[32px] font-extrabold tracking-[-0.03em]">
+              {formatMoney(earnings)}
+            </p>
             {result && (
-              <div className="mt-4 pt-4 border-t border-white/20 space-y-1 text-xs">
-                <div className="flex justify-between opacity-90">
+              <div className="tabnum mt-4 space-y-1 border-t border-white/15 pt-4 text-[12px] font-medium">
+                <div className="flex justify-between text-white/80">
                   <span>실근무 시간</span>
                   <span>{result.actualHours}시간</span>
                 </div>
                 {result.nightPremium > 0 && (
-                  <div className="flex justify-between opacity-90">
+                  <div className="flex justify-between text-white/80">
                     <span>야간 할증</span>
                     <span>+{formatMoney(result.nightPremium)}</span>
                   </div>
                 )}
-                <div className="flex justify-between opacity-90">
+                <div className="flex justify-between text-white/80">
                   <span>입금 예정</span>
                   <span>1~3분 내 본인 계좌</span>
                 </div>
@@ -236,17 +242,17 @@ export function CheckInFlow({ application }: Props) {
           </div>
         </div>
 
-        <div className="border-t border-border bg-background/95 backdrop-blur p-4">
-          <div className="max-w-lg mx-auto space-y-2">
+        <div className="border-t border-border-soft bg-surface/95 p-4 backdrop-blur-[12px]">
+          <div className="mx-auto max-w-lg space-y-2">
             <Link
               href={`/my/applications/${application.id}/review`}
-              className="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center justify-center shadow-lg shadow-brand/20 transition-colors"
+              className="inline-flex h-12 w-full items-center justify-center rounded-full bg-brand text-[14px] font-extrabold tracking-tight text-ink transition-all hover:bg-brand-dark hover:shadow-soft-green"
             >
               업체 리뷰 남기기
             </Link>
             <Link
               href="/my/applications"
-              className="w-full h-11 rounded-xl border border-border hover:bg-muted text-sm font-medium flex items-center justify-center transition-colors"
+              className="inline-flex h-11 w-full items-center justify-center rounded-full border border-border bg-surface text-[13px] font-bold text-ink transition-colors hover:border-ink hover:bg-surface-2"
             >
               지원 목록으로
             </Link>
@@ -261,67 +267,75 @@ export function CheckInFlow({ application }: Props) {
   // --------------------------------------------------------------------
   if (phase === "working") {
     return (
-      <div className="min-h-screen bg-background">
-        <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
-          <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
+      <div className="min-h-screen bg-background pb-28">
+        <header className="sticky top-0 z-40 border-b border-border-soft bg-surface/95 backdrop-blur-[12px]">
+          <div className="mx-auto flex h-14 max-w-lg items-center gap-3 px-4">
             <Link
               href="/my/applications"
               aria-label="뒤로"
-              className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted"
+              className="grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-ink transition-colors hover:border-ink hover:bg-surface-2"
             >
               <ArrowLeft className="h-5 w-5" />
             </Link>
-            <p className="text-sm font-bold flex-1">근무 중</p>
-            <span className="flex items-center gap-1 rounded-full bg-brand/10 px-2 py-1 text-[10px] font-bold text-brand-deep">
+            <p className="flex-1 text-[16px] font-extrabold tracking-[-0.02em] text-ink">
+              근무 중
+            </p>
+            <span className="inline-flex items-center gap-1 rounded-full bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] px-2 py-1 text-[10px] font-extrabold tracking-tight text-brand-deep">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand" />
               LIVE
             </span>
           </div>
         </header>
 
-        <div className="max-w-lg mx-auto px-4 py-5 space-y-5">
+        <div className="mx-auto max-w-lg space-y-4 px-4 py-5">
           {error && (
-            <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive flex items-start gap-2">
-              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 rounded-[14px] border border-destructive/30 bg-destructive/5 p-3 text-[12.5px] font-semibold text-destructive">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
-          <div className="rounded-2xl bg-brand text-white p-6 text-center">
-            <p className="text-xs opacity-90 mb-2">근무 중 경과 시간</p>
-            <p className="text-5xl font-bold tabular-nums tracking-tight">
+          <div className="rounded-[22px] bg-ink p-6 text-center text-white shadow-soft-dark">
+            <p className="text-[11.5px] font-bold uppercase tracking-wider text-white/70">
+              근무 중 경과 시간
+            </p>
+            <p className="tabnum mt-2 text-[52px] font-extrabold leading-none tracking-[-0.04em]">
               {formatElapsed(elapsedMs)}
             </p>
             {checkedInAt && (
-              <p className="text-[11px] opacity-90 mt-2">
+              <p className="tabnum mt-3 text-[11.5px] font-semibold text-white/70">
                 {formatClock(checkedInAt)}에 체크인
               </p>
             )}
           </div>
 
-          <div className="rounded-2xl border border-border bg-card p-4">
+          <div className="rounded-[18px] border border-border-soft bg-surface p-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-2xl shrink-0">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-2xl">
                 {businessLogo}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-[11px] text-muted-foreground truncate">
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-[11.5px] font-semibold text-muted-foreground">
                   {job.business.name}
                 </p>
-                <p className="font-bold text-sm line-clamp-1">{job.title}</p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
+                <p className="line-clamp-1 text-[14px] font-extrabold tracking-[-0.02em] text-ink">
+                  {job.title}
+                </p>
+                <p className="tabnum mt-0.5 text-[11.5px] font-semibold text-muted-foreground">
                   근무 시간 {job.startTime}~{job.endTime}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl border border-teal/20 bg-teal/5 p-4">
+          <div className="rounded-[14px] border border-dashed border-border bg-surface-2/60 p-4">
             <div className="flex items-start gap-2">
-              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
-              <div className="text-xs leading-relaxed text-foreground">
-                <p className="mb-1 font-bold">근무 중 안내</p>
-                <p className="text-muted-foreground">
+              <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-brand-deep" />
+              <div className="text-[12px] leading-relaxed">
+                <p className="mb-1 text-[12.5px] font-extrabold tracking-tight text-ink">
+                  근무 중 안내
+                </p>
+                <p className="font-medium text-muted-foreground">
                   근무를 마치면 매장 담당자에게 체크아웃 QR을 요청해주세요.
                 </p>
               </div>
@@ -329,15 +343,15 @@ export function CheckInFlow({ application }: Props) {
           </div>
         </div>
 
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur border-t border-border">
-          <div className="max-w-lg mx-auto px-4 py-3">
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border-soft bg-surface/95 px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)] backdrop-blur-[12px]">
+          <div className="mx-auto max-w-lg">
             <button
               type="button"
               onClick={() => {
                 setError(null);
                 setPhase("scanning");
               }}
-              className="flex h-12 w-full items-center justify-center gap-1.5 rounded-xl bg-brand font-bold text-white shadow-lg shadow-brand/20 transition-colors hover:bg-brand-dark"
+              className="inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-full bg-ink text-[14px] font-extrabold tracking-tight text-white transition-all hover:bg-black hover:shadow-soft-dark"
             >
               <LogOut className="h-4 w-4" /> 근무 종료 (QR 체크아웃)
             </button>
@@ -352,23 +366,25 @@ export function CheckInFlow({ application }: Props) {
   // --------------------------------------------------------------------
   if (phase === "scanning") {
     return (
-      <div className="min-h-screen bg-black text-white flex flex-col">
-        <header className="sticky top-0 z-40 bg-black/80 backdrop-blur border-b border-white/10">
-          <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
+      <div className="flex min-h-screen flex-col bg-black text-white">
+        <header className="sticky top-0 z-40 border-b border-white/10 bg-black/80 backdrop-blur-[12px]">
+          <div className="mx-auto flex h-14 max-w-lg items-center gap-3 px-4">
             <button
               type="button"
               aria-label="뒤로"
               onClick={() => setPhase("working")}
-              className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-white/10"
+              className="grid h-9 w-9 place-items-center rounded-full border border-white/15 bg-white/5 text-white transition-colors hover:border-white/30 hover:bg-white/10"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
-            <p className="text-sm font-bold flex-1">체크아웃 QR 스캔</p>
+            <p className="flex-1 text-[14px] font-extrabold tracking-tight">
+              체크아웃 QR 스캔
+            </p>
           </div>
         </header>
 
-        <div className="flex-1 flex flex-col items-center justify-center px-6 py-8 space-y-4">
-          <p className="text-sm text-white/80">
+        <div className="flex flex-1 flex-col items-center justify-center space-y-4 px-6 py-8">
+          <p className="text-[13px] font-semibold text-white/70">
             매장 QR 코드를 카메라에 비춰주세요
           </p>
           <QrScanner
@@ -378,7 +394,7 @@ export function CheckInFlow({ application }: Props) {
             }}
           />
           {error && (
-            <div className="flex max-w-sm items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/20 p-3 text-xs text-white">
+            <div className="flex max-w-sm items-start gap-2 rounded-[14px] border border-destructive/40 bg-destructive/20 p-3 text-[12.5px] font-semibold text-white">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
@@ -386,7 +402,7 @@ export function CheckInFlow({ application }: Props) {
           <button
             type="button"
             onClick={() => setPhase("working")}
-            className="text-xs text-white/60 hover:text-white underline"
+            className="text-[12px] font-bold text-white/60 underline-offset-4 hover:text-white hover:underline"
           >
             취소
           </button>
@@ -400,10 +416,12 @@ export function CheckInFlow({ application }: Props) {
   // --------------------------------------------------------------------
   if (phase === "submitting") {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-        <Loader2 className="w-10 h-10 text-brand animate-spin mb-4" />
-        <p className="text-sm font-medium">정산 중...</p>
-        <p className="text-xs text-muted-foreground mt-1">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
+        <Loader2 className="mb-4 h-10 w-10 animate-spin text-ink" />
+        <p className="text-[14px] font-extrabold tracking-tight text-ink">
+          정산 중...
+        </p>
+        <p className="mt-1 text-[12px] font-medium text-muted-foreground">
           잠시만 기다려주세요
         </p>
       </div>
@@ -415,10 +433,12 @@ export function CheckInFlow({ application }: Props) {
   // --------------------------------------------------------------------
   if (phase === "locating") {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-        <Loader2 className="w-10 h-10 text-brand animate-spin mb-4" />
-        <p className="text-sm font-medium">위치 확인 중...</p>
-        <p className="text-xs text-muted-foreground mt-1">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
+        <Loader2 className="mb-4 h-10 w-10 animate-spin text-ink" />
+        <p className="text-[14px] font-extrabold tracking-tight text-ink">
+          위치 확인 중...
+        </p>
+        <p className="tabnum mt-1 text-[12px] font-medium text-muted-foreground">
           매장 반경 200m 이내여야 체크인이 가능합니다
         </p>
       </div>
