@@ -1,48 +1,64 @@
 import Link from "next/link";
-import { ArrowLeft, Headphones, Mail, MessageCircleWarning } from "lucide-react";
+import {
+  ChevronLeft,
+  Headphones,
+  Mail,
+  MessageCircleWarning,
+} from "lucide-react";
 
 export default function BizSupportPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-8">
       <Link
         href="/biz/settings"
-        className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
+        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 py-2 text-[13px] font-bold text-ink transition-colors hover:border-ink hover:bg-surface-2"
       >
-        <ArrowLeft className="h-4 w-4" />
+        <ChevronLeft className="h-4 w-4" />
         설정으로 돌아가기
       </Link>
 
-      <div className="mt-6 rounded-3xl border border-border bg-card p-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand/10">
-            <Headphones className="h-5 w-5 text-brand" />
+      <div className="mt-5 rounded-[28px] border border-border-soft bg-surface p-6">
+        <div className="flex items-center gap-4">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep">
+            <Headphones className="h-6 w-6" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">고객센터</h1>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <h1 className="text-[22px] font-extrabold tracking-[-0.035em] text-ink">
+              고객센터
+            </h1>
+            <p className="mt-1 text-[12.5px] font-medium tracking-tight text-muted-foreground">
               서비스 문의와 긴급 이슈 대응 채널을 확인합니다.
             </p>
           </div>
         </div>
 
         <div className="mt-6 grid gap-3">
-          <div className="rounded-2xl border border-border p-4">
-            <div className="flex items-center gap-3">
-              <Mail className="h-5 w-5 text-brand" />
+          <div className="rounded-[18px] border border-border-soft bg-surface p-4 transition-colors hover:border-ink">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep">
+                <Mail className="h-5 w-5" />
+              </div>
               <div>
-                <p className="font-semibold">이메일 문의</p>
-                <p className="text-sm text-muted-foreground">
-                  support@gignow.local 로 문의하면 순차적으로 답변합니다.
+                <p className="text-[14px] font-extrabold tracking-tight text-ink">
+                  이메일 문의
+                </p>
+                <p className="mt-1 text-[12.5px] font-medium leading-relaxed text-muted-foreground">
+                  <b className="font-bold text-ink">support@gignow.local</b> 로
+                  문의하면 순차적으로 답변합니다.
                 </p>
               </div>
             </div>
           </div>
-          <div className="rounded-2xl border border-border p-4">
-            <div className="flex items-center gap-3">
-              <MessageCircleWarning className="h-5 w-5 text-brand" />
+          <div className="rounded-[18px] border border-border-soft bg-surface p-4 transition-colors hover:border-ink">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-lime-chip text-lime-chip-fg">
+                <MessageCircleWarning className="h-5 w-5" />
+              </div>
               <div>
-                <p className="font-semibold">긴급 문의</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-[14px] font-extrabold tracking-tight text-ink">
+                  긴급 문의
+                </p>
+                <p className="mt-1 text-[12.5px] font-medium leading-relaxed text-muted-foreground">
                   출근, 정산, 권한 문제는 앱 내 채팅과 함께 고객센터로 전달하면
                   처리 속도가 가장 빠릅니다.
                 </p>
