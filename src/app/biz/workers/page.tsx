@@ -9,7 +9,6 @@ import {
   MapPin,
   Users,
 } from "lucide-react"
-import { Input } from "@/components/ui/input"
 
 /* ── Mock Data ── */
 
@@ -99,36 +98,43 @@ export default function BizWorkersPage() {
   )
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
+    <div className="mx-auto max-w-5xl px-6 py-8">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-2xl font-extrabold tracking-tight text-foreground">인재 검색</h1>
-        <p className="mt-1 text-xs text-muted-foreground">
+        <h1 className="flex items-center gap-2 text-[24px] font-extrabold tracking-[-0.035em] text-ink">
+          <Users className="h-[22px] w-[22px] text-brand-deep" />
+          인재 검색
+        </h1>
+        <p className="mt-1 text-[12.5px] font-medium tracking-tight text-muted-foreground">
           조건에 맞는 인재를 검색하고 제안을 보내보세요.
         </p>
       </div>
 
-      {/* Search */}
-      <div className="relative mb-4">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
+      {/* Search — 46px pill */}
+      <div className="relative mb-4 flex h-[46px] items-center gap-2.5 rounded-full border border-border bg-surface px-4 transition-colors focus-within:border-ink">
+        <Search className="h-4 w-4 text-text-subtle" />
+        <input
+          type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="이름, 스킬로 검색..."
-          className="h-11 rounded-2xl border-border bg-card text-sm pl-10"
+          className="flex-1 bg-transparent text-[13px] font-medium text-ink placeholder:text-text-subtle focus:outline-none"
         />
       </div>
 
       {/* Filter Row */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="mb-6 flex flex-wrap gap-2">
         {[
           { label: "전체 카테고리" },
           { label: "전체 지역" },
           { label: "전체 평점" },
           { label: "전체 가용시간" },
         ].map((f) => (
-          <button key={f.label}
-            className="rounded-full border border-border bg-card px-3 py-1.5 text-[11px] font-medium text-foreground hover:bg-accent transition-colors active:scale-95">
+          <button
+            key={f.label}
+            type="button"
+            className="rounded-full border border-border bg-surface px-3.5 py-2 text-[12.5px] font-bold leading-none tracking-tight text-ink transition-colors hover:border-ink"
+          >
             {f.label}
           </button>
         ))}
@@ -136,68 +142,77 @@ export default function BizWorkersPage() {
 
       {/* Results */}
       {filteredWorkers.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-20 text-center">
-          <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-brand/10 mb-4">
-            <Users className="w-8 h-8 text-brand" />
+        <div className="flex flex-col items-center justify-center rounded-[28px] border-2 border-dashed border-border bg-surface py-20 text-center">
+          <div className="mb-4 grid h-16 w-16 place-items-center rounded-[20px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))]">
+            <Users className="h-8 w-8 text-brand-deep" />
           </div>
-          <h3 className="text-lg font-bold text-foreground mb-2">
+          <h3 className="mb-2 text-[17px] font-extrabold tracking-[-0.02em] text-ink">
             조건에 맞는 인재를 찾지 못했어요
           </h3>
-          <p className="text-sm text-muted-foreground max-w-sm">
+          <p className="max-w-sm text-[13px] font-medium text-muted-foreground">
             조건을 넓혀보세요. 더 많은 인재를 만날 수 있어요.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
           {filteredWorkers.map((worker) => (
             <div
               key={worker.id}
-              className="rounded-2xl border border-border bg-card p-4 hover:shadow-md transition-shadow"
+              className="rounded-[22px] border border-border-soft bg-surface p-[18px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-md"
             >
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted text-sm font-bold shrink-0">
+                <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-[14px] font-extrabold text-brand-deep">
                   {worker.name[0]}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <Link
                       href={`/biz/workers/${worker.id}`}
-                      className="text-sm font-bold hover:text-brand transition-colors"
+                      className="truncate text-[14.5px] font-extrabold tracking-[-0.02em] text-ink transition-colors hover:text-brand-deep"
                     >
                       {worker.name}
                     </Link>
                     <button
+                      type="button"
                       onClick={() => toggleFavorite(worker.id)}
-                      className="transition-transform active:scale-90"
+                      className="shrink-0 grid h-8 w-8 place-items-center rounded-full transition-transform hover:bg-surface-2 active:scale-90"
                       aria-label={
-                        favorites[worker.id]
-                          ? "단골 해제"
-                          : "단골 등록"
+                        favorites[worker.id] ? "단골 해제" : "단골 등록"
                       }
                     >
                       <Heart
-                        className={`w-5 h-5 ${
+                        className={`h-[18px] w-[18px] ${
                           favorites[worker.id]
-                            ? "fill-brand text-brand"
-                            : "text-muted-foreground"
+                            ? "fill-brand-deep text-brand-deep"
+                            : "text-text-subtle"
                         }`}
                       />
                     </button>
                   </div>
-                  <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-muted-foreground">
-                    <Star className="h-3 w-3 text-yellow-500" />
-                    <span>{worker.rating} · {worker.completedJobs}회 근무</span>
+                  <div className="tabnum mt-1 flex items-center gap-1.5 text-[11.5px] font-semibold text-muted-foreground">
+                    <Star className="h-3 w-3 fill-[#fbbf24] text-[#fbbf24]" />
+                    <span>
+                      <b className="font-bold text-ink">{worker.rating}</b> ·{" "}
+                      {worker.completedJobs}회 근무
+                    </span>
                   </div>
-                  <div className="flex flex-wrap gap-1.5 mt-2">
+                  <div className="mt-2 flex flex-wrap gap-1.5">
                     {worker.skills.map((skill) => (
-                      <span key={skill} className="rounded-full bg-brand/10 px-2 py-0.5 text-[10px] font-semibold text-brand">
+                      <span
+                        key={skill}
+                        className="inline-flex items-center rounded-full bg-[color-mix(in_oklch,var(--brand)_14%,var(--surface))] px-2 py-0.5 text-[10.5px] font-bold text-brand-deep"
+                      >
                         {skill}
                       </span>
                     ))}
                   </div>
-                  <div className="flex items-center gap-1 mt-2 text-[10px] text-muted-foreground">
+                  <div className="mt-2 flex items-center gap-1 text-[10.5px] font-medium text-muted-foreground">
                     <MapPin className="h-3 w-3" />
-                    <span>{worker.location}{"\u3000"}{worker.availability}</span>
+                    <span>
+                      <b className="font-bold text-ink">{worker.location}</b>
+                      {"\u3000"}
+                      {worker.availability}
+                    </span>
                   </div>
                 </div>
               </div>
