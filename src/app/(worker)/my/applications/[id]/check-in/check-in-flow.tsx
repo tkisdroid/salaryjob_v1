@@ -429,112 +429,129 @@ export function CheckInFlow({ application }: Props) {
   // READY — pre-check-in (confirmed status)
   // --------------------------------------------------------------------
   return (
-    <div className="min-h-screen bg-background pb-24">
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
-        <div className="max-w-lg mx-auto px-4 h-14 flex items-center gap-3">
+    <div className="min-h-screen bg-background pb-32">
+      {/* Premium header with chevron back */}
+      <header className="sticky top-0 z-40 border-b border-border-soft bg-[color-mix(in_oklch,var(--bg)_92%,transparent)] [backdrop-filter:saturate(1.4)_blur(12px)]">
+        <div className="mx-auto flex h-14 max-w-lg items-center gap-2 px-4">
           <Link
             href="/my/applications"
             aria-label="뒤로"
-            className="-ml-2 flex h-11 w-11 items-center justify-center rounded-full hover:bg-muted"
+            className="-ml-1 grid h-9 w-9 place-items-center rounded-full text-ink hover:bg-surface-2"
           >
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <p className="text-sm font-bold flex-1">체크인</p>
+          <p className="flex-1 text-[18px] font-extrabold tracking-[-0.02em] text-ink">
+            체크인
+          </p>
         </div>
       </header>
 
-      <div className="max-w-lg mx-auto px-4 py-6 space-y-5">
-        {/* Live clock */}
-        <div className="text-center">
-          <p className="text-xs text-muted-foreground">현재 시각</p>
-          <p className="text-5xl font-extrabold tracking-tight mt-1 tabular-nums">
+      <div className="mx-auto max-w-lg px-4 pt-3 pb-6">
+        {/* ci-clock — large live clock, seconds in brand-deep */}
+        <div className="py-6 text-center">
+          <p className="text-[12px] font-bold tracking-tight text-muted-foreground">
+            현재 시각
+          </p>
+          <p className="tabnum mt-2 text-[56px] font-extrabold leading-none tracking-[-0.04em] text-ink">
             {now.getHours().toString().padStart(2, "0")}:
             {now.getMinutes().toString().padStart(2, "0")}
-            <span className="text-brand">
+            <span className="text-[40px] text-brand-deep">
               :{now.getSeconds().toString().padStart(2, "0")}
             </span>
           </p>
-          <p className="text-xs text-muted-foreground mt-1">
+          <p className="mt-2 text-[13px] font-semibold text-muted-foreground">
             {formatWorkDate(job.workDate)}
           </p>
         </div>
 
         {error && (
-          <div className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-xs text-destructive flex items-start gap-2">
-            <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+          <div className="mb-3 flex items-start gap-2 rounded-[14px] border border-destructive/30 bg-destructive/5 p-3 text-[12.5px] font-bold text-destructive">
+            <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
 
-        <div className="group rounded-2xl border border-border bg-card p-4 space-y-3 hover:shadow-md hover:border-brand/20 transition-all duration-300">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl bg-brand-soft flex items-center justify-center text-2xl shrink-0 transition-transform duration-200 group-hover:scale-110">
+        {/* ci-shop — premium shop card */}
+        <div className="rounded-[18px] border border-border-soft bg-surface p-4">
+          <div className="flex items-start gap-3">
+            <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] border border-border-soft bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-2xl">
               {businessLogo}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-xs text-muted-foreground truncate">
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-[12px] font-semibold text-muted-foreground">
                 {job.business.name}
               </p>
-              <h3 className="text-sm font-bold">{job.title}</h3>
-              <div className="flex items-center gap-1 mt-0.5 text-xs text-muted-foreground">
-                <Clock className="w-3 h-3" />
-                <span>
-                  {job.startTime}~{job.endTime}
+              <h3 className="text-[15px] font-extrabold tracking-[-0.02em] text-ink">
+                {job.title}
+              </h3>
+              <div className="mt-1 flex items-center gap-1 text-[12px] font-semibold text-muted-foreground">
+                <Clock className="h-3 w-3" />
+                <span className="tabnum">
+                  {job.startTime} — {job.endTime}
                 </span>
               </div>
             </div>
           </div>
-          <div className="border-t border-border pt-3 flex items-center justify-between text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5" />
+          <div className="mt-3 flex items-center justify-between border-t border-border-soft pt-3 text-[11.5px]">
+            <span className="inline-flex items-center gap-1.5 font-bold text-ink">
+              <MapPin className="h-3.5 w-3.5" />
               {job.business.address}
             </span>
-            <span className="flex items-center gap-1">
-              <Navigation className="w-3.5 h-3.5" />
+            <span className="inline-flex items-center gap-1.5 font-bold text-brand-deep">
+              <Navigation className="h-3.5 w-3.5" />
               반경 200m
             </span>
           </div>
         </div>
 
-        <div className="rounded-2xl bg-brand-soft border border-brand/10 p-4 space-y-2.5">
-          <div className="flex items-center gap-2">
-            <Zap className="w-4 h-4 text-brand" />
-            <h4 className="text-sm font-bold text-brand">체크인 안내</h4>
+        {/* ci-guide — premium checklist with brand dots */}
+        <div className="mt-3 rounded-[18px] border border-border-soft bg-surface p-4">
+          <div className="flex items-center gap-2 text-[13px] font-extrabold tracking-tight text-ink">
+            <Zap className="h-[16px] w-[16px] text-brand-deep" />
+            체크인 안내
           </div>
-          <ul className="space-y-1.5">
-            <li className="flex items-start gap-2 text-xs text-muted-foreground">
-              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-brand shrink-0" />
-              <span>
-                체크인은 근무 시작 10분 전 ~ 30분 후에만 가능합니다.
-              </span>
-            </li>
-            <li className="flex items-start gap-2 text-xs text-muted-foreground">
-              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-brand shrink-0" />
-              <span>
-                매장 반경 200m 이내에서 위치 권한을 허용해주세요.
-              </span>
-            </li>
-            <li className="flex items-start gap-2 text-xs text-muted-foreground">
-              <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 text-brand shrink-0" />
-              <span>
-                체크아웃 시 매장 담당자의 QR을 카메라로 스캔합니다.
-              </span>
-            </li>
+          <ul className="mt-3 space-y-2">
+            {[
+              <>
+                체크인은 근무 시작{" "}
+                <b className="font-extrabold text-ink">10분 전 ~ 30분 후</b>에만
+                가능합니다.
+              </>,
+              <>
+                매장 반경 <b className="font-extrabold text-ink">200m</b> 이내에서
+                위치 권한을 허용해주세요.
+              </>,
+              <>
+                체크아웃 시 매장 담당자의{" "}
+                <b className="font-extrabold text-ink">QR을 카메라로 스캔</b>
+                합니다.
+              </>,
+            ].map((content, i) => (
+              <li
+                key={i}
+                className="flex items-start gap-2.5 text-[12.5px] leading-relaxed text-muted-foreground"
+              >
+                <span className="mt-[6px] grid h-[6px] w-[6px] shrink-0 place-items-center rounded-full bg-brand" />
+                <span>{content}</span>
+              </li>
+            ))}
           </ul>
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 z-40 bg-background px-4 pt-3 pb-3 pb-[env(safe-area-inset-bottom)]">
-        <div className="max-w-lg mx-auto">
+      {/* Brand-green sticky CTA — design's explicit exception to ink-primary rule.
+          체크인 시작 is the one "긍정/전진" moment that keeps the brand accent. */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border-soft bg-[color-mix(in_oklch,var(--surface)_96%,transparent)] px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)] [backdrop-filter:saturate(1.6)_blur(16px)]">
+        <div className="mx-auto max-w-lg">
           <button
             type="button"
             onClick={handleCheckIn}
-            className="w-full rounded-xl py-4 text-sm font-bold flex items-center justify-center gap-2 bg-brand text-white shadow-lg shadow-brand/20 hover:shadow-xl hover:shadow-brand/30 hover:-translate-y-0.5 transition-all duration-300 active:scale-[0.97]"
+            className="flex w-full items-center justify-center gap-2 rounded-full bg-brand py-4 text-[15px] font-extrabold text-ink shadow-soft-brand transition-all hover:-translate-y-0.5 hover:bg-brand-dark hover:text-white active:scale-[0.98]"
           >
-            <MapPin className="w-5 h-5 animate-pulse" />
+            <MapPin className="h-5 w-5" />
             체크인 시작
           </button>
-          <p className="text-center text-[10px] text-muted-foreground mt-2">
+          <p className="mt-2 text-center text-[11px] font-semibold text-muted-foreground">
             버튼을 누르면 위치 정보를 전송합니다
           </p>
         </div>
