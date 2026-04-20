@@ -241,7 +241,7 @@ export default async function LandingPage() {
             </Link>
             <Link
               href="/login?next=/home"
-              className={cn(buttonVariants({ size: "sm" }))}
+              className={cn(buttonVariants({ variant: "brand", size: "sm" }))}
             >
               시작하기
             </Link>
@@ -298,7 +298,7 @@ export default async function LandingPage() {
                   <Link
                     href="/login?next=/home"
                     className={cn(
-                      buttonVariants({ size: "lg" }),
+                      buttonVariants({ variant: "brand", size: "lg" }),
                       "h-12 w-full px-6 sm:w-auto",
                     )}
                   >
@@ -723,7 +723,7 @@ export default async function LandingPage() {
                 <Link
                   href="/signup?role=business"
                   className={cn(
-                    buttonVariants({ size: "lg" }),
+                    buttonVariants({ variant: "brand", size: "lg" }),
                     "h-12 px-8",
                   )}
                 >
