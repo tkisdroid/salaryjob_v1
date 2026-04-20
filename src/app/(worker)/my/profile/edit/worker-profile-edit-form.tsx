@@ -66,18 +66,26 @@ export function WorkerProfileEditForm(props: Props) {
       ? avatarState.data.avatarUrl
       : avatarPreview;
 
+  // Premium form field shell — r:14 pill-ish input with ink focus border (§01)
+  const inputCls =
+    "mt-2 w-full rounded-[14px] border border-border bg-surface px-4 py-3 text-[14px] text-ink outline-none transition-colors placeholder:text-text-subtle focus:border-ink";
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 pb-28">
       {/* Avatar upload — separate form so it can submit independently */}
       <section aria-labelledby="avatar-section">
-        <h2 id="avatar-section" className="mb-3 text-sm font-bold">
+        <h2
+          id="avatar-section"
+          className="mb-3 text-[12.5px] font-bold tracking-tight text-ink"
+        >
           프로필 사진
         </h2>
         <form action={avatarAction} className="flex items-center gap-4">
-          <div className="relative group">
-            <div className="h-16 w-16 overflow-hidden rounded-full bg-brand-soft transition-transform duration-300 group-hover:scale-105">
+          <div className="relative">
+            <div className="grid h-16 w-16 place-items-center overflow-hidden rounded-[18px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))]">
               {displayAvatar ? (
-                displayAvatar.startsWith("http") || displayAvatar.startsWith("blob:") ? (
+                displayAvatar.startsWith("http") ||
+                displayAvatar.startsWith("blob:") ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
                     src={displayAvatar}
@@ -85,34 +93,39 @@ export function WorkerProfileEditForm(props: Props) {
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-3xl">
-                    {displayAvatar}
-                  </div>
+                  <span className="text-3xl">{displayAvatar}</span>
                 )
               ) : (
-                <div className="flex h-full w-full items-center justify-center text-3xl">
-                  🙂
-                </div>
+                <span className="text-3xl">🙂</span>
               )}
             </div>
-            <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-brand text-white flex items-center justify-center transition-transform duration-200 hover:scale-110">
-              <Camera className="w-3 h-3" />
-            </div>
+            {/* Ink camera badge — iOS/Android profile-edit convention (§05) */}
+            <span
+              aria-hidden
+              className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full border-2 border-surface bg-ink text-white"
+            >
+              <Camera className="h-3 w-3" />
+            </span>
           </div>
-          <div>
-            <input
-              type="file"
-              name="avatar"
-              accept="image/jpeg,image/png,image/webp"
-              capture="user"
-              onChange={handleFileChange}
-              className="block text-sm"
-              aria-label="프로필 사진 선택"
-            />
+          <div className="min-w-0 flex-1">
+            <label className="inline-block cursor-pointer">
+              <input
+                type="file"
+                name="avatar"
+                accept="image/jpeg,image/png,image/webp"
+                capture="user"
+                onChange={handleFileChange}
+                className="sr-only"
+                aria-label="프로필 사진 선택"
+              />
+              <span className="inline-flex items-center rounded-full border border-border bg-surface px-3.5 py-1.5 text-[12px] font-bold text-ink transition-colors hover:border-ink hover:bg-surface-2">
+                파일 선택
+              </span>
+            </label>
             <button
               type="submit"
               disabled={isAvatarPending}
-              className="mt-2 rounded-lg bg-brand px-4 py-2 text-xs font-semibold text-white active:scale-[0.95] transition-all duration-200 hover:bg-brand-dark hover:shadow-md disabled:opacity-50"
+              className="ml-2 inline-flex items-center rounded-full bg-ink px-4 py-1.5 text-[12px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark disabled:opacity-50"
             >
               {isAvatarPending ? "업로드 중..." : "업로드"}
             </button>
@@ -122,22 +135,25 @@ export function WorkerProfileEditForm(props: Props) {
           <p
             role="alert"
             aria-live="polite"
-            className="mt-2 text-sm text-destructive"
+            className="mt-2 text-[12.5px] font-bold text-destructive"
           >
             {avatarState.error}
           </p>
         )}
         {avatarState && "success" in avatarState && (
-          <p role="status" className="mt-2 text-sm text-brand-deep">
+          <p role="status" className="mt-2 text-[12.5px] font-bold text-brand-deep">
             {avatarState.message}
           </p>
         )}
       </section>
 
       {/* Profile fields — separate form */}
-      <form action={profileAction} className="space-y-6">
+      <form action={profileAction} className="space-y-5">
         <div>
-          <label htmlFor="name" className="text-sm font-bold">
+          <label
+            htmlFor="name"
+            className="text-[12.5px] font-bold tracking-tight text-ink"
+          >
             이름 <span className="text-destructive">*</span>
           </label>
           <input
@@ -146,19 +162,22 @@ export function WorkerProfileEditForm(props: Props) {
             type="text"
             required
             defaultValue={props.initialName}
-            className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all duration-200"
+            className={inputCls}
           />
           {profileState &&
             "error" in profileState &&
             profileState.fieldErrors?.name && (
-              <p className="mt-1 text-xs text-destructive">
+              <p className="mt-1 text-[11.5px] font-bold text-destructive">
                 {profileState.fieldErrors.name}
               </p>
             )}
         </div>
 
         <div>
-          <label htmlFor="nickname" className="text-sm font-bold">
+          <label
+            htmlFor="nickname"
+            className="text-[12.5px] font-bold tracking-tight text-ink"
+          >
             닉네임
           </label>
           <input
@@ -166,36 +185,45 @@ export function WorkerProfileEditForm(props: Props) {
             name="nickname"
             type="text"
             defaultValue={props.initialNickname}
-            className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all duration-200"
+            className={inputCls}
           />
         </div>
 
         <div>
-          <label htmlFor="birthDate" className="text-sm font-bold">
+          <label
+            htmlFor="birthDate"
+            className="flex items-baseline gap-2 text-[12.5px] font-bold tracking-tight text-ink"
+          >
             생년월일
+            <span className="text-[11px] font-medium text-text-subtle">
+              사업자에게는 만 나이로 표시됩니다
+            </span>
           </label>
           <input
             id="birthDate"
             name="birthDate"
             type="date"
             defaultValue={props.initialBirthDate}
-            className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 transition-all duration-200"
+            className={inputCls}
           />
-          <p className="text-[10px] text-muted-foreground mt-1">
-            사업자에게는 지원자 상세에서 만 나이로 표시됩니다.
-          </p>
           {profileState &&
             "error" in profileState &&
             profileState.fieldErrors?.birthDate && (
-              <p className="mt-1 text-xs text-destructive">
+              <p className="mt-1 text-[11.5px] font-bold text-destructive">
                 {profileState.fieldErrors.birthDate}
               </p>
             )}
         </div>
 
         <div>
-          <label htmlFor="bio" className="text-sm font-bold">
-            소개글 (140자 이하)
+          <label
+            htmlFor="bio"
+            className="flex items-baseline gap-2 text-[12.5px] font-bold tracking-tight text-ink"
+          >
+            소개글
+            <span className="text-[11px] font-medium text-text-subtle">
+              140자 이하
+            </span>
           </label>
           <textarea
             id="bio"
@@ -203,19 +231,22 @@ export function WorkerProfileEditForm(props: Props) {
             rows={3}
             maxLength={140}
             defaultValue={props.initialBio}
-            className="mt-2 w-full rounded-xl border border-border bg-card px-4 py-3 text-sm outline-none focus:border-brand focus:ring-2 focus:ring-brand/10 resize-none transition-all duration-200"
+            className={`${inputCls} resize-none`}
           />
           {profileState &&
             "error" in profileState &&
             profileState.fieldErrors?.bio && (
-              <p className="mt-1 text-xs text-destructive">
+              <p className="mt-1 text-[11.5px] font-bold text-destructive">
                 {profileState.fieldErrors.bio}
               </p>
             )}
         </div>
 
+        {/* Preferred categories — 4×2 single grid with brand-green selected + ink border (§02) */}
         <fieldset>
-          <legend className="mb-3 text-sm font-bold">선호 카테고리</legend>
+          <legend className="mb-2 text-[12.5px] font-bold tracking-tight text-ink">
+            선호 카테고리
+          </legend>
           <div className="grid grid-cols-4 gap-2">
             {CATEGORIES.map((c) => {
               const selected = categories.includes(c.value);
@@ -224,57 +255,68 @@ export function WorkerProfileEditForm(props: Props) {
                   key={c.value}
                   type="button"
                   onClick={() => toggleCategory(c.value)}
-                  className={`flex flex-col items-center gap-1.5 py-3 rounded-xl border transition-all duration-200 active:scale-[0.94] hover:-translate-y-0.5 ${
-                    selected
-                      ? "bg-brand-soft border-brand/30 text-foreground shadow-sm"
-                      : "bg-card border-border text-muted-foreground hover:border-brand/20"
-                  }`}
                   aria-pressed={selected}
+                  className={`flex flex-col items-center gap-1.5 rounded-[14px] border py-3 transition-all active:scale-[0.94] ${
+                    selected
+                      ? "border-ink bg-brand text-ink"
+                      : "border-border bg-surface text-muted-foreground hover:border-ink"
+                  }`}
                 >
-                  <span className={`text-xl transition-transform duration-200 ${selected ? "scale-110" : ""}`}>{c.emoji}</span>
-                  <span className="text-[10px] font-semibold">{c.label}</span>
+                  <span className="text-xl">{c.emoji}</span>
+                  <span className="text-[11px] font-extrabold tracking-tight">
+                    {c.label}
+                  </span>
                 </button>
               );
             })}
           </div>
           {categories.map((c) => (
-            <input key={c} type="hidden" name="preferredCategories" value={c} />
+            <input
+              key={c}
+              type="hidden"
+              name="preferredCategories"
+              value={c}
+            />
           ))}
         </fieldset>
 
-        {/* Read-only WORK-03 display — NOT in form, NOT submitted */}
+        {/* Read-only stats — dashed divider + divided info card (§03) */}
         <section
           aria-label="읽기 전용 지표"
-          className="rounded-2xl border border-border bg-card p-4 space-y-1.5 text-sm"
+          className="border-t border-dashed border-border pt-5"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">뱃지</span>
-            <span className="font-semibold">{props.badgeLevel}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">평점</span>
-            <span className="font-semibold flex items-center gap-1">
-              {props.rating.toFixed(2)}
-              <Star className="w-3.5 h-3.5 text-yellow-500 fill-yellow-500" />
-            </span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">근무 횟수</span>
-            <span className="font-semibold">{props.totalJobs}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-muted-foreground">완료율</span>
-            <span className="font-semibold">{props.completionRate}%</span>
+          <p className="mb-3 text-[11px] font-extrabold uppercase tracking-wider text-text-subtle">
+            시스템 기록
+          </p>
+          <div className="divide-y divide-border-soft rounded-[18px] border border-border-soft bg-surface">
+            {[
+              { k: "뱃지", v: props.badgeLevel },
+              {
+                k: "평점",
+                v: (
+                  <span className="inline-flex items-center gap-1">
+                    <span className="tabnum">{props.rating.toFixed(2)}</span>
+                    <Star className="h-3.5 w-3.5 fill-[#fbbf24] text-[#fbbf24]" />
+                  </span>
+                ),
+              },
+              { k: "근무 횟수", v: props.totalJobs },
+              { k: "완료율", v: `${props.completionRate}%` },
+            ].map((row) => (
+              <div
+                key={row.k}
+                className="flex items-center justify-between px-4 py-3"
+              >
+                <span className="text-[12.5px] font-medium text-muted-foreground">
+                  {row.k}
+                </span>
+                <span className="tabnum text-[13.5px] font-extrabold tracking-tight text-ink">
+                  {row.v}
+                </span>
+              </div>
+            ))}
           </div>
         </section>
-
-        <button
-          type="submit"
-          disabled={isProfilePending}
-          className="w-full rounded-xl bg-brand py-3.5 text-sm font-bold text-white active:scale-[0.97] transition-all duration-300 hover:bg-brand-dark hover:shadow-lg hover:shadow-brand/20 disabled:opacity-50"
-        >
-          {isProfilePending ? "저장 중..." : "저장"}
-        </button>
 
         {profileState &&
           "error" in profileState &&
@@ -282,16 +324,29 @@ export function WorkerProfileEditForm(props: Props) {
             <p
               role="alert"
               aria-live="polite"
-              className="text-sm text-destructive"
+              className="text-[12.5px] font-bold text-destructive"
             >
               {profileState.error}
             </p>
           )}
         {profileState && "success" in profileState && (
-          <p role="status" className="text-sm text-brand-deep">
+          <p role="status" className="text-[12.5px] font-bold text-brand-deep">
             {profileState.message}
           </p>
         )}
+
+        {/* Sticky ink save — §04: "sticky 잉크 블랙 → 폼 어디서든 즉시 저장" */}
+        <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border-soft bg-[color-mix(in_oklch,var(--surface)_96%,transparent)] px-4 pt-3 pb-[calc(env(safe-area-inset-bottom)+12px)] [backdrop-filter:saturate(1.6)_blur(16px)]">
+          <div className="mx-auto max-w-md">
+            <button
+              type="submit"
+              disabled={isProfilePending}
+              className="flex w-full items-center justify-center rounded-full bg-ink py-3.5 text-[14px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark active:scale-[0.98] disabled:opacity-50"
+            >
+              {isProfilePending ? "저장 중…" : "저장"}
+            </button>
+          </div>
+        </div>
       </form>
     </div>
   );
