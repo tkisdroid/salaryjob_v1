@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<!-- saved from url=(0309)https://9ee01e2f-87f5-421a-996d-bccee233c73d.claudeusercontent.com/v1/design/projects/9ee01e2f-87f5-421a-996d-bccee233c73d/serve/Worker%20Home%20Premium.html?t=cd19bc3e4f4834add2a5358ae375f3edaca63dc5731afda774c0154964dbddb5.599bab6a-a6f9-425d-869b-78cbd2e62153.969820ed-4490-4cb9-b577-9858b1a70db3.1776664803 -->
+<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<style data-omelette-injected="">html,body{background:transparent}</style><script data-omelette-injected="">(()=>{var W=["https://claude.ai","https://preview.claude.ai","https://eap-omelette.claude.ai"];var Y=30000;document.addEventListener("DOMContentLoaded",()=>{const D="transform-react-jsx-source";document.querySelectorAll('script[type="text/babel"],script[type="text/jsx"]').forEach((C,F)=>{const Q=C.getAttribute("data-plugins")||"";if(Q.indexOf(D)<0){C.setAttribute("data-plugins",Q?`${Q},${D}`:D)}if(!C.hasAttribute("data-filename")){C.setAttribute("data-filename",C.getAttribute("src")||`inline-${F}`)}})});var K=window.parent;if(K&&K!==window){const D=(k,f)=>{try{K.postMessage({__omelette_log:true,type:k,data:f},"*")}catch{}};["log","warn","error"].forEach((k)=>{const f=console[k];console[k]=(...w)=>{const z=w.map((h)=>{try{return typeof h==="object"?JSON.stringify(h):String(h)}catch{try{return String(h)}catch{return"[unstringifiable]"}}}).join(" ");D(k,z);f.apply(console,w)}});window.addEventListener("error",(k)=>{const f=k.target;if(f&&f!==window&&f.tagName){const w=f.src||f.href||"";D("resource_error",`${f.tagName} failed to load: ${w}`)}else{D("error",`${k.message||"Unknown error"} at ${k.filename||"?"}:${k.lineno||0}:${k.colno||0}`)}},true);window.addEventListener("unhandledrejection",(k)=>{const f=k.reason;const w=f instanceof Error?`${f.message} ${f.stack}`:String(f);D("error",`Unhandled rejection: ${w}`)});const C=()=>{try{K.postMessage({type:"omelette:height",height:document.documentElement.scrollHeight},"*")}catch{}};if(document.readyState==="complete")C();else window.addEventListener("load",C);if(window.ResizeObserver)new ResizeObserver(C).observe(document.documentElement);const F={};let Q=0;window.claude={complete(k){return new Promise((f,w)=>{if(!W.length){w(new Error("claude.complete: no parent origin"));return}const z=`c${++Q}`;const h=()=>setTimeout(()=>{delete F[z];w(new Error(`claude.complete: no data for ${Y/1000}s`))},Y);const J=h();F[z]={resolve:f,reject:w,text:"",t:J,arm:h};try{for(const V of W){K.postMessage({__om_api:true,id:z,body:k},V)}}catch(V){clearTimeout(J);delete F[z];w(V)}})}};const X=(k)=>{try{return JSON.stringify(k)}catch{return JSON.stringify(String(k))}};window.addEventListener("message",(k)=>{if(W.indexOf(k.origin)<0)return;if(k.source!==K)return;const f=k.data;if(!f)return;if(f.__om_api_r){const h=F[f.id];if(!h)return;if(f.error!=null){clearTimeout(h.t);delete F[f.id];h.reject(new Error(f.error));return}if(f.chunk!=null){clearTimeout(h.t);h.t=h.arm();h.text+=f.chunk;return}if(f.done){clearTimeout(h.t);delete F[f.id];h.resolve(f.text!=null?f.text:h.text);return}return}if(!f.__om_eval)return;const w=f;const z=(h)=>{k.source.postMessage({...h,__om_eval_r:1,id:w.id},k.origin)};try{const h=(0,eval)(w.code);if(h&&typeof h.then==="function"){h.then((J)=>z({ok:1,v:X(J)}),(J)=>z({ok:0,e:String(J)}))}else{z({ok:1,v:X(h)})}}catch(h){z({ok:0,e:String(h)})}})}})();
+</script>
+
+
+<title>샐러리잡 — Worker Home Premium</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com/">
+<link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+<link href="./css2" rel="stylesheet">
+<link rel="stylesheet" href="./worker-styles.css">
+</head>
+<body>
+
+<div class="canvas-wrap">
+
+  <!-- PAGE HEADER -->
+  <div class="page-header">
+    <span class="page-eyebrow"><span class="dot"></span>Worker · Home</span>
+    <h1 class="page-title">구직자 홈, 메인 페이지 디자인 언어로.</h1>
+    <p class="page-sub">
+      랜딩의 톤(Pretendard + 잉크 블랙 + 샐러리 그린 + 에디토리얼 타이포)을 모바일 앱으로 이식했습니다.
+      정보 밀도는 유지하되 잉크 블랙 CTA, 민트 카드, 각진 지오메트리를 일관되게 적용했습니다.
+    </p>
+  </div>
+
+  <div class="stage">
+
+    <!-- =============== PHONE =============== -->
+    <div class="phone-stage">
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="dynamic-island"></div>
+
+          <!-- status bar -->
+          <div class="status-bar">
+            <span>9:41</span>
+            <span class="right">
+              <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx=".5"></rect><rect x="4.5" y="5" width="3" height="6" rx=".5"></rect><rect x="9" y="2.5" width="3" height="8.5" rx=".5"></rect><rect x="13.5" y="0" width="3" height="11" rx=".5"></rect></svg>
+              <svg width="16" height="11" viewBox="0 0 16 11" fill="currentColor"><path d="M8 2a8 8 0 0 1 5.7 2.3l-1.1 1.1a6.4 6.4 0 0 0-9.2 0L2.3 4.3A8 8 0 0 1 8 2Zm0 3.2a5 5 0 0 1 3.5 1.4l-1.1 1.1a3.4 3.4 0 0 0-4.8 0L4.5 6.6A5 5 0 0 1 8 5.2Zm0 3.2a1.8 1.8 0 0 1 1.3.5L8 10.2 6.7 8.9A1.8 1.8 0 0 1 8 8.4Z"></path></svg>
+              <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity=".4"></rect><rect x="2" y="2" width="17" height="7" rx="1.2" fill="currentColor"></rect><path d="M22 3.5V7c.7-.3 1.2-1 1.2-1.7 0-.7-.5-1.4-1.2-1.7z" fill="currentColor" fill-opacity=".6"></path></svg>
+            </span>
+          </div>
+
+          <!-- app content -->
+          <div class="app">
+
+            <!-- app header -->
+            <div class="app-header">
+              <div>
+                <div class="greet-small">안녕하세요</div>
+                <div class="greet-name">김지훈님<span class="wave">👋</span></div>
+              </div>
+              <div class="bell">
+                <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M6 19V11a6 6 0 1 1 12 0v8M4 19h16M10 22h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                <span class="dot"></span>
+              </div>
+            </div>
+
+            <!-- income hero card -->
+            <div class="income-card">
+              <div class="income-row">
+                <span class="income-label">이번 달 수입</span>
+                <span class="income-trend">
+                  <svg class="i-sm" viewBox="0 0 16 16" fill="none"><path d="M3 11l4-4 2.5 2.5L14 4M14 4H10M14 4v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </span>
+              </div>
+              <div class="income-amount tabnum">0<span class="won">원</span></div>
+              <div class="income-sub">4월 확정 근무 기준 · 오늘 기준</div>
+              <div class="income-stats">
+                <div class="income-stat">
+                  <div class="k">누적 근무</div>
+                  <div class="v tabnum">23<span style="font-size:12px;opacity:.7;margin-left:2px;">회</span></div>
+                </div>
+                <div class="income-stat">
+                  <div class="k">평점</div>
+                  <div class="v tabnum"><span class="star">★</span> 4.8</div>
+                </div>
+                <div class="income-stat">
+                  <div class="k">완료율</div>
+                  <div class="v tabnum">100<span style="font-size:12px;opacity:.7;">%</span></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- categories -->
+            <div class="sec-label">카테고리</div>
+            <div class="cat-row">
+              <div class="cat">
+                <div class="ico">
+                  <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M6 3v8a3 3 0 0 0 3 3v7M6 3h12v8a3 3 0 0 1-3 3v7M6 3h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                </div>
+                <div class="label">음식점</div>
+              </div>
+              <div class="cat">
+                <div class="ico">
+                  <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M5 9h14l-1 11H6L5 9zM9 9V6a3 3 0 0 1 6 0v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <div class="label">판매</div>
+              </div>
+              <div class="cat">
+                <div class="ico">
+                  <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 8l8-4 8 4-8 4-8-4zm0 0v8l8 4 8-4V8M12 12v8" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg>
+                </div>
+                <div class="label">물류</div>
+              </div>
+              <div class="cat">
+                <div class="ico">
+                  <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M5 20l7-14 7 14M5 20h14M9 12h6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <div class="label">행사</div>
+              </div>
+              <div class="cat">
+                <div class="ico">
+                  <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M3 8h18v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8zM8 8V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v3" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg>
+                </div>
+                <div class="label">사무</div>
+              </div>
+              <div class="cat">
+                <div class="ico">
+                  <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M12 2l2 5 5 2-5 2-2 5-2-5-5-2 5-2 2-5zM19 15l1 2 2 1-2 1-1 2-1-2-2-1 2-1 1-2z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path></svg>
+                </div>
+                <div class="label">청소</div>
+              </div>
+            </div>
+
+            <!-- nearby jobs -->
+            <div class="sec-label">
+              <span class="mark">
+                <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M12 2l1.8 4.3 4.6.4-3.5 3 1.1 4.5L12 12l-4 2.2L9.1 9.7 5.6 6.7l4.6-.4L12 2z" fill="currentColor"></path></svg>
+              </span>
+              내 주변 공고
+            </div>
+
+            <div class="view-toggle">
+              <button class="active">
+                <svg class="i-sm" viewBox="0 0 16 16" fill="none"><path d="M3 4h10M3 8h10M3 12h10" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
+                리스트
+              </button>
+              <button>
+                <svg class="i-sm" viewBox="0 0 16 16" fill="none"><path d="M2 4l4-2 4 2 4-2v10l-4 2-4-2-4 2V4z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path><path d="M6 2v10M10 4v10" stroke="currentColor" stroke-width="1.5"></path></svg>
+                지도
+              </button>
+            </div>
+
+            <div class="filter-group">
+              <div class="key">거리</div>
+              <div class="chip-scroll">
+                <button class="fchip">1km</button>
+                <button class="fchip on">3km</button>
+                <button class="fchip">5km</button>
+                <button class="fchip">10km</button>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <div class="key">시기</div>
+              <div class="chip-scroll">
+                <button class="fchip on">오늘</button>
+                <button class="fchip">내일</button>
+                <button class="fchip">이번주</button>
+              </div>
+            </div>
+
+            <div class="filter-group">
+              <div class="key">시간대</div>
+              <div class="chip-scroll">
+                <button class="fchip">오전</button>
+                <button class="fchip on">오후</button>
+                <button class="fchip">저녁</button>
+                <button class="fchip">야간</button>
+              </div>
+            </div>
+
+            <div class="job-count">
+              <div class="n"><b>1건</b>의 공고</div>
+              <button class="sort-btn">
+                거리순
+                <svg class="i-xs" viewBox="0 0 12 12" fill="none"><path d="M3 5l3-3 3 3M3 7l3 3 3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              </button>
+            </div>
+
+            <!-- job card -->
+            <div class="job-card">
+              <span class="job-badge">
+                <svg class="i-xs" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="2.5" fill="currentColor"></circle></svg>
+                모집중
+              </span>
+              <div class="job-top">
+                <div class="job-logo">💄</div>
+                <div class="job-body">
+                  <div class="job-store">올리브영 명동점</div>
+                  <div class="job-title">올리브영 매장 보조</div>
+                  <div class="job-meta">
+                    <span class="mx">
+                      <svg class="i-xs" viewBox="0 0 12 12" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"></circle><path d="M6 3v3l2 1.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"></path></svg>
+                      4/22 (수) 13:00
+                    </span>
+                    <span class="mx">
+                      <svg class="i-xs" viewBox="0 0 12 12" fill="none"><path d="M6 1a4 4 0 0 1 4 4c0 3-4 6-4 6S2 8 2 5a4 4 0 0 1 4-4z" stroke="currentColor" stroke-width="1.3"></path><circle cx="6" cy="5" r="1.2" fill="currentColor"></circle></svg>
+                      626m
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="job-foot">
+                <span class="job-hourly">시급 12,500원</span>
+                <span class="job-total tabnum">78,000원</span>
+              </div>
+            </div>
+
+            <div style="height: 16px;"></div>
+
+          </div>
+
+          <!-- tab bar -->
+          <div class="tabbar">
+            <div class="tab active">
+              <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg>
+              <span>홈</span>
+            </div>
+            <div class="tab">
+              <svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"></circle><path d="M20 20l-4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+              <span>탐색</span>
+            </div>
+            <div class="tab fab">
+              <svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"></circle><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg>
+              <span>시간등록</span>
+            </div>
+            <div class="tab">
+              <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4V5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg>
+              <span>채팅</span>
+            </div>
+            <div class="tab">
+              <svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+              <span>MY</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- =============== ANNOTATIONS =============== -->
+    <div class="anno-rail">
+
+      <div class="anno">
+        <span class="num">01</span>
+        <h3>수입 카드는 '잉크 위 샐러리 그린' 컬러 조합으로</h3>
+        <p>랜딩의 hero에서 사용하는 민트 → 브랜드 그린 조합을 모바일에도 시그니처로 재사용. 상단 우측에 잉크색 원형 트렌드 아이콘으로 포인트를 잡았습니다.</p>
+        <div class="anno-tokens">
+          <span class="tok">brand</span>
+          <span class="tok">lime-accent</span>
+          <span class="tok">ink</span>
+          <span class="tok">r:26</span>
+        </div>
+      </div>
+
+      <div class="anno">
+        <span class="num">02</span>
+        <h3>카테고리: 이모지 대신 스트로크 아이콘</h3>
+        <p>기존 원형 그라데이션 이모지를 라운드 스퀘어(r:18) + 잉크 스트로크 아이콘으로 교체. 랜딩의 "How it works" 스텝 넘버 박스와 동일한 지오메트리.</p>
+        <div class="anno-tokens">
+          <span class="tok">r:18</span>
+          <span class="tok">stroke:1.8</span>
+          <span class="tok">6-col grid</span>
+        </div>
+      </div>
+
+      <div class="anno">
+        <span class="num">03</span>
+        <h3>필터: Pill 칩 + 잉크 활성 스테이트</h3>
+        <p>랜딩 히어로의 필터 칩과 완전히 동일한 언어. 활성 시 잉크 블랙 배경, 기본 시 라인 + 서피스. '리스트 / 지도' 토글도 동일한 토큰으로 통일.</p>
+        <div class="anno-tokens">
+          <span class="tok">chip</span>
+          <span class="tok">chip.active</span>
+          <span class="tok">scroll-x</span>
+        </div>
+      </div>
+
+      <div class="anno">
+        <span class="num">04</span>
+        <h3>공고 카드: 대시 보더 푸터 + 라임 Status 뱃지</h3>
+        <p>금액 하이라이트는 <b>brand-deep</b> 그린. 상단 우측에 라임 칩으로 '모집중' 상태를 노출. 대시 보더(1px dashed)로 메타와 금액 영역을 시각적으로 분리.</p>
+        <div class="anno-tokens">
+          <span class="tok">r:22</span>
+          <span class="tok">border-dashed</span>
+          <span class="tok">lime-chip</span>
+        </div>
+      </div>
+
+      <div class="anno">
+        <span class="num">05</span>
+        <h3>탭바: 중앙 플로팅 FAB</h3>
+        <p>'시간등록'은 구직자의 핵심 액션. 반투명 글래스 바 위에 브랜드 그린 원형 FAB를 띄워 랜딩의 Primary CTA 무게감을 하단 내비로 이식.</p>
+        <div class="anno-tokens">
+          <span class="tok">backdrop-blur</span>
+          <span class="tok">fab</span>
+          <span class="tok">shadow-brand</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =============== PHONE GALLERY: EXPLORE SCREEN =============== -->
+  <div class="phone-gallery">
+    <div class="gallery-head">
+      <div>
+        <h2>탐색 · Explore</h2>
+        <p>검색 중심 화면. 상단 토글로 <b>리스트 / 태그 / 지도</b> 3가지 탐색 모드를 제공합니다.</p>
+      </div>
+      <span class="page-eyebrow"><span class="dot"></span>3 variants</span>
+    </div>
+
+    <div class="gallery-row">
+
+      <!-- LIST view -->
+      <div class="phone-item">
+        <div class="phone" style="width:340px;height:720px;">
+          <div class="phone-screen">
+            <div class="dynamic-island" style="width:104px;height:28px;top:10px;"></div>
+            <div class="status-bar"><span>9:41</span>
+              <span class="right">
+                <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx=".5"></rect><rect x="4.5" y="5" width="3" height="6" rx=".5"></rect><rect x="9" y="2.5" width="3" height="8.5" rx=".5"></rect><rect x="13.5" y="0" width="3" height="11" rx=".5"></rect></svg>
+                <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity=".4"></rect><rect x="2" y="2" width="17" height="7" rx="1.2" fill="currentColor"></rect></svg>
+              </span>
+            </div>
+            <div class="app" style="padding:10px 18px 100px;">
+              <div class="explore-title">탐색</div>
+              <div class="explore-sub">내 주변 공고를 둘러보세요</div>
+              <div class="search-input">
+                <svg class="i-sm" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"></circle><path d="M14 14l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+                직종, 지역, 매장명으로 검색
+                <span class="sbtn">
+                  <svg class="i-xs" viewBox="0 0 12 12" fill="none"><path d="M6 2l4 4-4 4M2 6h8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </span>
+              </div>
+              <div class="triseg">
+                <button class="active">리스트</button>
+                <button>태그</button>
+                <button>지도</button>
+              </div>
+              <div class="chip-scroll-cats">
+                <button class="fchip on">전체</button>
+                <button class="fchip">음식</button>
+                <button class="fchip">유통</button>
+                <button class="fchip">물류</button>
+                <button class="fchip">사무</button>
+                <button class="fchip">행사</button>
+                <button class="fchip">청소</button>
+              </div>
+              <div class="chip-scroll-cats" style="padding-top:0;">
+                <button class="fchip on">전체</button>
+                <button class="fchip">1만원+</button>
+                <button class="fchip">1.2만원+</button>
+                <button class="fchip">1.5만원+</button>
+              </div>
+              <div class="result-count">검색 결과 <b>2건</b></div>
+              <div class="explore-card">
+                <div class="left">
+                  <div class="t">박람회 부스 안내 도우미</div>
+                  <div class="s">코엑스 컨벤션</div>
+                </div>
+                <div class="right">
+                  <div class="amt">15,000원</div>
+                  <div class="loc">
+                    <svg class="i-xs" viewBox="0 0 12 12" fill="none"><path d="M6 1a4 4 0 0 1 4 4c0 3-4 6-4 6S2 8 2 5a4 4 0 0 1 4-4z" stroke="currentColor" stroke-width="1.3"></path><circle cx="6" cy="5" r="1.2" fill="currentColor"></circle></svg>
+                    서울 강남구
+                  </div>
+                </div>
+              </div>
+              <div class="explore-card">
+                <div class="left">
+                  <div class="t">올리브영 매장 보조</div>
+                  <div class="s">올리브영 명동점</div>
+                </div>
+                <div class="right">
+                  <div class="amt">12,500원</div>
+                  <div class="loc">
+                    <svg class="i-xs" viewBox="0 0 12 12" fill="none"><path d="M6 1a4 4 0 0 1 4 4c0 3-4 6-4 6S2 8 2 5a4 4 0 0 1 4-4z" stroke="currentColor" stroke-width="1.3"></path><circle cx="6" cy="5" r="1.2" fill="currentColor"></circle></svg>
+                    서울 중구
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="tabbar">
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>홈</span></div>
+              <div class="tab active"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"></circle><path d="M20 20l-4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>탐색</span></div>
+              <div class="tab fab"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"></circle><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg><span>시간등록</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4V5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>채팅</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>MY</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="plabel"><span class="num">1</span>리스트 뷰</div>
+        <div class="pdesc">기존과 동일한 정보 구조. 시급은 brand-deep + tabular-nums로 정렬.</div>
+      </div>
+
+      <!-- TAG view -->
+      <div class="phone-item">
+        <div class="phone" style="width:340px;height:720px;">
+          <div class="phone-screen">
+            <div class="dynamic-island" style="width:104px;height:28px;top:10px;"></div>
+            <div class="status-bar"><span>9:41</span>
+              <span class="right">
+                <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx=".5"></rect><rect x="4.5" y="5" width="3" height="6" rx=".5"></rect><rect x="9" y="2.5" width="3" height="8.5" rx=".5"></rect><rect x="13.5" y="0" width="3" height="11" rx=".5"></rect></svg>
+                <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity=".4"></rect><rect x="2" y="2" width="17" height="7" rx="1.2" fill="currentColor"></rect></svg>
+              </span>
+            </div>
+            <div class="app" style="padding:10px 18px 100px;">
+              <div class="explore-title">탐색</div>
+              <div class="explore-sub">주목받는 태그로 한 번에 찾기</div>
+              <div class="search-input">
+                <svg class="i-sm" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"></circle><path d="M14 14l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+                직종, 지역, 매장명으로 검색
+              </div>
+              <div class="triseg">
+                <button>리스트</button>
+                <button class="active">태그</button>
+                <button>지도</button>
+              </div>
+              <div class="result-count" style="padding-top:18px;">🔥 지금 인기</div>
+              <div class="tag-cloud">
+                <span class="tag hot">#당일근무<span class="ct">128</span></span>
+                <span class="tag hot">#고시급<span class="ct">94</span></span>
+                <span class="tag dark">#강남구<span class="ct">56</span></span>
+                <span class="tag">#박람회<span class="ct">32</span></span>
+                <span class="tag">#매장보조<span class="ct">47</span></span>
+                <span class="tag">#올리브영<span class="ct">8</span></span>
+                <span class="tag">#오후근무<span class="ct">72</span></span>
+              </div>
+              <div class="result-count">💰 시급대별</div>
+              <div class="tag-cloud">
+                <span class="tag">#1만원대<span class="ct">41</span></span>
+                <span class="tag">#1.2만원대<span class="ct">62</span></span>
+                <span class="tag hot">#1.5만원이상<span class="ct">23</span></span>
+              </div>
+              <div class="result-count">📍 지역별</div>
+              <div class="tag-cloud">
+                <span class="tag">#강남구<span class="ct">56</span></span>
+                <span class="tag">#중구<span class="ct">34</span></span>
+                <span class="tag">#마포구<span class="ct">28</span></span>
+                <span class="tag">#성동구<span class="ct">19</span></span>
+                <span class="tag">#종로구<span class="ct">15</span></span>
+              </div>
+            </div>
+            <div class="tabbar">
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>홈</span></div>
+              <div class="tab active"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"></circle><path d="M20 20l-4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>탐색</span></div>
+              <div class="tab fab"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"></circle><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg><span>시간등록</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4V5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>채팅</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>MY</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="plabel"><span class="num">2</span>태그 뷰</div>
+        <div class="pdesc">빈 공간을 활용한 신규 탐색. 인기/시급/지역 태그로 즉시 필터.</div>
+      </div>
+
+      <!-- MAP view -->
+      <div class="phone-item">
+        <div class="phone" style="width:340px;height:720px;">
+          <div class="phone-screen">
+            <div class="dynamic-island" style="width:104px;height:28px;top:10px;"></div>
+            <div class="status-bar"><span>9:41</span>
+              <span class="right">
+                <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx=".5"></rect><rect x="4.5" y="5" width="3" height="6" rx=".5"></rect><rect x="9" y="2.5" width="3" height="8.5" rx=".5"></rect><rect x="13.5" y="0" width="3" height="11" rx=".5"></rect></svg>
+                <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity=".4"></rect><rect x="2" y="2" width="17" height="7" rx="1.2" fill="currentColor"></rect></svg>
+              </span>
+            </div>
+            <div class="app" style="padding:10px 18px 100px;">
+              <div class="explore-title">탐색</div>
+              <div class="explore-sub">지도 위 핀으로 직접 선택</div>
+              <div class="search-input">
+                <svg class="i-sm" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="currentColor" stroke-width="1.5"></circle><path d="M14 14l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+                직종, 지역, 매장명으로 검색
+              </div>
+              <div class="triseg">
+                <button>리스트</button>
+                <button>태그</button>
+                <button class="active">지도</button>
+              </div>
+              <div class="map-preview">
+                <div class="map-me"></div>
+                <span class="map-pin active" style="top:38%;left:28%;">15,000원</span>
+                <span class="map-pin" style="top:68%;left:62%;">12,500원</span>
+                <span class="map-pin" style="top:22%;left:72%;">13,000원</span>
+              </div>
+              <div class="result-count">지도 범위 내 <b>3건</b></div>
+              <div class="explore-card">
+                <div class="left">
+                  <div class="t">박람회 부스 안내 도우미</div>
+                  <div class="s">626m · 코엑스 컨벤션</div>
+                </div>
+                <div class="right">
+                  <div class="amt">15,000원</div>
+                  <div class="loc">오늘 09:00</div>
+                </div>
+              </div>
+            </div>
+            <div class="tabbar">
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>홈</span></div>
+              <div class="tab active"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"></circle><path d="M20 20l-4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>탐색</span></div>
+              <div class="tab fab"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"></circle><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg><span>시간등록</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4V5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>채팅</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>MY</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="plabel"><span class="num">3</span>지도 뷰</div>
+        <div class="pdesc">내 위치 중심 핀 + 활성 핀은 브랜드 그린. 하단엔 선택된 공고 카드.</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =============== TIME REGISTER SCREEN =============== -->
+  <div class="phone-gallery">
+    <div class="gallery-head">
+      <div>
+        <h2>시간 등록 · Availability</h2>
+        <p>가능한 시간을 주간 그리드에 찍어두면 매칭되는 공고를 자동으로 추천받습니다. 7×18 셀 그리드 + 샐러리 그린 필.</p>
+      </div>
+      <span class="page-eyebrow"><span class="dot"></span>Weekly picker</span>
+    </div>
+
+    <div class="gallery-row" style="grid-template-columns: minmax(340px, 400px) 1fr; align-items: flex-start;">
+
+      <!-- PHONE -->
+      <div class="phone-item">
+        <div class="phone" style="width:380px;height:960px;">
+          <div class="phone-screen">
+            <div class="dynamic-island" style="width:116px;height:32px;top:11px;"></div>
+            <div class="status-bar"><span>9:41</span>
+              <span class="right">
+                <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx=".5"></rect><rect x="4.5" y="5" width="3" height="6" rx=".5"></rect><rect x="9" y="2.5" width="3" height="8.5" rx=".5"></rect><rect x="13.5" y="0" width="3" height="11" rx=".5"></rect></svg>
+                <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity=".4"></rect><rect x="2" y="2" width="17" height="7" rx="1.2" fill="currentColor"></rect></svg>
+              </span>
+            </div>
+            <div class="app" style="padding:8px 18px 140px;">
+              <div class="tr-subhead">
+                <div class="back">
+                  <svg class="i-sm" viewBox="0 0 16 16" fill="none"><path d="M10 3l-5 5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <div class="tr-title">시간 등록</div>
+              </div>
+              <div class="tr-lead">빈 시간을 등록하면 AI가 맞춤 공고를 찾아드려요</div>
+
+              <div class="tr-card">
+                <div class="tr-card-head">
+                  <div class="hd">
+                    <svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8"></circle><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                    가능한 시간을 선택하세요
+                  </div>
+                  <button class="reset">
+                    <svg class="i-xs" viewBox="0 0 12 12" fill="none"><path d="M10 6a4 4 0 1 1-1.2-2.8L10 4.5M10 2v2.5H7.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                    초기화
+                  </button>
+                </div>
+                <div class="tr-hint">요일 또는 시간 헤더를 눌러 한 줄씩 선택할 수도 있어요</div>
+                <div class="sched">
+                  <div></div>
+                  <div class="dayh">월</div>
+                  <div class="dayh">화</div>
+                  <div class="dayh">수</div>
+                  <div class="dayh">목</div>
+                  <div class="dayh">금</div>
+                  <div class="dayh">토</div>
+                  <div class="dayh">일</div>
+                  <div class="hourh">6</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="hourh">7</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="hourh">8</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="hourh">9</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="hourh">10</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="hourh">11</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="hourh">12</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="hourh">13</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="hourh">14</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="hourh">15</div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="hourh">16</div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="hourh">17</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="hourh">18</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="hourh">19</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="hourh">20</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="hourh">21</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="hourh">22</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="hourh">23</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="hourh divider">&nbsp;</div><div class="slot-divider"></div><div class="slot-divider"></div><div class="slot-divider"></div><div class="slot-divider"></div><div class="slot-divider"></div><div class="slot-divider"></div><div class="slot-divider"></div>
+                  <div class="hourh late">00</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="hourh late">01</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="hourh late">02</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot on"></div>
+                  <div class="slot on"></div>
+                  <div class="slot"></div>
+                  <div class="hourh late">03</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="hourh late">04</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="hourh late">05</div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                  <div class="slot"></div>
+                </div>
+                <div class="sched-legend">
+                  <span class="lg on"><span class="sw"></span>가용</span>
+                  <span class="lg off"><span class="sw"></span>불가</span>
+                </div>
+              </div>
+
+              <div class="tr-card">
+                <div class="tr-card-head">
+                  <div class="hd">
+                    <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+                    등록된 시간 블록
+                  </div>
+                </div>
+                <div class="block-list">
+                  <div class="block-row">
+                    <span class="d">수</span>
+                    <span class="range">오후 3시 — 오후 6시</span>
+                  </div>
+                  <div class="block-row">
+                    <span class="d">목</span>
+                    <span class="range">오전 11시 — 오후 9시</span>
+                  </div>
+                  <div class="block-row prime">
+                    <span class="d">토</span>
+                    <span class="range">오후 12시 — 오후 5시</span>
+                  </div>
+                  <div class="block-row prime">
+                    <span class="d">일</span>
+                    <span class="range">오후 2시 — 자정</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="tr-summary">
+                <div class="a">39개 시간대 선택됨</div>
+                <div class="b">이번 주 <b>39시간</b> 등록됨</div>
+              </div>
+            </div>
+
+            <div class="tr-actionbar">
+              <div class="tr-saved">
+                모두 저장됨
+                <b>총 39시간</b>
+              </div>
+              <button class="tr-btn">
+                <svg class="i-xs" viewBox="0 0 12 12" fill="none"><path d="M2 8l3 3 5-7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                매칭 보기
+              </button>
+              <button class="tr-btn prime">
+                <svg class="i-xs" viewBox="0 0 12 12" fill="none"><path d="M2 3h6l2 2v5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3zM4 3v3h4V3" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"></path></svg>
+                저장하기
+              </button>
+            </div>
+
+            <div class="tabbar">
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>홈</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"></circle><path d="M20 20l-4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>탐색</span></div>
+              <div class="tab fab"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"></circle><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg><span>시간등록</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4V5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>채팅</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>MY</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ANNOTATIONS -->
+      <div class="anno-rail" style="position: static;">
+        <div class="anno">
+          <span class="num">01</span>
+          <h3>'pill' 그리드 대신 rounded-square 슬롯</h3>
+          <p>기존 알약형 그리드는 점유 면적이 커서 18×7 셀에서 cramped. r:8 사각 셀로 바꿔 선택된 덩어리가 자연스럽게 "블록"처럼 보이도록 했습니다.</p>
+          <div class="anno-tokens">
+            <span class="tok">r:8</span>
+            <span class="tok">18×7</span>
+            <span class="tok">slot-height:18px</span>
+          </div>
+        </div>
+        <div class="anno">
+          <span class="num">02</span>
+          <h3>Reset → 잉크 pill 아이콘 버튼</h3>
+          <p>'초기화' 버튼은 디스트럭티브하지만 빨간색을 쓰지 않음. 잉크 블랙 아이콘 + hover 시 surface-2 배경으로 차분하게 처리.</p>
+        </div>
+        <div class="anno">
+          <span class="num">03</span>
+          <h3>등록된 블록 리스트 — 요일 배지</h3>
+          <p>각 행 왼쪽에 요일 배지(r:8). 주말(토/일)은 'prime' 스타일로 브랜드 그린 배경을 적용해 "고시급 시간대"를 암시.</p>
+          <div class="anno-tokens">
+            <span class="tok">badge</span>
+            <span class="tok">prime</span>
+          </div>
+        </div>
+        <div class="anno">
+          <span class="num">04</span>
+          <h3>플로팅 액션 바</h3>
+          <p>하단 탭바 위에 글래스 액션 바를 띄움. "모두 저장됨" 메타 + 매칭 보기(ghost) + 저장하기(잉크 primary). 원본의 가로 꽉 찬 바보다 탭바와 시각적 계층 분리.</p>
+          <div class="anno-tokens">
+            <span class="tok">floating</span>
+            <span class="tok">backdrop-blur</span>
+            <span class="tok">r:18</span>
+          </div>
+        </div>
+        <div class="anno">
+          <span class="num">05</span>
+          <h3>요약 문구: 숫자만 브랜드 그린</h3>
+          <p>'이번 주 28시간 등록됨'에서 숫자만 brand-deep으로 강조. 랜딩의 "3분" 트러스트 수치와 동일한 수사법.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =============== CHAT SCREENS =============== -->
+  <div class="phone-gallery">
+    <div class="gallery-head">
+      <div>
+        <h2>채팅 · Chat</h2>
+        <p>업체와의 1:1 커뮤니케이션. 리스트 + 상세 스레드 2가지 상태.</p>
+      </div>
+      <span class="page-eyebrow"><span class="dot"></span>List + Thread</span>
+    </div>
+
+    <div class="gallery-row">
+
+      <!-- CHAT LIST -->
+      <div class="phone-item">
+        <div class="phone" style="width:360px;height:760px;">
+          <div class="phone-screen">
+            <div class="dynamic-island" style="width:108px;height:30px;top:10px;"></div>
+            <div class="status-bar"><span>9:41</span>
+              <span class="right">
+                <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx=".5"></rect><rect x="4.5" y="5" width="3" height="6" rx=".5"></rect><rect x="9" y="2.5" width="3" height="8.5" rx=".5"></rect><rect x="13.5" y="0" width="3" height="11" rx=".5"></rect></svg>
+                <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity=".4"></rect><rect x="2" y="2" width="17" height="7" rx="1.2" fill="currentColor"></rect></svg>
+              </span>
+            </div>
+            <div class="app" style="padding:10px 18px 100px;">
+              <div class="chat-head">
+                <span class="tl">
+                  <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4V5z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"></path></svg>
+                  채팅
+                </span>
+                <span class="cnt"><span class="dot"></span>3개 안 읽음</span>
+              </div>
+
+              <div class="chat-list">
+                <div class="chat-row unread">
+                  <div class="av">BB</div>
+                  <div class="body">
+                    <div class="nm">블루보틀 강남점</div>
+                    <div class="rl">카페 바리스타</div>
+                    <div class="ms">안녕하세요! 내일 출근 가능하신가요?</div>
+                  </div>
+                  <div class="meta">
+                    <span class="ts">방금</span>
+                    <span class="ub">2</span>
+                  </div>
+                </div>
+
+                <div class="chat-row unread">
+                  <div class="av">EP</div>
+                  <div class="body">
+                    <div class="nm">이벤트플러스</div>
+                    <div class="rl">행사 스태프</div>
+                    <div class="ms">행사 당일 복장은 검정색 상의 부탁드립니다.</div>
+                  </div>
+                  <div class="meta">
+                    <span class="ts">10분 전</span>
+                    <span class="ub">1</span>
+                  </div>
+                </div>
+
+                <div class="chat-row">
+                  <div class="av">CU</div>
+                  <div class="body">
+                    <div class="nm">CU 삼성역점</div>
+                    <div class="rl">편의점 주간</div>
+                    <div class="ms">네, 확인했습니다. 감사합니다!</div>
+                  </div>
+                  <div class="meta">
+                    <span class="ts">1시간 전</span>
+                  </div>
+                </div>
+
+                <div class="chat-row">
+                  <div class="av">CP</div>
+                  <div class="body">
+                    <div class="nm">쿠팡 풀필먼트</div>
+                    <div class="rl">물류 분류 작업</div>
+                    <div class="ms">근무 완료 확인되었습니다. 정산은 3일 내 처리됩니다.</div>
+                  </div>
+                  <div class="meta">
+                    <span class="ts">어제</span>
+                  </div>
+                </div>
+
+                <div class="chat-row">
+                  <div class="av">SB</div>
+                  <div class="body">
+                    <div class="nm">스타벅스 선릉점</div>
+                    <div class="rl">서빙 알바</div>
+                    <div class="ms">지원해주셔서 감사합니다. 검토 후 연락드리겠습니다.</div>
+                  </div>
+                  <div class="meta">
+                    <span class="ts">3일 전</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tabbar">
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>홈</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"></circle><path d="M20 20l-4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>탐색</span></div>
+              <div class="tab fab"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"></circle><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg><span>시간등록</span></div>
+              <div class="tab active"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4V5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>채팅</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>MY</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="plabel"><span class="num">1</span>채팅 리스트</div>
+        <div class="pdesc">미읽음 행은 브랜드 틴트 배경 + 라임 아바타. 카운트 pill은 잉크 + 라임 닷.</div>
+      </div>
+
+      <!-- CHAT THREAD -->
+      <div class="phone-item">
+        <div class="phone" style="width:360px;height:760px;">
+          <div class="phone-screen">
+            <div class="dynamic-island" style="width:108px;height:30px;top:10px;"></div>
+            <div class="status-bar"><span>9:41</span>
+              <span class="right">
+                <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx=".5"></rect><rect x="4.5" y="5" width="3" height="6" rx=".5"></rect><rect x="9" y="2.5" width="3" height="8.5" rx=".5"></rect><rect x="13.5" y="0" width="3" height="11" rx=".5"></rect></svg>
+                <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity=".4"></rect><rect x="2" y="2" width="17" height="7" rx="1.2" fill="currentColor"></rect></svg>
+              </span>
+            </div>
+            <div class="app" style="padding:10px 18px 130px;">
+              <div class="chat-back">
+                <svg class="i-sm" viewBox="0 0 16 16" fill="none"><path d="M10 3l-5 5 5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                채팅 목록으로
+              </div>
+
+              <div class="thread-peer">
+                <div class="av">
+                  <svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4V5z" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"></path></svg>
+                </div>
+                <div>
+                  <div class="nm">블루보틀 강남점</div>
+                  <div class="rl">카페 바리스타</div>
+                </div>
+              </div>
+
+              <div class="thread">
+                <div class="thread-day">오늘</div>
+                <div class="bubble in">
+                  내일 출근 가능하신가요?
+                  <span class="tm">09:10</span>
+                </div>
+                <div class="bubble out">
+                  네, 가능합니다. 몇 시까지 도착하면 될까요?
+                  <span class="tm">09:12</span>
+                </div>
+                <div class="bubble in">
+                  오전 9시 50분까지 매장으로 와주세요.
+                  <span class="tm">09:14</span>
+                </div>
+                <div class="bubble out">
+                  확인했습니다. 유니폼은 지급되나요?
+                  <span class="tm">09:15</span>
+                </div>
+                <div class="bubble in">
+                  네, 앞치마는 매장에서 드립니다. 검정색 상의만 입고 와주시면 돼요.
+                  <span class="tm">09:16</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="composer">
+              <button class="attach" aria-label="첨부">
+                <svg class="i-sm" viewBox="0 0 16 16" fill="none"><path d="M8 3v10M3 8h10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg>
+              </button>
+              <input class="ip" placeholder="메시지를 입력하세요">
+              <button class="send" aria-label="보내기">
+                <svg class="i-sm" viewBox="0 0 16 16" fill="none"><path d="M3 8L14 3l-3 11-3-5-5-1z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg>
+              </button>
+            </div>
+
+            <div class="tabbar">
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>홈</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"></circle><path d="M20 20l-4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>탐색</span></div>
+              <div class="tab fab"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"></circle><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg><span>시간등록</span></div>
+              <div class="tab active"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4V5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>채팅</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>MY</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="plabel"><span class="num">2</span>채팅 상세</div>
+        <div class="pdesc">발신 버블은 잉크 블랙(CTA 계승). 수신은 surface + border. 날짜 디바이더로 맥락 표시.</div>
+      </div>
+
+      <!-- ANNOTATIONS COLUMN -->
+      <div class="phone-item" style="max-width: 320px;">
+        <div class="anno" style="border-radius:18px;">
+          <span class="num">01</span>
+          <h3>발신 버블 = 잉크 블랙</h3>
+          <p>원본 mock은 카톡식 브랜드-green 버블. 우리는 랜딩의 CTA 컬러와 통일시켜 잉크 블랙으로. 메신저 관습을 벗어나지만, 전체 앱의 primary 액션 컬러가 일관되게 유지됨.</p>
+          <div class="anno-tokens">
+            <span class="tok">ink</span>
+            <span class="tok">cta-match</span>
+          </div>
+        </div>
+        <div class="anno" style="border-radius:18px;">
+          <span class="num">02</span>
+          <h3>미읽음 행 강조</h3>
+          <p>원본은 모든 행이 민트 배경. 정보 위계가 납작해짐. 우리는 미읽음만 브랜드 틴트 + 라임 아바타로 강조, 읽음은 neutral surface.</p>
+        </div>
+        <div class="anno" style="border-radius:18px;">
+          <span class="num">03</span>
+          <h3>플로팅 Composer</h3>
+          <p>하단 composer를 r:999 pill로 플로팅. 첨부(+) + 텍스트 + 전송(삼각). 탭바 위에 띄워 레이어 분리.</p>
+          <div class="anno-tokens">
+            <span class="tok">pill</span>
+            <span class="tok">backdrop-blur</span>
+          </div>
+        </div>
+        <div class="anno" style="border-radius:18px;">
+          <span class="num">04</span>
+          <h3>역할(role) 인포 텍스트</h3>
+          <p>각 채팅 행에 업체명 아래 '카페 바리스타' 같은 직종이 brand-deep으로 표기. 여러 업체와 동시에 대화할 때 어떤 공고인지 즉시 인지.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- =============== MY SCREEN =============== -->
+  <div class="phone-gallery">
+    <div class="gallery-head">
+      <div>
+        <h2>MY · Profile</h2>
+        <p>프로필 + 확정 근무 + 빠른 메뉴 + AI 배너. 제로 스테이트(수입 0원)도 담대하게.</p>
+      </div>
+      <span class="page-eyebrow"><span class="dot"></span>Profile hub</span>
+    </div>
+
+    <div class="gallery-row" style="grid-template-columns: minmax(360px, 400px) 1fr; align-items: flex-start;">
+
+      <div class="phone-item">
+        <div class="phone" style="width:380px;height:900px;">
+          <div class="phone-screen">
+            <div class="dynamic-island" style="width:116px;height:32px;top:11px;"></div>
+            <div class="status-bar"><span>9:41</span>
+              <span class="right">
+                <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect y="7" width="3" height="4" rx=".5"></rect><rect x="4.5" y="5" width="3" height="6" rx=".5"></rect><rect x="9" y="2.5" width="3" height="8.5" rx=".5"></rect><rect x="13.5" y="0" width="3" height="11" rx=".5"></rect></svg>
+                <svg width="24" height="11" viewBox="0 0 24 11" fill="none"><rect x=".5" y=".5" width="20" height="10" rx="2.5" stroke="currentColor" stroke-opacity=".4"></rect><rect x="2" y="2" width="17" height="7" rx="1.2" fill="currentColor"></rect></svg>
+              </span>
+            </div>
+            <div class="app" style="padding:10px 18px 100px;">
+              <div class="my-head">
+                <span class="tl">MY</span>
+                <button class="sg" aria-label="설정">
+                  <svg class="i-sm" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.5"></circle><path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.3 3.3l1.4 1.4M11.3 11.3l1.4 1.4M3.3 12.7l1.4-1.4M11.3 4.7l1.4-1.4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+                </button>
+              </div>
+
+              <div class="notify-banner">
+                <div class="ico">
+                  <svg class="i-sm" viewBox="0 0 16 16" fill="none"><path d="M4 6a4 4 0 0 1 8 0v4l1 2H3l1-2V6z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"></path><path d="M6.5 14a1.5 1.5 0 0 0 3 0" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+                </div>
+                <div>
+                  <div class="t">알림을 켜서 빠르게 수락</div>
+                  <div class="s">사업장이 수락하면 OS 알림으로 즉시 안내</div>
+                </div>
+                <button class="btn-on">켜기</button>
+                <button class="close" aria-label="닫기">
+                  <svg class="i-xs" viewBox="0 0 12 12" fill="none"><path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"></path></svg>
+                </button>
+              </div>
+
+              <div class="my-card">
+                <div class="profile">
+                  <div class="av">🙂</div>
+                  <div class="info">
+                    <div class="nm-row">
+                      <span class="nm">김지훈</span>
+                      <span class="badge"><span class="dot"></span>실버</span>
+                    </div>
+                    <div class="bio">성실하게 일하는 대학생입니다.</div>
+                  </div>
+                  <svg class="chev i-sm" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                </div>
+                <div class="stats3">
+                  <div class="st zero"><div class="lb">이번 달 수입</div><div class="vl">0원</div></div>
+                  <div class="st zero"><div class="lb">누적 수입</div><div class="vl">0원</div></div>
+                  <div class="st zero"><div class="lb">노쇼</div><div class="vl">0회</div></div>
+                </div>
+              </div>
+
+              <div class="sec-head">
+                <span class="tl">
+                  <svg class="i-sm" viewBox="0 0 16 16" fill="none"><rect x="2" y="3.5" width="12" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"></rect><path d="M2 6h12M5 2v3M11 2v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg>
+                  확정 근무 <span style="color:var(--text-subtle);font-weight:700;">(1)</span>
+                </span>
+                <span class="more">전체 보기 →</span>
+              </div>
+
+              <div class="shift">
+                <div class="top">
+                  <div class="icn">💄</div>
+                  <div>
+                    <div class="store">올리브영 명동점</div>
+                    <div class="title">올리브영 매장 보조</div>
+                    <div class="meta">
+                      <span>🕐 <b>4/22 (수) 13:00</b></span>
+                      <span>📍 서울 중구</span>
+                    </div>
+                  </div>
+                  <span class="tag-state">확정</span>
+                </div>
+                <div class="actions">
+                  <button class="act qr">
+                    <span class="qr-ico"></span>
+                    QR 체크인
+                  </button>
+                  <button class="act">공고 보기</button>
+                </div>
+              </div>
+
+              <div class="sec-head" style="padding-top:14px;">
+                <span class="tl">빠른 메뉴</span>
+              </div>
+              <div class="quick">
+                <div class="q">
+                  <div class="qi"><svg class="i-sm" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"></circle><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg></div>
+                  <span class="qt">가능 시간</span>
+                </div>
+                <div class="q">
+                  <div class="qi"><svg class="i-sm" viewBox="0 0 16 16" fill="none"><rect x="2" y="4" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"></rect><path d="M2 7h12" stroke="currentColor" stroke-width="1.5"></path></svg></div>
+                  <span class="qt">정산 내역</span>
+                </div>
+                <div class="q">
+                  <div class="qi"><svg class="i-sm" viewBox="0 0 16 16" fill="none"><path d="M2 8a6 6 0 1 0 1.8-4.2M2 3v3h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path><path d="M8 5v3l2 1.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"></path></svg></div>
+                  <span class="qt">근무 이력</span>
+                </div>
+                <div class="q">
+                  <div class="qi"><svg class="i-sm" viewBox="0 0 16 16" fill="none"><path d="M8 13s-5-3-5-7a3 3 0 0 1 5-2 3 3 0 0 1 5 2c0 4-5 7-5 7z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"></path></svg></div>
+                  <span class="qt">찜 목록</span>
+                </div>
+              </div>
+
+              <div class="ai-banner">
+                <div class="ai-ico">
+                  <svg class="i-sm" viewBox="0 0 16 16" fill="none"><path d="M8 2l1.5 3.5L13 7l-3.5 1.5L8 12l-1.5-3.5L3 7l3.5-1.5L8 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"></path></svg>
+                </div>
+                <div>
+                  <div class="t">AI 추천 일정</div>
+                  <div class="s">가능한 시간에 맞는 공고를 빠르게 확인</div>
+                </div>
+                <svg class="chev i-sm" viewBox="0 0 16 16" fill="none"><path d="M6 3l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+              </div>
+
+              <button class="logout">
+                <svg class="i-xs" viewBox="0 0 12 12" fill="none"><path d="M4.5 2H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h1.5M7 8l2.5-2L7 4M9.5 6H5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                로그아웃
+              </button>
+            </div>
+
+            <div class="tabbar">
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M3 11l9-8 9 8v10a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V11z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>홈</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="10.5" cy="10.5" r="6.5" stroke="currentColor" stroke-width="1.8"></circle><path d="M20 20l-4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>탐색</span></div>
+              <div class="tab fab"><svg viewBox="0 0 24 24" fill="none" width="22" height="22"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.2"></circle><path d="M12 7v5l3 2" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path></svg><span>시간등록</span></div>
+              <div class="tab"><svg class="i" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v11H9l-4 4V5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path></svg><span>채팅</span></div>
+              <div class="tab active"><svg class="i" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" stroke-width="1.8"></circle><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><span>MY</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="phone-item" style="max-width: 340px;">
+        <div class="anno" style="border-radius:18px;">
+          <span class="num">01</span>
+          <h3>등급 배지 = 잉크 + 실버 닷</h3>
+          <p>원본은 '실버'를 mint pill로 표현 — 브랜드와 충돌. 잉크 블랙 pill + 실제 실버 컬러 닷으로 재해석. 게임화된 메탈릭 느낌.</p>
+          <div class="anno-tokens"><span class="tok">ink</span><span class="tok">silver-dot</span></div>
+        </div>
+        <div class="anno" style="border-radius:18px;">
+          <span class="num">02</span>
+          <h3>제로 스테이트도 당당하게</h3>
+          <p>'0원' 같은 빈 수치를 회색 처리하지 않고 tabular-nums + text-subtle로 중립적으로. 사용자에게 실패감 대신 "이제 시작"이라는 뉘앙스.</p>
+          <div class="anno-tokens"><span class="tok">tabular-nums</span><span class="tok">divider</span></div>
+        </div>
+        <div class="anno" style="border-radius:18px;">
+          <span class="num">03</span>
+          <h3>QR 체크인 = 대시드 보더</h3>
+          <p>확정 근무의 핵심 액션. 솔리드 버튼 대신 dashed 잉크 보더 + QR 아이콘으로 "구조적 스캔" 메타포. '공고 보기'는 ghost.</p>
+        </div>
+        <div class="anno" style="border-radius:18px;">
+          <span class="num">04</span>
+          <h3>AI 배너 = 잉크 다크 카드</h3>
+          <p>하단 AI 추천은 민트 배경 대신 잉크 블랙 카드 + 라임 아이콘. 페이지 내 위계에서 "프리미엄 기능" 포지션.</p>
+        </div>
+        <div class="anno" style="border-radius:18px;">
+          <span class="num">05</span>
+          <h3>빠른 메뉴 = rounded-square</h3>
+          <p>원형 아이콘 박스 대신 r:10 사각형으로 전체 앱의 지오메트리(홈/탐색/시간등록 카드)와 통일.</p>
+          <div class="anno-tokens"><span class="tok">r:10</span><span class="tok">4-col</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- design notes -->
+  <div class="design-notes">
+    <h2>디자인 결정 노트</h2>
+    <div class="sub">메인 페이지와 구직자 앱이 같은 시각 시스템을 공유하기 위해 내린 결정들.</div>
+    <div class="notes-grid">
+      <div class="note-item">
+        <div class="k">Typography</div>
+        <div class="t">Pretendard 800 · -0.035em</div>
+        <div class="d">랜딩의 h1/h2 타이포 규칙을 모바일에도 그대로 적용. 숫자는 tabular-nums.</div>
+      </div>
+      <div class="note-item">
+        <div class="k">Color</div>
+        <div class="t">Ink primary · Brand accent</div>
+        <div class="d">블랙 CTA + 샐러리 그린 하이라이트. 기존 플랫 그린 UI를 잉크 중심으로 재편.</div>
+      </div>
+      <div class="note-item">
+        <div class="k">Radii</div>
+        <div class="t">Card r:22 · Hero r:26</div>
+        <div class="d">랜딩과 동일한 큰 라운드. 폰 외곽은 r:54로 neobank 스타일 유지.</div>
+      </div>
+      <div class="note-item">
+        <div class="k">Motion</div>
+        <div class="t">Scroll-fade · Hover-lift</div>
+        <div class="d">카드 호버 시 2px 리프트 + 그림자 전환으로 실제 앱의 프레스 피드백 암시.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// small interactive: chips toggle on same group
+document.querySelectorAll('.filter-group').forEach(g => {
+  g.querySelectorAll('.fchip').forEach(c => {
+    c.addEventListener('click', () => {
+      g.querySelectorAll('.fchip').forEach(x => x.classList.remove('on'));
+      c.classList.add('on');
+    });
+  });
+});
+document.querySelectorAll('.view-toggle').forEach(g => {
+  g.querySelectorAll('button').forEach(b => {
+    b.addEventListener('click', () => {
+      g.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+    });
+  });
+});
+</script>
+
+
+
+</body></html>

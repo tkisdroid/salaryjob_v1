@@ -1,0 +1,13 @@
+{
+  "active": true,
+  "iteration": 1,
+  "minIterations": 1,
+  "maxIterations": 0,
+  "completionPromise": "COMPLETE",
+  "tasksMode": false,
+  "taskPromise": "READY_FOR_NEXT_TASK",
+  "prompt": "\"이 프로젝트를 프로덕션 레벨로 끌어올립니다. 1. 디자인 중 개선되지 않은 부분 모두 찾아서 ^\"C:\\Users\\TK\\Desktop\\salaryjob_v1\\redesign.md\" 기준으로 일관된 디자인이 전체 프로젝트에 적용되게 합니다. 그리고 사용자편의성 UI, UX도 함께 검증합니다. 2. worker, business, admin 각각의 플로우가 논리적인지, 버튼 작동은 잘 되는지, 에러는 없는지 프로젝트의 모든 기능을 빠짐없이 검증합니다. 모든 검증과정에서 수정할 부분이 있으면 바로 수정 후 재검증합니다. 바로 마켓에 공개할 예정이라 에러가 ZERO 되어야 합니다. Output <promise>COMPLETE</promise> when done.\"",
+  "startedAt": "2026-04-20T15:53:22.286Z",
+  "model": "",
+  "agent": "codex"
+}
