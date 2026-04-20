@@ -107,9 +107,9 @@ export default async function WorkerHomePage({
     getCurrentWorker(),
   ]);
 
-  const kakaoAvailable = Boolean(
-    process.env.NEXT_PUBLIC_KAKAO_MAP_KEY &&
-      process.env.NEXT_PUBLIC_KAKAO_MAP_KEY.trim() !== "",
+  const mapAvailable = Boolean(
+    process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID &&
+      process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID.trim() !== "",
   );
 
   return (
@@ -300,7 +300,7 @@ export default async function WorkerHomePage({
             currentPreset={filters.preset}
             currentBuckets={filters.buckets}
             currentView={filters.view}
-            kakaoAvailable={kakaoAvailable}
+            mapAvailable={mapAvailable}
           />
         </section>
       </div>

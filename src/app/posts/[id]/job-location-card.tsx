@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { calculateDistanceMeters } from "@/lib/distance";
 import { formatDistance } from "@/lib/format";
-import { useKakaoMapsSDK } from "@/lib/hooks/use-kakao-maps-sdk";
+import { useNaverMapsSDK } from "@/lib/hooks/use-naver-maps-sdk";
 import { cn } from "@/lib/utils";
 import { LoaderCircle, MapPin, Navigation } from "lucide-react";
 
@@ -68,11 +68,11 @@ export function JobLocationCard({
   lng,
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<kakao.maps.Map | null>(null);
-  const businessMarkerRef = useRef<kakao.maps.Marker | null>(null);
-  const userMarkerRef = useRef<kakao.maps.Marker | null>(null);
-  const userCircleRef = useRef<kakao.maps.Circle | null>(null);
-  const { ready, error, blockedMessage, hasKey } = useKakaoMapsSDK();
+  const mapRef = useRef<naver.maps.Map | null>(null);
+  const businessMarkerRef = useRef<naver.maps.Marker | null>(null);
+  const userMarkerRef = useRef<naver.maps.Marker | null>(null);
+  const userCircleRef = useRef<naver.maps.Circle | null>(null);
+  const { ready, error, blockedMessage, hasKey } = useNaverMapsSDK();
 
   const [locationStatus, setLocationStatus] = useState<LocationStatus>("idle");
   const [locationMessage, setLocationMessage] = useState<string | null>(
@@ -172,23 +172,25 @@ export function JobLocationCard({
   useEffect(() => {
     if (!ready || !containerRef.current || !hasMapCoordinates) return;
 
-    const kakao = window.kakao;
-    const destination = new kakao.maps.LatLng(lat, lng);
+    const nv = window.naver;
+    const destination = new nv.maps.LatLng(lat, lng);
 
     if (!mapRef.current) {
-      const map = new kakao.maps.Map(containerRef.current, {
+      const map = new nv.maps.Map(containerRef.current, {
         center: destination,
-        level: 4,
+        // Naver zoom is inverse to Kakao level: higher = closer.
+        // zoom 16 approximates Kakao level 4 (~street-level).
+        zoom: 16,
       });
       mapRef.current = map;
-      requestAnimationFrame(() => map.relayout());
+      requestAnimationFrame(() => map.refresh());
     }
 
     const map = mapRef.current;
     if (!map) return;
 
     if (!businessMarkerRef.current) {
-      businessMarkerRef.current = new kakao.maps.Marker({
+      businessMarkerRef.current = new nv.maps.Marker({
         map,
         position: destination,
         title: businessName,
@@ -209,14 +211,14 @@ export function JobLocationCard({
         userCircleRef.current = null;
       }
       map.setCenter(destination);
-      map.setLevel(4);
+      map.setZoom(16);
       return;
     }
 
-    const current = new kakao.maps.LatLng(userCoords.lat, userCoords.lng);
+    const current = new nv.maps.LatLng(userCoords.lat, userCoords.lng);
 
     if (!userMarkerRef.current) {
-      userMarkerRef.current = new kakao.maps.Marker({
+      userMarkerRef.current = new nv.maps.Marker({
         map,
         position: current,
         title: "현재 위치",
@@ -228,7 +230,8 @@ export function JobLocationCard({
     }
 
     if (!userCircleRef.current) {
-      userCircleRef.current = new kakao.maps.Circle({
+      userCircleRef.current = new nv.maps.Circle({
+        map,
         center: current,
         radius: 120,
         strokeWeight: 2,
@@ -238,15 +241,15 @@ export function JobLocationCard({
         fillOpacity: 0.24,
       });
     } else {
-      userCircleRef.current.setPosition(current);
+      userCircleRef.current.setCenter(current);
       userCircleRef.current.setRadius(120);
+      userCircleRef.current.setMap(map);
     }
-    userCircleRef.current.setMap(map);
 
-    const bounds = new kakao.maps.LatLngBounds();
+    const bounds = new nv.maps.LatLngBounds();
     bounds.extend(destination);
     bounds.extend(current);
-    map.setBounds(bounds);
+    map.fitBounds(bounds);
   }, [businessName, hasMapCoordinates, lat, lng, ready, userCoords]);
 
   useEffect(() => {
@@ -339,7 +342,7 @@ export function JobLocationCard({
           </div>
         ) : !hasKey ? (
           <div className="flex h-56 items-center justify-center px-4 text-center text-[13px] font-semibold text-muted-foreground">
-            카카오 지도 키가 설정되면 근무 위치 지도를 바로 보여드릴게요.
+            네이버 지도 키가 설정되면 근무 위치 지도를 바로 보여드릴게요.
           </div>
         ) : blockedMessage ? (
           <div className="p-4">

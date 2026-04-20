@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
-  getKakaoSdkBlockedMessage,
-  getKakaoSdkLoadErrorMessage,
-} from "@/lib/hooks/use-kakao-maps-sdk";
+  getNaverSdkBlockedMessage,
+  getNaverSdkLoadErrorMessage,
+} from "@/lib/hooks/use-naver-maps-sdk";
 
-describe("getKakaoSdkBlockedMessage", () => {
+describe("getNaverSdkBlockedMessage", () => {
   it("blocks random vercel preview origins when app url points elsewhere", () => {
     expect(
-      getKakaoSdkBlockedMessage({
+      getNaverSdkBlockedMessage({
         currentOrigin: "https://salaryjob-v1-git-feature-123.vercel.app",
         appUrl: "https://www.gignow.kr",
       }),
@@ -16,7 +16,7 @@ describe("getKakaoSdkBlockedMessage", () => {
 
   it("allows configured origins even when hosted on vercel", () => {
     expect(
-      getKakaoSdkBlockedMessage({
+      getNaverSdkBlockedMessage({
         currentOrigin: "https://salaryjob-v1.vercel.app",
         appUrl: "https://salaryjob-v1.vercel.app",
       }),
@@ -25,7 +25,7 @@ describe("getKakaoSdkBlockedMessage", () => {
 
   it("allows non-preview origins", () => {
     expect(
-      getKakaoSdkBlockedMessage({
+      getNaverSdkBlockedMessage({
         currentOrigin: "http://localhost:3000",
         appUrl: "http://localhost:3000",
       }),
@@ -33,14 +33,14 @@ describe("getKakaoSdkBlockedMessage", () => {
   });
 });
 
-describe("getKakaoSdkLoadErrorMessage", () => {
+describe("getNaverSdkLoadErrorMessage", () => {
   it("includes the current origin when available", () => {
     expect(
-      getKakaoSdkLoadErrorMessage("https://www.gignow.kr"),
+      getNaverSdkLoadErrorMessage("https://www.gignow.kr"),
     ).toContain("https://www.gignow.kr");
   });
 
   it("falls back to a generic setup message without an origin", () => {
-    expect(getKakaoSdkLoadErrorMessage(null)).toContain("카카오 개발자 콘솔");
+    expect(getNaverSdkLoadErrorMessage(null)).toContain("NCP 콘솔");
   });
 });

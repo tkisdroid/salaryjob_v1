@@ -21,8 +21,8 @@ import { cn } from "@/lib/utils";
  *   &preset=오늘|내일|이번주      (optional, unset = no preset filter)
  *   &buckets=오전&buckets=오후...(multi, repeated keys, unset = no bucket filter)
  *
- * The `kakaoAvailable` prop drives whether the "지도" toggle is disabled —
- * set by the server component from `Boolean(process.env.NEXT_PUBLIC_KAKAO_MAP_KEY)`.
+ * The `mapAvailable` prop drives whether the "지도" toggle is disabled —
+ * set by the server component from `Boolean(process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID)`.
  *
  * `useTransition` wraps `router.replace` so UI stays interactive while the
  * server action fetches new data (pending state can be surfaced via isPending).
@@ -35,10 +35,10 @@ interface Props {
   currentView: "list" | "map";
   /**
    * Reserved for future UX signal (e.g. badge). The 지도 toggle itself is
-   * always clickable — if the Kakao key is missing, MapView renders a
+   * always clickable — if the Naver map key is missing, MapView renders a
    * friendly placeholder instead of silently dying under a disabled button.
    */
-  kakaoAvailable: boolean;
+  mapAvailable: boolean;
 }
 
 const RADIUS_STEPS = [1, 3, 5, 10] as const;
@@ -50,7 +50,7 @@ export function HomeFilterBar({
   currentPreset,
   currentBuckets,
   currentView,
-  kakaoAvailable: _kakaoAvailable,
+  mapAvailable: _mapAvailable,
 }: Props) {
   const router = useRouter();
   const pathname = usePathname();

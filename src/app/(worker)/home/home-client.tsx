@@ -31,7 +31,7 @@ interface Props {
   currentPreset?: TimePreset;
   currentBuckets: TimeBucket[];
   currentView: "list" | "map";
-  kakaoAvailable: boolean;
+  mapAvailable: boolean;
 }
 
 export function HomeClient({
@@ -41,7 +41,7 @@ export function HomeClient({
   currentPreset,
   currentBuckets,
   currentView,
-  kakaoAvailable,
+  mapAvailable,
 }: Props) {
   const router = useRouter();
 
@@ -52,7 +52,7 @@ export function HomeClient({
         currentPreset={currentPreset}
         currentBuckets={currentBuckets}
         currentView={currentView}
-        kakaoAvailable={kakaoAvailable}
+        mapAvailable={mapAvailable}
       />
 
       {currentView === "map" ? (

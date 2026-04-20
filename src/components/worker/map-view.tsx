@@ -1,30 +1,32 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useKakaoMapsSDK } from "@/lib/hooks/use-kakao-maps-sdk";
+import { useNaverMapsSDK } from "@/lib/hooks/use-naver-maps-sdk";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import type { Job } from "@/lib/types/job";
 import { formatMoney } from "@/lib/format";
 import { calculateEarnings } from "@/lib/job-utils";
 
 /**
- * Phase 4 Plan 04-07 SEARCH-02 — Kakao Maps container with job markers.
+ * Naver Maps container with job markers for /home search view.
  *
  * Behavior:
- *   - Lazy-loads SDK via useKakaoMapsSDK (autoload=false + kakao.maps.load)
- *   - If NEXT_PUBLIC_KAKAO_MAP_KEY is empty → renders an Alert placeholder
- *     (hasKey=false). No script is injected, no network call made.
- *   - Otherwise renders a <div> that Kakao maps into, plus:
+ *   - Lazy-loads SDK via useNaverMapsSDK (single script injection; the global
+ *     `window.naver.maps` is populated on script.onload — no separate load
+ *     callback is needed, unlike Kakao's autoload=false pattern).
+ *   - If NEXT_PUBLIC_NAVER_MAP_CLIENT_ID is empty → renders an Alert
+ *     placeholder (hasKey=false). No script is injected, no network call made.
+ *   - Otherwise renders a <div> that Naver maps into, plus:
  *       • a Circle showing the current search radius
  *       • one Marker per job (positioned at job.business.lat/lng)
  *       • marker click → shows a preview card overlay with job info +
  *         "상세보기" link the parent can hook via onMarkerClick
  *
- * Security / XSS (T-04-44):
- *   Marker titles are the raw job.title string — Kakao renders them into a
+ * Security / XSS:
+ *   Marker titles are the raw job.title string — Naver renders them into a
  *   DOM tooltip attribute, so they are escaped by the browser. The preview
- *   card is rendered via React (escaped). We never call SDK InfoWindow with
- *   raw HTML.
+ *   card is rendered via React (escaped). We never call the SDK InfoWindow
+ *   with raw HTML.
  */
 
 interface Props {
@@ -36,35 +38,41 @@ interface Props {
 
 export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const mapRef = useRef<kakao.maps.Map | null>(null);
-  const markersRef = useRef<kakao.maps.Marker[]>([]);
-  const circleRef = useRef<kakao.maps.Circle | null>(null);
-  const { ready, error, blockedMessage, hasKey } = useKakaoMapsSDK();
+  const mapRef = useRef<naver.maps.Map | null>(null);
+  const markersRef = useRef<naver.maps.Marker[]>([]);
+  const markerListenersRef = useRef<naver.maps.EventListener[]>([]);
+  const circleRef = useRef<naver.maps.Circle | null>(null);
+  const { ready, error, blockedMessage, hasKey } = useNaverMapsSDK();
 
   const [selectedJob, setSelectedJob] = useState<Job | null>(null);
 
   // Initialize the map once the SDK is ready and the container is mounted.
   useEffect(() => {
     if (!ready || !containerRef.current || mapRef.current) return;
-    const kakao = window.kakao;
-    const map = new kakao.maps.Map(containerRef.current, {
-      center: new kakao.maps.LatLng(center.lat, center.lng),
-      level: 5,
+    const nv = window.naver;
+    const map = new nv.maps.Map(containerRef.current, {
+      center: new nv.maps.LatLng(center.lat, center.lng),
+      // Naver's zoom scale is inverse to Kakao's level: higher zoom = closer.
+      // zoom 14 covers roughly the same area as Kakao level 5 (~2km across).
+      zoom: 14,
     });
     mapRef.current = map;
-    // Kakao often needs a relayout after mount when the container was hidden.
-    requestAnimationFrame(() => map.relayout());
+    // If the container was hidden at mount time, the tile grid may need a
+    // recalculation once it becomes visible.
+    requestAnimationFrame(() => map.refresh());
   }, [ready, center.lat, center.lng]);
 
   // Update the center + radius circle when props change.
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    const kakao = window.kakao;
-    map.setCenter(new kakao.maps.LatLng(center.lat, center.lng));
+    const nv = window.naver;
+    const centerLatLng = new nv.maps.LatLng(center.lat, center.lng);
+    map.setCenter(centerLatLng);
     if (circleRef.current) circleRef.current.setMap(null);
-    circleRef.current = new kakao.maps.Circle({
-      center: new kakao.maps.LatLng(center.lat, center.lng),
+    circleRef.current = new nv.maps.Circle({
+      map,
+      center: centerLatLng,
       radius: radiusM,
       strokeWeight: 2,
       strokeColor: "#EA580C",
@@ -72,7 +80,6 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
       fillColor: "#FED7AA",
       fillOpacity: 0.15,
     });
-    circleRef.current.setMap(map);
     return () => {
       if (circleRef.current) {
         circleRef.current.setMap(null);
@@ -85,9 +92,11 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !ready) return;
-    const kakao = window.kakao;
+    const nv = window.naver;
 
-    // Clear previous markers
+    // Clear previous markers and their click listeners.
+    for (const listener of markerListenersRef.current) listener.remove();
+    markerListenersRef.current = [];
     for (const m of markersRef.current) m.setMap(null);
     markersRef.current = [];
 
@@ -96,25 +105,28 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
       const lng = Number(job.business.lng);
       if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
 
-      const marker = new kakao.maps.Marker({
-        position: new kakao.maps.LatLng(lat, lng),
+      const marker = new nv.maps.Marker({
+        position: new nv.maps.LatLng(lat, lng),
         map,
-        title: job.title, // escaped DOM tooltip (T-04-44)
+        title: job.title, // escaped by the browser when written to the DOM
         clickable: true,
       });
-      kakao.maps.event.addListener(marker, "click", () => {
+      const listener = nv.maps.Event.addListener(marker, "click", () => {
         setSelectedJob(job);
       });
       markersRef.current.push(marker);
+      markerListenersRef.current.push(listener);
     }
 
     return () => {
+      for (const listener of markerListenersRef.current) listener.remove();
+      markerListenersRef.current = [];
       for (const m of markersRef.current) m.setMap(null);
       markersRef.current = [];
     };
   }, [ready, jobs]);
 
-  // Graceful: no Kakao key → render placeholder, never inject the script.
+  // Graceful: no Naver key → render placeholder, never inject the script.
   if (!hasKey) {
     return (
       <div className="px-1 py-6">
@@ -156,7 +168,7 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
     <div className="relative">
       <div
         ref={containerRef}
-        data-testid="kakao-map-container"
+        data-testid="naver-map-container"
         className="h-[60vh] min-h-[400px] w-full overflow-hidden rounded-[22px] border border-border-soft bg-surface-2"
       />
       {!ready && (

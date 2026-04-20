@@ -46,9 +46,10 @@ function getInitialTotalSeconds(startTime: Date): number {
   return Math.max(1, Math.floor(diff / 1000));
 }
 
-function buildKakaoMapUrl(lat: number, lng: number, name: string): string {
-  // Kakao Map directions URL with destination coordinates
-  return `https://map.kakao.com/link/to/${encodeURIComponent(name)},${lat},${lng}`;
+function buildNaverMapUrl(lat: number, lng: number, name: string): string {
+  // Naver Map search URL centered on the destination. Users can tap "길찾기"
+  // inside Naver Map to start navigation from their current location.
+  return `https://map.naver.com/p/search/${encodeURIComponent(name)}?c=${lng},${lat},15,0,0,0,dh`;
 }
 
 function formatPad(n: number): string {
@@ -137,7 +138,7 @@ export function CommuteTimer({
   }, [startTime]);
 
   const progress = remaining.totalSeconds / initialTotalSeconds;
-  const kakaoUrl = buildKakaoMapUrl(lat, lng, companyName);
+  const naverMapUrl = buildNaverMapUrl(lat, lng, companyName);
 
   return (
     <Card className={cn(remaining.isExpired && "ring-2 ring-brand")}>
@@ -187,14 +188,14 @@ export function CommuteTimer({
           </p>
         </div>
 
-        {/* Kakao Map button */}
+        {/* Naver Map button */}
         <Button
-          className="w-full bg-[#FEE500] text-[#3C1E1E] hover:bg-[#FDD835] font-bold"
+          className="w-full bg-[#03C75A] text-white hover:bg-[#02B350] font-bold"
           asChild
         >
-          <a href={kakaoUrl} target="_blank" rel="noopener noreferrer">
+          <a href={naverMapUrl} target="_blank" rel="noopener noreferrer">
             <Navigation className="w-4 h-4" />
-            카카오맵으로 길찾기
+            네이버지도로 길찾기
           </a>
         </Button>
       </CardContent>
