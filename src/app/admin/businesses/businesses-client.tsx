@@ -100,9 +100,12 @@ export function BusinessesClient({
     (sp?.get("verified") as VerifiedFilter) ?? initialVerified;
   const currentSort = (sp?.get("sort") as SortOption) ?? initialSort;
 
+  const PILL =
+    "min-h-[44px] rounded-full border border-border px-3.5 text-[12.5px] font-bold tracking-tight text-muted-foreground transition-colors hover:border-ink hover:text-ink data-[state=on]:border-ink data-[state=on]:bg-ink data-[state=on]:text-white";
+
   return (
     <div
-      className={`space-y-4 rounded-lg border border-border bg-card p-4 ${
+      className={`space-y-4 rounded-[22px] border border-border-soft bg-surface p-4 transition-opacity ${
         isPending ? "opacity-70" : ""
       }`}
       aria-busy={isPending}
@@ -114,7 +117,7 @@ export function BusinessesClient({
           placeholder="검색어 입력..."
           value={searchValue}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="min-h-[44px] flex-1"
+          className="h-12 min-h-[44px] flex-1 rounded-[14px] border-border bg-surface text-[14px] font-medium text-ink placeholder:text-text-subtle focus:border-ink focus:outline-none focus:ring-0"
           aria-label="사업장 검색"
         />
         <ToggleGroup
@@ -132,7 +135,7 @@ export function BusinessesClient({
               key={f}
               value={f}
               aria-label={FIELD_LABELS[f]}
-              className="min-h-[44px] px-3"
+              className={PILL}
             >
               {FIELD_LABELS[f]}
             </ToggleGroupItem>
@@ -142,7 +145,9 @@ export function BusinessesClient({
 
       {/* Verified filter */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-muted-foreground">인증</span>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-text-subtle">
+          인증
+        </span>
         <ToggleGroup
           type="single"
           value={currentVerified}
@@ -153,13 +158,13 @@ export function BusinessesClient({
           aria-label="인증 상태 필터"
           className="flex gap-1"
         >
-          <ToggleGroupItem value="all" className="min-h-[44px] px-3">
+          <ToggleGroupItem value="all" className={PILL}>
             전체
           </ToggleGroupItem>
-          <ToggleGroupItem value="yes" className="min-h-[44px] px-3">
+          <ToggleGroupItem value="yes" className={PILL}>
             인증됨
           </ToggleGroupItem>
-          <ToggleGroupItem value="no" className="min-h-[44px] px-3">
+          <ToggleGroupItem value="no" className={PILL}>
             미인증
           </ToggleGroupItem>
         </ToggleGroup>
@@ -167,16 +172,18 @@ export function BusinessesClient({
 
       {/* Sort selector */}
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-xs font-medium text-muted-foreground">정렬</span>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-text-subtle">
+          정렬
+        </span>
         <div className="flex flex-wrap gap-1">
           {(Object.keys(SORT_LABELS) as SortOption[]).map((s) => (
             <button
               key={s}
               onClick={() => navigate({ sort: s })}
-              className={`min-h-[44px] rounded-md border px-3 text-sm transition-colors ${
+              className={`min-h-[44px] rounded-full border px-3.5 text-[12.5px] font-bold tracking-tight transition-colors ${
                 currentSort === s
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border bg-background text-foreground hover:bg-muted"
+                  ? "border-ink bg-ink text-white"
+                  : "border-border bg-surface text-muted-foreground hover:border-ink hover:text-ink"
               }`}
               aria-label={SORT_LABELS[s]}
               aria-pressed={currentSort === s}
