@@ -425,7 +425,7 @@ export function AvailabilityEditor({
   }, [selectedSlots]);
 
   return (
-    <div className="mx-auto max-w-lg space-y-5 px-4 py-6 pb-36">
+    <div className="mx-auto max-w-lg space-y-5 px-4 py-6 pb-16">
       {/* Header */}
       <header className="flex items-center gap-2">
         <Link
@@ -619,10 +619,10 @@ export function AvailabilityEditor({
         </div>
       )}
 
-      {/* Sticky save bar stacks above MobileTabBar.
-          bottom = tab bar height (6.25rem = 100px) + iOS safe-area-inset-bottom.
-          No inner safe-area padding needed — the tab bar underneath already owns that zone. */}
-      <div className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 border-t border-border bg-surface/95 backdrop-blur-[12px]">
+      {/* Sticky save bar stacks above MobileTabBar using the Premium blur+tint
+          idiom shared with other sticky bars (profile-edit §04, check-in §CTA).
+          bottom = tab bar height (6.25rem) + iOS safe-area-inset-bottom. */}
+      <div className="fixed bottom-[calc(6.25rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 border-t border-border-soft bg-[color-mix(in_oklch,var(--surface)_96%,transparent)] [backdrop-filter:saturate(1.6)_blur(16px)]">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0 flex-1">
             {isDirty ? (
