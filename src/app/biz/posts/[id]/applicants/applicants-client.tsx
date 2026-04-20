@@ -154,12 +154,12 @@ export function ApplicantsClient({ jobId, initialApplications }: Props) {
 
   if (apps.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-16 text-center">
-        <Inbox className="w-12 h-12 text-muted-foreground/40 mb-4" />
-        <p className="text-muted-foreground font-medium">
+      <div className="flex flex-col items-center justify-center rounded-[28px] border-2 border-dashed border-border bg-surface py-16 text-center">
+        <Inbox className="mb-4 h-12 w-12 text-text-subtle" />
+        <p className="text-[15px] font-extrabold tracking-tight text-ink">
           아직 지원자가 없습니다
         </p>
-        <p className="text-sm text-muted-foreground/70 mt-1">
+        <p className="mt-1 text-[12.5px] font-medium text-muted-foreground">
           공고가 노출되면 Worker의 지원이 여기 실시간으로 표시돼요
         </p>
       </div>
@@ -167,7 +167,7 @@ export function ApplicantsClient({ jobId, initialApplications }: Props) {
   }
 
   return (
-    <ul className="space-y-3 max-h-[70vh] overflow-y-auto pr-1">
+    <ul className="max-h-[70vh] space-y-2.5 overflow-y-auto pr-1">
       {apps.map((app) => (
         <ApplicantCard
           key={app.id}
@@ -220,26 +220,28 @@ function ApplicantCard({
   const canAct = app.status === "pending";
 
   return (
-    <li className="rounded-2xl border border-border bg-card p-4 space-y-3">
+    <li className="space-y-3 rounded-[22px] border border-border-soft bg-surface p-[18px] transition-colors hover:border-ink">
       <Link
         href={`/biz/posts/${app.jobId}/applicants/${app.id}`}
-        className="block rounded-xl transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30"
+        className="block rounded-[14px] transition-colors hover:bg-surface-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/30"
       >
         <div className="flex items-start gap-3 p-1">
-          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl shrink-0">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-2xl">
             {avatar}
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-bold text-sm truncate">{displayName}</p>
-            <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="flex items-center gap-0.5">
-                <Star className="w-3 h-3 fill-brand text-brand" />
-                {ratingNum.toFixed(1)}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[14.5px] font-extrabold tracking-[-0.02em] text-ink">
+              {displayName}
+            </p>
+            <div className="tabnum mt-0.5 flex items-center gap-2 text-[11.5px] font-semibold text-muted-foreground">
+              <span className="inline-flex items-center gap-0.5">
+                <Star className="h-3 w-3 fill-[#fbbf24] text-[#fbbf24]" />
+                <b className="font-bold text-ink">{ratingNum.toFixed(1)}</b>
               </span>
-              <span>&#183;</span>
-              <span className="flex items-center gap-0.5">
-                <Briefcase className="w-3 h-3" />
-                완료 {totalJobs}회
+              <span className="text-text-subtle">·</span>
+              <span className="inline-flex items-center gap-0.5">
+                <Briefcase className="h-3 w-3" />
+                완료 <b className="font-bold text-ink">{totalJobs}회</b>
               </span>
             </div>
           </div>
@@ -249,14 +251,14 @@ function ApplicantCard({
 
       {showAutoAcceptTimer && (
         <div>
-          <div className="flex justify-between text-xs text-muted-foreground mb-1">
+          <div className="mb-1.5 flex justify-between text-[11.5px] font-semibold text-muted-foreground">
             <span>자동 수락까지</span>
-            <span className="tabular-nums">
+            <span className="tabnum font-bold text-ink">
               {minutesLeft}분 남음
             </span>
           </div>
           <div
-            className="h-1.5 w-full rounded-full bg-muted overflow-hidden"
+            className="h-1.5 w-full overflow-hidden rounded-full bg-surface-2"
             role="progressbar"
             aria-valuenow={Math.round(percentElapsed)}
             aria-valuemin={0}
@@ -264,7 +266,7 @@ function ApplicantCard({
             aria-label="자동 수락 타이머"
           >
             <div
-              className="h-full bg-teal transition-[width] duration-500 ease-linear"
+              className="h-full rounded-full bg-brand transition-[width] duration-500 ease-linear"
               style={{ width: `${percentElapsed}%` }}
             />
           </div>
@@ -277,18 +279,18 @@ function ApplicantCard({
             type="button"
             onClick={onAccept}
             disabled={pending}
-            className="flex-1 h-9 rounded-lg bg-teal text-white text-xs font-bold hover:bg-teal/90 disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
+            className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full bg-ink text-[12.5px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark disabled:opacity-50"
           >
-            <CheckCircle2 className="w-3.5 h-3.5" />
+            <CheckCircle2 className="h-3.5 w-3.5" />
             수락
           </button>
           <button
             type="button"
             onClick={onReject}
             disabled={pending}
-            className="flex-1 h-9 rounded-lg border border-destructive/30 text-destructive text-xs font-bold hover:bg-destructive/10 disabled:opacity-50 inline-flex items-center justify-center gap-1.5"
+            className="inline-flex h-10 flex-1 items-center justify-center gap-1.5 rounded-full border border-destructive/30 bg-surface text-[12.5px] font-bold text-destructive transition-colors hover:bg-destructive/5 disabled:opacity-50"
           >
-            <XCircle className="w-3.5 h-3.5" />
+            <XCircle className="h-3.5 w-3.5" />
             거절
           </button>
         </div>
@@ -303,32 +305,32 @@ const STATUS_BADGE: Record<
 > = {
   pending: {
     label: "대기 중",
-    className: "bg-muted text-muted-foreground",
+    className: "bg-surface-2 text-muted-foreground",
     Icon: Hourglass,
   },
   confirmed: {
     label: "수락됨",
-    className: "bg-teal/10 text-teal",
+    className: "bg-brand text-ink",
     Icon: CheckCircle2,
   },
   checked_in: {
     label: "체크인",
-    className: "bg-sky-500/10 text-sky-700",
+    className: "bg-lime-chip text-lime-chip-fg",
     Icon: CheckCircle2,
   },
   in_progress: {
     label: "근무 중",
-    className: "bg-emerald-500/10 text-emerald-700",
+    className: "bg-lime-chip text-lime-chip-fg",
     Icon: Zap,
   },
   completed: {
     label: "완료",
-    className: "bg-muted text-muted-foreground",
+    className: "bg-ink text-white",
     Icon: CheckCheck,
   },
   settled: {
     label: "정산 완료",
-    className: "bg-brand/10 text-brand-deep",
+    className: "bg-ink text-white",
     Icon: CheckCheck,
   },
   cancelled: {
@@ -347,9 +349,9 @@ function StatusBadge({
   const Icon = entry.Icon;
   return (
     <span
-      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium shrink-0 ${entry.className}`}
+      className={`inline-flex shrink-0 items-center gap-1 rounded-[6px] px-2 py-1 text-[10px] font-extrabold tracking-tight ${entry.className}`}
     >
-      <Icon className="w-3 h-3" />
+      <Icon className="h-3 w-3" />
       {entry.label}
     </span>
   );
