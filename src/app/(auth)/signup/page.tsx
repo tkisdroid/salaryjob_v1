@@ -3,9 +3,6 @@
 import { Suspense, useState, useActionState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   User,
   Lock,
@@ -33,20 +30,20 @@ interface StepProps {
   onBack?: () => void;
 }
 
-// ── 공통 토큰 (로그인 페이지와 정합) ──────────────────────────────────────
-const LABEL = "mb-1.5 block text-[13px] font-semibold text-foreground";
-const INPUT_BASE =
-  "h-12 w-full rounded-xl border border-input bg-background text-[15px] placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:border-brand/40";
-const BTN_PRIMARY =
-  "h-12 w-full rounded-full bg-brand text-[15px] font-semibold text-primary-foreground shadow-[0_6px_20px_hsl(var(--brand)/0.2)] hover:bg-brand-dark disabled:opacity-60 disabled:cursor-not-allowed";
-const BTN_PRIMARY_TEAL =
-  "h-12 w-full rounded-full bg-[var(--teal-deep)] text-[15px] font-semibold text-primary-foreground shadow-[0_6px_20px_oklch(0.45_0.08_186/0.25)] hover:bg-teal disabled:opacity-60 disabled:cursor-not-allowed";
+// Premium design tokens (Main Page Premium §primitives)
+const LABEL = "mb-1.5 block text-[12.5px] font-bold tracking-tight text-ink";
+const INPUT =
+  "h-12 w-full rounded-[14px] border border-border bg-surface px-4 text-[14.5px] font-medium tracking-[-0.01em] text-ink placeholder:text-text-subtle transition-colors focus:outline-none focus:border-ink";
+const BTN_BRAND =
+  "inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-full bg-brand text-[14px] font-extrabold tracking-tight text-ink transition-all hover:bg-brand-dark hover:shadow-soft-green disabled:opacity-50";
+const BTN_INK =
+  "inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-full bg-ink text-[14px] font-extrabold tracking-tight text-white transition-all hover:bg-black hover:shadow-soft-dark disabled:opacity-50";
 const BTN_OUTLINE =
-  "h-12 w-full rounded-full border border-border bg-card text-[15px] font-semibold text-foreground hover:bg-muted";
+  "inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-full border border-border bg-surface text-[14px] font-extrabold tracking-tight text-ink transition-colors hover:border-ink hover:bg-surface-2";
 const BTN_KAKAO =
-  "h-12 w-full rounded-full border-0 bg-[#FEE500] text-[15px] font-semibold text-[#1f1a17] hover:bg-[#F7D800]";
+  "inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#FEE500] text-[14px] font-extrabold tracking-tight text-[#1f1a17] transition-colors hover:bg-[#F7D800]";
 const FRAME =
-  "rounded-3xl border border-border bg-card p-6 shadow-sm sm:p-8";
+  "rounded-[22px] border border-border-soft bg-surface p-6 shadow-soft sm:p-8";
 
 // ── Brand glyphs ──────────────────────────────────────────────────────────
 function KakaoGlyph() {
@@ -74,7 +71,10 @@ function GoogleGlyph() {
 // ── Step indicator ────────────────────────────────────────────────────────
 function StepDots({ current, total }: { current: number; total: number }) {
   return (
-    <div className="mb-6 flex items-center justify-center gap-2" aria-label={`단계 ${current}/${total}`}>
+    <div
+      className="mb-6 flex items-center justify-center gap-2"
+      aria-label={`단계 ${current}/${total}`}
+    >
       {Array.from({ length: total }, (_, i) => {
         const n = i + 1;
         const state = n < current ? "done" : n === current ? "active" : "idle";
@@ -82,10 +82,10 @@ function StepDots({ current, total }: { current: number; total: number }) {
           <div key={n} className="flex items-center">
             <div
               className={cn(
-                "flex h-8 w-8 items-center justify-center rounded-full text-[13px] font-bold font-mono tabular-nums transition-colors",
-                state === "done" && "bg-brand/15 text-brand",
-                state === "active" && "bg-brand text-primary-foreground shadow-[0_4px_14px_hsl(var(--brand)/0.3)]",
-                state === "idle" && "bg-muted text-muted-foreground",
+                "tabnum grid h-8 w-8 place-items-center rounded-full text-[12.5px] font-extrabold transition-colors",
+                state === "done" && "bg-brand/20 text-brand-deep",
+                state === "active" && "bg-ink text-white shadow-soft-dark",
+                state === "idle" && "bg-surface-2 text-text-subtle",
               )}
               aria-current={state === "active" ? "step" : undefined}
             >
@@ -120,12 +120,19 @@ function AuthHeader({
   const titleSize = size === "md" ? "text-[22px]" : "text-[20px]";
   return (
     <div className="mb-7 flex flex-col items-center text-center">
-      <CeleryMark className={cn(logoSize, "text-brand")} />
-      <h1 className={cn("mt-4 font-extrabold tracking-[-0.025em] text-foreground", titleSize)}>
+      <CeleryMark className={logoSize} />
+      <h1
+        className={cn(
+          "mt-4 font-extrabold tracking-[-0.03em] text-ink",
+          titleSize,
+        )}
+      >
         {title}
       </h1>
       {subtitle ? (
-        <p className="mt-1.5 text-[13px] text-muted-foreground">{subtitle}</p>
+        <p className="mt-1.5 text-[12.5px] font-semibold text-muted-foreground">
+          {subtitle}
+        </p>
       ) : null}
     </div>
   );
@@ -142,43 +149,47 @@ function RoleSelect({ onRoleSelect }: { onRoleSelect: (role: Role) => void }) {
       <div className="space-y-3">
         <button
           onClick={() => onRoleSelect("worker")}
-          className="group flex w-full items-center gap-4 rounded-2xl border border-border bg-card p-5 text-left transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-brand/40 hover:shadow-[0_14px_32px_rgba(15,23,42,0.06)]"
+          className="group flex w-full items-center gap-4 rounded-[22px] border border-border-soft bg-surface p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-dark"
         >
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-brand transition-[background-color,color] duration-200 group-hover:bg-brand group-hover:text-primary-foreground">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep transition-colors group-hover:bg-brand group-hover:text-ink">
             <Briefcase className="h-5 w-5" />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[16px] font-bold tracking-[-0.015em]">일하고 싶어요</p>
-            <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
+          <div className="min-w-0 flex-1">
+            <p className="text-[15.5px] font-extrabold tracking-[-0.02em] text-ink">
+              일하고 싶어요
+            </p>
+            <p className="mt-0.5 text-[12.5px] font-medium leading-relaxed text-muted-foreground">
               빈 시간에 맞는 일자리를 찾고 싶어요
             </p>
           </div>
-          <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition-colors group-hover:text-brand" />
+          <ArrowRight className="h-5 w-5 shrink-0 text-text-subtle transition-colors group-hover:text-ink" />
         </button>
 
         <button
           onClick={() => onRoleSelect("business")}
-          className="group flex w-full items-center gap-4 rounded-2xl border border-border bg-card p-5 text-left transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-teal/50 hover:shadow-[0_14px_32px_rgba(15,23,42,0.06)]"
+          className="group flex w-full items-center gap-4 rounded-[22px] border border-border-soft bg-surface p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-dark"
         >
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-teal-light text-[var(--teal-deep)] transition-[background-color,color] duration-200 group-hover:bg-teal group-hover:text-primary-foreground">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-[14px] bg-surface-2 text-ink transition-colors group-hover:bg-ink group-hover:text-white">
             <Store className="h-5 w-5" />
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[16px] font-bold tracking-[-0.015em]">사람을 구해요</p>
-            <p className="mt-0.5 text-[13px] leading-relaxed text-muted-foreground">
+          <div className="min-w-0 flex-1">
+            <p className="text-[15.5px] font-extrabold tracking-[-0.02em] text-ink">
+              사람을 구해요
+            </p>
+            <p className="mt-0.5 text-[12.5px] font-medium leading-relaxed text-muted-foreground">
               필요할 때 딱 맞는 인력을 구하고 싶어요
             </p>
           </div>
-          <ArrowRight className="h-5 w-5 shrink-0 text-muted-foreground transition-colors group-hover:text-[var(--teal-deep)]" />
+          <ArrowRight className="h-5 w-5 shrink-0 text-text-subtle transition-colors group-hover:text-ink" />
         </button>
       </div>
 
       <div className="mt-7 text-center">
-        <p className="text-[13px] text-muted-foreground">
+        <p className="text-[12.5px] font-medium text-muted-foreground">
           이미 계정이 있으세요?{" "}
           <Link
             href="/login"
-            className="font-semibold text-brand-deep underline-offset-4 hover:underline"
+            className="font-bold text-ink underline-offset-4 hover:underline"
           >
             로그인
           </Link>
@@ -189,7 +200,7 @@ function RoleSelect({ onRoleSelect }: { onRoleSelect: (role: Role) => void }) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════
-// Worker — Step 1: 기본 정보 (소셜 먼저, 이메일 아래)
+// Worker — Step 1: 기본 정보
 // ══════════════════════════════════════════════════════════════════════════
 function WorkerStep1() {
   const [state, formAction, pending] = useActionState(signUpWithPassword, null);
@@ -201,37 +212,34 @@ function WorkerStep1() {
       <div className={FRAME}>
         <StepDots current={1} total={3} />
 
-        <h2 className="text-[17px] font-bold tracking-[-0.015em]">기본 정보</h2>
-        <p className="mt-1 text-[13px] text-muted-foreground">
+        <h2 className="text-[16.5px] font-extrabold tracking-[-0.02em] text-ink">
+          기본 정보
+        </h2>
+        <p className="mt-1 text-[12.5px] font-medium text-muted-foreground">
           가장 빠른 방법은 카카오로 1초 가입이에요.
         </p>
 
-        {/* Social primary path */}
         <div className="mt-5 space-y-2.5">
           <form action={signInWithKakao}>
-            <Button type="submit" className={BTN_KAKAO}>
-              <span className="flex items-center justify-center gap-2">
-                <KakaoGlyph />
-                카카오로 계속하기
-              </span>
-            </Button>
+            <button type="submit" className={BTN_KAKAO}>
+              <KakaoGlyph />
+              카카오로 계속하기
+            </button>
           </form>
           <form action={signInWithGoogle}>
-            <Button type="submit" className={BTN_OUTLINE}>
-              <span className="flex items-center justify-center gap-2">
-                <GoogleGlyph />
-                Google로 계속하기
-              </span>
-            </Button>
+            <button type="submit" className={BTN_OUTLINE}>
+              <GoogleGlyph />
+              Google로 계속하기
+            </button>
           </form>
         </div>
 
         <div className="relative my-6">
           <div className="absolute inset-0 flex items-center">
-            <span className="w-full border-t border-border" />
+            <span className="w-full border-t border-dashed border-border" />
           </div>
           <div className="relative flex justify-center">
-            <span className="bg-card px-3 text-[12px] font-medium text-muted-foreground">
+            <span className="bg-surface px-3 text-[11.5px] font-bold uppercase tracking-wider text-text-subtle">
               또는 이메일로
             </span>
           </div>
@@ -239,111 +247,108 @@ function WorkerStep1() {
 
         <form action={formAction} className="space-y-4">
           <div>
-            <Label htmlFor="email" className={LABEL}>
+            <label htmlFor="email" className={LABEL}>
               이메일
-            </Label>
+            </label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
+              <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+              <input
                 id="email"
                 name="email"
                 type="email"
                 inputMode="email"
                 autoComplete="email"
                 placeholder="you@example.com"
-                className={cn(INPUT_BASE, "pl-10")}
+                className={cn(INPUT, "pl-10")}
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="name" className={LABEL}>
+            <label htmlFor="name" className={LABEL}>
               이름
-            </Label>
+            </label>
             <div className="relative">
-              <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
+              <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+              <input
                 id="name"
                 name="name"
                 autoComplete="name"
                 placeholder="실명을 입력해주세요"
-                className={cn(INPUT_BASE, "pl-10")}
+                className={cn(INPUT, "pl-10")}
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="password" className={LABEL}>
+            <label htmlFor="password" className={LABEL}>
               비밀번호
-            </Label>
+            </label>
             <div className="relative">
-              <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
+              <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+              <input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="new-password"
                 placeholder="8자 이상"
-                className={cn(INPUT_BASE, "pl-10")}
+                className={cn(INPUT, "pl-10")}
               />
             </div>
           </div>
 
           {state?.error?.form && (
-            <p className="text-[13px] font-medium text-destructive">
+            <p className="text-[12.5px] font-semibold text-destructive">
               {state.error.form[0]}
             </p>
           )}
           {state?.error?.email && (
-            <p className="text-[13px] font-medium text-destructive">
+            <p className="text-[12.5px] font-semibold text-destructive">
               {state.error.email[0]}
             </p>
           )}
           {state?.error?.password && (
-            <p className="text-[13px] font-medium text-destructive">
+            <p className="text-[12.5px] font-semibold text-destructive">
               {state.error.password[0]}
             </p>
           )}
 
-          <Button type="submit" disabled={pending} className={BTN_PRIMARY}>
-            <span className="flex items-center justify-center gap-1.5">
-              {pending ? "처리 중..." : "다음"}
-              {!pending && <ArrowRight className="h-4 w-4" />}
-            </span>
-          </Button>
+          <button type="submit" disabled={pending} className={BTN_BRAND}>
+            {pending ? "처리 중..." : "다음"}
+            {!pending && <ArrowRight className="h-4 w-4" />}
+          </button>
         </form>
 
         <form action={signInWithMagicLink} className="mt-5 space-y-2.5">
-          <p className="text-[12px] text-muted-foreground">
+          <p className="text-[11.5px] font-medium text-muted-foreground">
             비밀번호 없이 이메일 링크로 가입하고 싶다면
           </p>
           <div className="flex gap-2">
-            <Input
+            <input
               name="email"
               type="email"
               inputMode="email"
               placeholder="이메일 주소"
-              className={cn(INPUT_BASE, "flex-1")}
+              className={cn(INPUT, "flex-1")}
               aria-label="매직 링크 이메일"
             />
-            <Button
+            <button
               type="submit"
-              variant="outline"
-              className="h-12 shrink-0 rounded-full border-brand/30 bg-card px-5 text-[14px] font-semibold text-brand-deep hover:bg-brand-light"
+              className="inline-flex h-12 shrink-0 items-center justify-center rounded-full border border-border bg-surface px-5 text-[13px] font-extrabold tracking-tight text-ink transition-colors hover:border-ink hover:bg-surface-2"
             >
               링크 받기
-            </Button>
+            </button>
           </div>
         </form>
       </div>
 
-      <p className="mt-6 text-center text-[12px] leading-relaxed text-muted-foreground">
+      <p className="mt-6 text-center text-[11.5px] font-medium leading-relaxed text-muted-foreground">
         가입하면{" "}
-        <Link href="/terms" className="underline underline-offset-2 hover:text-foreground">
+        <Link href="/terms" className="underline underline-offset-2 hover:text-ink">
           이용약관
         </Link>
         과{" "}
-        <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground">
+        <Link href="/privacy" className="underline underline-offset-2 hover:text-ink">
           개인정보처리방침
         </Link>
         에 동의하게 됩니다.
@@ -387,15 +392,17 @@ function WorkerStep2({ onNext, onBack }: StepProps) {
 
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-[17px] font-bold tracking-[-0.015em]">활동 정보</h2>
-            <p className="mt-1 text-[13px] text-muted-foreground">
+            <h2 className="text-[16.5px] font-extrabold tracking-[-0.02em] text-ink">
+              활동 정보
+            </h2>
+            <p className="mt-1 text-[12.5px] font-medium text-muted-foreground">
               지금 건너뛰고 나중에 채워도 괜찮아요.
             </p>
           </div>
           <button
             type="button"
             onClick={onNext}
-            className="shrink-0 text-[13px] font-semibold text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            className="shrink-0 text-[12.5px] font-bold text-text-subtle underline-offset-4 hover:text-ink hover:underline"
           >
             건너뛰기
           </button>
@@ -410,20 +417,20 @@ function WorkerStep2({ onNext, onBack }: StepProps) {
         >
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="birth" className={LABEL}>
+              <label htmlFor="birth" className={LABEL}>
                 생년월일
-              </Label>
-              <Input id="birth" type="date" className={INPUT_BASE} />
+              </label>
+              <input id="birth" type="date" className={cn(INPUT, "tabnum")} />
             </div>
             <div>
-              <Label htmlFor="gender" className={LABEL}>
+              <label htmlFor="gender" className={LABEL}>
                 성별
-              </Label>
+              </label>
               <select
                 id="gender"
                 className={cn(
-                  INPUT_BASE,
-                  "appearance-none px-3 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%23818181%22><path d=%22M5.5 8.5L10 13l4.5-4.5%22 stroke=%22%23818181%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-no-repeat bg-[right_12px_center] pr-9",
+                  INPUT,
+                  "appearance-none pr-9 bg-[url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 20 20%22 fill=%22%23818181%22><path d=%22M5.5 8.5L10 13l4.5-4.5%22 stroke=%22%23818181%22 stroke-width=%221.5%22 fill=%22none%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22/></svg>')] bg-no-repeat bg-[right_12px_center]",
                 )}
                 defaultValue=""
               >
@@ -436,24 +443,24 @@ function WorkerStep2({ onNext, onBack }: StepProps) {
           </div>
 
           <div>
-            <Label htmlFor="region" className={LABEL}>
+            <label htmlFor="region" className={LABEL}>
               활동 지역
-            </Label>
+            </label>
             <div className="relative">
-              <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
+              <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+              <input
                 id="region"
                 placeholder="예: 강남구, 서초구"
-                className={cn(INPUT_BASE, "pl-10")}
+                className={cn(INPUT, "pl-10")}
               />
             </div>
           </div>
 
           <div>
-            <Label className={LABEL}>
+            <label className={LABEL}>
               관심 직종{" "}
-              <span className="font-normal text-muted-foreground">(선택)</span>
-            </Label>
+              <span className="font-medium text-text-subtle">(선택)</span>
+            </label>
             <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((cat) => {
                 const on = selected.has(cat);
@@ -464,10 +471,10 @@ function WorkerStep2({ onNext, onBack }: StepProps) {
                     onClick={() => toggle(cat)}
                     aria-pressed={on}
                     className={cn(
-                      "rounded-full border px-3.5 py-1.5 text-[13px] font-medium transition-colors",
+                      "inline-flex h-9 items-center rounded-full border px-3.5 text-[12.5px] font-bold tracking-tight transition-colors",
                       on
-                        ? "border-brand bg-brand/10 text-brand-deep"
-                        : "border-border bg-card text-muted-foreground hover:border-brand/40 hover:bg-brand/5",
+                        ? "border-ink bg-ink text-white"
+                        : "border-border bg-surface text-muted-foreground hover:border-ink hover:text-ink",
                     )}
                   >
                     {cat}
@@ -478,23 +485,18 @@ function WorkerStep2({ onNext, onBack }: StepProps) {
           </div>
 
           <div className="flex gap-2.5 pt-2">
-            <Button
+            <button
               type="button"
-              variant="outline"
               onClick={onBack}
               className={cn(BTN_OUTLINE, "flex-1")}
             >
-              <span className="flex items-center justify-center gap-1.5">
-                <ArrowLeft className="h-4 w-4" />
-                이전
-              </span>
-            </Button>
-            <Button type="submit" className={cn(BTN_PRIMARY, "flex-[1.5]")}>
-              <span className="flex items-center justify-center gap-1.5">
-                다음
-                <ArrowRight className="h-4 w-4" />
-              </span>
-            </Button>
+              <ArrowLeft className="h-4 w-4" />
+              이전
+            </button>
+            <button type="submit" className={cn(BTN_BRAND, "flex-[1.5]")}>
+              다음
+              <ArrowRight className="h-4 w-4" />
+            </button>
           </div>
         </form>
       </div>
@@ -509,36 +511,31 @@ function WorkerStep3() {
   return (
     <div className="w-full">
       <div className={cn(FRAME, "text-center")}>
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand/10 text-brand">
+        <div className="mx-auto grid h-16 w-16 place-items-center rounded-full bg-brand text-ink shadow-soft-green">
           <Check className="h-8 w-8" strokeWidth={2.5} />
         </div>
-        <h2 className="mt-6 text-[22px] font-extrabold tracking-[-0.025em]">
+        <h2 className="mt-6 text-[22px] font-extrabold tracking-[-0.03em] text-ink">
           가입 완료!
         </h2>
-        <p className={cn("mx-auto mt-3 max-w-sm text-[15px] leading-[1.7] text-muted-foreground")}>
+        <p className="mx-auto mt-3 max-w-sm text-[14px] font-medium leading-[1.7] text-muted-foreground">
           샐러리잡에 오신 걸 환영해요.
           <br />내 주변 일자리를 바로 확인해 볼까요?
         </p>
 
         <div className="mt-8 space-y-2.5">
-          <Button className={BTN_PRIMARY} asChild>
-            <Link href="/">
-              <span className="flex items-center justify-center gap-1.5">
-                내 주변 일자리 보러가기
-                <ArrowRight className="h-4 w-4" />
-              </span>
-            </Link>
-          </Button>
-          <Button variant="outline" className={BTN_OUTLINE} asChild>
-            <Link href="/my/availability">가용시간 등록하기</Link>
-          </Button>
-          <Button
-            variant="ghost"
-            className="h-10 w-full rounded-full text-[13px] text-muted-foreground hover:text-foreground"
-            asChild
+          <Link href="/" className={BTN_BRAND}>
+            내 주변 일자리 보러가기
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+          <Link href="/my/availability" className={BTN_OUTLINE}>
+            가용시간 등록하기
+          </Link>
+          <Link
+            href="/my/profile"
+            className="inline-flex h-10 w-full items-center justify-center rounded-full text-[12.5px] font-bold text-text-subtle transition-colors hover:text-ink"
           >
-            <Link href="/my/profile">프로필 더 채우기</Link>
-          </Button>
+            프로필 더 채우기
+          </Link>
         </div>
       </div>
     </div>
@@ -554,13 +551,13 @@ function BusinessSignupForm() {
   return (
     <div className="w-full">
       <div className="mb-7 flex flex-col items-center text-center">
-        <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal-light text-[var(--teal-deep)]">
+        <div className="grid h-14 w-14 place-items-center rounded-[18px] bg-ink text-white shadow-soft-dark">
           <Store className="h-7 w-7" />
         </div>
-        <h1 className="mt-4 text-[22px] font-extrabold tracking-[-0.025em] text-foreground">
+        <h1 className="mt-4 text-[22px] font-extrabold tracking-[-0.03em] text-ink">
           업체 회원가입
         </h1>
-        <p className="mt-1.5 text-[13px] text-muted-foreground">
+        <p className="mt-1.5 text-[12.5px] font-semibold text-muted-foreground">
           사업자 인증 후 구인 공고를 등록할 수 있어요
         </p>
       </div>
@@ -568,90 +565,88 @@ function BusinessSignupForm() {
       <div className={FRAME}>
         <form action={formAction} className="space-y-4">
           <div>
-            <Label htmlFor="biz-name" className={LABEL}>
+            <label htmlFor="biz-name" className={LABEL}>
               담당자 이름
-            </Label>
+            </label>
             <div className="relative">
-              <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
+              <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+              <input
                 id="biz-name"
                 name="name"
                 autoComplete="name"
                 placeholder="이름"
-                className={cn(INPUT_BASE, "pl-10")}
+                className={cn(INPUT, "pl-10")}
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="biz-email" className={LABEL}>
+            <label htmlFor="biz-email" className={LABEL}>
               이메일
-            </Label>
+            </label>
             <div className="relative">
-              <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
+              <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+              <input
                 id="biz-email"
                 name="email"
                 type="email"
                 inputMode="email"
                 autoComplete="email"
                 placeholder="email@company.com"
-                className={cn(INPUT_BASE, "pl-10")}
+                className={cn(INPUT, "pl-10")}
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="biz-pw" className={LABEL}>
+            <label htmlFor="biz-pw" className={LABEL}>
               비밀번호
-            </Label>
+            </label>
             <div className="relative">
-              <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
+              <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+              <input
                 id="biz-pw"
                 name="password"
                 type="password"
                 autoComplete="new-password"
                 placeholder="8자 이상"
-                className={cn(INPUT_BASE, "pl-10")}
+                className={cn(INPUT, "pl-10")}
               />
             </div>
           </div>
 
           {state?.error?.form && (
-            <p className="text-[13px] font-medium text-destructive">
+            <p className="text-[12.5px] font-semibold text-destructive">
               {state.error.form[0]}
             </p>
           )}
 
-          <Button type="submit" disabled={pending} className={BTN_PRIMARY_TEAL}>
-            <span className="flex items-center justify-center gap-1.5">
-              {pending ? "처리 중..." : "가입하기"}
-              {!pending && <ArrowRight className="h-4 w-4" />}
-            </span>
-          </Button>
+          <button type="submit" disabled={pending} className={BTN_INK}>
+            {pending ? "처리 중..." : "가입하기"}
+            {!pending && <ArrowRight className="h-4 w-4" />}
+          </button>
         </form>
       </div>
 
       <div className="mt-6 text-center">
-        <p className="text-[13px] text-muted-foreground">
+        <p className="text-[12.5px] font-medium text-muted-foreground">
           Worker로 가입하시나요?{" "}
           <Link
             href="/signup?role=worker"
-            className="font-semibold text-brand-deep underline-offset-4 hover:underline"
+            className="font-bold text-ink underline-offset-4 hover:underline"
           >
             일자리 찾기
           </Link>
         </p>
       </div>
 
-      <p className="mt-6 text-center text-[12px] leading-relaxed text-muted-foreground">
+      <p className="mt-6 text-center text-[11.5px] font-medium leading-relaxed text-muted-foreground">
         가입하면{" "}
-        <Link href="/terms" className="underline underline-offset-2 hover:text-foreground">
+        <Link href="/terms" className="underline underline-offset-2 hover:text-ink">
           이용약관
         </Link>
         과{" "}
-        <Link href="/privacy" className="underline underline-offset-2 hover:text-foreground">
+        <Link href="/privacy" className="underline underline-offset-2 hover:text-ink">
           개인정보처리방침
         </Link>
         에 동의하게 됩니다.
