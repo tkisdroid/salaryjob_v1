@@ -204,9 +204,9 @@ function NewPostFlow({
   // ------------------------------------------------------------------------
   if (isPending) {
     return (
-      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
-        <Loader2 className="w-10 h-10 text-brand animate-spin mb-4" />
-        <p className="text-sm font-medium">
+      <div className="flex min-h-screen flex-col items-center justify-center bg-background px-6">
+        <Loader2 className="mb-4 h-10 w-10 animate-spin text-ink" />
+        <p className="text-[13.5px] font-bold tracking-tight text-ink">
           공고를 등록하고 매칭을 시작하는 중...
         </p>
       </div>
@@ -219,42 +219,48 @@ function NewPostFlow({
   return (
     <div className="min-h-screen bg-background pb-[calc(9rem+env(safe-area-inset-bottom))] md:pb-28">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-background/95 backdrop-blur border-b border-border">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center gap-3">
+      <header className="sticky top-0 z-40 border-b border-border-soft bg-surface/95 backdrop-blur-[12px]">
+        <div className="mx-auto flex h-14 max-w-2xl items-center gap-3 px-4">
           {step === 1 ? (
             <Link
               href="/biz/posts"
-              className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center"
+              className="grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-ink transition-colors hover:border-ink hover:bg-surface-2"
+              aria-label="뒤로"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
             </Link>
           ) : (
             <button
               type="button"
               onClick={() => setStep((step - 1) as Step)}
-              className="w-9 h-9 rounded-full hover:bg-muted flex items-center justify-center"
+              className="grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-ink transition-colors hover:border-ink hover:bg-surface-2"
+              aria-label="이전 단계"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="h-5 w-5" />
             </button>
           )}
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] text-muted-foreground">{step}/5 단계</p>
-            <p className="text-sm font-bold truncate">{STEP_TITLES[step]}</p>
+          <div className="min-w-0 flex-1">
+            <p className="tabnum text-[10px] font-bold uppercase tracking-wider text-text-subtle">
+              {step}/5 단계
+            </p>
+            <p className="truncate text-[14px] font-extrabold tracking-[-0.02em] text-ink">
+              {STEP_TITLES[step]}
+            </p>
           </div>
           {form.isUrgent && (
-            <span className="flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--urgent)]/10 px-2 py-1 text-[10px] font-bold text-[color:var(--urgent)]">
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--urgent)]/10 px-2.5 py-1 text-[10px] font-extrabold tracking-tight text-[color:var(--urgent)]">
               <Zap className="h-3 w-3 fill-[color:var(--urgent)]" /> 급구
             </span>
           )}
         </div>
         {/* Progress */}
-        <div className="max-w-2xl mx-auto px-4 pb-3">
+        <div className="mx-auto max-w-2xl px-4 pb-3">
           <div className="flex gap-1.5">
             {[1, 2, 3, 4, 5].map((s) => (
               <div
                 key={s}
-                className={`flex-1 h-1 rounded-full transition-all ${
-                  s <= step ? "bg-brand" : "bg-muted"
+                className={`h-1 flex-1 rounded-full transition-all ${
+                  s <= step ? "bg-ink" : "bg-surface-2"
                 }`}
               />
             ))}
@@ -262,14 +268,14 @@ function NewPostFlow({
         </div>
       </header>
 
-      <div className="max-w-2xl mx-auto px-4 py-5 space-y-5">
+      <div className="mx-auto max-w-2xl space-y-5 px-4 py-5">
         {/* Business selector — only show if multiple profiles */}
         {businessProfiles.length > 1 && (
           <Field label="사업장 선택" required>
             <select
               value={selectedBusinessId}
               onChange={(e) => setSelectedBusinessId(e.target.value)}
-              className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+              className="h-12 w-full rounded-[14px] border border-border bg-surface px-4 text-[14px] font-medium text-ink transition-colors focus:border-ink focus:outline-none"
             >
               {businessProfiles.map((bp) => (
                 <option key={bp.id} value={bp.id}>
@@ -306,7 +312,7 @@ function NewPostFlow({
           <div
             role="alert"
             aria-live="polite"
-            className="rounded-xl border border-destructive/20 bg-destructive/10 p-3 text-xs text-destructive"
+            className="rounded-[14px] border border-destructive/30 bg-destructive/5 p-3 text-[12.5px] font-semibold text-destructive"
           >
             {error}
           </div>
@@ -314,17 +320,17 @@ function NewPostFlow({
       </div>
 
       {/* Sticky CTA */}
-      <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 border-t border-border bg-background/95 backdrop-blur md:bottom-0">
-        <div className="max-w-2xl mx-auto px-4 py-3">
+      <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom))] left-0 right-0 z-40 border-t border-border-soft bg-surface/95 backdrop-blur-[12px] md:bottom-0">
+        <div className="mx-auto max-w-2xl px-4 py-3">
           {step < 5 ? (
             <button
               type="button"
               data-testid="job-form-next-button"
               disabled={!canProceed(step)}
               onClick={() => setStep((step + 1) as Step)}
-              className="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-brand/20 transition-colors disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed"
+              className="inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-full bg-ink text-[14px] font-extrabold tracking-tight text-white transition-all hover:bg-black hover:shadow-soft-dark disabled:bg-surface-2 disabled:text-text-subtle disabled:shadow-none disabled:cursor-not-allowed"
             >
-              다음 <ArrowRight className="w-4 h-4" />
+              다음 <ArrowRight className="h-4 w-4" />
             </button>
           ) : (
             <button
@@ -332,9 +338,9 @@ function NewPostFlow({
               data-testid="job-form-publish-button"
               disabled={!canProceed(5) || isPending}
               onClick={handlePublish}
-              className="w-full h-12 rounded-xl bg-brand hover:bg-brand-dark text-white font-bold flex items-center justify-center gap-1.5 shadow-lg shadow-brand/20 transition-colors disabled:bg-muted disabled:text-muted-foreground disabled:shadow-none disabled:cursor-not-allowed"
+              className="inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-full bg-brand text-[14px] font-extrabold tracking-tight text-ink transition-all hover:bg-brand-dark hover:shadow-soft-green disabled:bg-surface-2 disabled:text-text-subtle disabled:shadow-none disabled:cursor-not-allowed"
             >
-              <Zap className="w-4 h-4 fill-white" /> 공고 등록하고 매칭 시작
+              <Zap className="h-4 w-4 fill-ink" /> 공고 등록하고 매칭 시작
             </button>
           )}
         </div>
@@ -360,12 +366,14 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-xs font-bold flex items-center gap-1">
+      <label className="flex items-center gap-1 text-[12.5px] font-extrabold tracking-tight text-ink">
         {label}
         {required && <span className="text-destructive">*</span>}
       </label>
       {children}
-      {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
+      {hint && (
+        <p className="text-[11px] font-medium text-muted-foreground">{hint}</p>
+      )}
     </div>
   );
 }
@@ -380,8 +388,10 @@ function Step1Basic({
   return (
     <>
       <div>
-        <h2 className="text-lg font-bold mb-1">어떤 일을 구하시나요?</h2>
-        <p className="text-xs text-muted-foreground">
+        <h2 className="mb-1 text-[18px] font-extrabold tracking-[-0.025em] text-ink">
+          어떤 일을 구하시나요?
+        </h2>
+        <p className="text-[12.5px] font-medium text-muted-foreground">
           근무자가 한눈에 이해할 수 있게 설명해주세요
         </p>
       </div>
@@ -396,7 +406,7 @@ function Step1Basic({
           }
           placeholder="예: 주말 카페 바리스타 보조"
           maxLength={40}
-          className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+          className="h-12 w-full rounded-[14px] border border-border bg-surface px-4 text-[14px] font-medium text-ink transition-colors focus:border-ink focus:outline-none"
         />
         {form.title.trim().length > 0 && form.title.trim().length < 4 && (
           <p className="text-[10px] font-bold text-destructive">
@@ -416,10 +426,10 @@ function Step1Basic({
               data-testid={`job-category-${c.id}`}
               role="radio"
               aria-checked={form.category === c.id}
-              className={`flex flex-col items-center gap-1.5 p-3 rounded-2xl border transition-all active:scale-95 ${
+              className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-[18px] border p-3 transition-all active:scale-95 ${
                 form.category === c.id
-                  ? "border-brand bg-brand/5 shadow-sm cursor-pointer"
-                  : "border-border bg-card hover:border-brand/30 cursor-pointer"
+                  ? "border-ink bg-surface-2 shadow-soft"
+                  : "border-border bg-surface hover:border-ink/40"
               }`}
             >
               <input
@@ -435,7 +445,9 @@ function Step1Basic({
                 className="sr-only"
               />
               <span className="text-2xl">{c.emoji}</span>
-              <span className="text-[10px] font-medium">{c.label}</span>
+              <span className="text-[10.5px] font-bold tracking-tight text-ink">
+                {c.label}
+              </span>
             </label>
           ))}
           </div>
@@ -452,7 +464,7 @@ function Step1Basic({
           placeholder="예: 주문 받기, 음료 제조 보조, 매장 정리를 함께 해주실 분을 찾습니다."
           rows={5}
           maxLength={500}
-          className="w-full px-4 py-3 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
+          className="w-full resize-none rounded-[18px] border border-border bg-surface px-4 py-3 text-[14px] font-medium text-ink transition-colors focus:border-ink focus:outline-none"
         />
         {form.description.trim().length > 0 && form.description.trim().length < 10 && (
           <p className="text-[10px] font-bold text-destructive">
@@ -461,11 +473,11 @@ function Step1Basic({
         )}
       </Field>
 
-      <div className="rounded-xl bg-brand/5 border border-brand/20 p-3 flex items-start gap-2">
-        <Sparkles className="w-4 h-4 text-brand shrink-0 mt-0.5" />
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
-          <strong className="text-foreground">Tip:</strong> 구체적인 업무와
-          분위기를 적으면 매칭률이 2배 높아져요.
+      <div className="flex items-start gap-2 rounded-[14px] border border-dashed border-border bg-surface-2/60 p-3">
+        <Sparkles className="mt-0.5 h-4 w-4 shrink-0 text-brand-deep" />
+        <p className="text-[11.5px] font-medium leading-relaxed text-muted-foreground">
+          <strong className="font-extrabold text-ink">Tip:</strong> 구체적인
+          업무와 분위기를 적으면 매칭률이 2배 높아져요.
         </p>
       </div>
     </>
@@ -483,8 +495,12 @@ function Step2Schedule({
   return (
     <>
       <div>
-        <h2 className="text-lg font-bold mb-1">언제, 몇 명이 필요하신가요?</h2>
-        <p className="text-xs text-muted-foreground">당일 근무도 가능해요</p>
+        <h2 className="mb-1 text-[18px] font-extrabold tracking-[-0.025em] text-ink">
+          언제, 몇 명이 필요하신가요?
+        </h2>
+        <p className="text-[12.5px] font-medium text-muted-foreground">
+          당일 근무도 가능해요
+        </p>
       </div>
 
       <Field label="근무일" required hint="근무할 날짜를 선택해 주세요">
@@ -495,7 +511,7 @@ function Step2Schedule({
           onChange={(e) =>
             setForm((prev) => ({ ...prev, workDate: e.target.value }))
           }
-          className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+          className="h-12 w-full rounded-[14px] border border-border bg-surface px-4 text-[14px] font-medium text-ink transition-colors focus:border-ink focus:outline-none"
         />
       </Field>
 
@@ -507,7 +523,7 @@ function Step2Schedule({
             onChange={(e) =>
               setForm((prev) => ({ ...prev, startTime: e.target.value }))
             }
-            className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="h-12 w-full rounded-[14px] border border-border bg-surface px-4 text-[14px] font-medium text-ink transition-colors focus:border-ink focus:outline-none"
           />
           {form.endTime !== "" && form.startTime === "" && (
             <p className="text-[10px] font-bold text-destructive">
@@ -522,7 +538,7 @@ function Step2Schedule({
             onChange={(e) =>
               setForm((prev) => ({ ...prev, endTime: e.target.value }))
             }
-            className="w-full h-12 px-4 rounded-xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="h-12 w-full rounded-[14px] border border-border bg-surface px-4 text-[14px] font-medium text-ink transition-colors focus:border-ink focus:outline-none"
           />
           {form.startTime !== "" && form.endTime === "" && (
             <p className="text-[10px] font-bold text-destructive">
@@ -542,12 +558,15 @@ function Step2Schedule({
                 headcount: Math.max(1, prev.headcount - 1),
               }))
             }
-            className="w-12 h-12 rounded-2xl border border-border bg-card hover:bg-accent active:scale-95 flex items-center justify-center text-xl font-bold transition-all"
+            className="grid h-12 w-12 place-items-center rounded-full border border-border bg-surface text-[20px] font-extrabold text-ink transition-all hover:border-ink hover:bg-surface-2 active:scale-95"
+            aria-label="인원 감소"
           >
             −
           </button>
-          <div className="flex-1 h-12 rounded-2xl border border-border bg-card flex items-center justify-center">
-            <span className="text-lg font-extrabold">{form.headcount}명</span>
+          <div className="tabnum flex h-12 flex-1 items-center justify-center rounded-[14px] border border-border bg-surface">
+            <span className="text-[17px] font-extrabold tracking-tight text-ink">
+              {form.headcount}명
+            </span>
           </div>
           <button
             type="button"
@@ -557,7 +576,8 @@ function Step2Schedule({
                 headcount: Math.min(50, prev.headcount + 1),
               }))
             }
-            className="w-12 h-12 rounded-2xl border border-border bg-card hover:bg-accent active:scale-95 flex items-center justify-center text-xl font-bold transition-all"
+            className="grid h-12 w-12 place-items-center rounded-full border border-border bg-surface text-[20px] font-extrabold text-ink transition-all hover:border-ink hover:bg-surface-2 active:scale-95"
+            aria-label="인원 증가"
           >
             +
           </button>
@@ -570,33 +590,35 @@ function Step2Schedule({
           onClick={() =>
             setForm((prev) => ({ ...prev, isUrgent: !prev.isUrgent }))
           }
-          className={`flex w-full items-center gap-3 rounded-xl border-2 p-4 transition-all ${
+          className={`flex w-full items-center gap-3 rounded-[18px] border-2 p-4 transition-all ${
             form.isUrgent
               ? "border-[color:var(--urgent)] bg-[color:var(--urgent)]/5"
-              : "border-border hover:border-[color:var(--urgent)]/40"
+              : "border-border bg-surface hover:border-[color:var(--urgent)]/40"
           }`}
         >
           <div
-            className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-              form.isUrgent ? "bg-[color:var(--urgent)]" : "bg-muted"
+            className={`grid h-10 w-10 shrink-0 place-items-center rounded-[12px] ${
+              form.isUrgent ? "bg-[color:var(--urgent)]" : "bg-surface-2"
             }`}
           >
             <Zap
               className={`h-5 w-5 ${
                 form.isUrgent
                   ? "fill-white text-white"
-                  : "text-muted-foreground"
+                  : "text-text-subtle"
               }`}
             />
           </div>
           <div className="flex-1 text-left">
-            <p className="text-sm font-bold">급구로 등록</p>
-            <p className="text-[11px] text-muted-foreground">
+            <p className="text-[14px] font-extrabold tracking-tight text-ink">
+              급구로 등록
+            </p>
+            <p className="text-[11.5px] font-medium text-muted-foreground">
               평균 5분 내 매칭, 상단 노출
             </p>
           </div>
           <div
-            className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${
+            className={`grid h-5 w-5 place-items-center rounded-full border-2 ${
               form.isUrgent
                 ? "border-[color:var(--urgent)] bg-[color:var(--urgent)]"
                 : "border-border"
@@ -629,8 +651,10 @@ function Step3Compensation({
   return (
     <>
       <div>
-        <h2 className="text-lg font-bold mb-1">보상을 얼마로 책정할까요?</h2>
-        <p className="text-xs text-muted-foreground">
+        <h2 className="mb-1 text-[18px] font-extrabold tracking-[-0.025em] text-ink">
+          보상을 얼마로 책정할까요?
+        </h2>
+        <p className="tabnum text-[12.5px] font-medium text-muted-foreground">
           2026년 최저시급 {formatMoney(MINIMUM_WAGE)}
         </p>
       </div>
@@ -649,7 +673,7 @@ function Step3Compensation({
             }
             step={100}
             min={MINIMUM_WAGE}
-            className="w-full h-12 pl-10 pr-4 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="h-12 w-full rounded-[14px] border border-border bg-surface pl-10 pr-4 text-[14px] font-medium tabnum text-ink transition-colors focus:border-ink focus:outline-none"
           />
         </div>
         {form.hourlyPay < MINIMUM_WAGE && form.hourlyPay > 0 && (
@@ -673,38 +697,42 @@ function Step3Compensation({
             }
             step={500}
             min={0}
-            className="w-full h-12 pl-10 pr-4 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="h-12 w-full rounded-[14px] border border-border bg-surface pl-10 pr-4 text-[14px] font-medium tabnum text-ink transition-colors focus:border-ink focus:outline-none"
           />
         </div>
       </Field>
 
-      <div className="rounded-2xl bg-brand p-5 text-primary-foreground space-y-3">
+      <div className="space-y-3 rounded-[22px] bg-ink p-5 text-white shadow-soft-dark">
         <div className="flex items-center justify-between">
-          <p className="text-xs font-medium opacity-90">예상 비용 (인당)</p>
-          <TrendingUp className="h-4 w-4 opacity-70" />
+          <p className="text-[11.5px] font-bold uppercase tracking-wider text-white/70">
+            예상 비용 (인당)
+          </p>
+          <TrendingUp className="h-4 w-4 text-white/60" />
         </div>
-        <p className="text-3xl font-extrabold tracking-tight">{formatMoney(totalPerPerson)}</p>
-        <div className="border-t border-primary-foreground/20 pt-3 space-y-1.5 text-xs">
-          <div className="flex justify-between opacity-90">
+        <p className="tabnum text-[28px] font-extrabold tracking-[-0.03em]">
+          {formatMoney(totalPerPerson)}
+        </p>
+        <div className="tabnum space-y-1.5 border-t border-white/15 pt-3 text-[12px] font-medium">
+          <div className="flex justify-between text-white/80">
             <span>
-              기본급 ({form.hourlyPay.toLocaleString()}원 x {workHours || 0}시간)
+              기본급 ({form.hourlyPay.toLocaleString()}원 × {workHours || 0}시간)
             </span>
             <span>{formatMoney(basePay)}</span>
           </div>
-          <div className="flex justify-between opacity-90">
+          <div className="flex justify-between text-white/80">
             <span>교통비</span>
             <span>{formatMoney(form.transportFee)}</span>
           </div>
-          <div className="flex justify-between font-bold pt-1.5 border-t border-primary-foreground/20">
+          <div className="flex justify-between border-t border-white/15 pt-1.5 font-extrabold">
             <span>총 비용 ({form.headcount}명)</span>
             <span>{formatMoney(totalCost)}</span>
           </div>
         </div>
       </div>
 
-      <div className="rounded-xl bg-muted/50 p-3 flex items-start gap-2">
-        <Info className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
+      <div className="flex items-start gap-2 rounded-[14px] border border-dashed border-border bg-surface-2/60 p-3">
+        <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-text-subtle" />
+        <p className="text-[11.5px] font-medium leading-relaxed text-muted-foreground">
           근무 완료 후 자동으로 3.3% 원천징수된 금액이 근무자 계좌로 즉시
           송금됩니다.
         </p>
@@ -723,8 +751,10 @@ function Step4Details({
   return (
     <>
       <div>
-        <h2 className="text-lg font-bold mb-1">세부 사항을 입력해주세요</h2>
-        <p className="text-xs text-muted-foreground">
+        <h2 className="mb-1 text-[18px] font-extrabold tracking-[-0.025em] text-ink">
+          세부 사항을 입력해주세요
+        </h2>
+        <p className="text-[12.5px] font-medium text-muted-foreground">
           구체적일수록 노쇼가 줄어요 (모두 선택사항)
         </p>
       </div>
@@ -737,7 +767,7 @@ function Step4Details({
           }
           placeholder="POS 주문 접수&#10;음료 재료 준비&#10;매장 정리 및 청소"
           rows={4}
-          className="w-full px-4 py-3 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
+          className="w-full resize-none rounded-[18px] border border-border bg-surface px-4 py-3 text-[14px] font-medium text-ink transition-colors focus:border-ink focus:outline-none"
         />
       </Field>
 
@@ -749,7 +779,7 @@ function Step4Details({
           }
           placeholder="18세 이상&#10;2시간 이상 서서 근무 가능"
           rows={3}
-          className="w-full px-4 py-3 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm resize-none"
+          className="w-full resize-none rounded-[18px] border border-border bg-surface px-4 py-3 text-[14px] font-medium text-ink transition-colors focus:border-ink focus:outline-none"
         />
       </Field>
 
@@ -763,7 +793,7 @@ function Step4Details({
               setForm((prev) => ({ ...prev, dressCode: e.target.value }))
             }
             placeholder="예: 검정 상의 + 어두운 색 바지"
-            className="w-full h-12 pl-10 pr-4 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="h-12 w-full rounded-[14px] border border-border bg-surface pl-10 pr-4 text-[14px] font-medium tabnum text-ink transition-colors focus:border-ink focus:outline-none"
           />
         </div>
       </Field>
@@ -778,7 +808,7 @@ function Step4Details({
               setForm((prev) => ({ ...prev, whatToBring: e.target.value }))
             }
             placeholder="예: 신분증, 마스크"
-            className="w-full h-12 pl-10 pr-4 rounded-2xl border border-border bg-card focus:border-brand focus:ring-2 focus:ring-brand/20 transition-all text-sm"
+            className="h-12 w-full rounded-[14px] border border-border bg-surface pl-10 pr-4 text-[14px] font-medium tabnum text-ink transition-colors focus:border-ink focus:outline-none"
           />
         </div>
       </Field>
@@ -801,68 +831,80 @@ function Step5Preview({
   return (
     <>
       <div>
-        <h2 className="text-lg font-bold mb-1">이대로 등록할까요?</h2>
-        <p className="text-xs text-muted-foreground">
+        <h2 className="mb-1 text-[18px] font-extrabold tracking-[-0.025em] text-ink">
+          이대로 등록할까요?
+        </h2>
+        <p className="text-[12.5px] font-medium text-muted-foreground">
           등록 후에도 수정할 수 있어요
         </p>
       </div>
 
-      <div className="rounded-2xl border-2 border-brand/20 overflow-hidden">
-        <div className="bg-brand/5 p-4">
-          <div className="flex items-center gap-1.5 mb-2">
-            <FileText className="w-3 h-3 text-brand" />
-            <span className="text-[10px] font-bold text-brand uppercase tracking-wider">
+      <div className="overflow-hidden rounded-[22px] border border-border-soft bg-surface shadow-soft">
+        <div className="border-b border-border-soft bg-surface-2/60 p-4">
+          <div className="mb-2 flex items-center gap-1.5">
+            <FileText className="h-3 w-3 text-brand-deep" />
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-brand-deep">
               근무자 화면 미리보기
             </span>
           </div>
-          <h3 className="text-xl font-bold leading-tight">{form.title}</h3>
-          <p className="text-xs text-muted-foreground mt-1">
+          <h3 className="text-[20px] font-extrabold leading-tight tracking-[-0.025em] text-ink">
+            {form.title}
+          </h3>
+          <p className="mt-1 text-[12px] font-semibold text-muted-foreground">
             {category?.emoji} {category?.label}
           </p>
         </div>
-        <div className="p-4 space-y-3 bg-card">
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="rounded-lg border border-border p-2">
-              <p className="text-[10px] text-muted-foreground mb-0.5">근무일</p>
-              <p className="font-bold">{form.workDate}</p>
+        <div className="space-y-3 p-4">
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-[12px] border border-border-soft bg-surface p-2.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">
+                근무일
+              </p>
+              <p className="tabnum mt-0.5 text-[13px] font-extrabold text-ink">
+                {form.workDate}
+              </p>
             </div>
-            <div className="rounded-lg border border-border p-2">
-              <p className="text-[10px] text-muted-foreground mb-0.5">
+            <div className="rounded-[12px] border border-border-soft bg-surface p-2.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">
                 근무 시간
               </p>
-              <p className="font-bold">
+              <p className="tabnum mt-0.5 text-[13px] font-extrabold text-ink">
                 {form.startTime}~{form.endTime}
               </p>
             </div>
-            <div className="rounded-lg border border-border p-2">
-              <p className="text-[10px] text-muted-foreground mb-0.5">
+            <div className="rounded-[12px] border border-border-soft bg-surface p-2.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">
                 모집 인원
               </p>
-              <p className="font-bold">{form.headcount}명</p>
+              <p className="tabnum mt-0.5 text-[13px] font-extrabold text-ink">
+                {form.headcount}명
+              </p>
             </div>
-            <div className="rounded-lg border border-border p-2">
-              <p className="text-[10px] text-muted-foreground mb-0.5">
+            <div className="rounded-[12px] border border-border-soft bg-surface p-2.5">
+              <p className="text-[10px] font-bold uppercase tracking-wider text-text-subtle">
                 예상 수입
               </p>
-              <p className="font-bold text-brand">
+              <p className="tabnum mt-0.5 text-[13px] font-extrabold text-brand-deep">
                 {formatMoney(totalPerPerson)}
               </p>
             </div>
           </div>
 
           <div>
-            <p className="text-[11px] font-bold text-muted-foreground mb-1">
+            <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-subtle">
               업무 소개
             </p>
-            <p className="text-xs leading-relaxed">{form.description}</p>
+            <p className="text-[12.5px] font-medium leading-relaxed text-ink">
+              {form.description}
+            </p>
           </div>
 
           {form.duties && (
             <div>
-              <p className="text-[11px] font-bold text-muted-foreground mb-1">
+              <p className="mb-1 text-[11px] font-bold uppercase tracking-wider text-text-subtle">
                 주요 업무
               </p>
-              <ul className="text-xs space-y-0.5">
+              <ul className="space-y-0.5 text-[12.5px] font-medium text-ink">
                 {form.duties
                   .split("\n")
                   .filter(Boolean)
@@ -875,19 +917,23 @@ function Step5Preview({
         </div>
       </div>
 
-      <div className="rounded-2xl bg-brand p-5 text-primary-foreground">
-        <p className="text-xs font-medium opacity-90">총 예상 비용 (원천징수 별도)</p>
-        <p className="text-3xl font-extrabold tracking-tight mt-1">{formatMoney(totalCost)}</p>
-        <p className="text-xs opacity-80 mt-1">
-          {form.headcount}명 x {formatMoney(totalPerPerson)} ({workHours}시간 근무)
+      <div className="rounded-[22px] bg-ink p-5 text-white shadow-soft-dark">
+        <p className="text-[11.5px] font-bold uppercase tracking-wider text-white/70">
+          총 예상 비용 (원천징수 별도)
+        </p>
+        <p className="tabnum mt-1 text-[28px] font-extrabold tracking-[-0.03em]">
+          {formatMoney(totalCost)}
+        </p>
+        <p className="tabnum mt-1 text-[11.5px] font-medium text-white/70">
+          {form.headcount}명 × {formatMoney(totalPerPerson)} ({workHours}시간 근무)
         </p>
       </div>
 
-      <div className="rounded-xl bg-muted/40 p-3 flex items-start gap-2">
-        <Users className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
-        <p className="text-[11px] leading-relaxed text-muted-foreground">
-          <Calendar className="inline w-3 h-3 mb-0.5" />{" "}
-          {form.workDate} · {form.startTime}~{form.endTime}
+      <div className="flex items-start gap-2 rounded-[14px] border border-dashed border-border bg-surface-2/60 p-3">
+        <Users className="mt-0.5 h-3.5 w-3.5 shrink-0 text-text-subtle" />
+        <p className="tabnum text-[11.5px] font-medium leading-relaxed text-muted-foreground">
+          <Calendar className="mb-0.5 inline h-3 w-3" /> {form.workDate} ·{" "}
+          {form.startTime}~{form.endTime}
         </p>
       </div>
     </>
