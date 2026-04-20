@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
-  ArrowLeft,
+  ChevronLeft,
   MapPin,
   Clock,
   Wallet,
@@ -9,29 +9,28 @@ import {
   LayoutList,
   Users,
   Trash2,
-  Zap,
+  Flame,
   ChevronRight,
   Tag,
+  QrCode,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { requireBusiness } from "@/lib/dal";
 import { getJobById } from "@/lib/db/queries";
 import { prisma } from "@/lib/db";
 import { deleteJob } from "../actions";
 import { CheckoutQrModal } from "@/components/biz/checkout-qr-modal";
-import { QrCode } from "lucide-react";
 
 /* ── Helpers ── */
 
-function statusBadge(
+function statusPill(
   filled: number,
   headcount: number,
 ): { className: string; label: string } {
   if (filled >= headcount) {
-    return { className: "bg-muted text-muted-foreground", label: "마감" };
+    return { className: "bg-surface-2 text-muted-foreground", label: "마감" };
   }
-  return { className: "border-brand/30 bg-brand/5 text-brand", label: "모집 중" };
+  return { className: "bg-brand text-ink", label: "모집 중" };
 }
 
 /* ── Page ── */
@@ -47,15 +46,17 @@ export default async function BizPostDetailPage({
 
   if (!job) {
     return (
-      <div className="max-w-3xl mx-auto px-6 py-8">
-        <p className="mb-4 text-sm text-muted-foreground">
-          공고를 찾을 수 없습니다.
-        </p>
-        <Button variant="outline" asChild>
-          <Link href="/biz/posts">
-            <ArrowLeft className="w-4 h-4" /> 목록으로
-          </Link>
-        </Button>
+      <div className="mx-auto max-w-3xl px-6 py-8">
+        <div className="rounded-[22px] border border-border bg-surface p-6 text-center">
+          <p className="mb-4 text-[14px] font-semibold text-muted-foreground">
+            공고를 찾을 수 없습니다.
+          </p>
+          <Button variant="ghost-premium" size="sm" asChild>
+            <Link href="/biz/posts">
+              <ChevronLeft className="h-4 w-4" /> 목록으로
+            </Link>
+          </Button>
+        </div>
       </div>
     );
   }
@@ -83,48 +84,52 @@ export default async function BizPostDetailPage({
     // detailed error messaging is a Phase 3+ UX polish item.
   }
 
-  const badge = statusBadge(job.filled, job.headcount);
+  const pill = statusPill(job.filled, job.headcount);
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
+    <div className="mx-auto max-w-5xl px-6 py-8">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <Link href="/biz/posts" className="text-foreground hover:text-brand transition-colors">
-          <ArrowLeft className="h-5 w-5" />
+      <div className="mb-6 flex items-start gap-3">
+        <Link
+          href="/biz/posts"
+          aria-label="뒤로"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border bg-surface text-ink transition-colors hover:border-ink hover:bg-surface-2"
+        >
+          <ChevronLeft className="h-5 w-5" />
         </Link>
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-1 flex-wrap">
+        <div className="flex-1 min-w-0">
+          <div className="mb-2 flex flex-wrap items-center gap-2">
             <span
-              className={`rounded-full border px-2.5 py-0.5 text-[10px] font-semibold ${badge.className}`}
+              className={`inline-flex items-center gap-1 rounded-[6px] px-2 py-1 text-[10px] font-extrabold tracking-tight ${pill.className}`}
             >
-              {badge.label}
+              {pill.label}
             </span>
             {job.isUrgent && (
-              <span className="inline-flex items-center gap-0.5 rounded-full bg-[color:var(--urgent)]/10 px-2.5 py-0.5 text-[10px] font-semibold text-[color:var(--urgent)]">
-                <Zap className="h-3 w-3" />
+              <span className="inline-flex items-center gap-1 rounded-full bg-lime-chip px-[9px] py-[3px] text-[10px] font-extrabold tracking-tight text-lime-chip-fg">
+                <Flame className="h-3 w-3" />
                 급구
               </span>
             )}
-            <h1 className="text-xl font-extrabold tracking-tight text-foreground">{job.title}</h1>
           </div>
-          <p className="text-xs text-muted-foreground ml-0">
+          <h1 className="text-[22px] font-extrabold tracking-[-0.035em] text-ink">
+            {job.title}
+          </h1>
+          <p className="mt-1 text-[12px] font-semibold text-muted-foreground">
             {job.business.logo} {job.business.name}
           </p>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="flex flex-wrap gap-2 mb-6">
+      <div className="mb-6 flex flex-wrap gap-2">
         <form action={handleDelete}>
-          <Button
-            variant="outline"
+          <button
             type="submit"
-            size="sm"
-            className="h-9 rounded-xl text-xs font-medium border-destructive/30 text-destructive hover:bg-destructive/5"
+            className="inline-flex h-10 items-center gap-1.5 rounded-full border border-destructive/30 bg-surface px-3.5 text-[12.5px] font-bold text-destructive transition-colors hover:bg-destructive/5"
           >
-            <Trash2 className="h-3.5 w-3.5 mr-1" />
+            <Trash2 className="h-3.5 w-3.5" />
             삭제
-          </Button>
+          </button>
         </form>
 
         <CheckoutQrModal
@@ -132,7 +137,7 @@ export default async function BizPostDetailPage({
           trigger={
             <button
               type="button"
-              className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-brand px-3 text-xs font-medium text-primary-foreground hover:bg-brand-dark"
+              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 text-[12.5px] font-bold text-ink transition-colors hover:border-ink hover:bg-surface-2"
             >
               <QrCode className="h-3.5 w-3.5" />
               퇴근 QR 열기
@@ -140,31 +145,35 @@ export default async function BizPostDetailPage({
           }
         />
 
-        <Button size="sm" className="h-9 rounded-xl text-xs font-medium bg-foreground text-background hover:bg-foreground/90 ml-auto" asChild>
-          <Link href={`/biz/posts/${id}/applicants`}>
-            <Users className="h-3.5 w-3.5 mr-1" />
-            지원자 보기 ({job.appliedCount})
-            <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
-          </Link>
-        </Button>
+        <Link
+          href={`/biz/posts/${id}/applicants`}
+          className="ml-auto inline-flex h-10 items-center gap-1.5 rounded-full bg-ink px-3.5 text-[12.5px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
+        >
+          <Users className="h-3.5 w-3.5" />
+          지원자 보기{" "}
+          <span className="tabnum">({job.appliedCount})</span>
+          <ChevronRight className="h-3.5 w-3.5" />
+        </Link>
       </div>
 
       {/* Body */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="md:col-span-2 space-y-4">
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="text-sm font-bold mb-3">공고 상세</h2>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+        <div className="space-y-4 md:col-span-2">
+          <div className="rounded-[22px] border border-border-soft bg-surface p-5">
+            <h2 className="mb-3 text-[14px] font-extrabold tracking-tight text-ink">
+              공고 상세
+            </h2>
             <div>
-              <p className="text-sm leading-relaxed whitespace-pre-line text-foreground">
+              <p className="whitespace-pre-line text-[14px] leading-relaxed text-ink">
                 {job.description}
               </p>
 
               {job.duties.length > 0 && (
                 <div className="mt-5">
-                  <p className="text-xs font-bold text-muted-foreground mb-2">
+                  <p className="mb-2 text-[11.5px] font-extrabold uppercase tracking-wider text-muted-foreground">
                     주요 업무
                   </p>
-                  <ul className="list-inside list-disc text-sm text-foreground space-y-0.5">
+                  <ul className="list-inside list-disc space-y-0.5 text-[13.5px] text-ink">
                     {job.duties.map((d, i) => (
                       <li key={i}>{d}</li>
                     ))}
@@ -174,10 +183,10 @@ export default async function BizPostDetailPage({
 
               {job.requirements.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-xs font-bold text-muted-foreground mb-2">
+                  <p className="mb-2 text-[11.5px] font-extrabold uppercase tracking-wider text-muted-foreground">
                     지원 조건
                   </p>
-                  <ul className="list-inside list-disc text-sm text-foreground space-y-0.5">
+                  <ul className="list-inside list-disc space-y-0.5 text-[13.5px] text-ink">
                     {job.requirements.map((r, i) => (
                       <li key={i}>{r}</li>
                     ))}
@@ -187,19 +196,19 @@ export default async function BizPostDetailPage({
 
               {job.dressCode && (
                 <div className="mt-4">
-                  <p className="text-xs font-bold text-muted-foreground mb-1">
+                  <p className="mb-1 text-[11.5px] font-extrabold uppercase tracking-wider text-muted-foreground">
                     복장
                   </p>
-                  <p className="text-sm text-foreground">{job.dressCode}</p>
+                  <p className="text-[13.5px] text-ink">{job.dressCode}</p>
                 </div>
               )}
 
               {job.whatToBring.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-xs font-bold text-muted-foreground mb-2">
+                  <p className="mb-2 text-[11.5px] font-extrabold uppercase tracking-wider text-muted-foreground">
                     준비물
                   </p>
-                  <ul className="list-inside list-disc text-sm text-foreground space-y-0.5">
+                  <ul className="list-inside list-disc space-y-0.5 text-[13.5px] text-ink">
                     {job.whatToBring.map((w, i) => (
                       <li key={i}>{w}</li>
                     ))}
@@ -208,12 +217,15 @@ export default async function BizPostDetailPage({
               )}
 
               {job.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1.5 mt-5">
+                <div className="mt-5 flex flex-wrap gap-1.5">
                   {job.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary" className="text-xs">
-                      <Tag className="w-3 h-3" />
+                    <span
+                      key={tag}
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-2.5 py-1 text-[11px] font-bold tracking-tight text-ink"
+                    >
+                      <Tag className="h-3 w-3" />
                       {tag}
-                    </Badge>
+                    </span>
                   ))}
                 </div>
               )}
@@ -222,24 +234,54 @@ export default async function BizPostDetailPage({
         </div>
 
         <div className="space-y-4">
-          <div className="rounded-2xl border border-border bg-card p-5">
-            <h2 className="text-sm font-bold mb-4">공고 정보</h2>
+          <div className="rounded-[22px] border border-border-soft bg-surface p-5">
+            <h2 className="mb-4 text-[14px] font-extrabold tracking-tight text-ink">
+              공고 정보
+            </h2>
             <div className="space-y-4">
               {[
-                { icon: LayoutList, label: "카테고리", value: job.category },
-                { icon: MapPin, label: "근무 위치", value: `${job.business.address}${job.business.addressDetail ? ` ${job.business.addressDetail}` : ""}` },
-                { icon: Wallet, label: "급여", value: `시급 ${job.hourlyPay.toLocaleString()}원${job.transportFee > 0 ? ` · 교통비 ${job.transportFee.toLocaleString()}원` : ""}` },
-                { icon: Clock, label: "근무 시간", value: `${job.startTime} ~ ${job.endTime} (${job.workHours}시간)` },
-                { icon: Users, label: "모집 인원", value: `${job.filled}/${job.headcount}명` },
-                { icon: Calendar, label: "근무일", value: job.workDate },
+                {
+                  icon: LayoutList,
+                  label: "카테고리",
+                  value: job.category,
+                },
+                {
+                  icon: MapPin,
+                  label: "근무 위치",
+                  value: `${job.business.address}${job.business.addressDetail ? ` ${job.business.addressDetail}` : ""}`,
+                },
+                {
+                  icon: Wallet,
+                  label: "급여",
+                  value: `시급 ${job.hourlyPay.toLocaleString()}원${job.transportFee > 0 ? ` · 교통비 ${job.transportFee.toLocaleString()}원` : ""}`,
+                },
+                {
+                  icon: Clock,
+                  label: "근무 시간",
+                  value: `${job.startTime} ~ ${job.endTime} (${job.workHours}시간)`,
+                },
+                {
+                  icon: Users,
+                  label: "모집 인원",
+                  value: `${job.filled}/${job.headcount}명`,
+                },
+                {
+                  icon: Calendar,
+                  label: "근무일",
+                  value: job.workDate,
+                },
               ].map((row) => (
                 <div key={row.label} className="flex items-start gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand/5 text-muted-foreground shrink-0">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep">
                     <row.icon className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-[10px] text-muted-foreground">{row.label}</p>
-                    <p className="text-sm font-semibold mt-0.5">{row.value}</p>
+                    <p className="text-[10.5px] font-bold uppercase tracking-wider text-muted-foreground">
+                      {row.label}
+                    </p>
+                    <p className="mt-1 text-[13.5px] font-bold tracking-tight text-ink">
+                      {row.value}
+                    </p>
                   </div>
                 </div>
               ))}

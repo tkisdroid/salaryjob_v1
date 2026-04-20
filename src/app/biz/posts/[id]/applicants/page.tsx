@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ChevronLeft, Users } from "lucide-react";
 import { requireJobOwner } from "@/lib/dal";
 import { getApplicationsByJob } from "@/lib/db/queries";
 import { ApplicantsClient } from "./applicants-client";
@@ -32,17 +31,26 @@ export default async function BizApplicantsPage({
   ) as SerializedApplication[];
 
   return (
-    <div className="max-w-5xl mx-auto px-6 py-8">
-      <div className="flex items-center gap-3 mb-6">
-        <Button variant="ghost" size="icon" asChild>
-          <Link href={`/biz/posts/${id}`}>
-            <ArrowLeft className="w-5 h-5" />
-          </Link>
-        </Button>
+    <div className="mx-auto max-w-5xl px-6 py-8">
+      <div className="mb-6 flex items-center gap-3">
+        <Link
+          href={`/biz/posts/${id}`}
+          aria-label="뒤로"
+          className="grid h-11 w-11 shrink-0 place-items-center rounded-full border border-border bg-surface text-ink transition-colors hover:border-ink hover:bg-surface-2"
+        >
+          <ChevronLeft className="h-5 w-5" />
+        </Link>
         <div>
-          <h1 className="text-2xl font-bold text-foreground">지원자 관리</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">
-            {job.title} &#183; 지원자 {initialApplications.length}명
+          <h1 className="flex items-center gap-2 text-[24px] font-extrabold tracking-[-0.035em] text-ink">
+            <Users className="h-[22px] w-[22px] text-brand-deep" />
+            지원자 관리
+          </h1>
+          <p className="mt-0.5 text-[12.5px] font-medium text-muted-foreground">
+            {job.title} <span className="text-text-subtle">·</span> 지원자{" "}
+            <b className="tabnum font-extrabold text-ink">
+              {initialApplications.length}
+            </b>
+            명
           </p>
         </div>
       </div>
