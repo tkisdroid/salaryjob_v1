@@ -10,6 +10,12 @@ import {
   OwnerPhoneSchema,
   normalizeRegNumber,
 } from "@/lib/validations/business";
+import {
+  requestOwnerPhoneOtp,
+  verifyOwnerPhoneOtp,
+  normalizePhone as normalizeOtpPhone,
+  type OtpError,
+} from "@/lib/otp/owner-phone";
 
 const JOB_CATEGORIES = [
   "food",
@@ -115,7 +121,7 @@ export async function updateBusinessProfile(
   // check is the primary defense. DO NOT remove.
   const existing = await prisma.businessProfile.findUnique({
     where: { id: d.profileId },
-    select: { id: true, userId: true },
+    select: { id: true, userId: true, ownerPhone: true, ownerPhoneVerifiedAt: true },
   });
   if (!existing) {
     return { error: "사업장을 찾을 수 없습니다" };
@@ -146,6 +152,19 @@ export async function updateBusinessProfile(
     }
     // If rawReg is undefined (field not in FormData) — leave both unchanged
 
+    // Reset the SMS-verified timestamp whenever the submitted owner phone
+    // diverges from what was last verified — otherwise a user could swap
+    // the number via the plain profile form and keep a stale "인증됨" badge.
+    const incomingPhoneDigits = d.ownerPhone
+      ? normalizeOtpPhone(d.ownerPhone)
+      : "";
+    const existingPhoneDigits = existing.ownerPhone
+      ? normalizeOtpPhone(existing.ownerPhone)
+      : "";
+    const phoneChanged = incomingPhoneDigits !== existingPhoneDigits;
+    const shouldClearVerifiedAt =
+      phoneChanged && existing.ownerPhoneVerifiedAt !== null;
+
     // Step 1: Update scalar columns via Prisma.
     await prisma.businessProfile.update({
       where: { id: d.profileId },
@@ -162,6 +181,7 @@ export async function updateBusinessProfile(
         ...(normalizedRegNumber !== undefined && { businessRegNumber: normalizedRegNumber }),
         ...(d.ownerName !== undefined && { ownerName: d.ownerName || null }),
         ...(d.ownerPhone !== undefined && { ownerPhone: d.ownerPhone || null }),
+        ...(shouldClearVerifiedAt && { ownerPhoneVerifiedAt: null }),
         ...(verifiedUpdate !== undefined && { verified: verifiedUpdate }),
       },
     });
@@ -189,4 +209,140 @@ export async function updateBusinessProfile(
     console.error("updateBusinessProfile error", e);
     return { error: "저장에 실패했습니다. 잠시 후 다시 시도해주세요" };
   }
+}
+
+// ─── 대표자 연락처 SMS OTP 인증 ──────────────────────────────────────────
+
+function otpErrorMessage(err: OtpError): string {
+  switch (err) {
+    case "sms_not_configured":
+      return "문자 발송이 아직 설정되지 않았습니다. 관리자에게 문의해 주세요.";
+    case "invalid_phone_format":
+      return "휴대폰 번호 형식이 올바르지 않습니다.";
+    case "rate_limited":
+      return "인증번호는 1분에 한 번만 요청할 수 있어요.";
+    case "daily_limit_exceeded":
+      return "오늘 요청 가능한 횟수를 초과했어요. 내일 다시 시도해 주세요.";
+    case "sms_send_failed":
+      return "문자 발송에 실패했습니다. 번호를 확인한 뒤 다시 시도해 주세요.";
+    case "no_active_otp":
+      return "유효한 인증 요청이 없습니다. 인증번호를 다시 받아 주세요.";
+    case "expired":
+      return "인증번호가 만료되었습니다. 다시 받아 주세요.";
+    case "too_many_attempts":
+      return "인증 시도 횟수를 초과했습니다. 인증번호를 다시 받아 주세요.";
+    case "invalid_code":
+      return "인증번호가 올바르지 않습니다.";
+  }
+}
+
+async function assertOwnsProfile(profileId: string, userId: string) {
+  const row = await prisma.businessProfile.findUnique({
+    where: { id: profileId },
+    select: { id: true, userId: true },
+  });
+  if (!row) return { ok: false as const, error: "사업장을 찾을 수 없습니다" };
+  if (row.userId !== userId) {
+    console.warn(
+      `BIZ-03 owner check failed: user ${userId} tried to touch phone OTP on profile ${profileId} owned by ${row.userId}`,
+    );
+    return {
+      ok: false as const,
+      error: "이 사업장을 수정할 권한이 없습니다",
+    };
+  }
+  return { ok: true as const };
+}
+
+const ProfileIdSchema = z.string().uuid("사업장 ID가 올바르지 않습니다");
+
+/**
+ * Send an SMS OTP to the submitted owner phone. Does NOT change the stored
+ * ownerPhone — that happens only on a successful verifyPhoneOtp call.
+ */
+export async function requestPhoneOtp(
+  _prev: ProfileFormState,
+  formData: FormData,
+): Promise<ProfileFormState> {
+  const session = await requireBusiness();
+
+  const profileIdRaw = (formData.get("profileId") ?? "") as string;
+  const phoneRaw = (formData.get("ownerPhone") ?? "") as string;
+
+  const profileIdResult = ProfileIdSchema.safeParse(profileIdRaw);
+  if (!profileIdResult.success) {
+    return { error: "사업장 ID가 올바르지 않습니다" };
+  }
+  const phoneResult = OwnerPhoneSchema.safeParse(phoneRaw);
+  if (!phoneResult.success) {
+    return {
+      error: "휴대폰 번호 형식이 올바르지 않습니다.",
+      fieldErrors: { ownerPhone: "휴대폰 번호 형식이 올바르지 않습니다." },
+    };
+  }
+
+  const ownership = await assertOwnsProfile(profileIdResult.data, session.id);
+  if (!ownership.ok) return { error: ownership.error };
+
+  const res = await requestOwnerPhoneOtp(profileIdResult.data, phoneResult.data);
+  if (!res.ok) {
+    return { error: otpErrorMessage(res.error) };
+  }
+
+  return {
+    success: true,
+    data: { id: profileIdResult.data },
+    message: "인증번호를 전송했어요. 3분 이내에 입력해 주세요.",
+  };
+}
+
+/**
+ * Verify the submitted code against the freshest active OTP for (profile, phone).
+ * On success, the owner_phone_otps row + business_profiles.ownerPhoneVerifiedAt
+ * are updated atomically in `verifyOwnerPhoneOtp`.
+ */
+export async function verifyPhoneOtp(
+  _prev: ProfileFormState,
+  formData: FormData,
+): Promise<ProfileFormState> {
+  const session = await requireBusiness();
+
+  const profileIdRaw = (formData.get("profileId") ?? "") as string;
+  const phoneRaw = (formData.get("ownerPhone") ?? "") as string;
+  const codeRaw = (formData.get("code") ?? "") as string;
+
+  const profileIdResult = ProfileIdSchema.safeParse(profileIdRaw);
+  if (!profileIdResult.success) {
+    return { error: "사업장 ID가 올바르지 않습니다" };
+  }
+  const phoneResult = OwnerPhoneSchema.safeParse(phoneRaw);
+  if (!phoneResult.success) {
+    return { error: "휴대폰 번호 형식이 올바르지 않습니다." };
+  }
+  if (!/^\d{6}$/.test(codeRaw)) {
+    return {
+      error: "인증번호 6자리를 정확히 입력해 주세요.",
+      fieldErrors: { code: "인증번호 6자리를 정확히 입력해 주세요." },
+    };
+  }
+
+  const ownership = await assertOwnsProfile(profileIdResult.data, session.id);
+  if (!ownership.ok) return { error: ownership.error };
+
+  const res = await verifyOwnerPhoneOtp(
+    profileIdResult.data,
+    phoneResult.data,
+    codeRaw,
+  );
+  if (!res.ok) {
+    return { error: otpErrorMessage(res.error) };
+  }
+
+  revalidatePath("/biz/profile");
+
+  return {
+    success: true,
+    data: { id: profileIdResult.data },
+    message: "대표자 연락처 인증이 완료되었습니다.",
+  };
 }

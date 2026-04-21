@@ -138,6 +138,7 @@ model BusinessProfile {
   businessRegNumber     String?                                @db.VarChar(10) // digits-only 10-char Korean biz reg number
   ownerName             String? // 대표자명 (may differ from signup user)
   ownerPhone            String?                                @db.VarChar(20) // 대표자 연락처
+  ownerPhoneVerifiedAt  DateTime? // null until SMS OTP succeeds; cleared when ownerPhone changes
   businessRegImageUrl   String? // path within business-reg-docs bucket (NOT full URL — use signed URL at read time)
   commissionRate        Decimal?                               @db.Decimal(5, 2) // override rate as percentage (5.00 = 5%). NULL → env default
   // Phase 6 D-33: admin-review flag set by OCR mismatch in /biz/verify flow
@@ -145,13 +146,34 @@ model BusinessProfile {
   createdAt             DateTime                               @default(now())
   updatedAt             DateTime                               @updatedAt
 
-  jobs         Job[]
-  workerOffers WorkerOffer[]
+  jobs           Job[]
+  workerOffers   WorkerOffer[]
+  ownerPhoneOtps OwnerPhoneOtp[]
 
   @@index([userId])
   @@index([businessRegNumber])
   @@index([ownerPhone])
   @@map("business_profiles")
+}
+
+// Owner-phone SMS OTP audit trail. Codes are stored as sha256 hex (never
+// plaintext). Rows are kept for rate-limit accounting; the verifier reads
+// the freshest non-expired row per (businessProfile, phone).
+model OwnerPhoneOtp {
+  id                String          @id @default(uuid()) @db.Uuid
+  businessProfileId String          @db.Uuid
+  businessProfile   BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  phone             String          @db.VarChar(20)
+  codeHash          String          @db.VarChar(64) // sha256(code) hex
+  expiresAt         DateTime
+  verifiedAt        DateTime?
+  attempts          Int             @default(0)
+  sentAt            DateTime        @default(now())
+  createdAt         DateTime        @default(now())
+
+  @@index([businessProfileId])
+  @@index([phone])
+  @@map("owner_phone_otps")
 }
 
 model Job {

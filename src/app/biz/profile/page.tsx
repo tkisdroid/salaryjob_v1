@@ -87,6 +87,7 @@ export default async function BizProfilePage() {
               initialBusinessRegNumber={profile.businessRegNumber ?? null}
               initialOwnerName={profile.ownerName ?? null}
               initialOwnerPhone={profile.ownerPhone ?? null}
+              initialOwnerPhoneVerifiedAt={profile.ownerPhoneVerifiedAt ?? null}
               hasBusinessRegImage={Boolean(profile.businessRegImageUrl)}
               businessRegImageSignedUrl={regImageSignedUrls[index] ?? null}
               rating={Number(profile.rating)}

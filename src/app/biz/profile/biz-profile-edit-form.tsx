@@ -1,14 +1,20 @@
 "use client";
 
-import { useActionState, useRef } from "react";
+import { useActionState, useRef, useState, useTransition } from "react";
 import Link from "next/link";
-import { updateBusinessProfile } from "./actions";
+import {
+  updateBusinessProfile,
+  requestPhoneOtp,
+  verifyPhoneOtp,
+} from "./actions";
 import { formatRegNumber } from "@/lib/validations/business";
 import {
   Building2,
+  CheckCircle2,
   FileImage,
   ImageIcon,
   MapPin,
+  ShieldCheck,
   Star,
   Upload,
 } from "lucide-react";
@@ -28,6 +34,7 @@ interface Props {
   initialBusinessRegNumber?: string | null;
   initialOwnerName?: string | null;
   initialOwnerPhone?: string | null;
+  initialOwnerPhoneVerifiedAt?: Date | string | null;
   // 사업자등록증 이미지 상태 (upload flow lives on /biz/verify)
   hasBusinessRegImage?: boolean;
   businessRegImageSignedUrl?: string | null;
@@ -55,9 +62,85 @@ export function BizProfileEditForm(props: Props) {
     null,
   );
   const regNumberRef = useRef<HTMLInputElement>(null);
+  const phoneRef = useRef<HTMLInputElement>(null);
 
   const err = state && "error" in state ? state : null;
   const ok = state && "success" in state ? state : null;
+
+  // 대표자 연락처 SMS OTP state
+  const [phoneVerified, setPhoneVerified] = useState<boolean>(
+    Boolean(props.initialOwnerPhoneVerifiedAt),
+  );
+  const [otpRequested, setOtpRequested] = useState<boolean>(false);
+  const [otpCode, setOtpCode] = useState<string>("");
+  const [otpNotice, setOtpNotice] = useState<
+    { type: "success" | "error"; text: string } | null
+  >(null);
+  const [isOtpPending, startOtpTransition] = useTransition();
+
+  function markPhoneUnverifiedOnEdit() {
+    // Keep the verified badge truthful: as soon as the owner edits the
+    // phone field, drop the stale verified flag until they re-verify.
+    if (phoneVerified) setPhoneVerified(false);
+    if (otpRequested) {
+      setOtpRequested(false);
+      setOtpCode("");
+    }
+    setOtpNotice(null);
+  }
+
+  function handleRequestOtp() {
+    const phone = phoneRef.current?.value.trim() ?? "";
+    if (!phone) {
+      setOtpNotice({ type: "error", text: "휴대폰 번호를 먼저 입력해 주세요." });
+      return;
+    }
+    const fd = new FormData();
+    fd.append("profileId", props.profileId);
+    fd.append("ownerPhone", phone);
+    startOtpTransition(async () => {
+      const result = await requestPhoneOtp(null, fd);
+      if (result && "success" in result) {
+        setOtpRequested(true);
+        setOtpCode("");
+        setOtpNotice({
+          type: "success",
+          text: result.message ?? "인증번호를 전송했어요.",
+        });
+      } else if (result && "error" in result) {
+        setOtpNotice({ type: "error", text: result.error });
+      }
+    });
+  }
+
+  function handleVerifyOtp() {
+    const phone = phoneRef.current?.value.trim() ?? "";
+    if (!phone || otpCode.length !== 6) {
+      setOtpNotice({
+        type: "error",
+        text: "인증번호 6자리를 입력해 주세요.",
+      });
+      return;
+    }
+    const fd = new FormData();
+    fd.append("profileId", props.profileId);
+    fd.append("ownerPhone", phone);
+    fd.append("code", otpCode);
+    startOtpTransition(async () => {
+      const result = await verifyPhoneOtp(null, fd);
+      if (result && "success" in result) {
+        setPhoneVerified(true);
+        setOtpRequested(false);
+        setOtpCode("");
+        setOtpNotice({
+          type: "success",
+          text: result.message ?? "대표자 연락처 인증이 완료되었습니다.",
+        });
+      } else if (result && "error" in result) {
+        setOtpNotice({ type: "error", text: result.error });
+      }
+    });
+  }
 
   function handleRegNumberBlur() {
     if (regNumberRef.current) {
@@ -292,16 +375,75 @@ export function BizProfileEditForm(props: Props) {
           <label htmlFor={`ownerPhone-${props.profileId}`} className={LABEL}>
             대표자 연락처
           </label>
-          <input
-            id={`ownerPhone-${props.profileId}`}
-            name="ownerPhone"
-            type="tel"
-            placeholder="010-0000-0000"
-            defaultValue={props.initialOwnerPhone ?? ""}
-            className={`${INPUT} tabnum`}
-          />
+          <div className="flex gap-2">
+            <input
+              id={`ownerPhone-${props.profileId}`}
+              ref={phoneRef}
+              name="ownerPhone"
+              type="tel"
+              placeholder="010-0000-0000"
+              defaultValue={props.initialOwnerPhone ?? ""}
+              onChange={markPhoneUnverifiedOnEdit}
+              className={`${INPUT} tabnum flex-1`}
+            />
+            {phoneVerified ? (
+              <span className="inline-flex h-12 shrink-0 items-center gap-1 rounded-[14px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] px-3 text-[12.5px] font-extrabold tracking-tight text-brand-deep">
+                <CheckCircle2 className="h-4 w-4" />
+                인증됨
+              </span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleRequestOtp}
+                disabled={isOtpPending}
+                className="inline-flex h-12 shrink-0 items-center gap-1 rounded-[14px] border border-border bg-surface px-3 text-[12.5px] font-extrabold tracking-tight text-ink transition-colors hover:border-ink hover:bg-surface-2 disabled:opacity-60"
+              >
+                <ShieldCheck className="h-4 w-4" />
+                {otpRequested ? "재전송" : "인증번호 받기"}
+              </button>
+            )}
+          </div>
           {err?.fieldErrors?.ownerPhone && (
             <p className={ERROR_P}>{err.fieldErrors.ownerPhone}</p>
+          )}
+
+          {!phoneVerified && otpRequested && (
+            <div className="mt-2 flex gap-2">
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]{6}"
+                maxLength={6}
+                placeholder="인증번호 6자리"
+                value={otpCode}
+                onChange={(e) =>
+                  setOtpCode(e.target.value.replace(/[^0-9]/g, ""))
+                }
+                className={`${INPUT} tabnum flex-1`}
+                aria-label="인증번호"
+              />
+              <button
+                type="button"
+                onClick={handleVerifyOtp}
+                disabled={isOtpPending || otpCode.length !== 6}
+                className="inline-flex h-12 shrink-0 items-center rounded-[14px] bg-ink px-4 text-[12.5px] font-extrabold tracking-tight text-white transition-colors hover:bg-black disabled:opacity-50"
+              >
+                확인
+              </button>
+            </div>
+          )}
+
+          {otpNotice && (
+            <p
+              role={otpNotice.type === "error" ? "alert" : "status"}
+              className={`mt-1.5 text-[11.5px] font-semibold ${
+                otpNotice.type === "error"
+                  ? "text-destructive"
+                  : "text-brand-deep"
+              }`}
+            >
+              {otpNotice.text}
+            </p>
           )}
         </div>
 
