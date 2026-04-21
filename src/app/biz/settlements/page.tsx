@@ -1,4 +1,4 @@
-import { Wallet } from "lucide-react";
+import { Info, Wallet } from "lucide-react";
 import { requireBusiness } from "@/lib/dal";
 import { getBizSettlementTotals, getBizSettlements } from "@/lib/db/queries";
 import { SettlementCard } from "@/components/shared/settlement-card";
@@ -46,6 +46,26 @@ export default async function BizSettlementsPage({
           <p className="tabnum mt-1 text-[11px] font-semibold text-muted-foreground">
             {totals.thisMonthCount}건
           </p>
+        </div>
+      </div>
+
+      <div className="rounded-[22px] border border-border-soft bg-[color-mix(in_oklch,var(--brand)_6%,var(--surface))] p-5 mb-4">
+        <div className="flex items-start gap-3">
+          <div className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-[12px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep">
+            <Info className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="text-[14px] font-extrabold tracking-tight text-ink">
+              자동 정산 안내
+            </h2>
+            <p className="mt-1.5 text-[12.5px] font-medium leading-relaxed text-muted-foreground">
+              근무 완료 후 정산은 플랫폼에서 자동으로 처리됩니다. 별도의 결제 수단 등록이나
+              수동 이체는 필요하지 않습니다. 근무자에게는 원천징수(3.3%) 후 금액이 자동 송금됩니다.
+            </p>
+            <p className="mt-1 text-[11px] font-semibold text-brand-deep">
+              실제 결제 수단 연동은 v2에서 제공될 예정입니다.
+            </p>
+          </div>
         </div>
       </div>
 

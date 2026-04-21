@@ -86,7 +86,7 @@ export async function createBusinessReview(
     sessionId = session.id;
   }
 
-  if (application.status !== "settled") {
+  if (application.status !== "settled" && application.status !== "completed") {
     return { success: false, error: "not_settled" };
   }
 
