@@ -129,7 +129,7 @@ Plans:
 | 10. Legacy Cleanup & Milestone Close | 0/TBD | Not started | — |
 | 11. Worker Flow Codex 12 | 4/4 | Complete | 2026-04-21 |
 | 12. Business Flow Codex 13 | 3/3 | Complete | 2026-04-21 |
-| 13. Admin + Common Codex 10 | 1/2 | In Progress|  |
+| 13. Admin + Common Codex 10 | 2/2 | Complete   | 2026-04-21 |
 
 ## Phase Dependency Graph
 
@@ -182,10 +182,10 @@ Plans:
 **Goal:** Admin 역할의 기능 확장(사이드바/대시보드/수수료 피드백/인증 승인·반려/정산 조회)과 코드베이스 공통 품질 수정(any 타입 제거, 인증 에러 전파, env 검증, 레거시 파일 정리, 에러 로깅)을 완료하여 Admin 운영 역량과 코드 건전성을 확보한다.
 **Requirements**: BUG-A01, BUG-A02, BUG-A03, BUG-A04, BUG-A05, BUG-C01, BUG-C02, BUG-C03, BUG-C04, BUG-C05
 **Depends on:** Phase 12
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 
 Plans:
-- [ ] 13-01-PLAN.md — Admin feature expansion: sidebar menus, dashboard stats, settlements page, commission feedback, verify approve/reject (BUG-A01, A02, A03, A04, A05)
+- [x] 13-01-PLAN.md — Admin feature expansion: sidebar menus, dashboard stats, settlements page, commission feedback, verify approve/reject (BUG-A01, A02, A03, A04, A05)
 - [x] 13-02-PLAN.md — Code quality: any type removal, auth error propagation, env validation, legacy cleanup, error logging (BUG-C01, C02, C03, C04, C05)
 
 ---
