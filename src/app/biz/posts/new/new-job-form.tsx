@@ -8,6 +8,7 @@ import {
   type SetStateAction,
 } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { formatMoney } from "@/lib/format";
 import { createJob } from "../actions";
 import {
@@ -94,6 +95,7 @@ function NewPostFlow({
   const [step, setStep] = useState<Step>(1);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
   const [selectedBusinessId, setSelectedBusinessId] = useState<string>(
     businessProfiles[0]?.id ?? "",
@@ -191,6 +193,10 @@ function NewPostFlow({
 
       const result = await createJob(null, fd);
       if (result && "error" in result) {
+        if ("redirectTo" in result && result.redirectTo) {
+          router.push(result.redirectTo);
+          return;
+        }
         setError(result.error);
         return;
       }

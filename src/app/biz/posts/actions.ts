@@ -108,15 +108,20 @@ const JobUpdateSchema = JobCreateSchema.extend({
 
 /**
  * Compute decimal hours between two HH:MM strings.
- * Same-day only — overnight (end <= start) returns 0 (caller rejects).
+ * Overnight shifts (end <= start) are treated as next-day end.
+ * Example: start=22:00, end=06:00 => 8 hours.
+ * Returns 0 only when start === end (0-minute shift).
  */
 function computeWorkHours(startTime: string, endTime: string): number {
   const [sh, sm] = startTime.split(":").map(Number);
   const [eh, em] = endTime.split(":").map(Number);
   const startMinutes = sh * 60 + sm;
   const endMinutes = eh * 60 + em;
-  if (endMinutes <= startMinutes) return 0;
-  return Math.round(((endMinutes - startMinutes) / 60) * 100) / 100;
+  const diff = endMinutes <= startMinutes
+    ? (24 * 60 - startMinutes) + endMinutes
+    : endMinutes - startMinutes;
+  if (diff <= 0) return 0;
+  return Math.round((diff / 60) * 100) / 100;
 }
 
 function extractArrayField(formData: FormData, name: string): string[] {
@@ -199,8 +204,8 @@ export async function createJob(
   const workHours = computeWorkHours(d.startTime, d.endTime);
   if (workHours <= 0) {
     return {
-      error: "종료 시간이 시작 시간보다 늦어야 합니다",
-      fieldErrors: { endTime: "종료 시간이 시작 시간보다 늦어야 합니다" },
+      error: "근무 시간이 0시간입니다. 시간을 확인해주세요",
+      fieldErrors: { endTime: "근무 시간이 0시간입니다. 시간을 확인해주세요" },
     };
   }
 
@@ -342,8 +347,8 @@ export async function updateJob(
   const workHours = computeWorkHours(d.startTime, d.endTime);
   if (workHours <= 0) {
     return {
-      error: "종료 시간이 시작 시간보다 늦어야 합니다",
-      fieldErrors: { endTime: "종료 시간이 시작 시간보다 늦어야 합니다" },
+      error: "근무 시간이 0시간입니다. 시간을 확인해주세요",
+      fieldErrors: { endTime: "근무 시간이 0시간입니다. 시간을 확인해주세요" },
     };
   }
 
