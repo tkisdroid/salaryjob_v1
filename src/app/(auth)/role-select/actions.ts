@@ -21,11 +21,34 @@ export async function selectRole(formData: FormData): Promise<void> {
     redirect('/auth/error?reason=invalid_role')
   }
 
-  // Update Prisma row (public.users)
-  await prisma.user.update({
+  // Update Prisma row (public.users) — upsert guards social/magic-link users
+  // who bypass signUpWithPassword and may not have a prisma row yet (BUG-W12)
+  await prisma.user.upsert({
     where: { id: session.id },
-    data: { role: parsed.data },
+    create: {
+      id: session.id,
+      email: null,
+      role: parsed.data,
+    },
+    update: { role: parsed.data },
   })
+
+  // BUG-W12: Ensure profile exists for social/magic-link users who skip signUpWithPassword
+  if (parsed.data === 'WORKER' || parsed.data === 'BOTH') {
+    const existingProfile = await prisma.workerProfile.findUnique({
+      where: { userId: session.id },
+      select: { id: true },
+    })
+    if (!existingProfile) {
+      await prisma.workerProfile.create({
+        data: {
+          userId: session.id,
+          name: '사용자',
+          preferredCategories: [],
+        },
+      })
+    }
+  }
 
   // Also update app_metadata so JWT claim sees role in proxy.ts optimistic check
   // NOTE: only service_role key can update app_metadata.

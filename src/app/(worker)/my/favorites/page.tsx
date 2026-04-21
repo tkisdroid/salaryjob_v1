@@ -23,16 +23,16 @@ export default function WorkerFavoritesPage() {
             <Heart className="h-6 w-6 text-brand-deep" />
           </div>
           <p className="text-[14px] font-medium leading-relaxed text-muted-foreground">
-            저장한 공고 목록 UI는 준비 중입니다.
+            관심 있는 공고를 저장하는 기능은
             <br />
-            지금은 공고 탐색 화면으로 바로 이동할 수 있습니다.
+            다음 업데이트에서 만나볼 수 있어요.
           </p>
           <Link
-            href="/search"
+            href="/home"
             className="mt-5 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-[13px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark"
           >
             <Search className="h-4 w-4" />
-            공고 탐색하기
+            공고 둘러보기
           </Link>
         </div>
       </div>
