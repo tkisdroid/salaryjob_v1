@@ -152,13 +152,15 @@ Plans:
 
 ### Phase 12: Business Flow 기능 수정 — Codex 감사 13건 (야간검증/리다이렉트/CRUD/결제/설정)
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Business 역할의 기능적 버그 13건(야간 시간 검증, verify_required 리다이렉트, 공고 수정 CRUD, 삭제 피드백, 지원자 취소, 채팅 연동, QR 상태 가드, 리뷰 상태 게이트, 정산 안내, 설정 페이지, 워커 제안, 워커 필터링)을 수정하여 Business 플로우가 기능적으로 올바르게 동작한다.
+**Requirements**: BUG-B01, BUG-B02, BUG-B03, BUG-B04, BUG-B05, BUG-B06, BUG-B07, BUG-B08, BUG-B09, BUG-B10, BUG-B11, BUG-B12, BUG-B13
 **Depends on:** Phase 11
-**Plans:** 0 plans
+**Plans:** 3 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 12 to break down)
+- [ ] 12-01-PLAN.md — Night-shift validation fix, verify_required redirect, job edit page (BUG-B01, B02, B03)
+- [ ] 12-02-PLAN.md — Delete feedback, confirmed cancel, chat+push on accept, QR guards, QR error messages (BUG-B04, B05, B06, B07, B08)
+- [ ] 12-03-PLAN.md — Review status gate, settlement info, settings messaging, offer feedback, worker filtering (BUG-B09, B10, B11, B12, B13)
 
 ### Phase 13: Admin + 공통 수정 — Codex 감사 10건 (메뉴확장/타입정리/에러핸들링/레거시정리)
 
