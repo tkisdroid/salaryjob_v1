@@ -21,36 +21,33 @@ export type ApplyResult =
 /**
  * APPL-01: 원탭 지원 — atomic, concurrency-safe.
  *
+ * BUG-W02 fix: filled is no longer incremented at apply time.
+ * The increment happens in acceptApplication (biz side) when the business
+ * confirms the worker. This matches the intended Timee-style pending→confirmed flow.
+ *
  * Flow inside a single `prisma.$transaction`:
  *
- *   Step 1 — atomic seat reservation
- *     UPDATE jobs SET filled = filled + 1,
- *                     status = CASE WHEN filled+1 >= headcount THEN 'filled' ELSE status END
+ *   Step 1 — capacity check via SELECT FOR UPDATE (no side effects)
+ *     SELECT id FROM jobs
  *     WHERE id = $jobId AND filled < headcount AND status = 'active'
- *     RETURNING id
+ *     FOR UPDATE
  *     → 0 rows → throw ApplicationError('job_full')  (seat not available)
  *
  *   Step 2 — idempotent application insert
  *     INSERT INTO applications (..., status='pending') ON CONFLICT (jobId, workerId) DO NOTHING
  *     RETURNING id
  *     → 0 rows → throw ApplicationError('already_applied')
- *       The throw rolls back the Step 1 increment so the seat is released —
- *       this compensation is the whole reason Step 2 lives in the same
- *       transaction instead of being a separate round-trip.
  *
- * Why raw SQL: Prisma Client cannot express the conditional CASE-on-UPDATE
- * with RETURNING, nor ON CONFLICT DO NOTHING with RETURNING. Raw SQL is the
- * only path that gives both atomicity and explicit conflict semantics in a
- * single statement per step.
+ * Why raw SQL: Prisma Client cannot express FOR UPDATE lock, nor
+ * ON CONFLICT DO NOTHING with RETURNING. Raw SQL is the only path that
+ * gives both atomicity and explicit conflict semantics in a single statement.
  *
  * Threat T-04-17 (jobId tampering) is mitigated by Zod UUID validation plus
  * `Prisma.sql` parameter binding — the jobId never touches the SQL string.
  *
  * Threat T-04-19 (headcount race) is mitigated by the `filled < headcount`
- * guard inside the UPDATE — Postgres row-level locking serializes concurrent
- * UPDATEs on the same row, so exactly `headcount` updates succeed and the
- * rest fall through with zero rows affected. Verified by
- * tests/applications/apply-race.test.ts.
+ * guard inside the SELECT FOR UPDATE — Postgres row-level locking serializes
+ * concurrent transactions on the same row.
  */
 export async function applyOneTap(
   input: ApplyOneTapInput,
@@ -64,23 +61,19 @@ export async function applyOneTap(
 
   try {
     const applicationId = await prisma.$transaction(async (tx) => {
-      // Step 1 — atomic capacity check + increment + auto-fill transition.
-      const seatRows = await tx.$queryRaw<
-        { id: string; filled: number; headcount: number; status: string }[]
-      >(Prisma.sql`
-        UPDATE public.jobs
-        SET filled = filled + 1,
-            status = CASE WHEN filled + 1 >= headcount THEN 'filled' ELSE status END,
-            "updatedAt" = now()
+      // Step 1 — capacity check via SELECT FOR UPDATE (no side effects).
+      // Locks the jobs row so concurrent applies cannot race past the headcount.
+      const seatRows = await tx.$queryRaw<{ id: string }[]>(Prisma.sql`
+        SELECT id
+        FROM public.jobs
         WHERE id = ${jobId}::uuid
           AND filled < headcount
           AND status = 'active'
-        RETURNING id, filled, headcount, status
+        FOR UPDATE
       `);
       if (seatRows.length === 0) {
         // Either the job is full, not active, expired, or the id doesn't exist.
-        // We collapse all of these to 'job_full' here — the Biz-side accept
-        // path will never see this because accept doesn't go through applyOneTap.
+        // We collapse all of these to 'job_full' here.
         throw new ApplicationError("job_full");
       }
 
@@ -92,8 +85,6 @@ export async function applyOneTap(
         RETURNING id
       `);
       if (appRows.length === 0) {
-        // Compensating throw: rolls back the Step 1 filled++ so the seat is
-        // released back to the pool for the next applicant.
         throw new ApplicationError("already_applied");
       }
 

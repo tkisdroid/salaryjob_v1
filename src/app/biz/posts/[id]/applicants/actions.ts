@@ -78,9 +78,29 @@ export async function acceptApplication(
       throw new ApplicationError("invalid_state");
     }
 
-    await prisma.application.update({
-      where: { id: applicationId },
-      data: { status: "confirmed" },
+    await prisma.$transaction(async (tx) => {
+      await tx.application.update({
+        where: { id: applicationId },
+        data: { status: "confirmed" },
+      });
+
+      // BUG-W02 fix: increment filled only at accept time, not apply time.
+      // If the job is already at capacity (race), we still confirm the app
+      // but skip the increment and log a warning.
+      const updated = await tx.$queryRaw<{ id: string }[]>(Prisma.sql`
+        UPDATE public.jobs
+        SET filled = filled + 1,
+            status = CASE WHEN filled + 1 >= headcount THEN 'filled' ELSE status END,
+            "updatedAt" = now()
+        WHERE id = ${app.jobId}::uuid
+          AND filled < headcount
+        RETURNING id
+      `);
+      if (updated.length === 0) {
+        console.warn(
+          `[acceptApplication] job ${app.jobId} already at capacity, skipping filled increment`,
+        );
+      }
     });
 
     safeRevalidate(`/biz/posts/${app.jobId}/applicants`);

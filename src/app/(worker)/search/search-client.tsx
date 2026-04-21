@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   ChevronLeft,
   Search as SearchIcon,
@@ -52,10 +52,6 @@ const CATEGORIES: Array<"all" | JobCategory> = [
   "tech",
 ];
 
-function isJobCategory(value: string | null): value is JobCategory {
-  return value !== null && CATEGORIES.includes(value as "all" | JobCategory) && value !== "all";
-}
-
 const PAY_TIERS = [
   { label: "전체", value: 0 },
   { label: "1만원 이상", value: 10000 },
@@ -75,35 +71,74 @@ function formatDate(iso: string): string {
   });
 }
 
-export function SearchClient({ jobs }: { jobs: SearchJob[] }) {
-  const params = useSearchParams();
-  const initialUrgent = params.get("urgent") === "1";
-  const categoryParam = params.get("category");
-  const initialCategory: "all" | JobCategory = isJobCategory(categoryParam)
-    ? categoryParam
-    : "all";
-  const initialQuery = params.get("q") ?? params.get("tag") ?? "";
+type Props = {
+  jobs: SearchJob[];
+  nextCursor: string | null;
+  initialCategory: "all" | JobCategory;
+  initialQuery: string;
+  initialUrgent: boolean;
+  initialMinPay: number;
+};
+
+export function SearchClient({
+  jobs,
+  initialCategory,
+  initialQuery,
+  initialUrgent,
+  initialMinPay,
+}: Props) {
+  const router = useRouter();
 
   const [query, setQuery] = useState(initialQuery);
   const [category, setCategory] = useState<"all" | JobCategory>(initialCategory);
-  const [minPay, setMinPay] = useState(0);
+  const [minPay, setMinPay] = useState(initialMinPay);
   const [urgentOnly, setUrgentOnly] = useState(initialUrgent);
 
-  const filtered = useMemo(() => {
-    return jobs.filter((job) => {
-      if (category !== "all" && job.category !== category) return false;
-      if (job.hourlyPay < minPay) return false;
-      if (urgentOnly && !job.isUrgent) return false;
-      if (query.length === 0) return true;
-      const q = query.toLowerCase();
-      return (
-        job.title.toLowerCase().includes(q) ||
-        job.businessName.toLowerCase().includes(q) ||
-        job.address.toLowerCase().includes(q) ||
-        job.tags.some((t) => t.toLowerCase().includes(q))
-      );
-    });
-  }, [jobs, query, category, minPay, urgentOnly]);
+  // Server already filtered by category, minPay, and urgentOnly.
+  // Text search is kept as instant client-side refinement on the pre-filtered set.
+  const filtered = query.trim()
+    ? jobs.filter((job) => {
+        const q = query.trim().toLowerCase();
+        return (
+          job.title.toLowerCase().includes(q) ||
+          job.businessName.toLowerCase().includes(q) ||
+          job.address.toLowerCase().includes(q) ||
+          job.tags.some((t) => t.toLowerCase().includes(q))
+        );
+      })
+    : jobs;
+
+  function applyFilters(
+    overrides: Partial<{
+      category: string;
+      q: string;
+      urgent: string;
+      minPay: string;
+    }>,
+  ) {
+    const p = new URLSearchParams();
+    const cat =
+      overrides.category !== undefined
+        ? overrides.category
+        : category === "all"
+          ? ""
+          : category;
+    const qVal = overrides.q !== undefined ? overrides.q : query;
+    const urg =
+      overrides.urgent !== undefined ? overrides.urgent : urgentOnly ? "1" : "";
+    const pay =
+      overrides.minPay !== undefined
+        ? overrides.minPay
+        : minPay > 0
+          ? String(minPay)
+          : "";
+    if (cat) p.set("category", cat);
+    if (qVal) p.set("q", qVal);
+    if (urg === "1") p.set("urgent", "1");
+    if (pay && pay !== "0") p.set("minPay", pay);
+    const qs = p.toString();
+    router.push(qs ? `/search?${qs}` : "/search");
+  }
 
   return (
     <div className="mx-auto max-w-lg px-5 pt-5 pb-6 sm:px-6">
@@ -129,13 +164,21 @@ export function SearchClient({ jobs }: { jobs: SearchJob[] }) {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              applyFilters({ q: query });
+            }
+          }}
           placeholder="직종·회사명·태그로 검색"
           className="flex-1 bg-transparent text-[13px] font-medium text-ink placeholder:text-text-subtle focus:outline-none"
         />
         {query.length > 0 && (
           <button
             type="button"
-            onClick={() => setQuery("")}
+            onClick={() => {
+              setQuery("");
+              applyFilters({ q: "" });
+            }}
             className="grid h-6 w-6 place-items-center rounded-full text-text-subtle hover:bg-surface-2 hover:text-ink"
             aria-label="검색어 지우기"
           >
@@ -148,7 +191,11 @@ export function SearchClient({ jobs }: { jobs: SearchJob[] }) {
       <div className="mt-3">
         <button
           type="button"
-          onClick={() => setUrgentOnly((v) => !v)}
+          onClick={() => {
+            const newVal = !urgentOnly;
+            setUrgentOnly(newVal);
+            applyFilters({ urgent: newVal ? "1" : "" });
+          }}
           className={cn(
             "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-[12.5px] font-bold tracking-tight leading-none transition-colors",
             urgentOnly
@@ -167,7 +214,11 @@ export function SearchClient({ jobs }: { jobs: SearchJob[] }) {
           <button
             key={cat}
             type="button"
-            onClick={() => setCategory(cat)}
+            onClick={() => {
+              const newCat = cat === category ? "all" : cat;
+              setCategory(newCat);
+              applyFilters({ category: newCat === "all" ? "" : newCat });
+            }}
             className={cn(
               "shrink-0 rounded-full border px-3.5 py-2 text-[12.5px] font-bold leading-none tracking-tight transition-colors",
               category === cat
@@ -186,7 +237,10 @@ export function SearchClient({ jobs }: { jobs: SearchJob[] }) {
           <button
             key={opt.label}
             type="button"
-            onClick={() => setMinPay(opt.value)}
+            onClick={() => {
+              setMinPay(opt.value);
+              applyFilters({ minPay: opt.value > 0 ? String(opt.value) : "" });
+            }}
             className={cn(
               "shrink-0 rounded-full border px-3.5 py-2 text-[12.5px] font-bold leading-none tracking-tight transition-colors",
               minPay === opt.value
@@ -223,6 +277,7 @@ export function SearchClient({ jobs }: { jobs: SearchJob[] }) {
               setCategory("all");
               setMinPay(0);
               setUrgentOnly(false);
+              router.push("/search");
             }}
           >
             필터 초기화
