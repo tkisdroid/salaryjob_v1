@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: milestone
 status: executing
-last_updated: "2026-04-15T12:37:59.847Z"
-last_activity: 2026-04-15 -- Phase 07 execution started
+last_updated: "2026-04-21T13:35:05.255Z"
+last_activity: 2026-04-21
 progress:
-  total_phases: 4
+  total_phases: 8
   completed_phases: 0
-  total_plans: 2
-  completed_plans: 0
+  total_plans: 6
+  completed_plans: 2
   percent: 0
 ---
 
@@ -20,15 +20,15 @@ progress:
 ## Project Reference
 
 - **Core value:** 이력서·면접 제로. 탭 하나로 확정, 근무 후 즉시 정산.
-- **Current focus:** Phase 07 — db-migration-apply-infra-foundation
+- **Current focus:** Phase 11 — worker-flow-codex-12-filled
 - **Exit criterion for current milestone:** 실 사용자 관점 "탐색→지원→확정→근무→리뷰→정산" 플로우가 브라우저에서 1분 이내 완료 + 13 HUMAN-UAT 시나리오 PASS(또는 MOCK-LOG 기록) + UI/UX QA 체크리스트 0 critical/high 이슈
 
 ## Current Position
 
-Phase: 07 (db-migration-apply-infra-foundation) — EXECUTING
-Plan: 1 of 2
-Status: Executing Phase 07
-Last activity: 2026-04-15 -- Phase 07 execution started
+Phase: 11 (worker-flow-codex-12-filled) — EXECUTING
+Plan: 2 of 4
+Status: Ready to execute
+Last activity: 2026-04-21
 Progress: 0/4 phases complete (0%)
 
 ## Phase Progress
@@ -81,9 +81,13 @@ Progress: 0/4 phases complete (0%)
 | D-33: OCR failure never blocks user — regNumberOcrMismatched flag for admin review | Early operations expect false-positives; graceful degradation > hard rejection | 2026-04-13 (Phase 6 Plan 08) |
 | v1.1 MOCK 정책: 외부 키 없는 시나리오는 MOCK-LOG 기록 후 v1.2/v2 이월 | 외부 의존성이 v1.1 close를 차단하지 않도록 함. 재검증 단계는 추적 가능하게 기록 | 2026-04-15 (v1.1 kickoff) |
 | v1.1 Phase 번호 7부터 시작 (1–6은 v1.0 histoircal) | `/gsd-new-milestone --reset-phase-numbers` 미사용. 연속 번호로 이력 선형성 유지 | 2026-04-15 (v1.1 kickoff) |
+| Phase 11-worker-flow-codex-12-filled P02 | 8 | 2 tasks | 3 files |
 
 ### Roadmap Evolution
 
+- 2026-04-21: Phase 11 added: Worker Flow 기능 수정 — Codex 감사 12건 (지원상태/filled/정산/검색/데드버튼)
+- 2026-04-21: Phase 12 added: Business Flow 기능 수정 — Codex 감사 13건 (야간검증/리다이렉트/CRUD/결제/설정)
+- 2026-04-21: Phase 13 added: Admin + 공통 수정 — Codex 감사 10건 (메뉴확장/타입정리/에러핸들링/레거시정리)
 - 2026-04-15: Phase 07.1 inserted after Phase 7: Automated Review Harness & Zero-Error Gate (URGENT) — 자가 완결 QA 하네스 (로컬 Supabase 스택 + Playwright + a11y/perf 게이트 + auto-fix 루프)
 - 2026-04-15: v1.1 ROADMAP 생성 — 4 phases (7–10) × 20 REQ-IDs (MIG×4, INFRA×3, UAT×5, QA×5, LEG×3). Phase 7 = DB migration + infra, Phase 8 = HUMAN-UAT, Phase 9 = UI/UX sweep, Phase 10 = legacy cleanup.
 - 2026-04-13: Phase 6 Plan 02 completed — Schema + Storage migration 9 columns + private bucket + RLS + 2 indexes (v1.0)
