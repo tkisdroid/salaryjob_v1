@@ -27,6 +27,7 @@ type UpdateCommissionResult =
   | { error: string; fieldErrors?: Record<string, string[]> };
 
 export async function updateCommissionRate(
+  _prevState: UpdateCommissionResult | null,
   formData: FormData,
 ): Promise<UpdateCommissionResult> {
   // T-06-12: ADMIN role required
