@@ -104,8 +104,18 @@ Plans:
 | LEG-01 | Phase 10 | Legacy Cleanup |
 | LEG-02 | Phase 10 | Legacy Cleanup |
 | LEG-03 | Phase 10 | Legacy Cleanup |
+| BUG-A01 | Phase 13 | Admin Bug Fix |
+| BUG-A02 | Phase 13 | Admin Bug Fix |
+| BUG-A03 | Phase 13 | Admin Bug Fix |
+| BUG-A04 | Phase 13 | Admin Bug Fix |
+| BUG-A05 | Phase 13 | Admin Bug Fix |
+| BUG-C01 | Phase 13 | Code Quality |
+| BUG-C02 | Phase 13 | Code Quality |
+| BUG-C03 | Phase 13 | Code Quality |
+| BUG-C04 | Phase 13 | Code Quality |
+| BUG-C05 | Phase 13 | Code Quality |
 
-**Total mapped:** 20/20 (100%)
+**Total mapped:** 30/30 (100%)
 **Orphaned:** 0
 **Duplicates:** 0
 
@@ -117,6 +127,9 @@ Plans:
 | 8. HUMAN-UAT Execution | 0/TBD | Not started | — |
 | 9. UI/UX Full Sweep | 0/TBD | Not started | — |
 | 10. Legacy Cleanup & Milestone Close | 0/TBD | Not started | — |
+| 11. Worker Flow Codex 12 | 4/4 | Complete | 2026-04-21 |
+| 12. Business Flow Codex 13 | 3/3 | Complete | 2026-04-21 |
+| 13. Admin + Common Codex 10 | 0/2 | Planning complete | — |
 
 ## Phase Dependency Graph
 
@@ -124,6 +137,8 @@ Plans:
 Phase 7 (DB + Infra) ─┬─> Phase 8 (HUMAN-UAT)
                       ├─> Phase 9 (UI/UX Sweep)
                       └─> Phase 10 (Legacy Cleanup)
+
+Phase 10 ──> Phase 11 (Worker Codex) ──> Phase 12 (Biz Codex) ──> Phase 13 (Admin+Common Codex)
 ```
 
 Phase 7은 hard prerequisite. Phase 8/9/10은 Phase 7 완료 후 실제로는 병렬 가능하나, 단일 개발자 컨텍스트에서 순차 권장 (8 → 9 → 10). Phase 10은 cleanup 후 회귀 감지를 위해 UAT/QA 후순위에 두는 것이 안전.
@@ -164,13 +179,14 @@ Plans:
 
 ### Phase 13: Admin + 공통 수정 — Codex 감사 10건 (메뉴확장/타입정리/에러핸들링/레거시정리)
 
-**Goal:** [To be planned]
-**Requirements**: TBD
+**Goal:** Admin 역할의 기능 확장(사이드바/대시보드/수수료 피드백/인증 승인·반려/정산 조회)과 코드베이스 공통 품질 수정(any 타입 제거, 인증 에러 전파, env 검증, 레거시 파일 정리, 에러 로깅)을 완료하여 Admin 운영 역량과 코드 건전성을 확보한다.
+**Requirements**: BUG-A01, BUG-A02, BUG-A03, BUG-A04, BUG-A05, BUG-C01, BUG-C02, BUG-C03, BUG-C04, BUG-C05
 **Depends on:** Phase 12
-**Plans:** 0 plans
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd:plan-phase 13 to break down)
+- [ ] 13-01-PLAN.md — Admin feature expansion: sidebar menus, dashboard stats, settlements page, commission feedback, verify approve/reject (BUG-A01, A02, A03, A04, A05)
+- [ ] 13-02-PLAN.md — Code quality: any type removal, auth error propagation, env validation, legacy cleanup, error logging (BUG-C01, C02, C03, C04, C05)
 
 ---
 
