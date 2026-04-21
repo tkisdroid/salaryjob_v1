@@ -10,6 +10,7 @@ export type AuthFormState =
         form?: string[]
         email?: string[]
         password?: string[]
+        confirmPassword?: string[]
         name?: string[]
         businessName?: string[]
         businessCategory?: string[]

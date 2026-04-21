@@ -36,6 +36,7 @@ const SignupSchema = z
       .max(72, "비밀번호는 72자 이하이어야 합니다.")
       .regex(/[A-Za-z]/, PASSWORD_RULE_MESSAGE)
       .regex(/\d/, PASSWORD_RULE_MESSAGE),
+    confirmPassword: z.string().optional(),
     role: z.enum(["WORKER", "BUSINESS"]).default("WORKER"),
     name: z.string().trim().max(50, "이름은 50자 이하이어야 합니다.").optional(),
     businessName: z
@@ -60,6 +61,14 @@ const SignupSchema = z
           data.role === "BUSINESS"
             ? "담당자 이름을 입력해 주세요."
             : "이름을 입력해 주세요.",
+      });
+    }
+
+    if (data.confirmPassword !== undefined && data.confirmPassword !== data.password) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["confirmPassword"],
+        message: "비밀번호가 일치하지 않습니다.",
       });
     }
 
@@ -245,6 +254,7 @@ export async function signUpWithPassword(
   const parsed = SignupSchema.safeParse({
     email: formData.get("email"),
     password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword") ?? undefined,
     role: formData.get("role") ?? "WORKER",
     name: formData.get("name"),
     businessName: formData.get("businessName") ?? undefined,

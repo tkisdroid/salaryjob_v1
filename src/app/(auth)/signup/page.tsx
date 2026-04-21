@@ -8,6 +8,8 @@ import {
   ArrowRight,
   Briefcase,
   Check,
+  Eye,
+  EyeOff,
   Lock,
   Mail,
   MapPin,
@@ -17,7 +19,6 @@ import {
 import {
   signInWithGoogle,
   signInWithKakao,
-  signInWithMagicLink,
   signUpWithPassword,
 } from "./actions";
 import { CeleryMark } from "@/components/brand/celery-mark";
@@ -59,6 +60,25 @@ function FieldError({ messages }: { messages?: string[] }) {
       {messages[0]}
     </p>
   );
+}
+
+/**
+ * Stop Enter inside a regular text/email/password input from submitting the
+ * form mid-way through. Without this, pressing Enter in (for example) the
+ * business-address field runs the server action against half-filled data,
+ * the action returns Zod errors, and the useActionState re-render path can
+ * drop the uncontrolled DOM values — users see everything they typed vanish.
+ * Submit buttons and textareas are left to their default behavior, and IME
+ * composition still commits characters because IME handling is separate
+ * from form submission.
+ */
+function preventEnterSubmit(e: React.KeyboardEvent<HTMLFormElement>) {
+  if (e.key !== "Enter") return;
+  if (e.nativeEvent.isComposing) return;
+  const target = e.target as HTMLElement;
+  if (target.tagName === "TEXTAREA") return;
+  if (target instanceof HTMLButtonElement && target.type === "submit") return;
+  e.preventDefault();
 }
 
 function KakaoGlyph() {
@@ -207,10 +227,12 @@ function TermsText() {
 
 function WorkerSignupForm({ onBack }: { onBack: () => void }) {
   const [state, formAction, pending] = useActionState(signUpWithPassword, null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   return (
     <div className="w-full">
-      <AuthHeader title="회원가입" subtitle="2분이면 시작할 수 있어요." size="sm" />
+      <AuthHeader title="회원가입" subtitle="1분이면 시작할 수 있어요." size="sm" />
 
       <div className={FRAME}>
         <button
@@ -228,7 +250,7 @@ function WorkerSignupForm({ onBack }: { onBack: () => void }) {
           </div>
           <div>
             <h2 className="text-[16.5px] font-extrabold tracking-[-0.02em] text-ink">
-              워커 계정 만들기
+              계정 만들기
             </h2>
             <p className="mt-0.5 text-[12.5px] font-medium text-muted-foreground">
               이름, 이메일, 비밀번호만 입력하면 바로 시작합니다.
@@ -249,7 +271,12 @@ function WorkerSignupForm({ onBack }: { onBack: () => void }) {
           </div>
         </div>
 
-        <form action={formAction} className="space-y-4" noValidate>
+        <form
+          action={formAction}
+          className="space-y-4"
+          noValidate
+          onKeyDown={preventEnterSubmit}
+        >
           <input type="hidden" name="role" value="WORKER" />
 
           <div>
@@ -297,12 +324,24 @@ function WorkerSignupForm({ onBack }: { onBack: () => void }) {
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder="영문+숫자 8자 이상"
                 aria-describedby="worker-password-help"
-                className={cn(INPUT, "pl-10")}
+                className={cn(INPUT, "pl-10 pr-11")}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+                className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-text-subtle transition-colors hover:bg-surface-2 hover:text-ink"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
             </div>
             <p
               id="worker-password-help"
@@ -313,34 +352,42 @@ function WorkerSignupForm({ onBack }: { onBack: () => void }) {
             <FieldError messages={state?.error?.password} />
           </div>
 
+          <div>
+            <label htmlFor="confirm-password" className={LABEL}>
+              비밀번호 확인
+            </label>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+              <input
+                id="confirm-password"
+                name="confirmPassword"
+                type={showConfirm ? "text" : "password"}
+                autoComplete="new-password"
+                placeholder="비밀번호를 한 번 더 입력해 주세요"
+                className={cn(INPUT, "pl-10 pr-11")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm((v) => !v)}
+                aria-label={showConfirm ? "비밀번호 숨기기" : "비밀번호 보기"}
+                className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-text-subtle transition-colors hover:bg-surface-2 hover:text-ink"
+              >
+                {showConfirm ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            <FieldError messages={state?.error?.confirmPassword} />
+          </div>
+
           <FieldError messages={state?.error?.form} />
 
           <button type="submit" disabled={pending} className={BTN_BRAND}>
             {pending ? "처리 중..." : "가입하기"}
             {!pending && <ArrowRight className="h-4 w-4" />}
           </button>
-        </form>
-
-        <form action={signInWithMagicLink} className="mt-5 space-y-2.5">
-          <p className="text-[11.5px] font-medium text-muted-foreground">
-            비밀번호 없이 이메일 링크로 가입하고 싶다면
-          </p>
-          <div className="flex gap-2">
-            <input
-              name="email"
-              type="email"
-              inputMode="email"
-              placeholder="이메일 주소"
-              className={cn(INPUT, "flex-1")}
-              aria-label="매직 링크 이메일"
-            />
-            <button
-              type="submit"
-              className="inline-flex h-12 shrink-0 items-center justify-center rounded-full border border-border bg-surface px-5 text-[13px] font-extrabold tracking-tight text-ink transition-colors hover:border-ink hover:bg-surface-2"
-            >
-              링크 받기
-            </button>
-          </div>
         </form>
       </div>
 
@@ -351,6 +398,8 @@ function WorkerSignupForm({ onBack }: { onBack: () => void }) {
 
 function BusinessSignupForm({ onBack }: { onBack: () => void }) {
   const [state, formAction, pending] = useActionState(signUpWithPassword, null);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   return (
     <div className="w-full">
@@ -376,7 +425,12 @@ function BusinessSignupForm({ onBack }: { onBack: () => void }) {
           가입 유형 다시 선택
         </button>
 
-        <form action={formAction} className="space-y-4" noValidate>
+        <form
+          action={formAction}
+          className="space-y-4"
+          noValidate
+          onKeyDown={preventEnterSubmit}
+        >
           <input type="hidden" name="role" value="BUSINESS" />
 
           <div>
@@ -501,12 +555,24 @@ function BusinessSignupForm({ onBack }: { onBack: () => void }) {
               <input
                 id="biz-pw"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 placeholder="영문+숫자 8자 이상"
                 aria-describedby="business-password-help"
-                className={cn(INPUT, "pl-10")}
+                className={cn(INPUT, "pl-10 pr-11")}
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 보기"}
+                className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-text-subtle transition-colors hover:bg-surface-2 hover:text-ink"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
             </div>
             <p
               id="business-password-help"
@@ -515,6 +581,36 @@ function BusinessSignupForm({ onBack }: { onBack: () => void }) {
               {PASSWORD_HELP}
             </p>
             <FieldError messages={state?.error?.password} />
+          </div>
+
+          <div>
+            <label htmlFor="biz-confirm-pw" className={LABEL}>
+              비밀번호 확인
+            </label>
+            <div className="relative">
+              <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-text-subtle" />
+              <input
+                id="biz-confirm-pw"
+                name="confirmPassword"
+                type={showConfirm ? "text" : "password"}
+                autoComplete="new-password"
+                placeholder="비밀번호를 한 번 더 입력해 주세요"
+                className={cn(INPUT, "pl-10 pr-11")}
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirm((v) => !v)}
+                aria-label={showConfirm ? "비밀번호 숨기기" : "비밀번호 보기"}
+                className="absolute right-2 top-1/2 grid h-9 w-9 -translate-y-1/2 place-items-center rounded-full text-text-subtle transition-colors hover:bg-surface-2 hover:text-ink"
+              >
+                {showConfirm ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            <FieldError messages={state?.error?.confirmPassword} />
           </div>
 
           <FieldError messages={state?.error?.form} />
