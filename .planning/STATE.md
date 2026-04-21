@@ -2,34 +2,34 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: milestone
-status: verifying
-last_updated: "2026-04-21T13:38:41.297Z"
+status: executing
+last_updated: "2026-04-21T13:58:52.640Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 8
   completed_phases: 1
-  total_plans: 6
-  completed_plans: 5
+  total_plans: 9
+  completed_plans: 6
   percent: 0
 ---
 
 # State: GigNow (NJob)
 
-**Last updated:** 2026-04-15
+**Last updated:** 2026-04-21
 
 ## Project Reference
 
 - **Core value:** 이력서·면접 제로. 탭 하나로 확정, 근무 후 즉시 정산.
-- **Current focus:** Phase 11 — worker-flow-codex-12-filled
+- **Current focus:** Phase 12 — business-flow-codex-13-crud
 - **Exit criterion for current milestone:** 실 사용자 관점 "탐색→지원→확정→근무→리뷰→정산" 플로우가 브라우저에서 1분 이내 완료 + 13 HUMAN-UAT 시나리오 PASS(또는 MOCK-LOG 기록) + UI/UX QA 체크리스트 0 critical/high 이슈
 
 ## Current Position
 
-Phase: 11 (worker-flow-codex-12-filled) — EXECUTING
-Plan: 4 of 4
-Status: Phase complete — ready for verification
-Last activity: 2026-04-21
-Progress: 0/4 phases complete (0%)
+Phase: 12 (business-flow-codex-13-crud) — EXECUTING
+Plan: 3 of 3 (COMPLETE)
+Status: Phase 12 all plans executed
+Last activity: 2026-04-21 -- Phase 12 Plan 03 complete (BUG-B09/B10/B11a/B12/B13)
+Progress: 6/9 plans complete (67%)
 
 ## Phase Progress
 
@@ -81,10 +81,14 @@ Progress: 0/4 phases complete (0%)
 | D-33: OCR failure never blocks user — regNumberOcrMismatched flag for admin review | Early operations expect false-positives; graceful degradation > hard rejection | 2026-04-13 (Phase 6 Plan 08) |
 | v1.1 MOCK 정책: 외부 키 없는 시나리오는 MOCK-LOG 기록 후 v1.2/v2 이월 | 외부 의존성이 v1.1 close를 차단하지 않도록 함. 재검증 단계는 추적 가능하게 기록 | 2026-04-15 (v1.1 kickoff) |
 | v1.1 Phase 번호 7부터 시작 (1–6은 v1.0 histoircal) | `/gsd-new-milestone --reset-phase-numbers` 미사용. 연속 번호로 이력 선형성 유지 | 2026-04-15 (v1.1 kickoff) |
+| BUG-B09: Review gate widened to completed OR settled | completed is legacy pre-settlement status; both must allow reviews | 2026-04-21 (Phase 12 Plan 03) |
+| BUG-B13: New businesses fall back to all workers (where: {}) | no posted jobs → empty businessCategories → show all workers to avoid empty list | 2026-04-21 (Phase 12 Plan 03) |
+| BUG-B12: workers-client.tsx inline ToastState already reads result.message | no sonner import needed; only action message text updated | 2026-04-21 (Phase 12 Plan 03) |
 | Phase 11-worker-flow-codex-12-filled P02 | 8 | 2 tasks | 3 files |
 | Phase 11 P04 | 5 | 2 tasks | 4 files |
 | Phase 11 P01 | 7m | 2 tasks | 4 files |
 | Phase 11 P03 | 12 | 2 tasks | 7 files |
+| Phase 12-business-flow-codex-13-crud P03 | 8 | 2 tasks | 5 files |
 
 ### Roadmap Evolution
 
