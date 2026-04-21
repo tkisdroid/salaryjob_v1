@@ -244,7 +244,7 @@ export default async function WorkerHomePage({
                 <Link
                   key={job.id}
                   href={`/posts/${job.id}`}
-                  className="w-64 shrink-0 rounded-[22px] border border-border bg-surface p-[18px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-md"
+                  className="flex w-64 shrink-0 flex-col rounded-[22px] border border-border bg-surface p-[18px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-md"
                 >
                   <div className="mb-2 flex items-start gap-3">
                     <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] border border-border-soft bg-surface-2 text-xl">
@@ -274,7 +274,7 @@ export default async function WorkerHomePage({
                       {formatDistance(job.distanceM)}
                     </span>
                   </div>
-                  <div className="mt-[14px] flex items-center justify-between border-t border-dashed border-border pt-3">
+                  <div className="mt-auto flex items-center justify-between border-t border-dashed border-border pt-3">
                     <span className="text-[12px] font-bold text-muted-foreground">
                       시급 {formatMoney(job.hourlyPay)}
                     </span>
