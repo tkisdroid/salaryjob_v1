@@ -100,7 +100,8 @@ export async function runBizLicenseOcr(
     let json: unknown
     try {
       json = await res.json()
-    } catch {
+    } catch (parseErr) {
+      console.error('[ocr] response JSON parse failed:', parseErr instanceof Error ? parseErr.message : parseErr)
       return { ok: false, reason: 'unparseable' }
     }
 

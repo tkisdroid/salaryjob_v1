@@ -109,7 +109,8 @@ export async function createSignedBusinessRegUrl(
 
     if (error || !data) return null
     return data.signedUrl
-  } catch {
+  } catch (err) {
+    console.error('[storage] signed URL creation failed:', err instanceof Error ? err.message : err)
     return null
   }
 }

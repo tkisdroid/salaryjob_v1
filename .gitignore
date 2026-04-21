@@ -60,3 +60,11 @@ next-env.d.ts
 /src/generated/prisma
 
 .vercel
+.gstack/
+
+# Legacy design/prototype files (BUG-C04)
+_design_review/
+src/_legacy/
+salaryjob*.html
+salaryjob*.zip
+salaryjob*_files/

@@ -120,8 +120,9 @@ export async function uploadBusinessRegImage(
     }
     // If result.ok === false → OCR skipped (env missing, timeout, api_error, unparseable)
     // regNumberOcrMismatched stays false — per D-33 no false-positive on OCR failure
-  } catch {
-    // Swallow all OCR errors — D-33: image save is authoritative; OCR is advisory.
+  } catch (err) {
+    // D-33: OCR failure never blocks user — but log for admin observability
+    console.error('[biz-verify] OCR processing failed:', err instanceof Error ? err.message : err)
   }
 
   revalidatePathSafe('/biz/verify')
