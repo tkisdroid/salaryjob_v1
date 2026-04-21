@@ -1,9 +1,17 @@
 "use client";
 
 import { useActionState, useRef } from "react";
+import Link from "next/link";
 import { updateBusinessProfile } from "./actions";
 import { formatRegNumber } from "@/lib/validations/business";
-import { Building2, MapPin, Star } from "lucide-react";
+import {
+  Building2,
+  FileImage,
+  ImageIcon,
+  MapPin,
+  Star,
+  Upload,
+} from "lucide-react";
 import type { ProfileFormState } from "@/lib/form-state";
 
 interface Props {
@@ -20,6 +28,9 @@ interface Props {
   initialBusinessRegNumber?: string | null;
   initialOwnerName?: string | null;
   initialOwnerPhone?: string | null;
+  // 사업자등록증 이미지 상태 (upload flow lives on /biz/verify)
+  hasBusinessRegImage?: boolean;
+  businessRegImageSignedUrl?: string | null;
   // Read-only BIZ-02 display fields — NOT in form, NOT in FormData
   rating: number;
   reviewCount: number;
@@ -292,6 +303,56 @@ export function BizProfileEditForm(props: Props) {
           {err?.fieldErrors?.ownerPhone && (
             <p className={ERROR_P}>{err.fieldErrors.ownerPhone}</p>
           )}
+        </div>
+
+        <div className="border-t border-border-soft pt-4">
+          <div className="mb-3 flex items-center gap-1.5">
+            <FileImage className="h-3.5 w-3.5 text-text-subtle" />
+            <span className={LABEL.replace("mb-1.5 block", "")}>
+              사업자등록증 이미지
+            </span>
+          </div>
+
+          {props.hasBusinessRegImage && props.businessRegImageSignedUrl ? (
+            <div className="mb-3 flex items-start gap-3 rounded-[14px] border border-border-soft bg-surface p-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={props.businessRegImageSignedUrl}
+                alt="업로드된 사업자등록증"
+                className="h-20 w-20 shrink-0 rounded-[10px] border border-border-soft bg-surface-2 object-cover"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="text-[12.5px] font-extrabold tracking-tight text-ink">
+                  업로드 완료
+                </p>
+                <p className="mt-1 text-[11.5px] font-medium leading-relaxed text-muted-foreground">
+                  다시 업로드하려면 아래 버튼을 눌러 주세요.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="mb-3 flex items-center gap-3 rounded-[14px] border-2 border-dashed border-border bg-surface p-4">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-surface-2 text-muted-foreground">
+                <ImageIcon className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[12.5px] font-extrabold tracking-tight text-ink">
+                  아직 업로드되지 않았습니다
+                </p>
+                <p className="mt-0.5 text-[11.5px] font-medium text-muted-foreground">
+                  등록증 이미지를 올리면 OCR로 자동 인증됩니다.
+                </p>
+              </div>
+            </div>
+          )}
+
+          <Link
+            href={`/biz/verify?businessId=${props.profileId}`}
+            className="inline-flex h-11 w-full items-center justify-center gap-1.5 rounded-full border border-border bg-surface text-[12.5px] font-extrabold tracking-tight text-ink transition-colors hover:border-ink hover:bg-surface-2"
+          >
+            <Upload className="h-3.5 w-3.5" />
+            {props.hasBusinessRegImage ? "재업로드" : "등록증 업로드"}
+          </Link>
         </div>
       </section>
 

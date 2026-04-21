@@ -2,11 +2,22 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { requireBusiness } from "@/lib/dal";
 import { getBusinessProfilesByUserId } from "@/lib/db/queries";
+import { createSignedBusinessRegUrl } from "@/lib/supabase/storage-biz-reg";
 import { BizProfileEditForm } from "./biz-profile-edit-form";
 
 export default async function BizProfilePage() {
   const session = await requireBusiness();
   const profiles = await getBusinessProfilesByUserId(session.id);
+
+  // Resolve signed URLs in parallel so the edit form can render the current
+  // 사업자등록증 thumbnail alongside the upload CTA.
+  const regImageSignedUrls = await Promise.all(
+    profiles.map((p) =>
+      p.businessRegImageUrl
+        ? createSignedBusinessRegUrl(p.businessRegImageUrl)
+        : Promise.resolve(null),
+    ),
+  );
 
   if (profiles.length === 0) {
     return (
@@ -57,7 +68,7 @@ export default async function BizProfilePage() {
       </div>
 
       <div className="mt-6 space-y-6">
-        {profiles.map((profile) => (
+        {profiles.map((profile, index) => (
           <section
             key={profile.id}
             className="rounded-[22px] border border-border-soft bg-surface p-5"
@@ -76,6 +87,8 @@ export default async function BizProfilePage() {
               initialBusinessRegNumber={profile.businessRegNumber ?? null}
               initialOwnerName={profile.ownerName ?? null}
               initialOwnerPhone={profile.ownerPhone ?? null}
+              hasBusinessRegImage={Boolean(profile.businessRegImageUrl)}
+              businessRegImageSignedUrl={regImageSignedUrls[index] ?? null}
               rating={Number(profile.rating)}
               reviewCount={profile.reviewCount}
               completionRate={profile.completionRate}

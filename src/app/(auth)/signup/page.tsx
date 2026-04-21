@@ -522,7 +522,7 @@ function BusinessSignupForm({ onBack }: { onBack: () => void }) {
               className={cn(INPUT, "tabnum")}
             />
             <p className="mt-1.5 text-[11.5px] font-semibold text-muted-foreground">
-              등록증 업로드 후 OCR 정보가 일치하면 인증 완료로 표시됩니다.
+              사업자등록증은 가입 후 사업장 프로필 설정에서 업로드해 주세요.
             </p>
             <FieldError messages={state?.error?.businessRegNumber} />
           </div>
