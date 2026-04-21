@@ -3,7 +3,11 @@ import "server-only";
 
 import { createHash, randomInt } from "node:crypto";
 import { prisma } from "@/lib/db";
-import { sendAligoSms, isAligoConfigured } from "@/lib/sms/aligo";
+import {
+  sendAligoSms,
+  isAligoConfigured,
+  isAligoTestmode,
+} from "@/lib/sms/aligo";
 
 /**
  * SMS OTP service for 대표자 연락처 verification.
@@ -115,6 +119,17 @@ export async function requestOwnerPhoneOtp(
       expiresAt,
     },
   });
+
+  // DEV ONLY: Aligo testmode means no real SMS was dispatched, so the
+  // developer has no other way to see the code. isAligoTestmode() is
+  // hard-wired false when NODE_ENV=production, so this cannot fire in
+  // a deployed build. Remove ALIGO_TESTMODE from the environment (or set
+  // it to "off") to also silence the log in local runs hitting real Aligo.
+  if (isAligoTestmode()) {
+    console.info(
+      `[owner-phone-otp][testmode] profile=${businessProfileId} phone=${phone} code=${code}`,
+    );
+  }
 
   return { ok: true };
 }

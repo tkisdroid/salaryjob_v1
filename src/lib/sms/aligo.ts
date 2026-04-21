@@ -48,6 +48,21 @@ export function isAligoConfigured(): boolean {
   return getAligoEnv() !== null;
 }
 
+/**
+ * True when sendAligoSms() will call Aligo with testmode_yn=Y — i.e. Aligo
+ * will respond success without actually dispatching SMS (and without
+ * billing). Used by dev helpers to decide whether it is safe to echo the
+ * OTP plaintext to the server log for local verification.
+ *
+ * Production (NODE_ENV=production) always returns false. ALIGO_TESTMODE=off
+ * also forces false to let staging exercise real delivery.
+ */
+export function isAligoTestmode(): boolean {
+  if (process.env.NODE_ENV === "production") return false;
+  if (process.env.ALIGO_TESTMODE === "off") return false;
+  return true;
+}
+
 function normalizePhone(raw: string): string {
   return raw.replace(/[^0-9]/g, "");
 }
