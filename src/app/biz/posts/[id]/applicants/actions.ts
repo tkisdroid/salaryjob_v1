@@ -13,6 +13,7 @@ import {
   ApplicationError,
   type ApplicationErrorCode,
 } from "@/lib/errors/application-errors";
+import { ensureThreadForApplication } from "@/lib/services/chat";
 
 export type BizActionResult =
   | { success: true }
@@ -122,6 +123,17 @@ export async function acceptApplication(
     } catch (pushErr) {
       console.error("[acceptApplication] push notify failed", pushErr);
     }
+
+    // BUG-B06: Ensure a chat thread exists between the accepted worker and business.
+    // Fire-and-forget: chat failure should not block the accept flow.
+    try {
+      await ensureThreadForApplication(applicationId);
+    } catch (chatErr) {
+      console.error("[acceptApplication] chat thread creation failed", chatErr);
+    }
+
+    safeRevalidate("/messages");
+    safeRevalidate("/biz/messages");
 
     return { success: true };
   } catch (e) {

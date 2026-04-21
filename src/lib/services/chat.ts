@@ -45,7 +45,7 @@ function legacyAliasIndex(value: string) {
   return Number.isSafeInteger(index) && index >= 0 ? index : null;
 }
 
-async function ensureThreadForApplication(applicationId: string) {
+export async function ensureThreadForApplication(applicationId: string) {
   const application = await prisma.application.findUnique({
     where: { id: applicationId },
     include: { job: { include: { business: true } }, worker: { include: { workerProfile: true } } },

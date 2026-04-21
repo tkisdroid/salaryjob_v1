@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { requireJobOwner } from "@/lib/dal";
 import { signCheckoutToken } from "@/lib/qr";
+import { prisma } from "@/lib/db";
 import {
   ApplicationError,
   type ApplicationErrorCode,
@@ -27,7 +28,7 @@ import {
 
 export type QrTokenResult =
   | { success: true; token: string; expiresAt: Date }
-  | { success: false; error: ApplicationErrorCode | "rate_limited" };
+  | { success: false; error: ApplicationErrorCode | "rate_limited" | "no_active_worker" };
 
 // Naive in-process rate limit: one QR per RATE_LIMIT_MS per Biz user.
 // Per-process memory; safe for serverless because a cold instance simply
@@ -44,6 +45,18 @@ export async function generateCheckoutQrToken(
 ): Promise<QrTokenResult> {
   // requireJobOwner redirects on 404/403 — no try/catch wrap needed here
   const { session, job } = await requireJobOwner(jobId);
+
+  // BUG-B07: Verify at least one worker is in an active shift for this job.
+  // Without this, a business could generate a QR when nobody is working.
+  const activeWorkerCount = await prisma.application.count({
+    where: {
+      jobId: job.id,
+      status: { in: ["in_progress", "checked_in"] },
+    },
+  });
+  if (activeWorkerCount === 0) {
+    return { success: false, error: "no_active_worker" };
+  }
 
   const now = Date.now();
   const last = lastGeneratedByUser.get(session.id) ?? 0;
