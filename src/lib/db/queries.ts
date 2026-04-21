@@ -281,6 +281,25 @@ export async function getCurrentWorker(): Promise<Worker | null> {
   });
   if (!profile) return null;
 
+  const earningsRows = await prisma.$queryRaw<
+    Array<{ total_earnings: bigint; this_month_earnings: bigint }>
+  >`
+    SELECT
+      COALESCE(SUM("netEarnings"), 0)::bigint AS total_earnings,
+      COALESCE(SUM(
+        CASE
+          WHEN date_trunc('month', "checkOutAt" AT TIME ZONE 'Asia/Seoul')
+               = date_trunc('month', now() AT TIME ZONE 'Asia/Seoul')
+          THEN "netEarnings"
+          ELSE 0
+        END
+      ), 0)::bigint AS this_month_earnings
+    FROM public.applications
+    WHERE "workerId" = ${session.id}::uuid
+      AND status IN ('settled'::"ApplicationStatus", 'completed'::"ApplicationStatus")
+  `;
+  const earnings = earningsRows[0]!;
+
   return {
     id: profile.id,
     name: profile.name,
@@ -289,15 +308,15 @@ export async function getCurrentWorker(): Promise<Worker | null> {
     badgeLevel: profile.badgeLevel as Worker["badgeLevel"],
     rating: Number(profile.rating),
     totalJobs: profile.totalJobs,
-    noShowCount: 0, // TODO Phase 3: add noShowCount column
+    noShowCount: profile.noShowCount, // BUG-W08 fix: was hardcoded 0
     completionRate: profile.completionRate,
-    verifiedId: false, // TODO Phase 3: add verifiedId column
-    verifiedPhone: false, // TODO Phase 3: add verifiedPhone column
+    verifiedId: false, // TODO: no verifiedId column on WorkerProfile yet
+    verifiedPhone: false, // TODO: no verifiedPhone column on WorkerProfile yet
     preferredCategories: profile.preferredCategories as JobCategory[],
-    skills: [], // TODO Phase 3: add skills column
+    skills: [], // TODO: no skills column on WorkerProfile yet
     bio: profile.bio ?? "",
-    totalEarnings: 0, // TODO Phase 3: compute from settled applications
-    thisMonthEarnings: 0, // TODO Phase 3: compute from settled applications this month
+    totalEarnings: Number(earnings.total_earnings), // BUG-W08 fix: real aggregation
+    thisMonthEarnings: Number(earnings.this_month_earnings), // BUG-W08 fix: real aggregation
   };
 }
 
@@ -1027,13 +1046,13 @@ export async function getWorkerSettlementTotals(
     }>
   >`
     SELECT
-      COALESCE(SUM(earnings), 0)::bigint AS all_time_total,
+      COALESCE(SUM("netEarnings"), 0)::bigint AS all_time_total,
       COUNT(*)::bigint AS all_time_count,
       COALESCE(SUM(
         CASE
           WHEN date_trunc('month', "checkOutAt" AT TIME ZONE 'Asia/Seoul')
                = date_trunc('month', now() AT TIME ZONE 'Asia/Seoul')
-          THEN earnings
+          THEN "netEarnings"
           ELSE 0
         END
       ), 0)::bigint AS this_month_total,
