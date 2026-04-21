@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: milestone
-status: verifying
-last_updated: "2026-04-21T14:02:03.289Z"
+status: executing
+last_updated: "2026-04-21T14:24:31.223Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 8
   completed_phases: 2
-  total_plans: 9
-  completed_plans: 8
+  total_plans: 11
+  completed_plans: 9
   percent: 67
 ---
 
@@ -20,14 +20,14 @@ progress:
 ## Project Reference
 
 - **Core value:** 이력서·면접 제로. 탭 하나로 확정, 근무 후 즉시 정산.
-- **Current focus:** Phase 12 — business-flow-codex-13-crud
+- **Current focus:** Phase 13 — admin-codex-10
 - **Exit criterion for current milestone:** 실 사용자 관점 "탐색→지원→확정→근무→리뷰→정산" 플로우가 브라우저에서 1분 이내 완료 + 13 HUMAN-UAT 시나리오 PASS(또는 MOCK-LOG 기록) + UI/UX QA 체크리스트 0 critical/high 이슈
 
 ## Current Position
 
-Phase: 12 (business-flow-codex-13-crud) — EXECUTING
-Plan: 3 of 3 (COMPLETE)
-Status: Phase complete — ready for verification
+Phase: 13 (admin-codex-10) — EXECUTING
+Plan: 2 of 2
+Status: Ready to execute
 Last activity: 2026-04-21
 Progress: 6/9 plans complete (67%)
 
@@ -87,6 +87,11 @@ Progress: 6/9 plans complete (67%)
 | BUG-B09: Review gate widened to completed OR settled | completed is legacy pre-settlement status; both must allow reviews | 2026-04-21 (Phase 12 Plan 03) |
 | BUG-B13: New businesses fall back to all workers (where: {}) | no posted jobs → empty businessCategories → show all workers to avoid empty list | 2026-04-21 (Phase 12 Plan 03) |
 | BUG-B12: workers-client.tsx inline ToastState already reads result.message | no sonner import needed; only action message text updated | 2026-04-21 (Phase 12 Plan 03) |
+| BUG-C01: Prisma payload types replace any in queries.ts adapter functions; JOB_INCLUDE/APP_INCLUDE moved before adapters for typeof compatibility | Prisma.XGetPayload inference is the idiomatic solution; no runtime cost | 2026-04-21 (Phase 13 Plan 02) |
+| BUG-C02: getApplications() try-catch removed; verifySession() redirects on failure so silent [] return was masking auth errors | Callers needing graceful fallback should use getApplicationsByWorker() directly | 2026-04-21 (Phase 13 Plan 02) |
+| BUG-C03: env non-null assertions replaced with explicit throw-on-missing guards; db/index.ts uses null coalesce with unreachable-branch comment | Descriptive errors at startup surface misconfiguration before DB calls fail silently | 2026-04-21 (Phase 13 Plan 02) |
+| BUG-C04: legacy design files removed from git tracking via git rm --cached; gitignored to prevent re-tracking | Files stay on disk for reference but no longer pollute git history | 2026-04-21 (Phase 13 Plan 02) |
+| BUG-C05: console.error added to three silent catch blocks (biz-verify OCR, storage signed URL, OCR JSON parse) while preserving fail-open D-33 semantics | Observability without changing behavior; D-33 advisory-only contract intact | 2026-04-21 (Phase 13 Plan 02) |
 | Phase 11-worker-flow-codex-12-filled P02 | 8 | 2 tasks | 3 files |
 | Phase 11 P04 | 5 | 2 tasks | 4 files |
 | Phase 11 P01 | 7m | 2 tasks | 4 files |
@@ -94,6 +99,7 @@ Progress: 6/9 plans complete (67%)
 | Phase 12-business-flow-codex-13-crud P03 | 8 | 2 tasks | 5 files |
 | Phase 12 P01 | 15 | 2 tasks | 5 files |
 | Phase 12-business-flow-codex-13-crud P02 | 6 | 2 tasks | 7 files |
+| Phase 13-admin-codex-10 P02 | 383 | 2 tasks | 7 files |
 
 ### Roadmap Evolution
 
