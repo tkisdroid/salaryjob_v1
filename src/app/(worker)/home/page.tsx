@@ -16,6 +16,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { HomeClient } from "./home-client";
+import { pickGreeting } from "@/lib/greeting";
 import {
   isTimePreset,
   isTimeBucket,
@@ -112,6 +113,9 @@ export default async function WorkerHomePage({
       process.env.NEXT_PUBLIC_NAVER_MAP_CLIENT_ID.trim() !== "",
   );
 
+  const { greeting, emoji } = pickGreeting();
+  const displayName = worker?.name ?? "게스트";
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header — Premium greet pattern (small label + bold name + wave) */}
@@ -119,11 +123,14 @@ export default async function WorkerHomePage({
         <div className="mx-auto flex h-[72px] max-w-lg items-center justify-between px-4">
           <div>
             <p className="text-[12px] font-semibold tracking-tight text-muted-foreground">
-              안녕하세요
+              {greeting}
             </p>
-            <p className="mt-1 flex items-center gap-2 text-[22px] font-extrabold tracking-tight text-ink">
-              {worker?.name ?? "게스트"}
-              <span className="text-[20px]">👋</span>
+            <p className="mt-1 flex items-baseline gap-2 text-[22px] font-extrabold tracking-tight text-ink">
+              <span>
+                {displayName}
+                <span className="font-bold text-muted-foreground">님</span>
+              </span>
+              <span className="text-[20px] leading-none">{emoji}</span>
             </p>
           </div>
           <Link
