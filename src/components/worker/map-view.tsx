@@ -172,7 +172,7 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
     return (
       <div className="relative">
         <div
-          className="relative h-[60vh] min-h-[400px] w-full overflow-hidden rounded-[22px] border border-border-soft bg-[linear-gradient(135deg,color-mix(in_oklch,var(--brand)_10%,var(--surface))_0%,var(--surface-2)_52%,var(--surface)_100%)]"
+          className="relative h-[50vh] min-h-[320px] max-h-[460px] w-full overflow-hidden rounded-[22px] border border-border-soft bg-[linear-gradient(135deg,color-mix(in_oklch,var(--brand)_10%,var(--surface))_0%,var(--surface-2)_52%,var(--surface)_100%)]"
           data-testid="fallback-map-container"
         >
           <div className="absolute inset-0 opacity-40 [background-image:linear-gradient(var(--border)_1px,transparent_1px),linear-gradient(90deg,var(--border)_1px,transparent_1px)] [background-size:36px_36px]" />
@@ -246,7 +246,7 @@ export function MapView({ center, jobs, radiusM, onMarkerClick }: Props) {
       <div
         ref={containerRef}
         data-testid="naver-map-container"
-        className="h-[60vh] min-h-[400px] w-full overflow-hidden rounded-[22px] border border-border-soft bg-surface-2"
+        className="h-[50vh] min-h-[320px] max-h-[460px] w-full overflow-hidden rounded-[22px] border border-border-soft bg-surface-2"
       />
       {!ready && (
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center text-[12px] font-bold tracking-tight text-text-subtle">
