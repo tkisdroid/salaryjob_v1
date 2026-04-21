@@ -217,7 +217,8 @@ function ApplicantCard({
     0,
     Math.round(30 - (percentElapsed * 30) / 100),
   );
-  const canAct = app.status === "pending";
+  const canActPending = app.status === "pending";
+  const canCancel = app.status === "confirmed";
 
   return (
     <li className="space-y-3 rounded-[22px] border border-border-soft bg-surface p-[18px] transition-colors hover:border-ink">
@@ -273,7 +274,7 @@ function ApplicantCard({
         </div>
       )}
 
-      {canAct && (
+      {canActPending && (
         <div className="flex gap-2 pt-1">
           <button
             type="button"
@@ -292,6 +293,19 @@ function ApplicantCard({
           >
             <XCircle className="h-3.5 w-3.5" />
             거절
+          </button>
+        </div>
+      )}
+      {canCancel && (
+        <div className="flex gap-2 pt-1">
+          <button
+            type="button"
+            onClick={onReject}
+            disabled={pending}
+            className="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-full border border-destructive/30 bg-surface text-[12.5px] font-bold text-destructive transition-colors hover:bg-destructive/5 disabled:opacity-50"
+          >
+            <XCircle className="h-3.5 w-3.5" />
+            수락 취소
           </button>
         </div>
       )}

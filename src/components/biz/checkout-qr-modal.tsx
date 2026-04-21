@@ -65,10 +65,14 @@ export function CheckoutQrModal({ jobId, trigger }: Props) {
     try {
       const result = await generateCheckoutQrToken(jobId);
       if (!result.success) {
+        const qrErrorMessages: Record<string, string> = {
+          rate_limited: "잠시 후 다시 시도해주세요 (30초 제한)",
+          no_active_worker: "현재 근무 중인 워커가 없습니다",
+          unknown: "QR 코드 생성에 실패했습니다",
+        };
         toast.error(
-          applicationErrorToKorean(
-            result.error as ApplicationErrorCode,
-          ),
+          qrErrorMessages[result.error] ??
+            applicationErrorToKorean(result.error as ApplicationErrorCode),
         );
         return;
       }

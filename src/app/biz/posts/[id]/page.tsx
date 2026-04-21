@@ -8,7 +8,6 @@ import {
   Calendar,
   LayoutList,
   Users,
-  Trash2,
   Flame,
   ChevronRight,
   Tag,
@@ -18,8 +17,8 @@ import { Button } from "@/components/ui/button";
 import { requireBusiness } from "@/lib/dal";
 import { getJobById } from "@/lib/db/queries";
 import { prisma } from "@/lib/db";
-import { deleteJob } from "../actions";
 import { CheckoutQrModal } from "@/components/biz/checkout-qr-modal";
+import { DeleteJobButton } from "./delete-job-button";
 
 /* ── Helpers ── */
 
@@ -74,16 +73,6 @@ export default async function BizPostDetailPage({
     redirect(`/posts/${id}`);
   }
 
-  async function handleDelete() {
-    "use server";
-    const result = await deleteJob(id);
-    if ("success" in result) {
-      redirect("/biz/posts");
-    }
-    // Error case: revalidate path so the user sees the latest state;
-    // detailed error messaging is a Phase 3+ UX polish item.
-  }
-
   const pill = statusPill(job.filled, job.headcount);
 
   return (
@@ -122,15 +111,7 @@ export default async function BizPostDetailPage({
 
       {/* Actions */}
       <div className="mb-6 flex flex-wrap gap-2">
-        <form action={handleDelete}>
-          <button
-            type="submit"
-            className="inline-flex h-10 items-center gap-1.5 rounded-full border border-destructive/30 bg-surface px-3.5 text-[12.5px] font-bold text-destructive transition-colors hover:bg-destructive/5"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            삭제
-          </button>
-        </form>
+        <DeleteJobButton jobId={id} />
 
         <CheckoutQrModal
           jobId={job.id}
