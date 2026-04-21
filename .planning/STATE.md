@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: milestone
 status: executing
-last_updated: "2026-04-21T13:35:05.255Z"
+last_updated: "2026-04-21T13:38:16.539Z"
 last_activity: 2026-04-21
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 6
-  completed_plans: 2
+  completed_plans: 4
   percent: 0
 ---
 
@@ -26,7 +26,7 @@ progress:
 ## Current Position
 
 Phase: 11 (worker-flow-codex-12-filled) — EXECUTING
-Plan: 2 of 4
+Plan: 4 of 4
 Status: Ready to execute
 Last activity: 2026-04-21
 Progress: 0/4 phases complete (0%)
@@ -82,6 +82,8 @@ Progress: 0/4 phases complete (0%)
 | v1.1 MOCK 정책: 외부 키 없는 시나리오는 MOCK-LOG 기록 후 v1.2/v2 이월 | 외부 의존성이 v1.1 close를 차단하지 않도록 함. 재검증 단계는 추적 가능하게 기록 | 2026-04-15 (v1.1 kickoff) |
 | v1.1 Phase 번호 7부터 시작 (1–6은 v1.0 histoircal) | `/gsd-new-milestone --reset-phase-numbers` 미사용. 연속 번호로 이력 선형성 유지 | 2026-04-15 (v1.1 kickoff) |
 | Phase 11-worker-flow-codex-12-filled P02 | 8 | 2 tasks | 3 files |
+| Phase 11 P04 | 5 | 2 tasks | 4 files |
+| Phase 11 P01 | 7m | 2 tasks | 4 files |
 
 ### Roadmap Evolution
 
