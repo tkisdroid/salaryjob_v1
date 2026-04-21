@@ -10,8 +10,19 @@ export const dynamic = "force-dynamic";
 export default async function BizWorkersPage() {
   const session = await requireBusiness();
 
+  const businessJobs = await prisma.job.findMany({
+    where: { authorId: session.id },
+    select: { category: true },
+    distinct: ["category"],
+  });
+  const businessCategories = businessJobs.map((j) => j.category);
+
   const [profiles, favorites] = await Promise.all([
     prisma.workerProfile.findMany({
+      where:
+        businessCategories.length > 0
+          ? { preferredCategories: { hasSome: businessCategories } }
+          : {},
       include: { user: { select: { id: true, email: true } } },
       orderBy: [{ rating: "desc" }, { totalJobs: "desc" }, { createdAt: "desc" }],
       take: 100,

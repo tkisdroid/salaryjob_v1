@@ -105,7 +105,7 @@ export async function sendWorkerOffer(
     });
     safeRevalidate("/biz/workers");
     safeRevalidate(`/biz/workers/${parsed.data}`);
-    return { success: true, message: "제안을 보냈습니다." };
+    return { success: true, message: "제안을 보냈습니다. 워커의 수락/거절 기능은 v2에서 제공됩니다." };
   } catch (e) {
     console.error("[sendWorkerOffer]", e);
     return { success: false, error: "제안 전송 중 오류가 발생했습니다." };
