@@ -4,10 +4,10 @@ import "server-only";
 import { createHash, randomInt } from "node:crypto";
 import { prisma } from "@/lib/db";
 import {
-  sendAligoSms,
-  isAligoConfigured,
-  isAligoTestmode,
-} from "@/lib/sms/aligo";
+  sendSms,
+  isSmsConfigured,
+  isSmsTestmode,
+} from "@/lib/sms/ncp-sens";
 
 /**
  * SMS OTP service for 대표자 연락처 verification.
@@ -73,7 +73,7 @@ export async function requestOwnerPhoneOtp(
   businessProfileId: string,
   rawPhone: string,
 ): Promise<OtpResult> {
-  if (!isAligoConfigured()) {
+  if (!isSmsConfigured()) {
     return { ok: false, error: "sms_not_configured" };
   }
 
@@ -106,7 +106,7 @@ export async function requestOwnerPhoneOtp(
   const codeHash = hashCode(code);
   const expiresAt = new Date(Date.now() + OTP_TTL_MS);
 
-  const sms = await sendAligoSms({ to: phone, text: otpMessage(code) });
+  const sms = await sendSms({ to: phone, text: otpMessage(code) });
   if (!sms.ok) {
     return { ok: false, error: "sms_send_failed", detail: sms.error };
   }
@@ -120,12 +120,12 @@ export async function requestOwnerPhoneOtp(
     },
   });
 
-  // DEV ONLY: Aligo testmode means no real SMS was dispatched, so the
-  // developer has no other way to see the code. isAligoTestmode() is
-  // hard-wired false when NODE_ENV=production, so this cannot fire in
-  // a deployed build. Remove ALIGO_TESTMODE from the environment (or set
-  // it to "off") to also silence the log in local runs hitting real Aligo.
-  if (isAligoTestmode()) {
+  // DEV ONLY: testmode means no real SMS was dispatched, so the developer
+  // has no other way to see the code. isSmsTestmode() is hard-wired false
+  // when NODE_ENV=production, so this cannot fire in a deployed build.
+  // Set NCP_SENS_TESTMODE=off to silence the log in local runs that are
+  // hitting the real NCP endpoint.
+  if (isSmsTestmode()) {
     console.info(
       `[owner-phone-otp][testmode] profile=${businessProfileId} phone=${phone} code=${code}`,
     );
