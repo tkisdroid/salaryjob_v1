@@ -18,6 +18,7 @@ import {
 import { requireJobOwner } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { getReviewsForUser } from "@/lib/db/queries";
+import { isUuid } from "@/lib/uuid";
 import { formatBirthDate, getInternationalAge } from "@/lib/worker-age";
 
 function formatDateTime(value: string | Date | null) {
@@ -57,6 +58,11 @@ export default async function BizApplicantDetailPage({
 }) {
   const { id, applicantId } = await params;
   const { job } = await requireJobOwner(id);
+
+  if (!isUuid(applicantId)) {
+    notFound();
+  }
+
   const application = await prisma.application.findUnique({
     where: { id: applicantId },
     select: {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import {
@@ -52,6 +52,10 @@ const CATEGORIES: Array<"all" | JobCategory> = [
   "tech",
 ];
 
+function isJobCategory(value: string | null): value is JobCategory {
+  return value !== null && CATEGORIES.includes(value as "all" | JobCategory) && value !== "all";
+}
+
 const PAY_TIERS = [
   { label: "전체", value: 0 },
   { label: "1만원 이상", value: 10000 },
@@ -73,18 +77,17 @@ function formatDate(iso: string): string {
 
 export function SearchClient({ jobs }: { jobs: SearchJob[] }) {
   const params = useSearchParams();
-  // Seed urgent filter from URL param (/search?urgent=1)
   const initialUrgent = params.get("urgent") === "1";
+  const categoryParam = params.get("category");
+  const initialCategory: "all" | JobCategory = isJobCategory(categoryParam)
+    ? categoryParam
+    : "all";
+  const initialQuery = params.get("q") ?? params.get("tag") ?? "";
 
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<"all" | JobCategory>("all");
+  const [query, setQuery] = useState(initialQuery);
+  const [category, setCategory] = useState<"all" | JobCategory>(initialCategory);
   const [minPay, setMinPay] = useState(0);
   const [urgentOnly, setUrgentOnly] = useState(initialUrgent);
-
-  // Keep urgent filter in sync if the URL param changes (back/forward nav)
-  useEffect(() => {
-    setUrgentOnly(params.get("urgent") === "1");
-  }, [params]);
 
   const filtered = useMemo(() => {
     return jobs.filter((job) => {
@@ -96,6 +99,7 @@ export function SearchClient({ jobs }: { jobs: SearchJob[] }) {
       return (
         job.title.toLowerCase().includes(q) ||
         job.businessName.toLowerCase().includes(q) ||
+        job.address.toLowerCase().includes(q) ||
         job.tags.some((t) => t.toLowerCase().includes(q))
       );
     });

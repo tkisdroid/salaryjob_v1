@@ -1,101 +1,18 @@
-"use client";
-
 import Link from "next/link";
-import { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { requireWorker } from "@/lib/dal";
+import { getWorkerChatRooms } from "@/lib/services/chat";
 
-// ---------------------------------------------------------------------------
-// Mock Data (Phase 5: replace with real DB queries)
-// ---------------------------------------------------------------------------
+export const dynamic = "force-dynamic";
 
-interface ChatRoom {
-  id: string;
-  company: string;
-  initials: string;
-  lastMessage: string;
-  time: string;
-  unreadCount: number;
-  postTitle: string;
-}
-
-const CHAT_ROOMS: ChatRoom[] = [
-  {
-    id: "chat-1",
-    company: "블루보틀 강남점",
-    initials: "BB",
-    lastMessage: "안녕하세요. 내일 출근 가능하실까요?",
-    time: "방금",
-    unreadCount: 2,
-    postTitle: "카페 바리스타",
-  },
-  {
-    id: "chat-2",
-    company: "이벤트플러스",
-    initials: "EP",
-    lastMessage: "행사 당일 복장은 검정색 상의 부탁드려요.",
-    time: "10분 전",
-    unreadCount: 1,
-    postTitle: "행사 스태프",
-  },
-  {
-    id: "chat-3",
-    company: "CU 역삼역점",
-    initials: "CU",
-    lastMessage: "네, 확인했습니다. 감사합니다.",
-    time: "1시간 전",
-    unreadCount: 0,
-    postTitle: "편의점 주간",
-  },
-  {
-    id: "chat-4",
-    company: "쿠팡 물류센터",
-    initials: "CP",
-    lastMessage: "근무 완료 확인했습니다. 정산은 3일 안에 처리됩니다.",
-    time: "어제",
-    unreadCount: 0,
-    postTitle: "물류 분류 작업",
-  },
-  {
-    id: "chat-5",
-    company: "스타벅스 선릉점",
-    initials: "SB",
-    lastMessage: "지원해주셔서 감사합니다. 검토 후 연락드릴게요.",
-    time: "3일 전",
-    unreadCount: 0,
-    postTitle: "주말 오픈 알바",
-  },
-];
-
-const STORAGE_KEY = "gignow.chat.readRooms";
-
-function getReadRooms(): Set<string> {
-  if (typeof window === "undefined") return new Set();
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? new Set(JSON.parse(raw)) : new Set();
-  } catch {
-    return new Set();
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
-
-export default function ChatListPage() {
-  const [readRooms] = useState<Set<string>>(() => getReadRooms());
-
-  const rooms = CHAT_ROOMS.map((room) => ({
-    ...room,
-    unreadCount: readRooms.has(room.id) ? 0 : room.unreadCount,
-  }));
-
-  const totalUnread = rooms.reduce((sum, r) => sum + r.unreadCount, 0);
+export default async function ChatListPage() {
+  const session = await requireWorker();
+  const rooms = await getWorkerChatRooms(session.id);
+  const totalUnread = rooms.reduce((sum, room) => sum + room.unreadCount, 0);
 
   return (
     <div className="mx-auto max-w-lg space-y-4 px-4 py-5">
-      {/* Premium chat-head: bold title + ink pill unread count */}
       <header className="flex items-center justify-between pb-1">
         <h1 className="flex items-center gap-2.5 text-[24px] font-extrabold tracking-[-0.035em] text-ink">
           <MessageCircle className="h-[22px] w-[22px] text-brand-deep" />
@@ -116,7 +33,7 @@ export default function ChatListPage() {
             아직 채팅이 없어요
           </p>
           <p className="mt-1 text-[12.5px] font-semibold text-muted-foreground">
-            공고에 지원하면 사업주와 채팅을 시작할 수 있어요.
+            지원한 공고가 생기면 사업자와 대화를 시작할 수 있습니다.
           </p>
           <Button variant="ghost-premium" className="mt-4" asChild>
             <Link href="/explore">공고 둘러보기</Link>
@@ -141,14 +58,14 @@ export default function ChatListPage() {
                     isUnread ? "bg-brand text-ink" : "bg-surface-2 text-ink"
                   }`}
                 >
-                  {room.initials}
+                  {room.peerInitial}
                 </div>
                 <div className="min-w-0">
                   <p className="truncate text-[14px] font-extrabold leading-tight tracking-[-0.02em] text-ink">
-                    {room.company}
+                    {room.peerName}
                   </p>
                   <p className="mt-0.5 text-[11.5px] font-semibold tracking-tight text-brand-deep">
-                    {room.postTitle}
+                    {room.jobTitle}
                   </p>
                   <p className="mt-1.5 truncate text-[12.5px] font-medium leading-snug text-muted-foreground">
                     {room.lastMessage}
@@ -156,7 +73,7 @@ export default function ChatListPage() {
                 </div>
                 <div className="flex flex-col items-end gap-1.5 pl-1">
                   <span className="tabnum text-[10.5px] font-semibold text-text-subtle">
-                    {room.time}
+                    {room.lastMessageAt}
                   </span>
                   {isUnread && (
                     <span className="tabnum grid h-5 min-w-[20px] place-items-center rounded-full bg-ink px-1.5 text-[11px] font-extrabold text-white">

@@ -58,7 +58,7 @@ const supabase = createClient(
 );
 
 // ── Dev account definitions ──────────────────────────────────────────────────
-const DEV_PASSWORD = process.env.SEED_DEV_PASSWORD ?? "gignowdev";
+const DEV_PASSWORD = process.env.SEED_DEV_PASSWORD ?? "gignowdev1";
 
 const DEV_ACCOUNTS = [
   { email: "worker@dev.gignow.com", role: "WORKER", profile: "kim-jihoon" },
@@ -88,6 +88,10 @@ export async function seedDatabase() {
 
   // ── Step 1: Reverse-order deleteMany (FK-safe, idempotent) ─────────────────
   console.log("  Step 1: Cleaning existing seed data (reverse FK order)...");
+  await prisma.chatMessage.deleteMany();
+  await prisma.chatThread.deleteMany();
+  await prisma.workerOffer.deleteMany();
+  await prisma.favoriteWorker.deleteMany();
   await prisma.review.deleteMany();
   await prisma.application.deleteMany();
   await prisma.job.deleteMany();

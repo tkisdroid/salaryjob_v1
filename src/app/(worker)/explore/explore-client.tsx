@@ -2,23 +2,18 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { MapPin, Search, Map, Inbox, List, Tag } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Inbox, List, Map as MapIcon, MapPin, Search, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { MapView } from "@/components/worker/map-view";
 import { formatMoney } from "@/lib/format";
+import { categoryLabel, formatWorkDate } from "@/lib/job-utils";
+import type { Job, JobCategory } from "@/lib/types/job";
 import { cn } from "@/lib/utils";
-import type { JobCategory } from "@/lib/types/job";
 
 type ViewMode = "list" | "tags" | "map";
 
-export interface ExploreJob {
-  id: string;
-  title: string;
-  businessName: string;
-  category: JobCategory;
-  hourlyPay: number;
-  tags: string[];
-  address: string;
-}
+const DEFAULT_CENTER = { lat: 37.5665, lng: 126.978 } as const;
 
 const CATEGORIES: Array<{ key: "all" | JobCategory; label: string }> = [
   { key: "all", label: "전체" },
@@ -39,102 +34,130 @@ const PAY_TIERS = [
   { label: "1.5만원+", value: 15000 },
 ] as const;
 
-const TAG_GROUPS: Array<{
-  category: string;
-  tags: Array<{ label: string; count?: number; hot?: boolean; dark?: boolean }>;
-}> = [
-  {
-    category: "직종",
-    tags: [
-      { label: "카페", count: 24, hot: true },
-      { label: "편의점", count: 18 },
-      { label: "음식점", count: 32, hot: true },
-      { label: "물류", count: 15 },
-      { label: "행사", count: 8 },
-      { label: "사무", count: 5 },
-      { label: "교육", count: 3 },
-      { label: "청소", count: 11 },
-    ],
-  },
-  {
-    category: "시간대",
-    tags: [
-      { label: "새벽", count: 6 },
-      { label: "오전", count: 22 },
-      { label: "점심", count: 14, hot: true },
-      { label: "오후", count: 28 },
-      { label: "저녁", count: 19 },
-      { label: "야간", count: 7 },
-      { label: "주말", count: 33, dark: true },
-    ],
-  },
-  {
-    category: "근무 형태",
-    tags: [
-      { label: "단기", count: 42, dark: true },
-      { label: "장기", count: 9 },
-      { label: "일일", count: 38, hot: true },
-      { label: "주 1-2회" },
-      { label: "주 3-4회" },
-      { label: "풀타임" },
-    ],
-  },
-  {
-    category: "특징",
-    tags: [
-      { label: "초보 환영", count: 45, hot: true },
-      { label: "즉시 출근", count: 23 },
-      { label: "교통비 지원", count: 12 },
-      { label: "식사 제공", count: 18 },
-      { label: "급구", count: 7, hot: true },
-    ],
-  },
-];
+function compactAddress(address: string) {
+  const trimmed = address.trim();
+  if (!trimmed) return "주소 미등록";
+  return trimmed.split(" ").slice(0, 2).join(" ");
+}
 
-export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
+function buildTagGroups(jobs: Job[]) {
+  const tagCounts = new Map<string, number>();
+  for (const job of jobs) {
+    for (const tag of job.tags) {
+      const normalized = tag.trim();
+      if (!normalized) continue;
+      tagCounts.set(normalized, (tagCounts.get(normalized) ?? 0) + 1);
+    }
+  }
+
+  const categoryTags = CATEGORIES.filter((cat) => cat.key !== "all").map((cat) => ({
+    label: cat.label,
+    value: categoryLabel(cat.key as JobCategory),
+    count: jobs.filter((job) => job.category === cat.key).length,
+    category: cat.key,
+  }));
+
+  const popularTags = Array.from(tagCounts.entries())
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], "ko-KR"))
+    .slice(0, 14)
+    .map(([label, count]) => ({ label, value: label, count }));
+
+  return [
+    { title: "직종", tags: categoryTags },
+    { title: "공고 태그", tags: popularTags },
+  ];
+}
+
+export function ExploreClient({ jobs }: { jobs: Job[] }) {
+  const router = useRouter();
+  const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"all" | JobCategory>("all");
   const [minPay, setMinPay] = useState(0);
   const [view, setView] = useState<ViewMode>("list");
 
   const filtered = useMemo(() => {
+    const normalizedQuery = query.trim().toLowerCase();
     return jobs.filter((job) => {
       if (category !== "all" && job.category !== category) return false;
       if (job.hourlyPay < minPay) return false;
-      return true;
+      if (!normalizedQuery) return true;
+
+      return (
+        job.title.toLowerCase().includes(normalizedQuery) ||
+        job.business.name.toLowerCase().includes(normalizedQuery) ||
+        job.business.address.toLowerCase().includes(normalizedQuery) ||
+        categoryLabel(job.category).toLowerCase().includes(normalizedQuery) ||
+        job.tags.some((tag) => tag.toLowerCase().includes(normalizedQuery))
+      );
     });
-  }, [jobs, category, minPay]);
+  }, [jobs, query, category, minPay]);
+
+  const mapCenter = useMemo(() => {
+    const coordinates = filtered
+      .map((job) => ({
+        lat: Number(job.business.lat),
+        lng: Number(job.business.lng),
+      }))
+      .filter((coord) => Number.isFinite(coord.lat) && Number.isFinite(coord.lng));
+
+    if (coordinates.length === 0) return DEFAULT_CENTER;
+
+    return {
+      lat: coordinates.reduce((sum, coord) => sum + coord.lat, 0) / coordinates.length,
+      lng: coordinates.reduce((sum, coord) => sum + coord.lng, 0) / coordinates.length,
+    };
+  }, [filtered]);
+
+  const tagGroups = useMemo(() => buildTagGroups(jobs), [jobs]);
+
+  const resetFilters = () => {
+    setQuery("");
+    setCategory("all");
+    setMinPay(0);
+  };
 
   return (
     <div className="mx-auto max-w-lg px-4 pt-4 pb-6">
-      {/* explore-title + sub */}
       <header className="pt-3 pb-1">
         <h1 className="text-[26px] font-extrabold tracking-[-0.035em] text-ink">
           탐색
         </h1>
         <p className="mt-0.5 text-[12.5px] font-medium tracking-tight text-muted-foreground">
-          내 주변 공고를 둘러보세요
+          내 주변 공고를 검색하고 비교하세요
         </p>
       </header>
 
-      {/* search-input — 46px pill + ink sbtn */}
-      <Link
-        href="/search"
-        className="mt-4 flex h-[46px] items-center gap-2.5 rounded-full border border-border bg-surface px-4 text-[13px] font-medium text-text-subtle transition-colors hover:border-ink"
-      >
-        <Search className="h-4 w-4" />
-        <span className="flex-1">직종, 지역, 매장명으로 검색</span>
-        <span className="grid h-7 w-7 place-items-center rounded-[10px] bg-ink text-white">
-          <Search className="h-[14px] w-[14px]" />
-        </span>
-      </Link>
+      <div className="mt-4 flex h-[46px] items-center gap-2.5 rounded-full border border-border bg-surface px-4 text-[13px] font-medium transition-colors focus-within:border-ink">
+        <Search className="h-4 w-4 text-text-subtle" />
+        <input
+          type="search"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="직종, 지역, 매장명으로 검색"
+          className="min-w-0 flex-1 bg-transparent text-ink outline-none placeholder:text-text-subtle"
+        />
+        {query ? (
+          <button
+            type="button"
+            onClick={() => setQuery("")}
+            aria-label="검색어 지우기"
+            className="grid h-7 w-7 place-items-center rounded-[10px] text-text-subtle transition-colors hover:bg-surface-2 hover:text-ink"
+          >
+            <X className="h-[14px] w-[14px]" />
+          </button>
+        ) : (
+          <span className="grid h-7 w-7 place-items-center rounded-[10px] bg-ink text-white">
+            <Search className="h-[14px] w-[14px]" />
+          </span>
+        )}
+      </div>
 
-      {/* triseg — 3-way view toggle */}
       <div className="mt-3 flex gap-0.5 rounded-full border border-border bg-surface p-1">
         {(
           [
             { v: "list" as const, label: "리스트", icon: List },
             { v: "tags" as const, label: "태그", icon: Tag },
-            { v: "map" as const, label: "지도", icon: Map },
+            { v: "map" as const, label: "지도", icon: MapIcon },
           ]
         ).map((seg) => (
           <button
@@ -142,7 +165,7 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
             type="button"
             onClick={() => setView(seg.v)}
             className={cn(
-              "flex-1 rounded-full py-2.5 text-[12.5px] font-bold tracking-tight transition-colors inline-flex items-center justify-center gap-1.5",
+              "inline-flex flex-1 items-center justify-center gap-1.5 rounded-full py-2.5 text-[12.5px] font-bold tracking-tight transition-colors",
               view === seg.v
                 ? "bg-ink text-white"
                 : "text-muted-foreground hover:text-ink",
@@ -154,9 +177,8 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
         ))}
       </div>
 
-      {view === "list" && (
+      {view !== "tags" && (
         <div className="space-y-3 pt-3">
-          {/* chip-scroll-cats */}
           <div className="chip-scroll -mx-4 px-4">
             {CATEGORIES.map((cat) => (
               <button
@@ -164,7 +186,7 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
                 type="button"
                 onClick={() => setCategory(cat.key)}
                 className={cn(
-                  "shrink-0 rounded-full border px-3.5 py-2 text-[12.5px] font-bold tracking-tight leading-none transition-colors",
+                  "shrink-0 rounded-full border px-3.5 py-2 text-[12.5px] font-bold leading-none tracking-tight transition-colors",
                   category === cat.key
                     ? "border-ink bg-ink text-white"
                     : "border-border bg-surface text-ink hover:border-ink",
@@ -175,7 +197,6 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
             ))}
           </div>
 
-          {/* pay-tier chips */}
           <div className="chip-scroll -mx-4 px-4">
             {PAY_TIERS.map((opt) => (
               <button
@@ -183,7 +204,7 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
                 type="button"
                 onClick={() => setMinPay(opt.value)}
                 className={cn(
-                  "shrink-0 rounded-full border px-3.5 py-2 text-[12.5px] font-bold tracking-tight leading-none transition-colors",
+                  "shrink-0 rounded-full border px-3.5 py-2 text-[12.5px] font-bold leading-none tracking-tight transition-colors",
                   minPay === opt.value
                     ? "border-ink bg-ink text-white"
                     : "border-border bg-surface text-ink hover:border-ink",
@@ -194,12 +215,15 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
             ))}
           </div>
 
-          {/* result-count */}
           <p className="pt-1 text-[12px] font-semibold text-muted-foreground">
             검색 결과{" "}
             <b className="tabnum font-extrabold text-ink">{filtered.length}</b>건
           </p>
+        </div>
+      )}
 
+      {view === "list" && (
+        <div className="pt-3">
           {filtered.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-[22px] border border-border bg-surface py-16 text-center">
               <Inbox className="mb-4 h-12 w-12 text-text-subtle" />
@@ -209,14 +233,7 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
               <p className="mt-1 text-[12.5px] font-semibold text-muted-foreground">
                 필터를 조금 넓혀 보세요
               </p>
-              <Button
-                variant="ghost-premium"
-                className="mt-4"
-                onClick={() => {
-                  setCategory("all");
-                  setMinPay(0);
-                }}
-              >
+              <Button variant="ghost-premium" className="mt-4" onClick={resetFilters}>
                 필터 초기화
               </Button>
             </div>
@@ -233,7 +250,7 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
                         {job.title}
                       </h3>
                       <p className="mt-0.5 text-[12px] font-semibold text-muted-foreground">
-                        {job.businessName}
+                        {job.business.name} · {categoryLabel(job.category)}
                       </p>
                       {job.tags.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1.5">
@@ -254,7 +271,10 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
                       </p>
                       <p className="mt-0.5 inline-flex items-center gap-0.5 text-[11.5px] font-semibold text-muted-foreground">
                         <MapPin className="h-3 w-3" />
-                        {job.address.split(" ").slice(0, 2).join(" ")}
+                        {compactAddress(job.business.address)}
+                      </p>
+                      <p className="tabnum mt-0.5 text-[11.5px] font-semibold text-muted-foreground">
+                        {formatWorkDate(job.workDate)} {job.startTime}
                       </p>
                     </div>
                   </Link>
@@ -267,42 +287,39 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
 
       {view === "tags" && (
         <div className="space-y-6 pt-4">
-          {TAG_GROUPS.map((group) => (
-            <section key={group.category}>
-              <h3 className="mb-2 text-[11.5px] font-extrabold tracking-wider uppercase text-muted-foreground">
-                {group.category}
+          {tagGroups.map((group) => (
+            <section key={group.title}>
+              <h3 className="mb-2 text-[11.5px] font-extrabold uppercase tracking-wider text-muted-foreground">
+                {group.title}
               </h3>
               <div className="flex flex-wrap gap-2">
-                {group.tags.map((t) => (
-                  <Link
-                    key={t.label}
-                    href={`/search?tag=${t.label}`}
-                    className={cn(
-                      "inline-flex items-center gap-1 rounded-full border px-3 py-[7px] text-[12px] font-bold tracking-tight transition-colors",
-                      t.hot
-                        ? "border-transparent bg-lime-chip text-lime-chip-fg"
-                        : t.dark
-                          ? "border-ink bg-ink text-white"
-                          : "border-border bg-surface text-ink hover:border-ink",
-                    )}
-                  >
-                    {t.label}
-                    {typeof t.count === "number" && (
-                      <span
-                        className={cn(
-                          "tabnum text-[10.5px] ml-0.5",
-                          t.hot
-                            ? "text-[color-mix(in_oklch,var(--lime-chip-fg)_70%,transparent)]"
-                            : t.dark
-                              ? "text-[color-mix(in_oklch,#fff_60%,transparent)]"
-                              : "text-muted-foreground",
-                        )}
-                      >
-                        {t.count}
+                {group.tags.length === 0 ? (
+                  <span className="text-[12.5px] font-semibold text-muted-foreground">
+                    등록된 태그가 없습니다.
+                  </span>
+                ) : (
+                  group.tags.map((tag) => (
+                    <button
+                      key={`${group.title}-${tag.value}`}
+                      type="button"
+                      onClick={() => {
+                        if ("category" in tag && tag.category) {
+                          setCategory(tag.category as JobCategory);
+                          setQuery("");
+                        } else {
+                          setQuery(tag.value);
+                        }
+                        setView("list");
+                      }}
+                      className="inline-flex items-center gap-1 rounded-full border border-border bg-surface px-3 py-[7px] text-[12px] font-bold tracking-tight text-ink transition-colors hover:border-ink"
+                    >
+                      {tag.label}
+                      <span className="tabnum ml-0.5 text-[10.5px] text-muted-foreground">
+                        {tag.count}
                       </span>
-                    )}
-                  </Link>
-                ))}
+                    </button>
+                  ))
+                )}
               </div>
             </section>
           ))}
@@ -311,15 +328,12 @@ export function ExploreClient({ jobs }: { jobs: ExploreJob[] }) {
 
       {view === "map" && (
         <div className="pt-4">
-          <div className="flex flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-border bg-surface-2 px-6 py-20 text-center">
-            <Map className="mb-4 h-12 w-12 text-text-subtle" />
-            <p className="text-[15px] font-extrabold tracking-tight text-ink">
-              지도 뷰는 곧 추가됩니다
-            </p>
-            <p className="mt-1 text-[12px] font-semibold text-muted-foreground">
-              내 주변 공고를 지도에서 한눈에 확인하세요
-            </p>
-          </div>
+          <MapView
+            center={mapCenter}
+            jobs={filtered}
+            radiusM={3000}
+            onMarkerClick={(jobId) => router.push(`/posts/${jobId}`)}
+          />
         </div>
       )}
     </div>

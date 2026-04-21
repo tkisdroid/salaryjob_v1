@@ -4,6 +4,10 @@ import { z } from "zod";
 import { requireWorker } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { safeRevalidate } from "@/lib/safe-revalidate";
+import {
+  getWorkerJobMatches,
+  type WorkerJobMatch,
+} from "@/lib/services/worker-job-matching";
 
 /**
  * Persist the worker's weekly availability slot selection.
@@ -39,6 +43,10 @@ const saveAvailabilitySchema = z.object({
 
 export type SaveAvailabilityResult =
   | { success: true; count: number }
+  | { success: false; error: string };
+
+export type AvailabilityMatchResult =
+  | { success: true; matches: WorkerJobMatch[] }
   | { success: false; error: string };
 
 /**
@@ -105,4 +113,33 @@ export async function loadAvailability(): Promise<string[]> {
     select: { availabilitySlots: true },
   });
   return profile?.availabilitySlots ?? [];
+}
+
+export async function getAvailabilityMatches(
+  input: unknown,
+): Promise<AvailabilityMatchResult> {
+  const parsed = saveAvailabilitySchema.safeParse(input);
+  if (!parsed.success) {
+    const firstIssue = parsed.error.issues[0];
+    return {
+      success: false,
+      error: firstIssue?.message ?? "올바르지 않은 입력입니다",
+    };
+  }
+
+  const session = await requireWorker();
+
+  try {
+    const matches = await getWorkerJobMatches(session.id, {
+      slots: normalize(parsed.data.slots),
+      limit: 8,
+    });
+    return { success: true, matches };
+  } catch (e) {
+    console.error("[getAvailabilityMatches]", e);
+    return {
+      success: false,
+      error: "AI 매칭을 불러오지 못했습니다. 잠시 후 다시 시도해주세요",
+    };
+  }
 }

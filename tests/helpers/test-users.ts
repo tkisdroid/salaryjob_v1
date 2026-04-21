@@ -3,32 +3,32 @@ import type { Page } from "@playwright/test";
 export const DEV_USERS = {
   worker: {
     email: "worker@dev.gignow.com",
-    password: "gignowdev",
+    password: "gignowdev1",
     role: "WORKER" as const,
   },
   worker2: {
     email: "worker2@dev.gignow.com",
-    password: "gignowdev",
+    password: "gignowdev1",
     role: "WORKER" as const,
   },
   business: {
     email: "business@dev.gignow.com",
-    password: "gignowdev",
+    password: "gignowdev1",
     role: "BUSINESS" as const,
   },
   business2: {
     email: "business2@dev.gignow.com",
-    password: "gignowdev",
+    password: "gignowdev1",
     role: "BUSINESS" as const,
   },
   both: {
     email: "both@dev.gignow.com",
-    password: "gignowdev",
+    password: "gignowdev1",
     role: "BOTH" as const,
   },
   admin: {
     email: "admin@dev.gignow.com",
-    password: "gignowdev",
+    password: "gignowdev1",
     role: "ADMIN" as const,
   },
 } as const;

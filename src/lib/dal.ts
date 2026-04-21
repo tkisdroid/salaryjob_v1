@@ -37,6 +37,8 @@ import type { Application, Job } from '@/generated/prisma/client'
 const IS_TEST_MODE =
   process.env.NODE_ENV === 'test' && process.env.VITEST === 'true'
 
+const claimedTestWorkerIds = new Set<string>()
+
 async function resolveTestWorkerSession(): Promise<{
   id: string
   email: string | null
@@ -48,21 +50,19 @@ async function resolveTestWorkerSession(): Promise<{
   // The Phase 4 tests expect applyOneTap to pick the worker they just
   // inserted, not the seed one. FOR UPDATE SKIP LOCKED still supports
   // concurrent apply-race tests across distinct fixture workers.
-  const rows = await prisma.$queryRaw<
-    { id: string; email: string | null; role: string }[]
-  >`
-    SELECT id, email, role
-    FROM public.users
-    WHERE role = 'WORKER' AND email LIKE '%@test.local'
-    ORDER BY "createdAt" ASC, id ASC
-    FOR UPDATE SKIP LOCKED
-    LIMIT 1
-  `
-  if (rows.length > 0) {
+  const rows = await prisma.user.findMany({
+    where: { role: 'WORKER', email: { endsWith: '@test.local' } },
+    orderBy: [{ createdAt: 'asc' }, { id: 'asc' }],
+    select: { id: true, email: true, role: true },
+    take: 50,
+  })
+  const row = rows.find((candidate) => !claimedTestWorkerIds.has(candidate.id))
+  if (row) {
+    claimedTestWorkerIds.add(row.id)
     return {
-      id: rows[0].id,
-      email: rows[0].email,
-      role: rows[0].role as 'WORKER' | 'BOTH' | 'ADMIN',
+      id: row.id,
+      email: row.email,
+      role: row.role as 'WORKER' | 'BOTH' | 'ADMIN',
     }
   }
   // Fallback: every @test.local WORKER row is already locked by a sibling

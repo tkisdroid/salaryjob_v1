@@ -9,8 +9,8 @@ describe("supabaseAuthErrorToKorean", () => {
   const cases: Array<[string, RegExp]> = [
     ["Password should be at least 8 characters.", /비밀번호.*8자/],
     ["Password is too short", /비밀번호.*8자/],
-    ["password should contain one uppercase letter", /비밀번호.*약/],
-    ["Password is too weak", /비밀번호.*약/],
+    ["password should contain one uppercase letter", /비밀번호.*영문.*숫자/],
+    ["Password is too weak", /비밀번호.*영문.*숫자/],
     ["Invalid email format", /이메일.*입력/],
     ["User already registered", /이미 가입/],
     ["Invalid login credentials", /이메일.*비밀번호.*올바르지/],

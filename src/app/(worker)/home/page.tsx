@@ -239,7 +239,7 @@ export default async function WorkerHomePage({
                 더보기 →
               </Link>
             </div>
-            <div className="chip-scroll -mx-4 px-4 pb-2">
+            <div className="chip-scroll -mx-4 overflow-y-visible px-4 pb-3 pt-1">
               {urgentJobs.map((job) => (
                 <Link
                   key={job.id}

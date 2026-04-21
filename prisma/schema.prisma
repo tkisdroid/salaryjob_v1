@@ -78,6 +78,12 @@ model User {
   reviewsGiven      Review[]           @relation("ReviewerReviews")
   reviewsReceived   Review[]           @relation("RevieweeReviews")
   pushSubscriptions PushSubscription[]
+  favoriteWorkers   FavoriteWorker[]   @relation("BusinessFavoriteWorkers")
+  favoritedBy        FavoriteWorker[]   @relation("FavoriteWorkerUser")
+  workerOffers       WorkerOffer[]      @relation("WorkerOffersReceived")
+  workerChatThreads  ChatThread[]       @relation("WorkerChatThreads")
+  businessChatThreads ChatThread[]      @relation("BusinessChatThreads")
+  chatMessagesSent   ChatMessage[]      @relation("ChatMessageSender")
 
   @@map("users")
 }
@@ -139,7 +145,8 @@ model BusinessProfile {
   createdAt             DateTime                               @default(now())
   updatedAt             DateTime                               @updatedAt
 
-  jobs Job[]
+  jobs         Job[]
+  workerOffers WorkerOffer[]
 
   @@index([userId])
   @@index([businessRegNumber])
@@ -182,6 +189,7 @@ model Job {
   updatedAt           DateTime                               @updatedAt
 
   applications Application[]
+  chatThreads  ChatThread[]
 
   @@index([category, workDate, status])
   @@index([businessId])
@@ -207,7 +215,8 @@ model Application {
   commissionAmount Int? // KRW commission rounded half-up
   netEarnings      Int? // gross (earnings) - commissionAmount
 
-  reviews Review[]
+  reviews    Review[]
+  chatThread ChatThread?
 
   @@unique([jobId, workerId])
   @@index([workerId, status])
@@ -249,4 +258,70 @@ model PushSubscription {
 
   @@index([userId])
   @@map("push_subscriptions")
+}
+
+model FavoriteWorker {
+  id             String   @id @default(uuid()) @db.Uuid
+  businessUserId String   @db.Uuid
+  businessUser   User     @relation("BusinessFavoriteWorkers", fields: [businessUserId], references: [id], onDelete: Cascade)
+  workerId       String   @db.Uuid
+  worker         User     @relation("FavoriteWorkerUser", fields: [workerId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
+
+  @@unique([businessUserId, workerId])
+  @@index([businessUserId])
+  @@index([workerId])
+  @@map("favorite_workers")
+}
+
+model WorkerOffer {
+  id         String          @id @default(uuid()) @db.Uuid
+  businessId String          @db.Uuid
+  business   BusinessProfile @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  workerId   String          @db.Uuid
+  worker     User            @relation("WorkerOffersReceived", fields: [workerId], references: [id], onDelete: Cascade)
+  message    String?         @db.VarChar(500)
+  status     String          @default("sent")
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+
+  @@index([businessId])
+  @@index([workerId])
+  @@map("worker_offers")
+}
+
+model ChatThread {
+  id             String        @id @default(uuid()) @db.Uuid
+  applicationId  String?       @unique @db.Uuid
+  application    Application?  @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  jobId          String        @db.Uuid
+  job            Job           @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  workerId       String        @db.Uuid
+  worker         User          @relation("WorkerChatThreads", fields: [workerId], references: [id], onDelete: Cascade)
+  businessUserId String        @db.Uuid
+  businessUser   User          @relation("BusinessChatThreads", fields: [businessUserId], references: [id], onDelete: Cascade)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  messages ChatMessage[]
+
+  @@unique([jobId, workerId])
+  @@index([workerId, updatedAt])
+  @@index([businessUserId, updatedAt])
+  @@map("chat_threads")
+}
+
+model ChatMessage {
+  id        String     @id @default(uuid()) @db.Uuid
+  threadId  String     @db.Uuid
+  thread    ChatThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId  String     @db.Uuid
+  sender    User       @relation("ChatMessageSender", fields: [senderId], references: [id], onDelete: Cascade)
+  body      String     @db.VarChar(1000)
+  readAt    DateTime?
+  createdAt DateTime   @default(now())
+
+  @@index([threadId, createdAt])
+  @@index([senderId])
+  @@map("chat_messages")
 }

@@ -19,7 +19,10 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { saveAvailability } from "./actions";
+import { formatMoney } from "@/lib/format";
+import { categoryLabel, formatWorkDate } from "@/lib/job-utils";
+import { summarizeAvailabilitySlots } from "@/lib/availability-slots";
+import { getAvailabilityMatches, saveAvailability } from "./actions";
 
 // ---------------------------------------------------------------------------
 // Constants (mirror server action validation)
@@ -156,6 +159,14 @@ type SaveStatus =
   | { kind: "saved"; count: number; at: number }
   | { kind: "error"; message: string };
 
+type MatchResult = Awaited<ReturnType<typeof getAvailabilityMatches>>;
+type AiMatch = Extract<MatchResult, { success: true }>["matches"][number];
+type MatchStatus =
+  | { kind: "idle" }
+  | { kind: "loading" }
+  | { kind: "ready"; matches: AiMatch[] }
+  | { kind: "error"; message: string };
+
 export function AvailabilityEditor({
   initialSlots,
 }: {
@@ -169,6 +180,7 @@ export function AvailabilityEditor({
     () => [...initialSlots].sort().join(","),
   );
   const [status, setStatus] = useState<SaveStatus>({ kind: "idle" });
+  const [matchStatus, setMatchStatus] = useState<MatchStatus>({ kind: "idle" });
   const [isPending, startTransition] = useTransition();
 
   const totalHours = countSelectedHours(selectedSlots);
@@ -424,6 +436,19 @@ export function AvailabilityEditor({
     });
   }, [selectedSlots]);
 
+  const handleAiMatch = useCallback(() => {
+    const slotsArray = serializeSlots(selectedSlots);
+    startTransition(async () => {
+      setMatchStatus({ kind: "loading" });
+      const result = await getAvailabilityMatches({ slots: slotsArray });
+      if (result.success) {
+        setMatchStatus({ kind: "ready", matches: result.matches });
+      } else {
+        setMatchStatus({ kind: "error", message: result.error });
+      }
+    });
+  }, [selectedSlots]);
+
   return (
     <div className="mx-auto max-w-lg space-y-5 px-4 py-6 pb-16">
       {/* Header */}
@@ -619,6 +644,86 @@ export function AvailabilityEditor({
         </div>
       )}
 
+      {matchStatus.kind !== "idle" && (
+        <section className="rounded-[22px] border border-border-soft bg-surface p-4">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <p className="flex items-center gap-1.5 text-[13.5px] font-extrabold tracking-tight text-ink">
+                <Sparkles className="h-4 w-4 text-brand-deep" />
+                AI 매칭 결과
+              </p>
+              <p className="mt-0.5 text-[11.5px] font-semibold text-muted-foreground">
+                현재 선택한 시간과 선호 직종을 함께 반영합니다.
+              </p>
+            </div>
+          </div>
+
+          {matchStatus.kind === "loading" && (
+            <div className="rounded-[16px] border border-border bg-surface-2 px-4 py-8 text-center text-[12.5px] font-bold text-muted-foreground">
+              AI가 맞는 공고를 찾고 있어요...
+            </div>
+          )}
+
+          {matchStatus.kind === "error" && (
+            <div className="flex items-start gap-2 rounded-[14px] border border-destructive/30 bg-destructive/5 px-3 py-2 text-[12.5px] font-semibold text-destructive">
+              <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>{matchStatus.message}</span>
+            </div>
+          )}
+
+          {matchStatus.kind === "ready" && matchStatus.matches.length === 0 && (
+            <div className="rounded-[16px] border border-border bg-surface-2 px-4 py-8 text-center">
+              <p className="text-[13px] font-extrabold text-ink">
+                현재 조건에 맞는 공고가 없습니다
+              </p>
+              <p className="mt-1 text-[12px] font-semibold text-muted-foreground">
+                시간을 더 넓게 선택하면 추천 가능성이 높아집니다.
+              </p>
+            </div>
+          )}
+
+          {matchStatus.kind === "ready" && matchStatus.matches.length > 0 && (
+            <ul className="space-y-2.5">
+              {matchStatus.matches.map((match) => (
+                <li key={match.job.id}>
+                  <Link
+                    href={`/posts/${match.job.id}`}
+                    className="block rounded-[18px] border border-border bg-surface p-3.5 transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-sm"
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[11px] font-bold text-muted-foreground">
+                          {match.job.business.name} · {categoryLabel(match.job.category)}
+                        </p>
+                        <h3 className="mt-0.5 line-clamp-1 text-[14px] font-extrabold tracking-[-0.02em] text-ink">
+                          {match.job.title}
+                        </h3>
+                      </div>
+                      <span className="tabnum shrink-0 rounded-full bg-brand px-2.5 py-1 text-[11px] font-extrabold text-ink">
+                        {match.score}%
+                      </span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-2 text-[11.5px] font-semibold text-muted-foreground">
+                      <span>
+                        {match.matchingSlots.length > 0
+                          ? summarizeAvailabilitySlots(match.matchingSlots, 2)
+                          : `${formatWorkDate(match.job.workDate)} ${match.job.startTime}~${match.job.endTime}`}
+                      </span>
+                      <span className="tabnum font-extrabold text-brand-deep">
+                        {formatMoney(match.estimatedPay)}
+                      </span>
+                    </div>
+                    <p className="mt-2 line-clamp-2 text-[11.5px] font-medium text-text-subtle">
+                      {match.reasons.join(" · ")}
+                    </p>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
       {/* Sticky save bar stacks above MobileTabBar using the Premium blur+tint
           idiom shared with other sticky bars (profile-edit §04, check-in §CTA).
           bottom = tab bar height (6.25rem) + iOS safe-area-inset-bottom. */}
@@ -639,13 +744,15 @@ export function AvailabilityEditor({
             </p>
           </div>
           <div className="flex shrink-0 items-center gap-2">
-            <Link
-              href="/explore"
-              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-surface px-4 text-[12px] font-extrabold tracking-tight text-ink transition-colors hover:border-ink hover:bg-surface-2"
+            <button
+              type="button"
+              onClick={handleAiMatch}
+              disabled={isPending}
+              className="inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-surface px-4 text-[12px] font-extrabold tracking-tight text-ink transition-colors hover:border-ink hover:bg-surface-2 disabled:opacity-50"
             >
               <Sparkles className="h-3.5 w-3.5" />
-              매칭 보기
-            </Link>
+              {matchStatus.kind === "loading" ? "매칭 중..." : "AI 매칭"}
+            </button>
             <button
               type="button"
               onClick={handleSave}

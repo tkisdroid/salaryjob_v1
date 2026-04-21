@@ -1,11 +1,12 @@
 "use client";
 
 import {
+  type ButtonHTMLAttributes,
+  type ReactElement,
   useCallback,
   useEffect,
   useRef,
   useState,
-  type ReactNode,
 } from "react";
 import { Dialog } from "@base-ui/react/dialog";
 import { QrCode, X } from "lucide-react";
@@ -41,7 +42,7 @@ import type { ApplicationErrorCode } from "@/lib/errors/application-errors";
 type Props = {
   jobId: string;
   /** Element that opens the dialog (e.g. the "퇴근 QR 열기" button). */
-  trigger: ReactNode;
+  trigger: ReactElement<ButtonHTMLAttributes<HTMLButtonElement>>;
 };
 
 const TOKEN_LIFETIME_MS = 10 * 60 * 1000; // 10 minutes per D-15
@@ -124,7 +125,21 @@ export function CheckoutQrModal({ jobId, trigger }: Props) {
 
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
-      <Dialog.Trigger render={(props) => <span {...props}>{trigger}</span>} />
+      <Dialog.Trigger
+        render={(props) => {
+          const { children, className, type, ...buttonProps } = trigger.props;
+          return (
+            <button
+              {...buttonProps}
+              {...props}
+              type={type ?? "button"}
+              className={className}
+            >
+              {children}
+            </button>
+          );
+        }}
+      />
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm data-[open]:animate-in data-[closed]:animate-out data-[closed]:fade-out-0 data-[open]:fade-in-0" />
         <Dialog.Popup className="fixed left-1/2 top-1/2 z-50 w-[92vw] max-w-sm -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-border bg-background p-6 shadow-2xl">

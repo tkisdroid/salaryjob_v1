@@ -4,6 +4,7 @@ import { ChevronLeft, Star } from "lucide-react";
 import { requireJobOwner } from "@/lib/dal";
 import { prisma } from "@/lib/db";
 import { getReviewByApplication } from "@/lib/db/queries";
+import { isUuid } from "@/lib/uuid";
 import { createBusinessReview } from "./actions";
 import { ReviewForm } from "@/components/shared/review-form";
 import { BIZ_TO_WORKER_TAGS } from "@/lib/constants/review-tags";
@@ -15,6 +16,10 @@ export default async function BizReviewPage({
 }) {
   const { id, applicantId } = await params;
   await requireJobOwner(id);
+
+  if (!isUuid(applicantId)) {
+    notFound();
+  }
 
   const application = await prisma.application.findUnique({
     where: { id: applicantId },

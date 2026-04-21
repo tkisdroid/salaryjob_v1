@@ -1,244 +1,144 @@
-"use client";
-
-import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
-  Sparkles,
-  ChevronLeft,
-  RefreshCw,
-  Clock,
-  Wallet,
-  CalendarDays,
-  UtensilsCrossed,
-  ShoppingBag,
-  Truck,
   Briefcase,
-  PartyPopper,
+  CalendarDays,
+  ChevronLeft,
+  Clock,
   GraduationCap,
   Monitor,
-  type LucideIcon,
+  PartyPopper,
+  ShoppingBag,
+  Sparkles,
+  Truck,
+  UtensilsCrossed,
+  Wallet,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { prisma } from "@/lib/db";
+import { requireWorker } from "@/lib/dal";
 import { formatMoney } from "@/lib/format";
+import { categoryLabel, formatWorkDate } from "@/lib/job-utils";
 import {
-  generateWeeklySchedule,
-  type ScheduleRecommendation,
-} from "@/lib/services/auto-scheduling";
+  formatMatchTime,
+  getWorkerJobMatches,
+  type WorkerJobMatch,
+} from "@/lib/services/worker-job-matching";
+import { cn } from "@/lib/utils";
 
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
+export const dynamic = "force-dynamic";
 
-const DAYS = ["월", "화", "수", "목", "금", "토", "일"] as const;
-
-const CATEGORY_ICONS: Record<string, LucideIcon> = {
-  "음식점·카페": UtensilsCrossed,
-  "판매·유통": ShoppingBag,
-  "물류·배송": Truck,
-  "사무·행정": Briefcase,
-  "행사·이벤트": PartyPopper,
-  "청소·정리": Sparkles,
-  "교육·과외": GraduationCap,
-  "IT·디자인": Monitor,
-};
-
-// Mock input data for schedule generation
-const MOCK_WORKER_PREFERENCES = {
-  preferredCategories: ["food", "event"],
-  preferredRegions: ["강남", "역삼", "서초"],
-  minHourlyRate: 11000,
-};
-
-const MOCK_AVAILABLE_SLOTS = [
-  { day: "월", startHour: 9, endHour: 13 },
-  { day: "화", startHour: 14, endHour: 18 },
-  { day: "수", startHour: 9, endHour: 13 },
-  { day: "목", startHour: 18, endHour: 22 },
-  { day: "금", startHour: 14, endHour: 20 },
-  { day: "토", startHour: 10, endHour: 16 },
-  { day: "일", startHour: 10, endHour: 14 },
-];
-
-const MOCK_MATCH_HISTORY = [
-  { category: "food", avgRating: 4.7, count: 8 },
-  { category: "event", avgRating: 4.5, count: 3 },
-  { category: "logistics", avgRating: 4.2, count: 2 },
-];
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-function getCategoryIcon(categoryLabel: string): LucideIcon {
-  return CATEGORY_ICONS[categoryLabel] ?? Sparkles;
-}
-
-function renderCategoryIcon(categoryLabel: string, className: string) {
-  const Icon = getCategoryIcon(categoryLabel);
-  return <Icon className={className} />;
-}
-
-// ---------------------------------------------------------------------------
-// Schedule Block Component
-// ---------------------------------------------------------------------------
-
-function ScheduleBlock({
-  recommendation,
+function CategoryIcon({
+  category,
+  className,
 }: {
-  readonly recommendation: ScheduleRecommendation;
+  category: string;
+  className: string;
 }) {
-  const isPeak = recommendation.matchScore >= 100;
+  switch (category) {
+    case "음식점·카페":
+      return <UtensilsCrossed className={className} />;
+    case "판매·유통":
+      return <ShoppingBag className={className} />;
+    case "물류·배송":
+      return <Truck className={className} />;
+    case "사무·행정":
+      return <Briefcase className={className} />;
+    case "행사·이벤트":
+      return <PartyPopper className={className} />;
+    case "교육·과외":
+      return <GraduationCap className={className} />;
+    case "IT·디자인":
+      return <Monitor className={className} />;
+    default:
+      return <Sparkles className={className} />;
+  }
+}
+
+function dayLabel(isoDate: string) {
+  const [year, month, day] = isoDate.slice(0, 10).split("-").map(Number);
+  const date = new Date(year, month - 1, day);
+  return ["일", "월", "화", "수", "목", "금", "토"][date.getDay()];
+}
+
+function ScheduleBlock({ match }: { match: WorkerJobMatch }) {
+  const label = categoryLabel(match.job.category);
+
   return (
-    <div className="flex items-start gap-3 rounded-[18px] border border-border-soft bg-surface p-[14px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-sm">
-      {/* Category icon tile — 36x36 per .ai-slot .ico spec */}
+    <Link
+      href={`/posts/${match.job.id}`}
+      className="flex items-start gap-3 rounded-[18px] border border-border-soft bg-surface p-[14px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-sm"
+    >
       <div className="grid h-9 w-9 shrink-0 place-items-center rounded-[12px] bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] text-brand-deep">
-        {renderCategoryIcon(recommendation.category, "h-[18px] w-[18px]")}
+        <CategoryIcon category={label} className="h-[18px] w-[18px]" />
       </div>
 
-      {/* Details */}
       <div className="min-w-0 flex-1">
         <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
-          {recommendation.category}
+          {label} · {match.job.business.name}
         </p>
+        <h2 className="mt-0.5 line-clamp-1 text-[14px] font-extrabold tracking-[-0.02em] text-ink">
+          {match.job.title}
+        </h2>
         <div className="tabnum mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[12px] font-semibold text-muted-foreground">
           <span className="inline-flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            <b className="font-extrabold text-ink">{recommendation.timeSlot}</b>
+            <b className="font-extrabold text-ink">{formatMatchTime(match)}</b>
           </span>
           <span className="inline-flex items-center gap-1">
             <Wallet className="h-3 w-3" />
             <b className="font-extrabold text-ink">
-              {formatMoney(recommendation.estimatedPay)}
+              {formatMoney(match.estimatedPay)}
             </b>
           </span>
         </div>
         <p className="mt-1 line-clamp-2 text-[10.5px] font-medium leading-snug text-text-subtle">
-          {recommendation.reason}
+          {match.reasons.join(" · ")}
         </p>
       </div>
 
-      {/* Match % pill — peak (100%+) uses inverse ink+brand for "오늘 반드시 잡아야 할" slots.
-          Padding 4px 9px matches .ai-slot .pct design spec. */}
       <span
         className={cn(
           "tabnum shrink-0 rounded-full px-[9px] py-1 text-[10.5px] font-extrabold tracking-[-0.01em]",
-          isPeak ? "bg-ink text-brand" : "bg-brand text-ink",
+          match.score >= 90 ? "bg-ink text-brand" : "bg-brand text-ink",
         )}
       >
-        {recommendation.matchScore}%
+        {match.score}%
       </span>
-    </div>
+    </Link>
   );
 }
 
-// ---------------------------------------------------------------------------
-// Day Column Component
-// ---------------------------------------------------------------------------
+export default async function SchedulePage() {
+  const session = await requireWorker();
+  const profile = await prisma.workerProfile.findUnique({
+    where: { userId: session.id },
+    select: { availabilitySlots: true },
+  });
 
-function DayColumn({
-  day,
-  recommendations,
-  isToday,
-}: {
-  readonly day: string;
-  readonly recommendations: readonly ScheduleRecommendation[];
-  readonly isToday: boolean;
-}) {
-  // Skip empty days entirely in the premium layout — design only shows days
-  // that have a recommendation so the hairline-separated weekday labels read
-  // as a clean outline rather than a sparse grid of "추천 없음" placeholders.
-  if (recommendations.length === 0) return null;
+  const hasAvailability = (profile?.availabilitySlots.length ?? 0) > 0;
+  const recommendations = hasAvailability
+    ? await getWorkerJobMatches(session.id, { limit: 12 })
+    : [];
 
-  return (
-    <div>
-      {/* ai-day-head — centered mini label with hairlines on both sides */}
-      <div className="my-3 flex items-center gap-3">
-        <span className="h-px flex-1 bg-border-soft" />
-        <span
-          className={cn(
-            "text-[11.5px] font-extrabold tracking-tight",
-            isToday ? "text-brand-deep" : "text-text-subtle",
-          )}
-        >
-          {day}
-          {isToday ? " · 오늘" : ""}
-        </span>
-        <span className="h-px flex-1 bg-border-soft" />
-      </div>
-
-      <div className="space-y-2">
-        {recommendations.map((rec) => (
-          <ScheduleBlock
-            key={`${rec.day}-${rec.timeSlot}`}
-            recommendation={rec}
-          />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ---------------------------------------------------------------------------
-// Main Page Component
-// ---------------------------------------------------------------------------
-
-export default function SchedulePage() {
-  const [recommendations, setRecommendations] = useState<ScheduleRecommendation[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasAvailability, setHasAvailability] = useState(true);
-
-  const loadSchedule = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const results = await generateWeeklySchedule({
-        workerPreferences: MOCK_WORKER_PREFERENCES,
-        availableSlots: MOCK_AVAILABLE_SLOTS,
-        matchHistory: MOCK_MATCH_HISTORY,
-      });
-      setRecommendations(results);
-      setHasAvailability(MOCK_AVAILABLE_SLOTS.length > 0);
-    } catch (error) {
-      console.error("Failed to generate schedule:", error);
-      setRecommendations([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    loadSchedule();
-  }, [loadSchedule]);
-
-  // Group recommendations by day
-  const recommendationsByDay = DAYS.reduce<Record<string, ScheduleRecommendation[]>>(
-    (acc, day) => ({
-      ...acc,
-      [day]: recommendations.filter((r) => r.day === day),
-    }),
-    {}
-  );
-
-  // Total estimated earnings for the week
   const weeklyTotal = recommendations.reduce(
-    (sum, r) => sum + r.estimatedPay,
-    0
+    (sum, match) => sum + match.estimatedPay,
+    0,
   );
-
-  // Determine "today" for highlighting (Korean day of week)
-  const todayIndex = (new Date().getDay() + 6) % 7; // 0=Mon, 6=Sun
-  const todayLabel = DAYS[todayIndex];
-
-  const totalHours = recommendations.reduce((sum, r) => {
-    const match = r.timeSlot.match(/(\d+):\d+\s*[—~\-]\s*(\d+):\d+/);
-    if (!match) return sum;
-    const [, start, end] = match;
-    return sum + (parseInt(end, 10) - parseInt(start, 10));
-  }, 0);
+  const totalHours = recommendations.reduce(
+    (sum, match) => sum + match.job.workHours,
+    0,
+  );
+  const today = dayLabel(new Date().toISOString().slice(0, 10));
+  const grouped = recommendations.reduce<Record<string, WorkerJobMatch[]>>(
+    (acc, match) => {
+      const day = dayLabel(match.job.workDate);
+      acc[day] = [...(acc[day] ?? []), match];
+      return acc;
+    },
+    {},
+  );
 
   return (
     <div className="mx-auto max-w-lg px-4 pt-3 pb-24">
-      {/* ai-title-row */}
       <header className="flex items-center gap-2 pb-1">
         <Link
           href="/my"
@@ -253,108 +153,106 @@ export default function SchedulePage() {
         </h1>
       </header>
       <p className="mt-1 px-0.5 pb-4 text-[12px] font-medium tracking-tight text-muted-foreground">
-        이번 주 최적의 일정을 제안해드릴게요
+        등록한 가용시간, 선호 직종, 공고 조건을 함께 분석합니다.
       </p>
 
-      {/* Empty state: no availability */}
-      {!hasAvailability && !isLoading && (
+      {!hasAvailability && (
         <div className="rounded-[28px] border-2 border-dashed border-border bg-surface py-12 text-center">
           <CalendarDays className="mx-auto mb-4 h-12 w-12 text-text-subtle" />
           <p className="text-[15px] font-extrabold tracking-tight text-ink">
             가용시간을 먼저 등록해주세요
           </p>
           <p className="mb-4 mt-1 text-[12.5px] font-medium text-muted-foreground">
-            가용시간을 먼저 등록하면 AI가 최적의 스케줄을 추천해드려요
+            시간대를 등록해야 AI가 근무 가능한 공고만 추천할 수 있습니다.
           </p>
-          <Button size="default" asChild>
-            <Link href="/my/availability">
-              <Clock className="h-4 w-4" />
-              가용시간 등록하기
-            </Link>
-          </Button>
+          <Link
+            href="/my/availability"
+            className="inline-flex h-11 items-center justify-center gap-1.5 rounded-full bg-ink px-5 text-[13px] font-extrabold tracking-tight text-white transition-all hover:bg-black hover:shadow-soft-dark"
+          >
+            <Clock className="h-4 w-4" />
+            가용시간 등록하기
+          </Link>
         </div>
       )}
 
-      {/* Loading state */}
-      {isLoading && (
-        <div className="rounded-[22px] border border-border-soft bg-surface py-12 text-center">
-          <RefreshCw className="mx-auto mb-4 h-8 w-8 animate-spin text-brand-deep" />
-          <p className="text-[13px] font-bold text-muted-foreground">
-            AI가 최적의 스케줄을 분석하고 있어요…
+      {hasAvailability && recommendations.length === 0 && (
+        <div className="rounded-[28px] border-2 border-dashed border-border bg-surface py-12 text-center">
+          <Sparkles className="mx-auto mb-4 h-12 w-12 text-text-subtle" />
+          <p className="text-[15px] font-extrabold tracking-tight text-ink">
+            추천할 공고가 없습니다
           </p>
+          <p className="mb-4 mt-1 text-[12.5px] font-medium text-muted-foreground">
+            시간을 더 넓게 등록하거나 탐색에서 다른 공고를 확인해보세요.
+          </p>
+          <Link
+            href="/explore"
+            className="inline-flex h-11 items-center justify-center gap-1.5 rounded-full bg-ink px-5 text-[13px] font-extrabold tracking-tight text-white transition-all hover:bg-black hover:shadow-soft-dark"
+          >
+            탐색으로 이동
+          </Link>
         </div>
       )}
 
-      {/* Schedule results */}
-      {!isLoading && hasAvailability && recommendations.length > 0 && (
+      {recommendations.length > 0 && (
         <>
-          {/* ai-hero — ink bg + brand-green amount ("이 수치가 당신의 기회").
-              radius 20px, pad 18px, amt 34px per design spec. */}
           <div className="rounded-[20px] bg-ink p-[18px] text-white">
             <p className="text-[11.5px] font-bold tracking-[-0.01em] text-[color-mix(in_oklch,#fff_75%,transparent)]">
-              이번 주 예상 수입
+              이번 주 추천 예상 수입
             </p>
             <p className="tabnum mt-2 text-[34px] font-extrabold tracking-[-0.035em] text-brand">
               {formatMoney(weeklyTotal)}
             </p>
             <p className="mt-0.5 text-[10.5px] font-semibold text-[color-mix(in_oklch,#fff_55%,transparent)]">
-              {recommendations.length}개 추천 스케줄 · 총 {totalHours}시간
+              {recommendations.length}개 추천 공고 · 총 {totalHours.toFixed(1)}시간
             </p>
           </div>
 
-          {/* Day-by-day schedule */}
           <div className="mt-2">
-            {DAYS.map((day) => (
-              <DayColumn
-                key={day}
-                day={day}
-                recommendations={recommendationsByDay[day] ?? []}
-                isToday={day === todayLabel}
-              />
-            ))}
+            {["월", "화", "수", "목", "금", "토", "일"].map((day) => {
+              const matches = grouped[day] ?? [];
+              if (matches.length === 0) return null;
+
+              return (
+                <section key={day}>
+                  <div className="my-3 flex items-center gap-3">
+                    <span className="h-px flex-1 bg-border-soft" />
+                    <span
+                      className={cn(
+                        "text-[11.5px] font-extrabold tracking-tight",
+                        today === day ? "text-brand-deep" : "text-text-subtle",
+                      )}
+                    >
+                      {day}
+                      {today === day ? " · 오늘" : ""}
+                    </span>
+                    <span className="h-px flex-1 bg-border-soft" />
+                  </div>
+                  <div className="space-y-2">
+                    {matches.map((match) => (
+                      <ScheduleBlock key={match.job.id} match={match} />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
           </div>
 
-          {/* ai-actionbar: ink primary + ghost secondary.
-              Design-specific exception: .ai-btn uses rounded-[14px] rectangle,
-              NOT the app-wide pill CTA — intentional per design spec. */}
           <div className="mt-[18px] flex flex-col gap-2.5 pb-1">
             <Link
               href="/my/availability"
               className="inline-flex w-full items-center justify-center gap-1.5 rounded-[14px] bg-ink px-4 py-[14px] text-[13.5px] font-extrabold tracking-[-0.02em] text-white transition-all hover:bg-black hover:shadow-soft-dark"
             >
               <CalendarDays className="h-4 w-4" />
-              이 스케줄로 가용시간 등록
+              가용시간 수정하기
             </Link>
-            <button
-              type="button"
-              onClick={loadSchedule}
-              disabled={isLoading}
-              className="inline-flex items-center justify-center gap-1.5 p-2 text-[12.5px] font-bold text-muted-foreground transition-colors hover:text-ink disabled:opacity-50"
+            <Link
+              href="/explore"
+              className="inline-flex items-center justify-center gap-1.5 p-2 text-[12.5px] font-bold text-muted-foreground transition-colors hover:text-ink"
             >
-              <RefreshCw
-                className={cn("h-3 w-3", isLoading && "animate-spin")}
-              />
-              다시 추천받기
-            </button>
+              {formatWorkDate(recommendations[0].job.workDate)} 추천 공고 더 보기
+            </Link>
           </div>
         </>
-      )}
-
-      {/* No recommendations but has availability */}
-      {!isLoading && hasAvailability && recommendations.length === 0 && (
-        <div className="rounded-[28px] border-2 border-dashed border-border bg-surface py-12 text-center">
-          <Sparkles className="mx-auto mb-4 h-12 w-12 text-text-subtle" />
-          <p className="text-[15px] font-extrabold tracking-tight text-ink">
-            추천할 스케줄이 없어요
-          </p>
-          <p className="mb-4 mt-1 text-[12.5px] font-medium text-muted-foreground">
-            가용시간을 더 넓혀보시면 더 많은 추천을 받을 수 있어요
-          </p>
-          <Button variant="ghost-premium" onClick={loadSchedule}>
-            <RefreshCw className="h-4 w-4" />
-            다시 시도
-          </Button>
-        </div>
       )}
     </div>
   );

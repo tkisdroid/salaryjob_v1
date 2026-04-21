@@ -219,6 +219,7 @@ export function BizProfileEditForm(props: Props) {
             사업자 인증 정보
           </h3>
           <p className="mt-0.5 text-[11.5px] font-medium leading-relaxed text-muted-foreground">
+            번호 저장 후 사업자등록증을 업로드하면 OCR 결과와 대조해 인증합니다.
             사업자등록번호를 입력하면 형식 검증 후 자동 인증됩니다. 공고 등록 시
             사업자등록증 이미지가 추가로 필요합니다.
           </p>
@@ -255,7 +256,7 @@ export function BizProfileEditForm(props: Props) {
           >
             {props.verified
               ? "✅ 인증됨"
-              : "미인증 — 번호 입력 후 저장하면 자동 인증됩니다"}
+              : "미인증 — 등록증 업로드 후 OCR 일치 시 인증됩니다"}
           </p>
         </div>
 

@@ -10,6 +10,11 @@ export type AuthFormState =
         form?: string[]
         email?: string[]
         password?: string[]
+        name?: string[]
+        businessName?: string[]
+        businessCategory?: string[]
+        businessAddress?: string[]
+        businessRegNumber?: string[]
       }
       success?: boolean
     }
