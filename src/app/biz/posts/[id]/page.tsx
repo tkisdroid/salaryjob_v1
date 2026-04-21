@@ -12,6 +12,7 @@ import {
   ChevronRight,
   Tag,
   QrCode,
+  Pencil,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { requireBusiness } from "@/lib/dal";
@@ -111,6 +112,14 @@ export default async function BizPostDetailPage({
 
       {/* Actions */}
       <div className="mb-6 flex flex-wrap gap-2">
+        <Link
+          href={`/biz/posts/${id}/edit`}
+          className="inline-flex h-10 items-center gap-1.5 rounded-full border border-border bg-surface px-3.5 text-[12.5px] font-bold text-ink transition-colors hover:border-ink hover:bg-surface-2"
+        >
+          <Pencil className="h-3.5 w-3.5" />
+          수정
+        </Link>
+
         <DeleteJobButton jobId={id} />
 
         <CheckoutQrModal
