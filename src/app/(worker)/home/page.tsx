@@ -244,20 +244,22 @@ export default async function WorkerHomePage({
                 <Link
                   key={job.id}
                   href={`/posts/${job.id}`}
-                  className="relative w-64 shrink-0 rounded-[22px] border border-border bg-surface p-[18px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-md"
+                  className="w-64 shrink-0 rounded-[22px] border border-border bg-surface p-[18px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-md"
                 >
-                  <span className="absolute top-[14px] right-[14px] inline-flex items-center gap-1 rounded-full bg-lime-chip px-[9px] py-[4px] text-[10.5px] font-extrabold tracking-tight text-lime-chip-fg">
-                    급구
-                  </span>
                   <div className="mb-2 flex items-start gap-3">
                     <div className="grid h-11 w-11 shrink-0 place-items-center rounded-[14px] border border-border-soft bg-surface-2 text-xl">
                       {job.business.logo}
                     </div>
-                    <div className="min-w-0 flex-1 pr-10">
-                      <p className="truncate text-[11px] font-bold tracking-tight text-muted-foreground">
-                        {job.business.name}
-                      </p>
-                      <h3 className="line-clamp-1 text-[15.5px] font-extrabold tracking-[-0.03em] text-ink">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="inline-flex shrink-0 items-center rounded-full bg-lime-chip px-[8px] py-[3px] text-[10px] font-extrabold leading-none tracking-tight text-lime-chip-fg">
+                          급구
+                        </span>
+                        <p className="min-w-0 truncate text-[11px] font-bold tracking-tight text-muted-foreground">
+                          {job.business.name}
+                        </p>
+                      </div>
+                      <h3 className="mt-0.5 line-clamp-2 text-[15.5px] font-extrabold leading-[1.25] tracking-[-0.03em] text-ink">
                         {job.title}
                       </h3>
                     </div>
