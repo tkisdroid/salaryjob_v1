@@ -60,12 +60,12 @@ export function ApplyConfirmFlow({ job }: { job: Job }) {
             <div className="absolute inset-0 animate-ping rounded-full border-2 border-brand opacity-25" />
           </div>
           <h1 className="mb-2 text-[24px] font-extrabold tracking-[-0.03em] text-ink">
-            지원 확정!
+            지원 완료!
           </h1>
           <p className="mb-8 text-[13px] font-semibold leading-relaxed text-muted-foreground">
-            면접 없이 바로 확정됐어요.
+            지원이 접수되었어요.
             <br />
-            근무 당일 시간에 맞춰 방문해주세요.
+            사업자 확인 후 자동 확정됩니다.
           </p>
 
           <div className="mb-6 w-full max-w-sm rounded-[22px] border border-border-soft bg-surface p-4 shadow-soft-md">
@@ -188,7 +188,7 @@ export function ApplyConfirmFlow({ job }: { job: Job }) {
             <ArrowLeft className="h-5 w-5" />
           </BackButton>
           <p className="flex-1 text-[16px] font-extrabold tracking-[-0.02em] text-ink">
-            지원 확정
+            지원하기
           </p>
         </div>
       </header>
@@ -197,13 +197,13 @@ export function ApplyConfirmFlow({ job }: { job: Job }) {
         {/* Intro */}
         <div className="text-center">
           <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-[color-mix(in_oklch,var(--brand)_18%,var(--surface))] px-3 py-1.5 text-[11.5px] font-extrabold tracking-tight text-brand-deep">
-            <Sparkles className="h-3 w-3" /> 면접 없음 · 원탭 확정
+            <Sparkles className="h-3 w-3" /> 면접 없음 · 원탭 지원
           </div>
           <h1 className="text-[20px] font-extrabold tracking-[-0.025em] text-ink">
-            지원을 확정할까요?
+            지원할까요?
           </h1>
           <p className="mt-1 text-[12.5px] font-semibold text-muted-foreground">
-            버튼을 누르는 즉시 근무가 확정됩니다
+            버튼을 누르면 지원이 접수됩니다
           </p>
         </div>
 
@@ -330,10 +330,10 @@ export function ApplyConfirmFlow({ job }: { job: Job }) {
             className="inline-flex h-12 w-full items-center justify-center gap-1.5 rounded-full bg-brand text-[14px] font-extrabold tracking-tight text-ink transition-all hover:bg-brand-dark hover:shadow-soft-green active:scale-[0.98] disabled:bg-surface-2 disabled:text-text-subtle disabled:shadow-none disabled:cursor-not-allowed"
           >
             <Zap className="h-4 w-4 fill-ink" />
-            {agreed ? `${formatMoney(earnings)} 원탭 지원` : "약관 동의 후 진행"}
+            {agreed ? `${formatMoney(earnings)} 지원하기` : "약관 동의 후 진행"}
           </button>
           <p className="tabnum mt-2 text-center text-[10.5px] font-medium text-text-subtle">
-            버튼을 누르면 즉시 근무가 확정됩니다
+            지원 후 사업자 확인을 거쳐 자동 확정됩니다
           </p>
         </div>
       </div>
