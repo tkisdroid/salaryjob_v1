@@ -16,39 +16,79 @@ export default async function AdminDashboardPage() {
   // T-06-15: redundant gate (layout does first gate; this protects client-nav bypass)
   await requireAdmin();
 
-  const [total, verifiedCount, unverifiedCount, pendingReviewCount] =
-    await Promise.all([
-      prisma.businessProfile.count(),
-      prisma.businessProfile.count({ where: { verified: true } }),
-      prisma.businessProfile.count({ where: { verified: false } }),
-      prisma.businessProfile.count({
-        where: { verified: false, businessRegImageUrl: { not: null } },
-      }),
-    ]);
+  const [
+    userCount,
+    workerCount,
+    bizTotal,
+    bizVerified,
+    jobTotal,
+    jobActive,
+    appTotal,
+    appSettled,
+    pendingReviewCount,
+  ] = await Promise.all([
+    prisma.user.count(),
+    prisma.workerProfile.count(),
+    prisma.businessProfile.count(),
+    prisma.businessProfile.count({ where: { verified: true } }),
+    prisma.job.count(),
+    prisma.job.count({ where: { status: "active" } }),
+    prisma.application.count(),
+    prisma.application.count({
+      where: { status: { in: ["settled", "completed"] } },
+    }),
+    prisma.businessProfile.count({
+      where: { verified: false, businessRegImageUrl: { not: null } },
+    }),
+  ]);
 
   const stats = [
     {
+      label: "총 사용자",
+      value: userCount,
+      description: "가입된 전체 계정",
+      highlight: false,
+    },
+    {
+      label: "워커",
+      value: workerCount,
+      description: "프로필 등록 워커",
+      highlight: false,
+    },
+    {
       label: "총 사업장",
-      value: total,
+      value: bizTotal,
       description: "가입된 전체 사업장",
       highlight: false,
     },
     {
-      label: "인증됨",
-      value: verifiedCount,
+      label: "인증 사업장",
+      value: bizVerified,
       description: "사업자번호 인증 완료",
       highlight: false,
     },
     {
-      label: "미인증",
-      value: unverifiedCount,
-      description: "사업자번호 미입력 또는 오류",
+      label: "총 공고",
+      value: jobTotal,
+      description: "등록된 전체 공고",
       highlight: false,
     },
     {
-      label: "검토 필요",
-      value: pendingReviewCount,
-      description: "등록증 이미지 업로드됨 · 미인증",
+      label: "활성 공고",
+      value: jobActive,
+      description: "현재 지원 가능한 공고",
+      highlight: false,
+    },
+    {
+      label: "총 지원",
+      value: appTotal,
+      description: "전체 지원 건수",
+      highlight: false,
+    },
+    {
+      label: "정산 완료",
+      value: appSettled,
+      description: "settled / completed 건수",
       highlight: pendingReviewCount > 0,
     },
   ];
@@ -60,7 +100,7 @@ export default async function AdminDashboardPage() {
           대시보드
         </h1>
         <p className="mt-1 text-[13px] font-medium tracking-tight text-muted-foreground">
-          사업장 현황 요약
+          플랫폼 현황 요약
         </p>
       </div>
 

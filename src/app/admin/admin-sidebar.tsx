@@ -9,11 +9,14 @@
  */
 import Link from "next/link";
 import { logout } from "@/app/(auth)/login/actions";
-import { LayoutDashboard, Building2, LogOut } from "lucide-react";
+import { LayoutDashboard, Building2, Users, Briefcase, Wallet, LogOut } from "lucide-react";
 
 const NAV_LINKS = [
   { href: "/admin", label: "대시보드", icon: LayoutDashboard },
   { href: "/admin/businesses", label: "사업장 관리", icon: Building2 },
+  { href: "/admin/users", label: "사용자", icon: Users },
+  { href: "/admin/jobs", label: "공고", icon: Briefcase },
+  { href: "/admin/settlements", label: "정산", icon: Wallet },
 ] as const;
 
 export default function AdminSidebar() {

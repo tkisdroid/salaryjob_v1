@@ -312,6 +312,82 @@ export async function getBusinessesPaginated(
 }
 
 // ============================================================================
+// getAdminSettlements
+//
+// Paginated list of all settled/completed applications for admin oversight.
+// T-06-15: callers must call requireAdmin() before invoking this.
+// ============================================================================
+
+export async function getAdminSettlements(opts: {
+  limit?: number
+  offset?: number
+}): Promise<{
+  items: Array<{
+    id: string
+    jobTitle: string
+    businessName: string
+    workerName: string
+    earnings: number
+    netEarnings: number | null
+    commissionAmount: number | null
+    checkOutAt: Date | null
+    status: string
+  }>
+  total: number
+}> {
+  const limit = Math.min(opts.limit ?? 20, 100)
+  const offset = opts.offset ?? 0
+
+  const where = {
+    status: { in: ['settled' as const, 'completed' as const] },
+  }
+
+  const [rows, total] = await Promise.all([
+    prisma.application.findMany({
+      where,
+      orderBy: { checkOutAt: 'desc' },
+      skip: offset,
+      take: limit,
+      select: {
+        id: true,
+        status: true,
+        earnings: true,
+        netEarnings: true,
+        commissionAmount: true,
+        checkOutAt: true,
+        job: {
+          select: {
+            title: true,
+            business: { select: { name: true } },
+          },
+        },
+        worker: {
+          select: {
+            workerProfile: { select: { name: true } },
+          },
+        },
+      },
+    }),
+    prisma.application.count({ where }),
+  ])
+
+  return {
+    items: rows.map((row) => ({
+      id: row.id,
+      jobTitle: row.job.title,
+      businessName: row.job.business.name,
+      workerName: row.worker.workerProfile?.name ?? '-',
+      earnings: row.earnings ?? 0,
+      netEarnings: row.netEarnings,
+      commissionAmount: row.commissionAmount,
+      checkOutAt: row.checkOutAt,
+      status: row.status,
+    })),
+    total,
+  }
+}
+
+// ============================================================================
 // getBusinessById
 //
 // Full detail for admin view — includes user account + job count.
