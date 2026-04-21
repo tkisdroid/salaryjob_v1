@@ -231,8 +231,8 @@ export function BizProfileEditForm(props: Props) {
           </h3>
           <p className="mt-0.5 text-[11.5px] font-medium leading-relaxed text-muted-foreground">
             번호 저장 후 사업자등록증을 업로드하면 OCR 결과와 대조해 인증합니다.
-            사업자등록번호를 입력하면 형식 검증 후 자동 인증됩니다. 공고 등록 시
-            사업자등록증 이미지가 추가로 필요합니다.
+            사업자등록번호를 입력하면 형식 검증 후 자동 인증됩니다.
+            공고는 사업자가 인증된 회원만 등록할 수 있어요.
           </p>
         </div>
 
