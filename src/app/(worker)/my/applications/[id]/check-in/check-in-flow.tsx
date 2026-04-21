@@ -97,6 +97,8 @@ export function CheckInFlow({ application }: Props) {
   const [result, setResult] = useState<{
     actualHours: number;
     earnings: number;
+    netEarnings: number;
+    commissionAmount: number;
     nightPremium: number;
   } | null>(null);
 
@@ -169,6 +171,8 @@ export function CheckInFlow({ application }: Props) {
       setResult({
         actualHours: res.actualHours,
         earnings: res.earnings,
+        netEarnings: res.netEarnings,
+        commissionAmount: res.commissionAmount,
         nightPremium: res.nightPremium,
       });
       setPhase("done");
@@ -199,7 +203,7 @@ export function CheckInFlow({ application }: Props) {
   // DONE — settlement summary
   // --------------------------------------------------------------------
   if (phase === "done") {
-    const earnings = result?.earnings ?? 0;
+    const netEarnings = result?.netEarnings ?? 0;
     return (
       <div className="flex min-h-screen flex-col bg-background">
         <div className="flex flex-1 flex-col items-center justify-center px-6 text-center">
@@ -215,10 +219,10 @@ export function CheckInFlow({ application }: Props) {
 
           <div className="mb-4 w-full max-w-sm rounded-[22px] bg-ink p-5 text-white shadow-soft-dark">
             <p className="text-[11.5px] font-bold uppercase tracking-wider text-white/70">
-              정산 금액
+              실지급액
             </p>
             <p className="tabnum mt-1 text-[32px] font-extrabold tracking-[-0.03em]">
-              {formatMoney(earnings)}
+              {formatMoney(netEarnings)}
             </p>
             {result && (
               <div className="tabnum mt-4 space-y-1 border-t border-white/15 pt-4 text-[12px] font-medium">
@@ -226,6 +230,12 @@ export function CheckInFlow({ application }: Props) {
                   <span>실근무 시간</span>
                   <span>{result.actualHours}시간</span>
                 </div>
+                {result.commissionAmount > 0 && (
+                  <div className="flex justify-between text-white/80">
+                    <span>수수료</span>
+                    <span>-{formatMoney(result.commissionAmount)}</span>
+                  </div>
+                )}
                 {result.nightPremium > 0 && (
                   <div className="flex justify-between text-white/80">
                     <span>야간 할증</span>

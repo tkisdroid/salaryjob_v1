@@ -40,7 +40,9 @@ export type CheckOutResult =
   | {
       success: true;
       actualHours: number;
-      earnings: number;
+      earnings: number;        // gross
+      netEarnings: number;     // net (after commission)
+      commissionAmount: number; // commission deducted
       nightPremium: number;
     }
   | { success: false; error: ApplicationErrorCode };
@@ -213,6 +215,7 @@ export async function checkOut(
     // Phase 6 D-34/D-35/D-36: commission snapshot.
     // Read commissionRate + write snapshot inside a single $transaction so a
     // concurrent admin rate update cannot race this write (T-06-20).
+    let snapshotNet = { commissionAmount: 0, netEarnings: earnings };
     await prisma.$transaction(async (tx) => {
       const bizProfile = await tx.businessProfile.findUnique({
         where: { id: job.businessId },
@@ -220,6 +223,11 @@ export async function checkOut(
       });
       const effectiveRate = getEffectiveCommissionRate(bizProfile?.commissionRate);
       const snapshot = computeCommissionSnapshot(earnings, effectiveRate);
+
+      snapshotNet = {
+        commissionAmount: snapshot.commissionAmount,
+        netEarnings: snapshot.netEarnings,
+      };
 
       await tx.application.update({
         where: { id: applicationId },
@@ -237,7 +245,14 @@ export async function checkOut(
 
     safeRevalidate(`/my/applications/${applicationId}`);
     safeRevalidate("/my/applications");
-    return { success: true, actualHours, earnings, nightPremium };
+    return {
+      success: true,
+      actualHours,
+      earnings,
+      netEarnings: snapshotNet.netEarnings,
+      commissionAmount: snapshotNet.commissionAmount,
+      nightPremium,
+    };
   } catch (e) {
     if (e instanceof ApplicationError) {
       return { success: false, error: e.code };

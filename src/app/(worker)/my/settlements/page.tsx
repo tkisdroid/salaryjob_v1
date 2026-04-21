@@ -47,7 +47,7 @@ export default async function WorkerSettlementsPage({
       <div className="mb-4 grid grid-cols-2 gap-3">
         <div className="rounded-[22px] border border-border-soft bg-surface p-4">
           <p className="text-[11px] font-bold tracking-tight text-muted-foreground">
-            총수입
+            총 실수령액
           </p>
           <p className="tabnum mt-1 text-[20px] font-extrabold tracking-[-0.025em] text-ink">
             {totals.allTimeTotal.toLocaleString("ko-KR")}원
@@ -87,7 +87,7 @@ export default async function WorkerSettlementsPage({
               jobTitle={s.job.title}
               counterpartyName={s.job.business.name}
               checkOutAt={s.checkOutAt}
-              earnings={s.earnings ?? 0}
+              earnings={(s as any).netEarnings ?? s.earnings ?? 0}
               settlementStatus={
                 s.status === "settled" || s.status === "completed"
                   ? "settled"
