@@ -39,97 +39,8 @@ import type {
 } from "@/lib/types/job";
 
 // ============================================================================
-// Internal adapter helpers
+// Include clauses (must be declared before payload type aliases)
 // ============================================================================
-
-/**
- * Convert a Prisma BusinessProfile row to the Business UI shape.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function adaptBusiness(b: any): Business {
-  return {
-    id: b.id as string,
-    name: b.name as string,
-    category: b.category as JobCategory,
-    logo: (b.logo as string | null) ?? "🏢",
-    address: b.address as string,
-    addressDetail: (b.addressDetail as string | null) ?? "",
-    lat: Number(b.lat),
-    lng: Number(b.lng),
-    rating: Number(b.rating),
-    reviewCount: b.reviewCount as number,
-    completionRate: b.completionRate as number,
-    photos: [],
-    verified: b.verified as boolean,
-    description: (b.description as string | null) ?? "",
-  };
-}
-
-/**
- * Convert a Prisma Job row (with business relation) to the Job UI shape.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function adaptJob(j: any): Job {
-  const business = adaptBusiness(j.business);
-  return {
-    id: j.id as string,
-    businessId: j.businessId as string,
-    business,
-    title: j.title as string,
-    category: j.category as JobCategory,
-    description: j.description as string,
-    duties: (j.duties as string[] | null) ?? [],
-    requirements: (j.requirements as string[] | null) ?? [],
-    dressCode: (j.dressCode as string | null) ?? "",
-    whatToBring: (j.whatToBring as string[] | null) ?? [],
-    hourlyPay: j.hourlyPay as number,
-    transportFee: j.transportFee as number,
-    workDate: (j.workDate as Date).toISOString().slice(0, 10),
-    startTime: j.startTime as string,
-    endTime: j.endTime as string,
-    workHours: Number(j.workHours),
-    headcount: j.headcount as number,
-    filled: j.filled as number,
-    isUrgent: j.isUrgent as boolean,
-    isNew:
-      j.createdAt instanceof Date
-        ? Date.now() - j.createdAt.getTime() < 3 * 24 * 60 * 60 * 1000 // created within 3 days
-        : false,
-    distanceM: 0, // TODO Phase 3: PostGIS ST_Distance query
-    appliedCount: j._count?.applications ?? 0,
-    tags: (j.tags as string[] | null) ?? [],
-    nightShiftAllowance: j.nightShiftAllowance as boolean,
-  };
-}
-
-/**
- * Convert a Prisma Application row (with nested job.business) to Application UI shape.
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function adaptApplication(a: any): Application {
-  const job = adaptJob(a.job);
-  return {
-    id: a.id as string,
-    jobId: a.jobId as string,
-    job,
-    status: a.status as Application["status"],
-    appliedAt: (a.appliedAt as Date).toISOString(),
-    checkInAt: a.checkInAt ? (a.checkInAt as Date).toISOString() : null,
-    checkOutAt: a.checkOutAt ? (a.checkOutAt as Date).toISOString() : null,
-    actualHours: a.actualHours !== null ? Number(a.actualHours) : null,
-    earnings: (a.earnings as number | null) ?? null,
-    // Phase 5: 'settled' is the new terminal state; 'completed' is the legacy
-    // pre-Phase-5 terminal state. Both surface as settled in the UI.
-    settlementStatus:
-      a.status === "settled" || a.status === "completed" ? "settled" : null,
-    settledAt:
-      (a.status === "settled" || a.status === "completed") && a.checkOutAt
-        ? (a.checkOutAt as Date).toISOString()
-        : null,
-    reviewGiven: a.reviewGiven as boolean,
-    reviewReceived: a.reviewReceived as boolean,
-  };
-}
 
 // Job include clause (reused across queries)
 const JOB_INCLUDE = {
@@ -146,6 +57,104 @@ const APP_INCLUDE = {
     },
   },
 } as const;
+
+// ============================================================================
+// Prisma payload types for adapter functions (BUG-C01: replacing `any`)
+// ============================================================================
+
+type BusinessProfileRow = Prisma.BusinessProfileGetPayload<{}>
+type JobWithBusiness = Prisma.JobGetPayload<{ include: typeof JOB_INCLUDE }>
+type ApplicationWithJob = Prisma.ApplicationGetPayload<{ include: typeof APP_INCLUDE }>
+
+// ============================================================================
+// Internal adapter helpers
+// ============================================================================
+
+/**
+ * Convert a Prisma BusinessProfile row to the Business UI shape.
+ */
+function adaptBusiness(b: BusinessProfileRow): Business {
+  return {
+    id: b.id,
+    name: b.name,
+    category: b.category as JobCategory,
+    logo: b.logo ?? "🏢",
+    address: b.address,
+    addressDetail: b.addressDetail ?? "",
+    lat: Number(b.lat),
+    lng: Number(b.lng),
+    rating: Number(b.rating),
+    reviewCount: b.reviewCount,
+    completionRate: b.completionRate,
+    photos: [],
+    verified: b.verified,
+    description: b.description ?? "",
+  };
+}
+
+/**
+ * Convert a Prisma Job row (with business relation) to the Job UI shape.
+ */
+function adaptJob(j: JobWithBusiness): Job {
+  const business = adaptBusiness(j.business);
+  return {
+    id: j.id,
+    businessId: j.businessId,
+    business,
+    title: j.title,
+    category: j.category as JobCategory,
+    description: j.description,
+    duties: j.duties ?? [],
+    requirements: j.requirements ?? [],
+    dressCode: j.dressCode ?? "",
+    whatToBring: j.whatToBring ?? [],
+    hourlyPay: Number(j.hourlyPay),
+    transportFee: Number(j.transportFee),
+    workDate: j.workDate.toISOString().slice(0, 10),
+    startTime: j.startTime,
+    endTime: j.endTime,
+    workHours: Number(j.workHours),
+    headcount: j.headcount,
+    filled: j.filled,
+    isUrgent: j.isUrgent,
+    isNew:
+      j.createdAt instanceof Date
+        ? Date.now() - j.createdAt.getTime() < 3 * 24 * 60 * 60 * 1000 // created within 3 days
+        : false,
+    distanceM: 0, // TODO Phase 3: PostGIS ST_Distance query
+    appliedCount: j._count?.applications ?? 0,
+    tags: j.tags ?? [],
+    nightShiftAllowance: j.nightShiftAllowance,
+  };
+}
+
+/**
+ * Convert a Prisma Application row (with nested job.business) to Application UI shape.
+ */
+function adaptApplication(a: ApplicationWithJob): Application {
+  const job = adaptJob(a.job);
+  return {
+    id: a.id,
+    jobId: a.jobId,
+    job,
+    status: a.status as Application["status"],
+    appliedAt: a.appliedAt.toISOString(),
+    checkInAt: a.checkInAt ? a.checkInAt.toISOString() : null,
+    checkOutAt: a.checkOutAt ? a.checkOutAt.toISOString() : null,
+    actualHours: a.actualHours !== null ? Number(a.actualHours) : null,
+    earnings: a.earnings ?? null,
+    // Phase 5: 'settled' is the new terminal state; 'completed' is the legacy
+    // pre-Phase-5 terminal state. Both surface as settled in the UI.
+    settlementStatus:
+      a.status === "settled" || a.status === "completed" ? "settled" : null,
+    settledAt:
+      (a.status === "settled" || a.status === "completed") && a.checkOutAt
+        ? a.checkOutAt.toISOString()
+        : null,
+    reviewGiven: a.reviewGiven,
+    reviewReceived: a.reviewReceived,
+  };
+}
 
 // ============================================================================
 // Job queries
@@ -226,18 +235,16 @@ export async function getTodayJobs(): Promise<Job[]> {
 
 /**
  * Fetch all applications for the currently authenticated worker.
- * Returns [] if unauthenticated (does not redirect).
+ * verifySession() throws/redirects on auth failure — callers that need
+ * graceful unauthenticated fallback should use getApplicationsByWorker() directly.
+ * BUG-C02: previous code caught verifySession errors and returned [] silently,
+ * hiding auth failures from callers.
  */
 export async function getApplications(): Promise<Application[]> {
-  let session: { id: string } | null = null;
-  try {
-    session = await verifySession();
-  } catch {
-    // verifySession redirects on failure — this catch handles the edge case
-    // where it's called outside a request context (e.g., landing page)
-    return [];
-  }
-
+  const session = await verifySession();
+  // BUG-C02: verifySession() throws/redirects on failure.
+  // Previous code caught that error and returned [] silently,
+  // hiding auth failures from callers.
   const rows = await prisma.application.findMany({
     where: { workerId: session.id },
     include: APP_INCLUDE,
@@ -345,10 +352,9 @@ export async function getReviews(): Promise<Review[]> {
     take: 20,
   });
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  return rows.map((r: any) => {
+  return rows.map((r) => {
     const workerName: string =
-      (r.reviewer.workerProfile?.name as string | undefined) ?? (r.reviewer.email as string | null) ?? "익명";
+      r.reviewer.workerProfile?.name ?? r.reviewer.email ?? "익명";
     const initial = workerName.charAt(0);
     const maskedName =
       workerName.length > 1
@@ -792,8 +798,24 @@ export async function getJobsByDistance(opts: {
 
 // ----- Internal raw-row adapter (flat $queryRaw result → Job UI shape) -----
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type RawJobRow = any;
+type RawJobRow = {
+  id: string; businessId: string; authorId: string; title: string;
+  category: string; description: string; hourlyPay: number; transportFee: number;
+  workDate: Date; startTime: string; endTime: string; workHours: number;
+  headcount: number; filled: number; lat: number; lng: number;
+  status: string; isUrgent: boolean; nightShiftAllowance: boolean;
+  duties: string[] | null; requirements: string[] | null;
+  dressCode: string | null; whatToBring: string[] | null;
+  tags: string[] | null; address: string; addressDetail: string | null;
+  createdAt: Date;
+  business_id: string; business_name: string; business_category: string;
+  business_logo: string | null; business_address: string;
+  business_addressDetail: string | null; business_lat: number;
+  business_lng: number; business_rating: number;
+  business_reviewCount: number; business_completionRate: number;
+  business_verified: boolean; business_description: string | null;
+  applied_count: number;
+};
 
 /**
  * Converts a flat $queryRaw row (with business_* prefixed JOIN columns) to

@@ -52,9 +52,14 @@ export async function selectRole(formData: FormData): Promise<void> {
 
   // Also update app_metadata so JWT claim sees role in proxy.ts optimistic check
   // NOTE: only service_role key can update app_metadata.
-  const admin = createAdminClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+  if (!supabaseUrl || !serviceRoleKey) {
+    throw new Error(
+      'Missing required env: NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set. See .env.example.'
+    )
+  }
+  const admin = createAdminClient(supabaseUrl, serviceRoleKey,
     { auth: { persistSession: false } }
   )
   const { error: adminError } = await admin.auth.admin.updateUserById(session.id, {
