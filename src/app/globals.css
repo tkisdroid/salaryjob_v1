@@ -273,6 +273,15 @@
     -moz-osx-font-smoothing: auto;
     text-rendering: optimizeLegibility;
     -webkit-text-size-adjust: 100%;
+    /*
+     * Friendly-typography defaults: loosen line-height and micro-soften
+     * letter-spacing so body copy reads as conversational rather than
+     * corporate. Tailwind utilities (tracking-tight, leading-*, etc.)
+     * still override these per-component, so premium display headings
+     * keep their sharpness where intended.
+     */
+    line-height: 1.55;
+    letter-spacing: -0.003em;
   }
   html {
     @apply font-sans;
