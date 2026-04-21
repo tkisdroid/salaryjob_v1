@@ -81,6 +81,9 @@ Progress: 6/9 plans complete (67%)
 | D-33: OCR failure never blocks user — regNumberOcrMismatched flag for admin review | Early operations expect false-positives; graceful degradation > hard rejection | 2026-04-13 (Phase 6 Plan 08) |
 | v1.1 MOCK 정책: 외부 키 없는 시나리오는 MOCK-LOG 기록 후 v1.2/v2 이월 | 외부 의존성이 v1.1 close를 차단하지 않도록 함. 재검증 단계는 추적 가능하게 기록 | 2026-04-15 (v1.1 kickoff) |
 | v1.1 Phase 번호 7부터 시작 (1–6은 v1.0 histoircal) | `/gsd-new-milestone --reset-phase-numbers` 미사용. 연속 번호로 이력 선형성 유지 | 2026-04-15 (v1.1 kickoff) |
+| BUG-B04: DeleteJobButton extracted as client component | server component cannot call toast(); extracted to client component for error feedback | 2026-04-21 (Phase 12 Plan 02) |
+| BUG-B06: ensureThreadForApplication fire-and-forget in acceptApplication | chat failure must not block accept flow; revalidate /messages paths after | 2026-04-21 (Phase 12 Plan 02) |
+| BUG-B07: QR active worker guard before rate-limit check | avoids burning 30s window on a request that would be rejected anyway | 2026-04-21 (Phase 12 Plan 02) |
 | BUG-B09: Review gate widened to completed OR settled | completed is legacy pre-settlement status; both must allow reviews | 2026-04-21 (Phase 12 Plan 03) |
 | BUG-B13: New businesses fall back to all workers (where: {}) | no posted jobs → empty businessCategories → show all workers to avoid empty list | 2026-04-21 (Phase 12 Plan 03) |
 | BUG-B12: workers-client.tsx inline ToastState already reads result.message | no sonner import needed; only action message text updated | 2026-04-21 (Phase 12 Plan 03) |
