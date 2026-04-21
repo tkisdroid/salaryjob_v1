@@ -234,19 +234,21 @@ export function SearchClient({ jobs }: { jobs: SearchJob[] }) {
             <li key={job.id}>
               <Link
                 href={`/posts/${job.id}`}
-                className="relative block rounded-[22px] border border-border bg-surface p-[18px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-md"
+                className="block rounded-[22px] border border-border bg-surface p-[18px] transition-all hover:-translate-y-0.5 hover:border-ink hover:shadow-soft-md"
               >
-                {job.isUrgent && (
-                  <span className="absolute top-[14px] right-[14px] inline-flex items-center gap-1 rounded-full bg-lime-chip px-[9px] py-[4px] text-[10.5px] font-extrabold tracking-tight text-lime-chip-fg">
-                    <Flame className="h-[10px] w-[10px]" />
-                    급구
-                  </span>
-                )}
                 <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1 pr-10">
-                    <p className="truncate text-[11.5px] font-bold tracking-tight text-muted-foreground">
-                      {job.businessName}
-                    </p>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-1.5">
+                      {job.isUrgent && (
+                        <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-lime-chip px-[9px] py-[4px] text-[10.5px] font-extrabold leading-none tracking-tight text-lime-chip-fg">
+                          <Flame className="h-[10px] w-[10px]" />
+                          급구
+                        </span>
+                      )}
+                      <p className="min-w-0 truncate text-[11.5px] font-bold tracking-tight text-muted-foreground">
+                        {job.businessName}
+                      </p>
+                    </div>
                     <h3 className="mt-0.5 line-clamp-1 text-[15px] font-extrabold tracking-[-0.025em] text-ink">
                       {job.title}
                     </h3>
