@@ -65,7 +65,7 @@ export function HomeFilterBar({
 
   function mutate(cb: (params: URLSearchParams) => void) {
     startTransition(() => {
-      router.replace(buildHref(cb));
+      router.replace(buildHref(cb), { scroll: false });
     });
   }
 
@@ -96,6 +96,7 @@ export function HomeFilterBar({
                 }
                 params.set("view", v);
               })}
+              scroll={false}
               role="radio"
               aria-checked={checked}
               aria-label={`${label} 보기`}
