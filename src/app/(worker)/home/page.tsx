@@ -16,6 +16,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { HomeClient } from "./home-client";
+import { HomeLocationWeather } from "@/components/worker/home-location-weather";
 import { pickGreeting } from "@/lib/greeting";
 import {
   isTimePreset,
@@ -122,15 +123,17 @@ export default async function WorkerHomePage({
       <header className="sticky top-0 z-40 border-b border-border-soft bg-[color-mix(in_oklch,var(--surface)_92%,transparent)] [backdrop-filter:saturate(1.4)_blur(12px)]">
         <div className="mx-auto flex h-[72px] max-w-lg items-center justify-between px-4">
           <div>
-            <p className="text-[12px] font-semibold tracking-tight text-muted-foreground">
+            <p className="text-[12.5px] font-medium text-muted-foreground">
               {greeting}
             </p>
-            <p className="mt-1 flex items-baseline gap-2 text-[22px] font-extrabold tracking-tight text-ink">
+            <p className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[22px] font-bold text-ink">
               <span>
                 {displayName}
-                <span className="font-bold text-muted-foreground">님</span>
+                <span className="ml-0.5 font-medium text-muted-foreground">
+                  님
+                </span>
               </span>
-              <span className="text-[20px] leading-none">{emoji}</span>
+              <HomeLocationWeather fallbackEmoji={emoji} />
             </p>
           </div>
           <Link
