@@ -68,29 +68,40 @@ function buildTagGroups(jobs: Job[]) {
   ];
 }
 
-export function ExploreClient({ jobs }: { jobs: Job[] }) {
+type Props = {
+  jobs: Job[];
+  nextCursor: string | null;
+  initialCategory: "all" | JobCategory;
+  initialQuery: string;
+  initialMinPay: number;
+};
+
+export function ExploreClient({
+  jobs,
+  initialCategory,
+  initialQuery,
+  initialMinPay,
+}: Props) {
   const router = useRouter();
-  const [query, setQuery] = useState("");
-  const [category, setCategory] = useState<"all" | JobCategory>("all");
-  const [minPay, setMinPay] = useState(0);
+  const [query, setQuery] = useState(initialQuery);
+  const [category, setCategory] = useState<"all" | JobCategory>(initialCategory);
+  const [minPay, setMinPay] = useState(initialMinPay);
   const [view, setView] = useState<ViewMode>("list");
 
+  // Text search is still client-side (instant refinement on server-filtered data).
+  // Category and minPay are server-filtered via URL params.
   const filtered = useMemo(() => {
-    const normalizedQuery = query.trim().toLowerCase();
-    return jobs.filter((job) => {
-      if (category !== "all" && job.category !== category) return false;
-      if (job.hourlyPay < minPay) return false;
-      if (!normalizedQuery) return true;
-
-      return (
-        job.title.toLowerCase().includes(normalizedQuery) ||
-        job.business.name.toLowerCase().includes(normalizedQuery) ||
-        job.business.address.toLowerCase().includes(normalizedQuery) ||
-        categoryLabel(job.category).toLowerCase().includes(normalizedQuery) ||
-        job.tags.some((tag) => tag.toLowerCase().includes(normalizedQuery))
-      );
-    });
-  }, [jobs, query, category, minPay]);
+    if (!query.trim()) return jobs;
+    const q = query.trim().toLowerCase();
+    return jobs.filter(
+      (job) =>
+        job.title.toLowerCase().includes(q) ||
+        job.business.name.toLowerCase().includes(q) ||
+        job.business.address.toLowerCase().includes(q) ||
+        categoryLabel(job.category).toLowerCase().includes(q) ||
+        job.tags.some((tag) => tag.toLowerCase().includes(q)),
+    );
+  }, [jobs, query]);
 
   const mapCenter = useMemo(() => {
     const coordinates = filtered
@@ -110,10 +121,39 @@ export function ExploreClient({ jobs }: { jobs: Job[] }) {
 
   const tagGroups = useMemo(() => buildTagGroups(jobs), [jobs]);
 
+  function applyFilters(
+    overrides: Partial<{
+      category: string;
+      q: string;
+      minPay: string;
+    }>,
+  ) {
+    const p = new URLSearchParams();
+    const cat =
+      overrides.category !== undefined
+        ? overrides.category
+        : category === "all"
+          ? ""
+          : category;
+    const qVal = overrides.q !== undefined ? overrides.q : query;
+    const pay =
+      overrides.minPay !== undefined
+        ? overrides.minPay
+        : minPay > 0
+          ? String(minPay)
+          : "";
+    if (cat) p.set("category", cat);
+    if (qVal) p.set("q", qVal);
+    if (pay && pay !== "0") p.set("minPay", pay);
+    const qs = p.toString();
+    router.push(qs ? `/explore?${qs}` : "/explore");
+  }
+
   const resetFilters = () => {
     setQuery("");
     setCategory("all");
     setMinPay(0);
+    router.push("/explore");
   };
 
   return (
@@ -133,13 +173,21 @@ export function ExploreClient({ jobs }: { jobs: Job[] }) {
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+            if (e.key === "Enter") {
+              applyFilters({ q: query });
+            }
+          }}
           placeholder="직종, 지역, 매장명으로 검색"
           className="min-w-0 flex-1 bg-transparent text-ink outline-none placeholder:text-text-subtle"
         />
         {query ? (
           <button
             type="button"
-            onClick={() => setQuery("")}
+            onClick={() => {
+              setQuery("");
+              applyFilters({ q: "" });
+            }}
             aria-label="검색어 지우기"
             className="grid h-7 w-7 place-items-center rounded-[10px] text-text-subtle transition-colors hover:bg-surface-2 hover:text-ink"
           >
@@ -184,7 +232,11 @@ export function ExploreClient({ jobs }: { jobs: Job[] }) {
               <button
                 key={cat.key}
                 type="button"
-                onClick={() => setCategory(cat.key)}
+                onClick={() => {
+                  const newCat = cat.key === category ? "all" : cat.key;
+                  setCategory(newCat);
+                  applyFilters({ category: newCat === "all" ? "" : newCat });
+                }}
                 className={cn(
                   "shrink-0 rounded-full border px-3.5 py-2 text-[12.5px] font-bold leading-none tracking-tight transition-colors",
                   category === cat.key
@@ -202,7 +254,10 @@ export function ExploreClient({ jobs }: { jobs: Job[] }) {
               <button
                 key={opt.label}
                 type="button"
-                onClick={() => setMinPay(opt.value)}
+                onClick={() => {
+                  setMinPay(opt.value);
+                  applyFilters({ minPay: opt.value > 0 ? String(opt.value) : "" });
+                }}
                 className={cn(
                   "shrink-0 rounded-full border px-3.5 py-2 text-[12.5px] font-bold leading-none tracking-tight transition-colors",
                   minPay === opt.value
@@ -304,10 +359,13 @@ export function ExploreClient({ jobs }: { jobs: Job[] }) {
                       type="button"
                       onClick={() => {
                         if ("category" in tag && tag.category) {
-                          setCategory(tag.category as JobCategory);
+                          const newCat = tag.category as JobCategory;
+                          setCategory(newCat);
                           setQuery("");
+                          applyFilters({ category: newCat, q: "" });
                         } else {
                           setQuery(tag.value);
+                          applyFilters({ q: tag.value });
                         }
                         setView("list");
                       }}
