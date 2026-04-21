@@ -91,13 +91,6 @@ const SignupSchema = z
 type SignupData = z.infer<typeof SignupSchema>;
 
 const SEOUL_CENTER = { lat: 37.5665, lng: 126.978 } as const;
-const EMAIL_DELIVERY_ERROR_PATTERNS = [
-  "error sending confirmation email",
-  "error sending magic link email",
-  "error sending email",
-  "email rate limit exceeded",
-  "smtp",
-] as const;
 const RECENT_UNCONFIRMED_USER_MS = 10 * 60 * 1000;
 
 function appUrl() {
@@ -112,26 +105,6 @@ function createSupabaseAdminClient() {
   return createAdminClient(url, key, {
     auth: { persistSession: false },
   });
-}
-
-function isEmailDeliveryFailure(message: string) {
-  const normalized = message.toLowerCase();
-  return EMAIL_DELIVERY_ERROR_PATTERNS.some((pattern) =>
-    normalized.includes(pattern),
-  );
-}
-
-async function updateAuthRole(userId: string, role: SignupData["role"]) {
-  const admin = createSupabaseAdminClient();
-  if (!admin) return;
-
-  const { error } = await admin.auth.admin.updateUserById(userId, {
-    app_metadata: { role },
-  });
-
-  if (error) {
-    console.error("[signUpWithPassword] app_metadata role update failed", error);
-  }
 }
 
 async function findAuthUserByEmail(email: string) {
@@ -274,9 +247,9 @@ export async function signUpWithPassword(
     password: formData.get("password"),
     role: formData.get("role") ?? "WORKER",
     name: formData.get("name"),
-    businessName: formData.get("businessName"),
+    businessName: formData.get("businessName") ?? undefined,
     businessCategory: formData.get("businessCategory") || undefined,
-    businessAddress: formData.get("businessAddress"),
+    businessAddress: formData.get("businessAddress") ?? undefined,
     businessRegNumber: formData.get("businessRegNumber") || undefined,
   });
 
@@ -286,6 +259,65 @@ export async function signUpWithPassword(
 
   const supabase = await createClient();
   const nextPath = parsed.data.role === "BUSINESS" ? "/biz/profile" : "/home";
+
+  // Primary path: admin API with email_confirm=true. Matches the product's
+  // zero-friction value ("이력서·면접 제로. 탭 하나로 확정") — skipping
+  // email-link verification so sign-up completes in one tap. Password reset
+  // still uses email.
+  if (createSupabaseAdminClient()) {
+    let result: Awaited<ReturnType<typeof createConfirmedAuthUser>>;
+    try {
+      result = await createConfirmedAuthUser(parsed.data);
+    } catch (e) {
+      console.error("[signUpWithPassword] admin createUser failed", e);
+      const raw = e instanceof Error ? e.message : "";
+      const kr = raw ? supabaseAuthErrorToKorean(raw) : "";
+      return {
+        error: {
+          form: [
+            kr || "계정 생성 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.",
+          ],
+        },
+      };
+    }
+
+    if (result.error) {
+      return result;
+    }
+
+    try {
+      await createInitialProfile(result.userId, result.email, parsed.data);
+    } catch (e) {
+      console.error("[signUpWithPassword] profile bootstrap failed", e);
+      return {
+        error: {
+          form: [
+            "계정은 생성되었지만 프로필 초기화에 실패했습니다. 잠시 후 로그인해 다시 시도해 주세요.",
+          ],
+        },
+      };
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: result.email,
+      password: parsed.data.password,
+    });
+    if (signInError) {
+      console.error("[signUpWithPassword] auto sign-in failed", signInError);
+      return {
+        error: {
+          form: [
+            "계정은 생성되었지만 자동 로그인에 실패했습니다. 로그인 화면에서 다시 로그인해 주세요.",
+          ],
+        },
+      };
+    }
+
+    redirect(nextPath);
+  }
+
+  // Fallback: service role key not configured. Use the public signUp flow,
+  // which follows the Supabase project's email-confirmation setting.
   const { data, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
@@ -301,56 +333,6 @@ export async function signUpWithPassword(
   });
 
   if (error) {
-    if (isEmailDeliveryFailure(error.message)) {
-      let fallback:
-        | Awaited<ReturnType<typeof createConfirmedAuthUser>>
-        | undefined;
-
-      try {
-        fallback = await createConfirmedAuthUser(parsed.data);
-
-        if (fallback.error) {
-          return fallback;
-        }
-
-        await createInitialProfile(
-          fallback.userId,
-          fallback.email,
-          parsed.data,
-        );
-      } catch (e) {
-        console.error("[signUpWithPassword] email delivery fallback failed", e);
-        return {
-          error: {
-            form: [
-              "계정 인증 메일 발송에 실패했습니다. 잠시 후 다시 시도해 주세요.",
-            ],
-          },
-        };
-      }
-
-      const { error: signInError } = await supabase.auth.signInWithPassword({
-        email: fallback.email,
-        password: parsed.data.password,
-      });
-
-      if (signInError) {
-        console.error(
-          "[signUpWithPassword] fallback sign-in failed",
-          signInError,
-        );
-        return {
-          error: {
-            form: [
-              "계정은 생성되었지만 자동 로그인에 실패했습니다. 로그인 화면에서 다시 로그인해 주세요.",
-            ],
-          },
-        };
-      }
-
-      redirect(nextPath);
-    }
-
     const kr = supabaseAuthErrorToKorean(error.message);
     if (kr.includes("비밀번호")) {
       return { error: { password: [kr] } };
@@ -364,7 +346,6 @@ export async function signUpWithPassword(
   if (data.user?.id) {
     try {
       await createInitialProfile(data.user.id, parsed.data.email, parsed.data);
-      await updateAuthRole(data.user.id, parsed.data.role);
     } catch (e) {
       console.error("[signUpWithPassword] profile bootstrap failed", e);
       return {
