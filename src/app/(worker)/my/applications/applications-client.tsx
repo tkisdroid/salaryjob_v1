@@ -35,7 +35,8 @@ type AppRow = {
     | "in_progress"
     | "completed"
     | "settled"
-    | "cancelled";
+    | "cancelled"
+    | "checked_in";
   appliedAt: string;
   checkInAt: string | null;
   checkOutAt: string | null;
@@ -87,6 +88,11 @@ const STATUS_CONFIG: Record<
   in_progress: {
     label: "근무 중",
     icon: Zap,
+    accentClass: "text-emerald-600",
+  },
+  checked_in: {
+    label: "체크인 완료",
+    icon: CheckCircle2,
     accentClass: "text-emerald-600",
   },
   completed: {
@@ -258,6 +264,8 @@ function EmptyState({ message }: { message: string }) {
 function statusPillClasses(status: AppRow["status"]): string {
   switch (status) {
     case "in_progress":
+      return "bg-surface-2 text-ink";
+    case "checked_in":
       return "bg-surface-2 text-ink";
     case "confirmed":
       return "bg-brand text-ink";

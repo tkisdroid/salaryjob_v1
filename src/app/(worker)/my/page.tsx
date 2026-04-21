@@ -47,7 +47,11 @@ export default async function MyPage() {
       application.status === "confirmed" || application.status === "checked_in",
   );
   const recentCompleted = applications
-    .filter((application) => application.status === "completed")
+    .filter(
+      (application) =>
+        application.status === "completed" ||
+        application.status === "settled",
+    )
     .slice(0, 2);
 
   return (
@@ -287,7 +291,7 @@ export default async function MyPage() {
                 최근 완료
               </h2>
               <Link
-                href="/my/applications?tab=completed"
+                href="/my/applications?tab=done"
                 className="text-[11.5px] font-bold text-brand-deep"
               >
                 전체 보기
