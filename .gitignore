@@ -76,3 +76,7 @@ playwright/.auth/
 MANUAL-FIX-NEEDED.md
 tests/review/_results.json
 
+
+# Supabase CLI runtime state (do not track)
+supabase/.temp/
+
