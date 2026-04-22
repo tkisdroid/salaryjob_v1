@@ -2,9 +2,10 @@
 
 **Milestone:** v1.1 Ship-Ready — Gap Fill & Full QA Sweep
 **Created:** 2026-04-15
+**Last updated:** 2026-04-23 (Phase 07.1 insertion + QA-06..QA-11 registration)
 **Granularity:** standard
 **Phase numbering:** Phase 7 onward (continuing from v1.0 which closed at Phase 6)
-**Coverage:** 20/20 REQ-IDs mapped (100%)
+**Coverage:** 26/26 REQ-IDs mapped (100%) — cross-checked against REQUIREMENTS.md traceability table.
 
 ## Milestone Goal
 
@@ -15,6 +16,7 @@ v1.0 close 시점에 남은 모든 gap을 메우고 실 사용자 플로우가 �
 ## Phases
 
 - [ ] **Phase 7: DB Migration Apply & Infra Foundation** — Phase 6 마이그레이션 적용 + Admin seed + 외부 키/MOCK 인프라 확립 (모든 후속 phase의 전제)
+- [ ] **Phase 07.1: Automated Review Harness & Zero-Error Gate (INSERTED 2026-04-15)** — 자체 부팅 Supabase 스택 + 108 route-scenario + 7 E2E 루프 + 16-gate zero-error + D-19/D-20 auto-fix 루프 + `production_ready` REVIEW.md
 - [ ] **Phase 8: HUMAN-UAT Execution (13 scenarios + E2E Loop)** — Phase 4/5/6 브라우저 UAT + 1-min end-to-end 플로우 실측
 - [ ] **Phase 9: UI/UX Full Sweep (55 routes × Desktop + Mobile 375px)** — Worker·Business·Admin 전 라우트 체크리스트 PASS + critical/high 이슈 fix
 - [ ] **Phase 10: Legacy Cleanup & Milestone Close** — Phase 1 legacy MOCK 제거 + stale 주석 정리 + CI 회귀 가드
@@ -33,17 +35,18 @@ v1.0 close 시점에 남은 모든 gap을 메우고 실 사용자 플로우가 �
   5. `.planning/phases/*/MOCK-LOG.md` 템플릿이 (mocked path / reason / real-key re-verify step / target milestone) 4필드를 포함한 표준 형태로 확립되어 있다
 **Plans:** 2 plans
 - [x] 07-01-PLAN.md — Prep: MOCK-LOG infra (template + index + README + Phase 6 instance) + docs/external-keys.md + .env.example annotation (INFRA-01, INFRA-03; network-free)
-- [ ] 07-02-PLAN.md — Apply: admin_seed uncomment + commit + apply-supabase-migrations + prisma validate/status/generate + /admin login + signed URL RLS round-trip + VERIFICATION.md (MIG-01..04; Supabase network required)
+- [ ] 07-02-PLAN.md — Apply: admin_seed uncomment + commit + apply-supabase-migrations + prisma validate/status/generate + /admin login + signed URL RLS round-trip + VERIFICATION.md (MIG-01..04; Supabase network required) — RELOCATED TO PHASE 8 DAY 1 per Phase 07.1 D-02
 
-### Phase 07.1: Automated Review Harness & Zero-Error Gate (INSERTED)
+### Phase 07.1: Automated Review Harness & Zero-Error Gate (INSERTED 2026-04-15)
 
-**Goal:** [Urgent work - to be planned]
-**Requirements**: TBD
-**Depends on:** Phase 7
-**Plans:** 0 plans
+**Goal:** Self-contained QA harness that boots local Supabase, seeds deterministic fixtures, drives Playwright over 108 route-scenarios + 7 E2E loops, enforces 16-gate zero-error policy, auto-fixes within whitelisted scope, and reports `production_ready: true|false` in `07.1-REVIEW.md`.
+**Requirements:** QA-06, QA-07, QA-08, QA-09, QA-10, QA-11
+**Depends on:** Phase 7 (07-01 prep only; 07-02 relocated to Phase 8 Day 1 per D-02)
+**Plans:** 2 plans
 
 Plans:
-- [ ] TBD (run /gsd-plan-phase 07.1 to break down)
+- [ ] 07.1-01-PLAN.md — Review Harness Infrastructure (local Supabase stack + deterministic seed + 54-route manifest + Playwright mobile-375 + quality-gate wiring) — Wave 1, autonomous (QA-06, QA-07, QA-08, QA-09)
+- [ ] 07.1-02-PLAN.md — Full Sweep + Auto-Fix Loop (108 route-scenarios + 7 E2E loops + D-19/D-20/D-21/D-22 auto-fix loop + REVIEW.md report) — Wave 2, checkpointed (QA-08, QA-09, QA-10, QA-11)
 
 ### Phase 8: HUMAN-UAT Execution (13 scenarios + E2E Loop)
 **Goal:** v1.0이 코드-레벨에서 완성한 Worker/Business/Admin 플로우가 실 브라우저 + 실 DB 환경에서 13개 HUMAN-UAT 시나리오를 통해 기능적으로 동작함을 증명하고, 핵심 end-to-end 루프가 1분 이내 완료됨을 실측 기록한다.
@@ -82,6 +85,10 @@ Plans:
 
 ## Requirements Coverage
 
+The table below lists **every REQ-ID registered in `REQUIREMENTS.md`** (v1.1 formal scope: 26 entries). Phase 11/12/13 BUG-* rows are listed afterwards as supplementary traceability helpers — they are not part of the v1.1 REQUIREMENTS.md registration and do not count toward `Total mapped`.
+
+### v1.1 Registered Requirements (from REQUIREMENTS.md)
+
 | REQ-ID | Phase | Category |
 |--------|-------|----------|
 | MIG-01 | Phase 7 | DB Migration |
@@ -90,6 +97,12 @@ Plans:
 | MIG-04 | Phase 7 | DB Migration |
 | INFRA-01 | Phase 7 | Infra |
 | INFRA-03 | Phase 7 | Infra |
+| QA-06 | Phase 07.1 | QA Harness — Setup Docs |
+| QA-07 | Phase 07.1 | QA Harness — Deterministic Seed |
+| QA-08 | Phase 07.1 | QA Harness — Browser Verification |
+| QA-09 | Phase 07.1 | QA Harness — Zero-Error Gate |
+| QA-10 | Phase 07.1 | QA Harness — Auto-Fix Loop |
+| QA-11 | Phase 07.1 | QA Harness — REVIEW.md Report |
 | UAT-01 | Phase 8 | HUMAN-UAT |
 | UAT-02 | Phase 8 | HUMAN-UAT |
 | UAT-03 | Phase 8 | HUMAN-UAT |
@@ -104,26 +117,26 @@ Plans:
 | LEG-01 | Phase 10 | Legacy Cleanup |
 | LEG-02 | Phase 10 | Legacy Cleanup |
 | LEG-03 | Phase 10 | Legacy Cleanup |
-| BUG-A01 | Phase 13 | Admin Bug Fix |
-| BUG-A02 | Phase 13 | Admin Bug Fix |
-| BUG-A03 | Phase 13 | Admin Bug Fix |
-| BUG-A04 | Phase 13 | Admin Bug Fix |
-| BUG-A05 | Phase 13 | Admin Bug Fix |
-| BUG-C01 | Phase 13 | Code Quality |
-| BUG-C02 | Phase 13 | Code Quality |
-| BUG-C03 | Phase 13 | Code Quality |
-| BUG-C04 | Phase 13 | Code Quality |
-| BUG-C05 | Phase 13 | Code Quality |
 
-**Total mapped:** 30/30 (100%)
+**Total mapped:** 26/26 (100%) — matches REQUIREMENTS.md traceability-table row count.
 **Orphaned:** 0
 **Duplicates:** 0
+
+### Supplementary Phase 11–13 BUG Traceability (not in REQUIREMENTS.md v1.1)
+
+| REQ-ID | Phase | Category |
+|--------|-------|----------|
+| BUG-W01..BUG-W12 (12) | Phase 11 | Worker Flow Bug Fix |
+| BUG-B01..BUG-B13 (13) | Phase 12 | Business Flow Bug Fix |
+| BUG-A01..BUG-A05 (5)  | Phase 13 | Admin Feature Expansion |
+| BUG-C01..BUG-C05 (5)  | Phase 13 | Code Quality |
 
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 7. DB Migration Apply & Infra Foundation | 0/2 | Not started | — |
+| 07.1. Automated Review Harness & Zero-Error Gate | 0/2 | Planned, awaiting execution | — |
 | 8. HUMAN-UAT Execution | 0/TBD | Not started | — |
 | 9. UI/UX Full Sweep | 0/TBD | Not started | — |
 | 10. Legacy Cleanup & Milestone Close | 0/TBD | Not started | — |
@@ -134,14 +147,14 @@ Plans:
 ## Phase Dependency Graph
 
 ```
-Phase 7 (DB + Infra) ─┬─> Phase 8 (HUMAN-UAT)
-                      ├─> Phase 9 (UI/UX Sweep)
-                      └─> Phase 10 (Legacy Cleanup)
+Phase 7 (DB + Infra) ──> Phase 07.1 (Review Harness) ──┬─> Phase 8 (HUMAN-UAT)
+                                                       ├─> Phase 9 (UI/UX Sweep)
+                                                       └─> Phase 10 (Legacy Cleanup)
 
 Phase 10 ──> Phase 11 (Worker Codex) ──> Phase 12 (Biz Codex) ──> Phase 13 (Admin+Common Codex)
 ```
 
-Phase 7은 hard prerequisite. Phase 8/9/10은 Phase 7 완료 후 실제로는 병렬 가능하나, 단일 개발자 컨텍스트에서 순차 권장 (8 → 9 → 10). Phase 10은 cleanup 후 회귀 감지를 위해 UAT/QA 후순위에 두는 것이 안전.
+Phase 7은 hard prerequisite. Phase 07.1은 Phase 7 07-01(prep) 완료 후 바로 실행 가능 (07-02 apply는 Phase 8 Day 1으로 relocate됨, D-02). Phase 8/9/10은 Phase 07.1이 production_ready=true 선언한 후 실제로는 병렬 가능하나, 단일 개발자 컨텍스트에서 순차 권장 (8 → 9 → 10). Phase 10은 cleanup 후 회귀 감지를 위해 UAT/QA 후순위에 두는 것이 안전.
 
 ## MOCK Policy (milestone-wide)
 
@@ -190,4 +203,5 @@ Plans:
 
 ---
 
-*Roadmap created: 2026-04-15 by gsd-roadmapper. Phase numbering continues from v1.0 close (Phase 6) per milestone policy. Next: `/gsd-plan-phase 7`.*
+*Roadmap created: 2026-04-15 by gsd-roadmapper. Phase numbering continues from v1.0 close (Phase 6) per milestone policy.*
+*Updated 2026-04-23: Phase 07.1 (Automated Review Harness & Zero-Error Gate) inserted between Phase 7 and Phase 8; QA-06..QA-11 registered in REQUIREMENTS.md; Requirements Coverage recounted to 26/26.*

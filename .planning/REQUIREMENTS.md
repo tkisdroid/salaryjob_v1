@@ -33,6 +33,15 @@
 - [ ] **QA-04**: QA 과정에서 발견된 모든 critical·high 등급 이슈가 close 전 수정 완료되고 fix 커밋이 이슈에 링크되어 있다 (low/info는 백로그 todo로 이월 가능)
 - [ ] **QA-05**: shadcn 디자인 토큰(spacing/typography/color) 드리프트, 동일 액션에 대한 중복 버튼, 모바일 하단 탭바로 가려진 CTA가 Worker/Business/Admin 전 화면에서 0건임이 체크리스트로 증명된다
 
+### QA — Automated Review Harness (Phase 07.1)
+
+- [ ] **QA-06**: `docs/review-harness.md` + `.env.test` infrastructure + `supabase` devDep enable `npm run review:stack` to boot the local Supabase CLI stack with Docker Desktop (D-01, D-03, D-04) and a new developer can follow the Windows/WSL2/Docker checklist to green in < 15 minutes
+- [ ] **QA-07**: Deterministic seed script (`scripts/review/seed-test-data.ts`) + `tests/review/fixtures/ids.ts` insert 3 workers + 3 biz + 1 admin + 10 jobs + 5 applications + 2 shifts + 3 reviews + 1 settlement with fixed UUIDs per D-06/D-07/D-08
+- [ ] **QA-08**: Browser-driven verification (Playwright mobile-375 project + D-11 5-assertion helper + D-13 CTA probe + axe critical/serious + 54-route manifest) enforces content + interaction correctness per D-11/D-12/D-13/D-14
+- [ ] **QA-09**: Zero-error gate aggregation across G1..G16 (D-17) runs without short-circuit and reports `07.1-REVIEW.md` with per-gate observed value + threshold + PASS/FAIL
+- [ ] **QA-10**: Auto-fix loop (`scripts/review/auto-fix-loop.ts`) respects D-19 WHITELIST + D-20 DENY list + D-21 progress-aware iteration (max 3, extend to 10 on strict decrease) + D-22 functional-correctness override
+- [ ] **QA-11**: `07.1-REVIEW.md` report writer emits frontmatter `production_ready: true|false` + all 16 gate results + all 11 Success Criteria evidence per D-17 + SC #1..#11
+
 ### LEG — Phase 1 Legacy 잔재 정리
 
 - [ ] **LEG-01**: `src/app/(worker)/my/schedule/page.tsx`의 로컬 MOCK 상수(availability/match history)가 제거되고 실 DB 쿼리로 대체되어 실제 사용자의 예약·지원 이력이 표시된다
@@ -88,6 +97,12 @@
 | QA-03  | Phase 9 | TBD | pending |
 | QA-04  | Phase 9 | TBD | pending |
 | QA-05  | Phase 9 | TBD | pending |
+| QA-06  | Phase 07.1 | 07.1-01 | pending |
+| QA-07  | Phase 07.1 | 07.1-01 | pending |
+| QA-08  | Phase 07.1 | 07.1-01, 07.1-02 | pending |
+| QA-09  | Phase 07.1 | 07.1-01, 07.1-02 | pending |
+| QA-10  | Phase 07.1 | 07.1-02 | pending |
+| QA-11  | Phase 07.1 | 07.1-02 | pending |
 | LEG-01 | Phase 10 | TBD | pending |
 | LEG-02 | Phase 10 | TBD | pending |
 | LEG-03 | Phase 10 | TBD | pending |
@@ -95,10 +110,10 @@
 | INFRA-02 | Phase 8 | TBD | pending |
 | INFRA-03 | Phase 7 | TBD | pending |
 
-**Total mapped:** 20/20 (100%) — 0 orphaned, 0 duplicate.
+**Total mapped:** 26/26 (100%) — 0 orphaned, 0 duplicate.
 
 Plan 컬럼은 `/gsd-plan-phase {N}` 실행 시 해당 REQ-ID가 포함된 plan 번호로 채워진다.
 
 ---
 
-*Last updated: 2026-04-15 — Traceability 컬럼에 Phase 매핑 적용 (gsd-roadmapper v1.1 로드맵 생성 직후). 5 categories, 20 REQ-IDs, 4 phases (7–10).*
+*Last updated: 2026-04-23 — Phase 07.1 QA-06..QA-11 추가 (Automated Review Harness & Zero-Error Gate). 6 categories, 26 REQ-IDs, 5 phases (7, 07.1, 8–10).*
