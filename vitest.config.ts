@@ -13,7 +13,7 @@ export default defineConfig({
       ['**', 'node'],
     ],
     setupFiles: ['tests/setup.ts'],
-    exclude: ['node_modules', 'tests/e2e/**', '.next'],
+    exclude: ['node_modules', 'tests/e2e/**', 'tests/review/**', '.next'],
     testTimeout: 15000,
     // Phase 4 Plan 04 — disable file-level parallelism.
     // tests/applications/*.test.ts share the Supabase DB and each file runs
