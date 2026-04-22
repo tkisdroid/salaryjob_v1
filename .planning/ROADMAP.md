@@ -136,7 +136,7 @@ The table below lists **every REQ-ID registered in `REQUIREMENTS.md`** (v1.1 for
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 7. DB Migration Apply & Infra Foundation | 0/2 | Not started | — |
-| 07.1. Automated Review Harness & Zero-Error Gate | 1/2 | In Progress|  |
+| 07.1. Automated Review Harness & Zero-Error Gate | 1/2 (Plan 02 partial: 4/6 auto tasks shipped; Task 4 + Task 6 human checkpoints deferred) | In Progress |  |
 | 8. HUMAN-UAT Execution | 0/TBD | Not started | — |
 | 9. UI/UX Full Sweep | 0/TBD | Not started | — |
 | 10. Legacy Cleanup & Milestone Close | 0/TBD | Not started | — |

@@ -26,10 +26,10 @@ progress:
 ## Current Position
 
 Phase: 07.1 (automated-review-harness-zero-error-gate) — EXECUTING
-Plan: 2 of 2
-Status: Ready to execute
-Last activity: 2026-04-22
-Progress: 6/9 plans complete (67%)
+Plan: 2 of 2 (PARTIAL — 4/6 auto tasks shipped; Task 4 + Task 6 human checkpoints deferred)
+Status: Awaiting human verification checkpoints (Task 4 initial auto-fix-diff review + Task 6 final 11-SC sign-off). Auto-only portion complete.
+Last activity: 2026-04-22 (Plan 02 auto-only execution finished: 4 tasks committed, smoke REVIEW.md emitted with production_ready:false placeholder)
+Progress: 6/9 plans complete (67%); Plan 07.1-02 partial (4/6 tasks complete; the 2 remaining items are human checkpoints, not coding tasks)
 
 ## Phase Progress
 
@@ -102,6 +102,7 @@ Progress: 6/9 plans complete (67%)
 | Phase 13-admin-codex-10 P02 | 383 | 2 tasks | 7 files |
 | Phase 13-admin-codex-10 P01 | 15 | 2 tasks | 9 files |
 | Phase 07.1 P01 | 33m | 4 tasks | 24 files |
+| Phase 07.1 P02 (partial — auto-only) | 22m | 4 of 6 tasks (2 deferred checkpoints) | 12 files |
 
 ### Roadmap Evolution
 
@@ -136,16 +137,17 @@ Progress: 6/9 plans complete (67%)
 
 ### Last Session Summary
 
-- 2026-04-15 v1.1 Ship-Ready 밀스톤 kickoff.
-- PROJECT.md / REQUIREMENTS.md / MILESTONES.md 정비 후 gsd-roadmapper가 4-phase 로드맵(7–10) 생성.
-- 20/20 REQ-ID 매핑, 카테고리별 완전 분리: MIG+INFRA(7) · UAT+INFRA-02(8) · QA(9) · LEG(10).
-- 다음 단계: `/gsd-plan-phase 7`로 DB 마이그레이션 적용 + Admin seed + MOCK-LOG 템플릿 + CLOVA_OCR_SECRET 가이드 plan화.
+- 2026-04-22 Phase 07.1 Plan 02 **auto-only** execution: 4 tasks shipped (commits `ddcaf4b`, `8e4bba8`, `ba57a7e`, `de69340`). Task 4 + Task 6 human checkpoints deferred per session directive ("사람이 직접 검증해야 하는 부분은 놔두고 나머지 부분은 끝까지 진행").
+- Deliverables: `scripts/review/run-full-sweep.ts` (aggregate runner, D-17 table verbatim), `tests/review/routes/run-matrix.ts` (108 scenarios), `tests/review/flows/01..07-*.spec.ts` (D-15 loops), `scripts/review/auto-fix-loop.ts` (D-19 WHITELIST + D-20 DENY + D-21 + D-22 + `hasFunctionalFailure`), `scripts/review/report-writer.ts`, `scripts/review/run-review.ts`. Smoke-emitted `07.1-REVIEW.md` carries `production_ready: false` placeholder awaiting real sweep.
+- No D-20 denylist edits (verified via `git diff --name-only 588b478..HEAD`).
+- tsc baseline unchanged (only the 2 pre-existing `src/lib/ocr/` drift errors remain).
+- VALIDATION.md rows 07.1-02-01/02/03/05 marked ✅ green; rows 02-04/02-06 remain ⬜ pending (deferred checkpoints).
 
 ### Next Session Starting Point
 
-1. `/gsd-plan-phase 7` 실행 → Phase 7 plan 구조 도출
-2. Supabase 접근 가능 환경에서 `npx tsx scripts/apply-supabase-migrations.ts` 준비
-3. `supabase/migrations/20260414000005_phase6_admin_seed.sql`의 UPDATE 블록 주석 해제 전략 결정
+1. **Task 4 (checkpoint:human-verify):** Run real auto-fix iter 1 — `REVIEW_RUN=1 npx tsx scripts/review/run-review.ts` (needs Docker Desktop + `supabase start`). Inspect iter-1 git diff against D-20 denylist + MANUAL-FIX-NEEDED.md. Resume signal: `approved` / `manual-fix: <summary>` / `stop: <reason>`.
+2. **Task 6 (checkpoint:human-verify):** After iter-loop reaches `{green, paused, exhausted}`, attest the 11 Success Criteria (CONTEXT.md §success_criteria), confirm `production_ready: true` in the real REVIEW.md. Resume signal: `signed off — production_ready: true, all 11 SC PASS`.
+3. If checkpoints pass: `/gsd:verify-work 07.1` closes the phase; advance STATE to Phase 8.
 
 ### Files of Interest
 
