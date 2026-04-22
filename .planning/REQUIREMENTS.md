@@ -35,10 +35,10 @@
 
 ### QA — Automated Review Harness (Phase 07.1)
 
-- [ ] **QA-06**: `docs/review-harness.md` + `.env.test` infrastructure + `supabase` devDep enable `npm run review:stack` to boot the local Supabase CLI stack with Docker Desktop (D-01, D-03, D-04) and a new developer can follow the Windows/WSL2/Docker checklist to green in < 15 minutes
-- [ ] **QA-07**: Deterministic seed script (`scripts/review/seed-test-data.ts`) + `tests/review/fixtures/ids.ts` insert 3 workers + 3 biz + 1 admin + 10 jobs + 5 applications + 2 shifts + 3 reviews + 1 settlement with fixed UUIDs per D-06/D-07/D-08
-- [ ] **QA-08**: Browser-driven verification (Playwright mobile-375 project + D-11 5-assertion helper + D-13 CTA probe + axe critical/serious + 54-route manifest) enforces content + interaction correctness per D-11/D-12/D-13/D-14
-- [ ] **QA-09**: Zero-error gate aggregation across G1..G16 (D-17) runs without short-circuit and reports `07.1-REVIEW.md` with per-gate observed value + threshold + PASS/FAIL
+- [x] **QA-06**: `docs/review-harness.md` + `.env.test` infrastructure + `supabase` devDep enable `npm run review:stack` to boot the local Supabase CLI stack with Docker Desktop (D-01, D-03, D-04) and a new developer can follow the Windows/WSL2/Docker checklist to green in < 15 minutes
+- [x] **QA-07**: Deterministic seed script (`scripts/review/seed-test-data.ts`) + `tests/review/fixtures/ids.ts` insert 3 workers + 3 biz + 1 admin + 10 jobs + 5 applications + 2 shifts + 3 reviews + 1 settlement with fixed UUIDs per D-06/D-07/D-08
+- [x] **QA-08**: Browser-driven verification (Playwright mobile-375 project + D-11 5-assertion helper + D-13 CTA probe + axe critical/serious + 54-route manifest) enforces content + interaction correctness per D-11/D-12/D-13/D-14
+- [x] **QA-09**: Zero-error gate aggregation across G1..G16 (D-17) runs without short-circuit and reports `07.1-REVIEW.md` with per-gate observed value + threshold + PASS/FAIL
 - [ ] **QA-10**: Auto-fix loop (`scripts/review/auto-fix-loop.ts`) respects D-19 WHITELIST + D-20 DENY list + D-21 progress-aware iteration (max 3, extend to 10 on strict decrease) + D-22 functional-correctness override
 - [ ] **QA-11**: `07.1-REVIEW.md` report writer emits frontmatter `production_ready: true|false` + all 16 gate results + all 11 Success Criteria evidence per D-17 + SC #1..#11
 
