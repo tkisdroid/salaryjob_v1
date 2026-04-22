@@ -80,3 +80,7 @@ tests/review/_results.json
 # Supabase CLI runtime state (do not track)
 supabase/.temp/
 
+
+# Codex/AI review dumps may capture secrets (e.g. .env reads) — exclude by default
+# Sanitized reviews can be committed manually after explicit review
+.planning/**/reviews/*codex*
