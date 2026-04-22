@@ -74,4 +74,5 @@ salaryjob*_files/
 playwright/.auth/
 .review/
 MANUAL-FIX-NEEDED.md
+tests/review/_results.json
 
