@@ -15,18 +15,21 @@ const reviewProjects = isReview
   ? [
       {
         name: 'setup-worker',
+        testDir: './tests/review',
         testMatch: /auth\.setup\.ts/,
         use: {},
         metadata: { persona: 'worker' as const },
       },
       {
         name: 'setup-biz',
+        testDir: './tests/review',
         testMatch: /auth\.setup\.ts/,
         use: {},
         metadata: { persona: 'biz' as const },
       },
       {
         name: 'setup-admin',
+        testDir: './tests/review',
         testMatch: /auth\.setup\.ts/,
         use: {},
         metadata: { persona: 'admin' as const },
