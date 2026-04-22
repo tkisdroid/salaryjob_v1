@@ -12,6 +12,15 @@ module.exports = {
         'http://localhost:3000/', // smoke URL; full-sweep runner overrides dynamically
       ],
       numberOfRuns: 3,
+      // LHCI must own its own Next.js server lifecycle. Prior to this, the
+      // Playwright subprocess was starting the server via webServer config, and
+      // the server was torn down when the Playwright process exited — leaving
+      // LHCI autorun (which runs after Playwright) with nothing at :3000.
+      // startServerCommand + startServerReadyPattern make LHCI spin up its own
+      // `next start` and wait for the ready log line before probing URLs.
+      startServerCommand: 'npm run build && npm run start',
+      startServerReadyPattern: 'Ready in',
+      startServerReadyTimeout: 180000,
       chromePath: chromium.executablePath(), // Pitfall 5 — reuse Playwright Chromium
       settings: {
         preset: 'desktop',
