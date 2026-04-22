@@ -6,12 +6,17 @@
  * strategy chosen in Plan 02-01 Task 5 checkpoint resolution.
  *
  * Usage:
- *   npx tsx scripts/apply-supabase-migrations.ts
+ *   npx tsx scripts/apply-supabase-migrations.ts                 # production target (default)
+ *   npx tsx scripts/apply-supabase-migrations.ts --target=local  # local Supabase CLI stack (D-05)
  *   npm run db:supabase
  *
- * Requires:
+ * Requires (production target):
  *   - DIRECT_URL in .env.local (port 5432, not pooler)
  *   - pg tables must already exist (run prisma db push first)
+ *
+ * Requires (local target, D-04/D-05):
+ *   - Supabase CLI stack running on 127.0.0.1:54322
+ *   - `supabase start` completed via scripts/review/start-local-stack.ts
  */
 
 import "dotenv/config";
@@ -21,13 +26,35 @@ import { Client } from "pg";
 
 const MIGRATIONS_DIR = path.join(process.cwd(), "supabase", "migrations");
 
+// Phase 07.1 D-05: local-stack target uses the fixed Supabase CLI Postgres DSN (D-04)
+// and ignores any env-provided DSN so review runs cannot accidentally hit production.
+const LOCAL_TARGET_DSN =
+  "postgresql://postgres:postgres@127.0.0.1:54322/postgres";
+
+function parseTarget(argv: readonly string[]): "production" | "local" {
+  const flag = argv.find((a) => a.startsWith("--target="));
+  if (!flag) return "production";
+  const value = flag.slice("--target=".length);
+  if (value !== "production" && value !== "local") {
+    throw new Error(
+      `Invalid --target=${value}. Allowed: production | local.`
+    );
+  }
+  return value;
+}
+
 async function main(): Promise<void> {
-  const directUrl = process.env["DIRECT_URL"];
+  const target = parseTarget(process.argv.slice(2));
+  const directUrl =
+    target === "local" ? LOCAL_TARGET_DSN : process.env["DIRECT_URL"];
   if (!directUrl) {
     throw new Error(
       "DIRECT_URL environment variable is required. Set it in .env.local."
     );
   }
+  console.log(
+    `Target: ${target}${target === "local" ? " (127.0.0.1:54322)" : " (DIRECT_URL env)"}`
+  );
 
   // Read all .sql files in lexicographic order
   const sqlFiles = fs
@@ -81,7 +108,7 @@ async function main(): Promise<void> {
     const filepath = path.join(MIGRATIONS_DIR, filename);
     const sql = fs.readFileSync(filepath, "utf-8");
 
-    console.log(`Applying: ${filename}`);
+    console.log(`applying ${filename} → target=${target}`);
     try {
       await client.query(sql);
       await client.query(

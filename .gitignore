@@ -68,3 +68,10 @@ src/_legacy/
 salaryjob*.html
 salaryjob*.zip
 salaryjob*_files/
+
+# Phase 07.1 review harness
+.env.test
+playwright/.auth/
+.review/
+MANUAL-FIX-NEEDED.md
+
