@@ -129,7 +129,7 @@ export async function runBizLicenseOcr(
     const content = firstCandidate?.content as Record<string, unknown>
     const parts = content?.parts
     if (!Array.isArray(parts) || parts.length === 0) {
-      return { ok: true, fullText: '', candidateRegNumbers: [] }
+      return { ok: true, fullText: '', candidateRegNumbers: [], candidateOwnerNames: [] }
     }
 
     const firstPart = parts[0] as Record<string, unknown>

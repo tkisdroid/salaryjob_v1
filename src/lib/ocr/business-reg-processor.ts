@@ -63,10 +63,10 @@ export async function processBusinessRegOcr(input: {
         : null)
     const resolvedOwnerName = ocrResult.candidateOwnerNames[0]
     const matchesStoredRegNumber =
-      Boolean(storedRegNumber) &&
+      typeof storedRegNumber === 'string' &&
       ocrResult.candidateRegNumbers.includes(storedRegNumber)
 
-    if (!extractedRegNumber || (Boolean(storedRegNumber) && !matchesStoredRegNumber)) {
+    if (!extractedRegNumber || (typeof storedRegNumber === 'string' && !matchesStoredRegNumber)) {
       const update = await prisma.businessProfile.updateMany({
         where: {
           id: businessId,
