@@ -5,14 +5,15 @@
  *
  * Biz owner submits a review for the worker who completed an accepted shift.
  * Uses the biz-side review entrypoint
- *   /biz/posts/<JOB_ID>/applicants/<APPLICANT_ID>/review
- * which is enumerated in the route manifest (D-14).
+ *   /biz/posts/<JOB_ID>/applicants/<APPLICATION_ID>/review
+ * which is enumerated in the route manifest (D-14). The `[applicantId]` URL
+ * segment is an Application.id, NOT a business/user id — codex P2-8 fix.
  *
  * Tag `@flow-06` is matched by scripts/review/run-full-sweep.ts via --grep.
  */
 
 import { test, expect } from "@playwright/test";
-import { BIZ_IDS, JOB_IDS } from "../fixtures/ids";
+import { APPLICATION_IDS, JOB_IDS } from "../fixtures/ids";
 
 test.use({ storageState: "playwright/.auth/biz.json" });
 test.setTimeout(60_000);
@@ -20,7 +21,8 @@ test.setTimeout(60_000);
 test("@flow-06 business writes review", async ({ page }) => {
   const started = Date.now();
   const jobId = JOB_IDS[0]!;
-  const applicantId = BIZ_IDS.verified;
+  // [applicantId] segment is an Application.id per app/biz/posts/[id]/applicants/[applicantId] route.
+  const applicantId = APPLICATION_IDS[0]!;
 
   // Step 1 — open biz review page for the completed applicant.
   await page.goto(`/biz/posts/${jobId}/applicants/${applicantId}/review`);

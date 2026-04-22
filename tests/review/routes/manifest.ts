@@ -12,7 +12,12 @@
  * from this manifest (runs when REVIEW_MANIFEST_SELFCHECK=1).
  */
 
-import { JOB_IDS, APPLICATION_IDS, BIZ_IDS } from "../fixtures/ids";
+import {
+  JOB_IDS,
+  APPLICATION_IDS,
+  BIZ_IDS,
+  WORKER_IDS,
+} from "../fixtures/ids";
 import { discoverRoutes } from "./discover";
 
 export type ReviewSeedAs = "worker" | "biz" | "admin" | "anon";
@@ -26,11 +31,21 @@ export type ReviewRoute = {
   seedAs: ReviewSeedAs;
 };
 
-// Fixture-substituted IDs (D-10 dynamic segment filling)
+// Fixture-substituted IDs (D-10 dynamic segment filling).
+//
+// Dynamic-segment routing note (codex P2-8 fix):
+//   /biz/posts/[id]/applicants/[applicantId] expects applicantId to be an
+//     Application.id (NOT a business/user id).
+//   /biz/workers/[id] expects id to be a worker User.id.
+//   /admin/businesses/[id] expects id to be a BusinessProfile owner User.id
+//     (we already use BIZ_IDS.verified below, correct).
+// Using the right entity type matters so the seeded rows actually exist and
+// the page loads its data with a matching WHERE clause.
 const JOB_ID = JOB_IDS[0]!;
 const APP_ID = APPLICATION_IDS[0]!;
 const COMPLETED_APP_ID = APPLICATION_IDS[3]!; // completed app — has review/checkin targets
-const APPLICANT_ID = BIZ_IDS.verified;
+const BIZ_APPLICANT_APP_ID = APPLICATION_IDS[0]!; // [applicantId] → Application.id
+const WORKER_USER_ID = WORKER_IDS.verified; // /biz/workers/[id] → User.id
 const CHAT_ID = JOB_IDS[1]!;
 
 export const ROUTES: readonly ReviewRoute[] = [
@@ -328,7 +343,7 @@ export const ROUTES: readonly ReviewRoute[] = [
     seedAs: "biz",
   },
   {
-    path: `/biz/posts/${JOB_ID}/applicants/${APPLICANT_ID}`,
+    path: `/biz/posts/${JOB_ID}/applicants/${BIZ_APPLICANT_APP_ID}`,
     desktopOk: true,
     mobileOk: true,
     contentAssertion: /지원자 상세|프로필|승인|거절/,
@@ -336,7 +351,7 @@ export const ROUTES: readonly ReviewRoute[] = [
     seedAs: "biz",
   },
   {
-    path: `/biz/posts/${JOB_ID}/applicants/${APPLICANT_ID}/review`,
+    path: `/biz/posts/${JOB_ID}/applicants/${BIZ_APPLICANT_APP_ID}/review`,
     desktopOk: true,
     mobileOk: true,
     contentAssertion: /리뷰|평가|후기/,
@@ -432,7 +447,7 @@ export const ROUTES: readonly ReviewRoute[] = [
     seedAs: "biz",
   },
   {
-    path: `/biz/workers/${APPLICANT_ID}`,
+    path: `/biz/workers/${WORKER_USER_ID}`,
     desktopOk: true,
     mobileOk: true,
     contentAssertion: /근무자 상세|프로필|경력/,
