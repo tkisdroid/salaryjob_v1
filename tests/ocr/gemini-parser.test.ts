@@ -47,10 +47,11 @@ describe("D-32/D-33: Gemini OCR parser — runBizLicenseOcr", () => {
 
     const result = await runBizLicenseOcr(FAKE_BUFFER, FAKE_MIME);
     expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.candidateRegNumbers).toContain("1234567890");
-      expect(result.fullText).toBeTruthy();
-      const reqBody = requestBody as
+      if (result.ok) {
+        expect(result.candidateRegNumbers).toContain("1234567890");
+        expect(result.fullText).toBeTruthy();
+        expect(result.candidateOwnerNames).toContain("홍길동");
+        const reqBody = requestBody as
         | {
             contents?: Array<{
               parts?: Array<{
@@ -89,8 +90,9 @@ describe("D-32/D-33: Gemini OCR parser — runBizLicenseOcr", () => {
 
     const result = await runBizLicenseOcr(FAKE_BUFFER, FAKE_MIME);
     expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.candidateRegNumbers).toContain("1234567890");
+      if (result.ok) {
+        expect(result.candidateOwnerNames).toContain("홍길동");
+        expect(result.candidateRegNumbers).toContain("1234567890");
       expect(result.candidateRegNumbers).toContain("9876543210");
     }
   });
@@ -121,9 +123,10 @@ describe("D-32/D-33: Gemini OCR parser — runBizLicenseOcr", () => {
 
     const result = await runBizLicenseOcr(FAKE_BUFFER, "application/pdf");
     expect(result.ok).toBe(true);
-    if (result.ok) {
-      expect(result.candidateRegNumbers).toContain("1234567890");
-      const reqBody = requestBody as
+      if (result.ok) {
+        expect(result.candidateRegNumbers).toContain("1234567890");
+        expect(result.candidateOwnerNames).toEqual([]);
+        const reqBody = requestBody as
         | {
             contents?: Array<{
               parts?: Array<{

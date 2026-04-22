@@ -84,6 +84,7 @@ export async function uploadBusinessRegImage(
   })
 
   revalidatePathSafe('/biz/verify')
+  revalidatePathSafe('/biz/profile')
 
   if (!hasGeminiApiKey()) {
     return {

@@ -38,6 +38,7 @@ export async function processBusinessRegOcr(input: {
       select: {
         id: true,
         businessRegNumber: true,
+        ownerName: true,
       },
     })
 
@@ -55,9 +56,17 @@ export async function processBusinessRegOcr(input: {
     }
 
     const storedRegNumber = business.businessRegNumber
+    const extractedRegNumber =
+      storedRegNumber ??
+      (ocrResult.candidateRegNumbers.length === 1
+        ? ocrResult.candidateRegNumbers[0]
+        : null)
+    const resolvedOwnerName = ocrResult.candidateOwnerNames[0]
+    const matchesStoredRegNumber =
+      Boolean(storedRegNumber) &&
+      ocrResult.candidateRegNumbers.includes(storedRegNumber)
 
-    // OCR mismatch or no candidate reg number — request admin review.
-    if (!storedRegNumber || !ocrResult.candidateRegNumbers.includes(storedRegNumber)) {
+    if (!extractedRegNumber || (Boolean(storedRegNumber) && !matchesStoredRegNumber)) {
       const update = await prisma.businessProfile.updateMany({
         where: {
           id: businessId,
@@ -78,8 +87,9 @@ export async function processBusinessRegOcr(input: {
       return 'mismatched'
     }
 
-    const statusResult = await verifyBusinessStatus(storedRegNumber)
+    const statusResult = await verifyBusinessStatus(extractedRegNumber)
     if (statusResult.ok && statusResult.status === 'operating') {
+      const verificationOwnerName = statusResult.ownerName ?? resolvedOwnerName
       const update = await prisma.businessProfile.updateMany({
         where: {
           id: businessId,
@@ -89,6 +99,10 @@ export async function processBusinessRegOcr(input: {
         data: {
           verified: true,
           regNumberOcrMismatched: false,
+          ...(storedRegNumber ? {} : { businessRegNumber: extractedRegNumber }),
+          ...(verificationOwnerName
+            ? { ownerName: verificationOwnerName }
+            : {}),
         },
       })
 
@@ -128,5 +142,6 @@ export async function processBusinessRegOcr(input: {
     return 'skipped'
   } finally {
     revalidatePathSafe('/biz/verify')
+    revalidatePathSafe('/biz/profile')
   }
 }

@@ -203,6 +203,7 @@ describe(
         ok: true,
         fullText: "some scan text 9999 9999 9999",
         candidateRegNumbers: ["9999999999"], // non-matching
+        candidateOwnerNames: [],
       });
 
       const { verifyBusinessStatus } = await import("@/lib/biz-verification");
@@ -286,12 +287,14 @@ describe(
         ok: true,
         fullText: "사업자등록번호 1234567890",
         candidateRegNumbers: ["1234567890"], // matching
+        candidateOwnerNames: ["김대표"],
       });
 
       const { verifyBusinessStatus } = await import("@/lib/biz-verification");
       vi.mocked(verifyBusinessStatus).mockResolvedValueOnce({
         ok: true,
-        status: "operating"
+        status: "operating",
+        ownerName: "김대표",
       });
 
       const { uploadBusinessRegImage } = await import(
@@ -346,10 +349,11 @@ describe(
           regNumberOcrMismatched: boolean;
           businessRegImageUrl: string | null;
           verified: boolean;
+          ownerName: string | null;
         }[]
       >(
         `SELECT "regNumberOcrMismatched", "businessRegImageUrl"
-         , verified
+         , verified, "ownerName"
          FROM public.business_profiles WHERE id = $1::uuid`,
         bizId,
       );
@@ -357,6 +361,7 @@ describe(
       expect(rows[0]?.regNumberOcrMismatched).toBe(false);
       expect(rows[0]?.businessRegImageUrl).not.toBeNull();
       expect(rows[0]?.verified).toBe(true);
+      expect(rows[0]?.ownerName).toBe("김대표");
     });
 
     it("PDF 업로드 시 파일 경로가 .pdf로 저장되고 ocr은 queued로 반환됨", async () => {

@@ -19,7 +19,12 @@ import { normalizeDigits } from '@/lib/strings'
  *   'unparseable' — 200 OK but response body has unrecognized structure
  */
 export type GeminiOcrResult =
-  | { ok: true; fullText: string; candidateRegNumbers: string[] }
+  | {
+      ok: true;
+      fullText: string;
+      candidateRegNumbers: string[];
+      candidateOwnerNames: string[];
+    }
   | { ok: false; reason: 'timeout' | 'api_error' | 'missing_api_key' | 'unparseable' }
 
 /**
@@ -136,7 +141,9 @@ export async function runBizLicenseOcr(
     const matches = [...fullText.matchAll(/\d{3}-?\d{2}-?\d{5}/g)]
     const candidateRegNumbers = [...new Set(matches.map((m) => normalizeDigits(m[0])))]
 
-    return { ok: true, fullText, candidateRegNumbers }
+    const candidateOwnerNames = extractOwnerNames(fullText)
+
+    return { ok: true, fullText, candidateRegNumbers, candidateOwnerNames }
   } catch (err) {
     // Distinguish AbortError (timeout) from other errors
     if (err instanceof Error && err.name === 'AbortError') {
@@ -147,6 +154,52 @@ export async function runBizLicenseOcr(
   } finally {
     clearTimeout(timer)
   }
+}
+
+/**
+ * Parse representative/owner name candidates from OCR text.
+ *
+ * The document formats vary by OCR output quality. We intentionally use a set
+ * of tolerant heuristics and return unique, short candidate names for downstream
+ * normalization in /biz/verify flow.
+ */
+function extractOwnerNames(fullText: string): string[] {
+  const text = normalizeOwnerSource(fullText)
+  const candidates = new Set<string>();
+
+  const patterns = [
+    /대표자\s*명?\s*[:：]?\s*([가-힣]{2,12})/g,
+    /대표자\s*성명\s*[:：]?\s*([가-힣]{2,12})/g,
+    /성명\s*[:：]?\s*([가-힣]{2,12})/g,
+    /\(대표자\)\s*([가-힣]{2,12})/g,
+    /대표\s*([가-힣]{2,12})/g,
+  ]
+
+  for (const pattern of patterns) {
+    for (const match of text.matchAll(pattern)) {
+      const candidate = normalizeOwnerName(match[1])
+      if (candidate) candidates.add(candidate)
+    }
+  }
+
+  return [...candidates]
+}
+
+function normalizeOwnerName(raw: string): string {
+  const trimmed = raw
+    .replace(/[^가-힣a-zA-Z]/g, "")
+    .trim()
+
+  if (trimmed.length < 2 || trimmed.length > 20) return ""
+  return trimmed
+}
+
+function normalizeOwnerSource(fullText: string): string {
+  return (fullText || "")
+    .replace(/\r/g, "\n")
+    .replace(/\n+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
 }
 
 export function hasGeminiApiKey(): boolean {

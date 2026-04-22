@@ -12,10 +12,12 @@ import {
   Building2,
   CheckCircle2,
   FileImage,
+  FileText,
   ImageIcon,
   MapPin,
   ShieldCheck,
   Star,
+  ExternalLink,
   Upload,
 } from "lucide-react";
 import type { ProfileFormState } from "@/lib/form-state";
@@ -38,6 +40,7 @@ interface Props {
   // 사업자등록증 이미지 상태 (upload flow lives on /biz/verify)
   hasBusinessRegImage?: boolean;
   businessRegImageSignedUrl?: string | null;
+  businessRegImageIsPdf?: boolean;
   // Read-only BIZ-02 display fields — NOT in form, NOT in FormData
   rating: number;
   reviewCount: number;
@@ -457,12 +460,26 @@ export function BizProfileEditForm(props: Props) {
 
           {props.hasBusinessRegImage && props.businessRegImageSignedUrl ? (
             <div className="mb-3 flex items-start gap-3 rounded-[14px] border border-border-soft bg-surface p-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={props.businessRegImageSignedUrl}
-                alt="업로드된 사업자등록증"
-                className="h-20 w-20 shrink-0 rounded-[10px] border border-border-soft bg-surface-2 object-cover"
-              />
+              {props.businessRegImageIsPdf ? (
+                <object
+                  data={props.businessRegImageSignedUrl}
+                  type="application/pdf"
+                  className="h-32 w-20 shrink-0 rounded-[10px] border border-border-soft bg-surface-2"
+                >
+                  <div className="flex h-full min-h-[128px] items-center justify-center px-2 text-center">
+                    <p className="text-[10.5px] font-semibold text-muted-foreground">
+                      미리보기가 지원되지 않습니다.
+                    </p>
+                  </div>
+                </object>
+              ) : (
+                /* eslint-disable-next-line @next/next/no-img-element */
+                <img
+                  src={props.businessRegImageSignedUrl}
+                  alt="업로드된 사업자등록증"
+                  className="h-20 w-20 shrink-0 rounded-[10px] border border-border-soft bg-surface-2 object-cover"
+                />
+              )}
               <div className="min-w-0 flex-1">
                 <p className="text-[12.5px] font-extrabold tracking-tight text-ink">
                   업로드 완료
@@ -470,12 +487,25 @@ export function BizProfileEditForm(props: Props) {
                 <p className="mt-1 text-[11.5px] font-medium leading-relaxed text-muted-foreground">
                   다시 업로드하려면 아래 버튼을 눌러 주세요.
                 </p>
+                <a
+                  href={props.businessRegImageSignedUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex items-center gap-2 text-[11.5px] font-semibold text-brand-deep"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  새 창으로 원본 확인
+                </a>
               </div>
             </div>
           ) : (
             <div className="mb-3 flex items-center gap-3 rounded-[14px] border-2 border-dashed border-border bg-surface p-4">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-[10px] bg-surface-2 text-muted-foreground">
-                <ImageIcon className="h-5 w-5" />
+                {props.hasBusinessRegImage ? (
+                  <FileText className="h-5 w-5" />
+                ) : (
+                  <ImageIcon className="h-5 w-5" />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <p className="text-[12.5px] font-extrabold tracking-tight text-ink">
