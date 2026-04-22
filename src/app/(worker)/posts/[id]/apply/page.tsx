@@ -1,7 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { getJobById } from "@/lib/db/queries";
 import { requireWorker } from "@/lib/dal";
-import { prisma } from "@/lib/db";
 import { ApplyConfirmFlow } from "./apply-confirm-flow";
 
 interface Props {
@@ -20,14 +19,12 @@ export default async function ApplyPage({ params }: Props) {
 
   const session = await requireWorker();
 
-  // BUG-W03: Redirect if already applied
-  const existingApp = await prisma.application.findUnique({
-    where: { jobId_workerId: { jobId: id, workerId: session.id } },
-    select: { id: true },
-  });
-  if (existingApp) {
-    redirect(`/my/applications?tab=upcoming`);
-  }
+  // Duplicate applies are already guarded by applyOneTap().
+  // Keep rendering the /apply route even for existing applicants so:
+  // 1) login?next=/posts/:id/apply can recover to the originally requested page
+  // 2) users are not bounced to /my/applications before seeing the intended flow
+  // 3) the client can surface the already_applied state in-context on submit
+  void session;
 
   return <ApplyConfirmFlow job={job} />;
 }
