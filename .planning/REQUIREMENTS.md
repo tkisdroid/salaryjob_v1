@@ -44,9 +44,9 @@
 
 ### LEG — Phase 1 Legacy 잔재 정리
 
-- [ ] **LEG-01**: `src/app/(worker)/my/schedule/page.tsx`의 로컬 MOCK 상수(availability/match history)가 제거되고 실 DB 쿼리로 대체되어 실제 사용자의 예약·지원 이력이 표시된다
-- [ ] **LEG-02**: `src/app/api/push/register/route.ts`의 stale Clerk TODO 주석이 Supabase Auth 기반 주석으로 대체되거나 제거된다
-- [ ] **LEG-03**: `src/lib/mock-data` import 회귀를 막는 grep 게이트가 CI(또는 pre-commit 훅)에서 자동 실행되어 재발을 방지한다
+- [x] **LEG-01**: `src/app/(worker)/my/schedule/page.tsx`의 로컬 MOCK 상수(availability/match history)가 제거되고 실 DB 쿼리로 대체되어 실제 사용자의 예약·지원 이력이 표시된다 — pre-satisfied by Phase 5 commit d24e452; verified Phase 10 commit d75164d.
+- [x] **LEG-02**: `src/app/api/push/register/route.ts`의 stale Clerk TODO 주석이 Supabase Auth 기반 주석으로 대체되거나 제거된다 — pre-satisfied by v1.0 Phase 4 Plan 06 route deletion; verified Phase 10 commit 61d981f.
+- [x] **LEG-03**: `src/lib/mock-data` import 회귀를 막는 grep 게이트가 CI(또는 pre-commit 훅)에서 자동 실행되어 재발을 방지한다 — installed Phase 10 commit 8e2e9bc (`scripts/check-no-mock-imports.mjs` + `npm run check:no-mock`, RED-GREEN verified).
 
 ### INFRA — 외부 키 / 인프라 보완
 
@@ -103,9 +103,9 @@
 | QA-09  | Phase 07.1 | 07.1-01, 07.1-02 | pending |
 | QA-10  | Phase 07.1 | 07.1-02 | pending |
 | QA-11  | Phase 07.1 | 07.1-02 | pending |
-| LEG-01 | Phase 10 | TBD | pending |
-| LEG-02 | Phase 10 | TBD | pending |
-| LEG-03 | Phase 10 | TBD | pending |
+| LEG-01 | Phase 10 | 10 (inline) | complete (2026-04-22, commit d75164d) |
+| LEG-02 | Phase 10 | 10 (inline) | complete (2026-04-22, commit 61d981f) |
+| LEG-03 | Phase 10 | 10 (inline) | complete (2026-04-22, commit 8e2e9bc) |
 | INFRA-01 | Phase 7 | TBD | pending |
 | INFRA-02 | Phase 8 | TBD | pending |
 | INFRA-03 | Phase 7 | TBD | pending |
