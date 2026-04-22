@@ -1,4 +1,3 @@
-// @ts-expect-error REV action file does not exist until Plan 03
 // RED BASELINE (Wave 0): until Plan 03 implements createBusinessReview action.
 // REQ: REV-02 Business can review a worker after a settled shift.
 
@@ -11,7 +10,6 @@ import {
   createTestBusiness,
   truncatePhase5Tables,
 } from "../fixtures/phase5";
-// @ts-expect-error action file does not exist until Plan 03 Task 1
 import { createBusinessReview } from "@/app/biz/posts/[id]/applicants/[applicantId]/review/actions";
 import type { CreateBusinessReviewInput } from "@/lib/validations/review";
 

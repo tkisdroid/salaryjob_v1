@@ -1,4 +1,3 @@
-// @ts-expect-error REV action file does not exist until Plan 03
 // RED BASELINE (Wave 0): until Plan 03 implements createWorkerReview with atomic rating aggregation.
 // REQ: REV-04 createWorkerReview updates BusinessProfile.rating atomically.
 //   Atomic update: $transaction + $executeRaw ensures no partial writes under concurrency.
@@ -11,7 +10,6 @@ import {
   createReviewableApplication,
   truncatePhase5Tables,
 } from "../fixtures/phase5";
-// @ts-expect-error action file does not exist until Plan 03 Task 1
 import { createWorkerReview } from "@/app/(worker)/my/applications/[id]/review/actions";
 import type { CreateWorkerReviewInput } from "@/lib/validations/review";
 

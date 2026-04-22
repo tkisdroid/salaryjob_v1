@@ -2,7 +2,7 @@
  * /biz/verify — 사업자등록증 업로드 페이지
  *
  * D-31: Gate before first job post — redirected here when businessRegImageUrl is null.
- * D-32: Uploads image to business-reg-docs bucket, then calls CLOVA OCR.
+ * D-32: Uploads documents to business-reg-docs bucket, then enqueues Gemini OCR.
  * D-33: OCR failure/mismatch is non-blocking — image is always saved.
  *
  * This is a Server Component. The upload form POSTs to the uploadBusinessRegImage
@@ -13,8 +13,16 @@ import { requireBusiness } from '@/lib/dal'
 import { prisma } from '@/lib/db'
 import { createSignedBusinessRegUrl } from '@/lib/supabase/storage-biz-reg'
 import { formatRegNumber } from '@/lib/validations/business'
-import { submitBusinessRegImage } from './actions'
-import { Upload, CheckCircle, CheckCircle2, AlertTriangle, ImageIcon, ShieldCheck } from 'lucide-react'
+import { UploadBizRegClient } from '@/components/biz/upload-biz-reg-client'
+import {
+  AlertTriangle,
+  CheckCircle,
+  CheckCircle2,
+  ExternalLink,
+  FileText,
+  ImageIcon,
+  ShieldCheck,
+} from 'lucide-react'
 
 export default async function BizVerifyPage({
   searchParams,
@@ -72,12 +80,13 @@ export default async function BizVerifyPage({
     )
   }
 
-  // Generate a signed URL for preview if an image is already uploaded
+  // Generate a signed URL for preview if a file is already uploaded
   const signedUrl = business.businessRegImageUrl
     ? await createSignedBusinessRegUrl(business.businessRegImageUrl)
     : null
 
   const hasImage = Boolean(business.businessRegImageUrl)
+  const isPdf = business.businessRegImageUrl?.toLowerCase().endsWith('.pdf') ?? false
   const hasMismatch =
     business.regNumberOcrMismatched && Boolean(business.businessRegNumber)
 
@@ -176,64 +185,76 @@ export default async function BizVerifyPage({
         </div>
       )}
 
-      {/* Image preview (if uploaded) */}
-      {signedUrl && (
+      {/* File preview */}
+      {hasImage && (
         <div className="mb-5">
           <p className="mb-2 text-[11.5px] font-bold tracking-tight text-muted-foreground">
-            현재 업로드된 이미지
+            현재 업로드된 파일
           </p>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={signedUrl}
-            alt="사업자등록증"
-            className="max-h-64 w-full rounded-[22px] border border-border-soft bg-surface-2 object-contain"
-          />
+          {signedUrl ? (
+            isPdf ? (
+              <>
+                <object
+                  data={signedUrl}
+                  type="application/pdf"
+                  className="h-[420px] w-full rounded-[22px] border border-border-soft bg-surface-2"
+                >
+                  <div className="flex h-full min-h-[180px] flex-col items-center justify-center gap-3 p-6 text-center">
+                    <p className="text-[12px] font-semibold text-muted-foreground">
+                      PDF 미리보기를 표시할 수 없습니다.
+                    </p>
+                    <a
+                      href={signedUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-2 rounded-[10px] border border-border bg-surface px-3 py-2 text-[12px] font-extrabold tracking-tight text-brand-deep transition-colors hover:bg-[color-mix(in_oklch,var(--brand)_10%,var(--surface))]"
+                    >
+                      <ExternalLink className="h-4 w-4" />
+                      PDF 새 창에서 열기
+                    </a>
+                  </div>
+                </object>
+                <a
+                  href={signedUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-2 inline-flex items-center gap-2 text-[11.5px] font-semibold text-brand-deep"
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  새 창에서 PDF 열기
+                </a>
+              </>
+            ) : (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={signedUrl}
+                alt="사업자등록증"
+                className="max-h-64 w-full rounded-[22px] border border-border-soft bg-surface-2 object-contain"
+              />
+            )
+          ) : (
+            <div className="flex min-h-[160px] items-center justify-center rounded-[22px] border border-dashed border-border-soft bg-surface-2 px-4 py-6 text-center">
+              <div className="space-y-2">
+                <div className="inline-flex items-center gap-2 text-[12px] font-extrabold tracking-tight text-muted-foreground">
+                  <FileText className="h-4 w-4" />
+                  미리보기 URL을 생성하지 못했습니다.
+                </div>
+                <p className="text-[11px] font-medium text-muted-foreground">
+                  파일은 업로드되었지만 보안 URL 생성이 실패했습니다. 잠시
+                  후 페이지를 새로고침해 보세요.
+                </p>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Upload form */}
-      <div className="rounded-[22px] border border-border-soft bg-surface p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <Upload className="h-[18px] w-[18px] text-brand-deep" />
-          <h2 className="text-[14px] font-extrabold tracking-tight text-ink">
-            사업자등록증 업로드
-          </h2>
-        </div>
-
-        <form action={submitBusinessRegImage} className="space-y-4">
-          <input type="hidden" name="businessId" value={business.id} />
-
-          <label className="flex cursor-pointer flex-col items-center justify-center gap-3 rounded-[18px] border-2 border-dashed border-border bg-surface-2/60 p-10 transition-all hover:border-ink hover:bg-[color-mix(in_oklch,var(--brand)_6%,var(--surface))]">
-            <input
-              id="biz-reg-file"
-              name="file"
-              type="file"
-              accept="image/jpeg,image/png,application/pdf"
-              required
-              className="hidden"
-            />
-            <ImageIcon className="h-10 w-10 text-text-subtle" />
-            <p className="text-[14px] font-extrabold tracking-tight text-ink">
-              파일을 드래그하거나 클릭하여 업로드
-            </p>
-            <p className="text-[10.5px] font-semibold text-muted-foreground">
-              JPG, PNG, PDF (최대 10MB)
-            </p>
-          </label>
-
-          <button
-            type="submit"
-            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-ink text-[13px] font-bold text-white transition-all hover:bg-black hover:shadow-soft-dark disabled:opacity-50"
-          >
-            <Upload className="h-4 w-4" />
-            {hasImage ? "재업로드" : "업로드"}
-          </button>
-        </form>
-      </div>
+      {/* Upload form - Extracted to Client Component */}
+      <UploadBizRegClient businessId={business.id} hasImage={hasImage} />
 
       <p className="mt-4 text-[11.5px] font-medium text-muted-foreground">
-        업로드된 이미지는 관리자만 열람할 수 있으며, OCR 검증에만 사용됩니다.
-        OCR 실패 시에도 이미지는 저장됩니다.
+        업로드된 파일은 관리자만 열람할 수 있으며, OCR 검증에만 사용됩니다.
+        OCR은 업로드 직후 백그라운드로 진행되며, 실패 시에도 파일은 저장됩니다.
       </p>
     </main>
   )

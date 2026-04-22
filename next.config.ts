@@ -9,7 +9,10 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     serverActions: {
-      bodySizeLimit: "5mb",
+      // Must be >= the largest allowed upload. Business reg docs allow 10MB
+      // (src/lib/supabase/storage-biz-reg.ts, bucket file_size_limit).
+      // Avatars are capped at 5MB inside src/lib/supabase/storage.ts.
+      bodySizeLimit: "10mb",
     },
   },
   // Prisma 7 + pg must be bundled on the server side only (not by Turbopack's

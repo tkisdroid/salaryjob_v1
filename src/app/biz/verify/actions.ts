@@ -3,52 +3,41 @@
 /**
  * uploadBusinessRegImage — Server Action for /biz/verify page.
  *
- * Flow (D-31 / D-32 / D-33):
- *   1. Authenticate: requireBusiness() + owner-check via businessId form field (T-06-16)
+ * Flow:
+ *   1. Authenticate: requireBusiness() + owner-check via businessId form field
  *   2. Validate file (MIME + size) via uploadBusinessRegFile helper
  *   3. Upload to storage — if fails, return error (image not saved)
- *   4. Write businessRegImageUrl = path + reset regNumberOcrMismatched=false (D-33: always save URL first)
- *   5. Read file buffer, call runBizLicenseOcr — on failure, return ok:true ocr:'skipped'
- *   6. Compare OCR candidateRegNumbers to stored businessRegNumber:
- *      - Match  → set verified=true AND regNumberOcrMismatched stays false, return { ok:true, ocr:'matched' } (D-33 success path)
- *      - Mismatch → set regNumberOcrMismatched=true, return { ok:true, ocr:'mismatched' }
- *        (verified is NOT changed — D-33: mismatch is admin-review flag only, not auto-reject)
- *   7. revalidatePath('/biz/verify')
- *
- * Security:
- *   T-06-16: businessId cross-referenced with session.id — cannot touch other users' profiles
- *   T-06-17: 10MB + MIME check in uploadBusinessRegFile
- *   T-06-19: Only candidateRegNumbers (digit-only) persisted; fullText discarded
+ *   4. Write businessRegImageUrl = path + reset regNumberOcrMismatched=false
+ *   5. Revalidate /biz/verify immediately so upload state appears without delay
+ *   6. Enqueue background OCR/status update job with fileBuffer + metadata
+ *      - Missing GOOGLE_GEMINI_API_KEY → return ok:true ocr:'skipped' + ocrSkipReason
+ *      - Empty/invalid input / OCR failure in background → helper logs + no hard error
+ *   8. revalidatePath('/biz/verify')
  */
 
 import { requireBusiness } from '@/lib/dal'
 import { prisma } from '@/lib/db'
 import { uploadBusinessRegFile } from '@/lib/supabase/storage-biz-reg'
-import { runBizLicenseOcr } from '@/lib/ocr/clova'
+import { hasGeminiApiKey } from '@/lib/ocr/gemini'
+import { processBusinessRegOcr } from '@/lib/ocr/business-reg-processor'
+import { after } from 'next/server'
 import { revalidatePath } from 'next/cache'
 
 const IS_ACTION_TEST_MODE =
-  process.env.NODE_ENV === 'test' && process.env.VITEST === 'true'
+  process.env.NODE_ENV === 'test' ||
+  process.env.VITEST === 'true' ||
+  process.env.VITEST === '1'
 
 function revalidatePathSafe(path: string) {
   if (IS_ACTION_TEST_MODE) return
   revalidatePath(path)
 }
 
-/**
- * Void-returning form action wrapper for use in <form action={...}>.
- * Next.js form action prop requires (formData: FormData) => void | Promise<void>.
- * This wrapper calls uploadBusinessRegImage and discards the return value,
- * relying on revalidatePath to refresh the page state.
- */
-export async function submitBusinessRegImage(formData: FormData): Promise<void> {
-  await uploadBusinessRegImage(formData)
-}
-
 export async function uploadBusinessRegImage(
   formData: FormData,
 ): Promise<
-  | { ok: true; ocr: 'matched' | 'mismatched' | 'skipped' }
+  | { ok: true; ocr: 'queued'; ocrSkipReason?: undefined }
+  | { ok: true; ocr: 'skipped'; ocrSkipReason: 'missing_api_key' | 'file_read_failed' }
   | { ok: false; error: string; fieldErrors?: Record<string, string[]> }
 > {
   const session = await requireBusiness()
@@ -79,52 +68,75 @@ export async function uploadBusinessRegImage(
     businessId: business.id,
   })
   if (!uploadResult.ok) {
+    console.error('[biz-verify] Upload failed:', uploadResult.error)
     return { ok: false, error: uploadResult.error }
   }
 
-  // D-33: write URL FIRST — image save is authoritative, OCR is advisory.
-  // Reset regNumberOcrMismatched on re-upload; will set true below on mismatch.
-  await prisma.businessProfile.update({
+  const uploadedBusiness = await prisma.businessProfile.update({
     where: { id: business.id },
     data: {
       businessRegImageUrl: uploadResult.path,
       regNumberOcrMismatched: false,
     },
+    select: {
+      updatedAt: true,
+    },
   })
 
-  let ocr: 'matched' | 'mismatched' | 'skipped' = 'skipped'
+  revalidatePathSafe('/biz/verify')
 
-  try {
-    const buffer = await file.arrayBuffer()
-    const result = await runBizLicenseOcr(buffer, file.type)
-
-    if (result.ok) {
-      const stored = business.businessRegNumber // digits-only or null
-      if (stored && result.candidateRegNumbers.includes(stored)) {
-        ocr = 'matched'
-        // D-33 success: OCR-confirmed → flip verified=true. This is the ONLY
-        // path that auto-sets verified (regex format alone is insufficient — see
-        // /biz/profile/actions.ts and /biz/signup/actions.ts).
-        await prisma.businessProfile.update({
-          where: { id: business.id },
-          data: { verified: true },
-        })
-      } else {
-        // No candidates OR mismatch — flag for admin review (D-33: non-blocking)
-        ocr = 'mismatched'
-        await prisma.businessProfile.update({
-          where: { id: business.id },
-          data: { regNumberOcrMismatched: true },
-        })
-      }
+  if (!hasGeminiApiKey()) {
+    return {
+      ok: true,
+      ocr: 'skipped',
+      ocrSkipReason: 'missing_api_key',
     }
-    // If result.ok === false → OCR skipped (env missing, timeout, api_error, unparseable)
-    // regNumberOcrMismatched stays false — per D-33 no false-positive on OCR failure
-  } catch (err) {
-    // D-33: OCR failure never blocks user — but log for admin observability
-    console.error('[biz-verify] OCR processing failed:', err instanceof Error ? err.message : err)
   }
 
-  revalidatePathSafe('/biz/verify')
-  return { ok: true, ocr }
+  let fileBuffer: ArrayBuffer
+  try {
+    fileBuffer = await file.arrayBuffer()
+  } catch (err) {
+    console.error(
+      '[biz-verify] Cannot read uploaded file for background OCR:',
+      err instanceof Error ? err.message : err,
+    )
+    return { ok: true, ocr: 'skipped', ocrSkipReason: 'file_read_failed' }
+  }
+
+  const processInput = {
+    businessId: business.id,
+    uploadedPath: uploadResult.path,
+    uploadedAt: uploadedBusiness.updatedAt,
+    fileBuffer,
+    mimeType: file.type,
+  }
+
+  const enqueueErrorMessage =
+    '[biz-verify] Failed to enqueue background OCR workflow:'
+  if (IS_ACTION_TEST_MODE) {
+    console.log(
+      '[biz-verify] TEST mode: background OCR is intentionally not run by action return path',
+    )
+  } else {
+    try {
+      after(async () => {
+        await processBusinessRegOcr(processInput)
+      })
+    } catch (err) {
+      console.error(
+        enqueueErrorMessage,
+        err instanceof Error ? err.message : err,
+      )
+      // Final fallback so OCR still runs if after() can't be registered in this environment.
+      void processBusinessRegOcr(processInput).catch((callbackErr) => {
+        console.error(
+          '[biz-verify] Background OCR fallback failed:',
+          callbackErr instanceof Error ? callbackErr.message : callbackErr,
+        )
+      })
+    }
+  }
+
+  return { ok: true, ocr: 'queued' }
 }

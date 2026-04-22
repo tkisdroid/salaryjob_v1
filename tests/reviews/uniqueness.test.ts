@@ -1,4 +1,3 @@
-// @ts-expect-error REV action files do not exist until Plan 03
 // RED BASELINE (Wave 0): until Plan 03 implements createWorkerReview + createBusinessReview.
 // REQ: REV-03 Same application + same direction cannot be reviewed twice.
 
@@ -10,9 +9,7 @@ import {
   createReviewableApplication,
   truncatePhase5Tables,
 } from "../fixtures/phase5";
-// @ts-expect-error action file does not exist until Plan 03 Task 1
 import { createWorkerReview } from "@/app/(worker)/my/applications/[id]/review/actions";
-// @ts-expect-error action file does not exist until Plan 03 Task 1
 import { createBusinessReview } from "@/app/biz/posts/[id]/applicants/[applicantId]/review/actions";
 import type {
   CreateBusinessReviewInput,
