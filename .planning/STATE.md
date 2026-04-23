@@ -1,16 +1,16 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.1
-milestone_name: milestone
-status: verifying
-last_updated: "2026-04-21T14:26:53.974Z"
-last_activity: 2026-04-21
+milestone_name: Registered Requirements
+status: executing
+last_updated: "2026-04-23T08:27:08.351Z"
+last_activity: 2026-04-23
 progress:
   total_phases: 8
-  completed_phases: 3
-  total_plans: 11
-  completed_plans: 10
-  percent: 67
+  completed_phases: 4
+  total_plans: 16
+  completed_plans: 15
+  percent: 86
 ---
 
 # State: GigNow (NJob)
@@ -20,16 +20,16 @@ progress:
 ## Project Reference
 
 - **Core value:** 이력서·면접 제로. 탭 하나로 확정, 근무 후 즉시 정산.
-- **Current focus:** Phase 13 — admin-codex-10
+- **Current focus:** Phase 09 — ui-ux-full-sweep-55-routes-desktop-mobile-375px
 - **Exit criterion for current milestone:** 실 사용자 관점 "탐색→지원→확정→근무→리뷰→정산" 플로우가 브라우저에서 1분 이내 완료 + 13 HUMAN-UAT 시나리오 PASS(또는 MOCK-LOG 기록) + UI/UX QA 체크리스트 0 critical/high 이슈
 
 ## Current Position
 
-Phase: 13 (admin-codex-10) — EXECUTING
-Plan: 2 of 2
-Status: Phase complete — ready for verification
-Last activity: 2026-04-21
-Progress: 6/9 plans complete (67%)
+Phase: 09 (ui-ux-full-sweep-55-routes-desktop-mobile-375px) — EXECUTING
+Plan: 3 of 3
+Status: Ready to execute
+Last activity: 2026-04-23
+Progress: 12/14 plans complete (86%); Phase 07.1 Plan 02 still partial (2 human checkpoints pending).
 
 ## Phase Progress
 
@@ -41,20 +41,21 @@ Progress: 6/9 plans complete (67%)
 | 4. 지원·근무 라이프사이클 DB 연결 | Completed (v1.0) | 2026-04-11 (commits `be311af → 864e4e5` + Plan 04-10) |
 | 5. 리뷰·정산·목업 제거 | Code Complete (v1.0) — HUMAN-UAT 3 → Phase 8 | 2026-04-11 (automated gates) |
 | 6. Admin Backoffice | Code Complete (v1.0) — HUMAN-UAT 5+3 → Phase 8, DB apply → Phase 7 | 2026-04-13 (automated gates) |
-| **7. DB Migration Apply & Infra Foundation** | **Not started (current)** | — |
+| 7. DB Migration Apply & Infra Foundation | Not started | — |
 | 8. HUMAN-UAT Execution (13 scenarios + E2E Loop) | Not started | — |
-| 9. UI/UX Full Sweep (55 routes × Desktop + Mobile 375px) | Not started | — |
-| 10. Legacy Cleanup & Milestone Close | Not started | — |
+| 9. UI/UX Full Sweep (55 routes × Desktop + Mobile 375px) | In progress — Plan 01 ✅ (Wave 0 substrate), Plans 02/03 pending | Plan 01: 2026-04-23 (commits 76c519f, 7d57031, 25d9970, 8768e11) |
+| 10. Legacy Cleanup & Milestone Close | Complete (LEG-01/02/03 — inline 3-task executor) | 2026-04-22 (commits d75164d, 61d981f, 8e2e9bc) |
 
 ## Performance Metrics
 
-- **Requirements mapped (v1.1):** 20/20 (100%)
-- **Phases defined (v1.1):** 4 (Phase 7–10)
-- **Phases completed (v1.1):** 0/4 (0%)
+- **Requirements mapped (v1.1):** 26/26 (100%) — includes QA-06..QA-11 added 2026-04-15 with Phase 07.1 insertion
+- **Phases defined (v1.1):** 5 (Phase 7, 07.1, 8, 9, 10)
+- **Phases completed (v1.1):** 1/5 (Phase 10 — 2026-04-22); Phase 07.1 in progress (Plan 01 ✅, Plan 02 partial)
+- **v1.1 LEG requirements completed:** 3/3 (LEG-01/02/03) — 2026-04-22 Phase 10 inline executor
 - **v1.0 carry-over (code complete, awaiting HUMAN-UAT):** Phase 4 (5 scenarios) + Phase 5 (3 scenarios) + Phase 6 (5 runnable + 3 deferred)
 - **Test suite (Phase 6 final run 2026-04-13):** Unit tests 19 GREEN (admin-routing x6 + ocr-parser x7 + dedups); DB-gated tests SKIP (Supabase unreachable)
 - **Production build (Phase 6 final run 2026-04-13):** 55 routes — 0 errors; /admin /admin/businesses /admin/businesses/[id] confirmed
-- **mock-data imports in src/:** 0 (DATA-05 exit gate satisfied, confirmed 2026-04-13 — to be CI-guarded in Phase 10 LEG-03)
+- **mock-data imports in src/:** 0 (DATA-05 exit gate satisfied 2026-04-13; Phase 10 LEG-03 CI guard installed 2026-04-22 — `npm run check:no-mock` exits 0 on 212 source files; red-path verified with probe)
 - **MOCK_OCR in src/:** 0 (Phase 6 OCR stub removed in Plan 06-06)
 
 ## Accumulated Context
@@ -92,6 +93,9 @@ Progress: 6/9 plans complete (67%)
 | BUG-C03: env non-null assertions replaced with explicit throw-on-missing guards; db/index.ts uses null coalesce with unreachable-branch comment | Descriptive errors at startup surface misconfiguration before DB calls fail silently | 2026-04-21 (Phase 13 Plan 02) |
 | BUG-C04: legacy design files removed from git tracking via git rm --cached; gitignored to prevent re-tracking | Files stay on disk for reference but no longer pollute git history | 2026-04-21 (Phase 13 Plan 02) |
 | BUG-C05: console.error added to three silent catch blocks (biz-verify OCR, storage signed URL, OCR JSON parse) while preserving fail-open D-33 semantics | Observability without changing behavior; D-33 advisory-only contract intact | 2026-04-21 (Phase 13 Plan 02) |
+| Phase 10 LEG-01/02: verification-only (pre-satisfied) | /my/schedule already on real Prisma (Phase 5 d24e452); /api/push/register already deleted (v1.0 Phase 4 Plan 06). Fabricating edits would churn source for no behavior change. | 2026-04-22 (Phase 10) |
+| Phase 10 LEG-03: Node (.mjs) grep gate, not bash | Windows-primary repo, no existing .sh scripts, cross-platform CI. Regex byte-for-byte matched to tests/exit/mock-removal.test.ts. | 2026-04-22 (Phase 10) |
+| Phase 10 LEG-03: pre-commit wiring deferred to manual/CI fallback | Husky not devDep, no .husky/, .github/workflows/ out-of-scope. Vitest exit gate continues to run on `npm test`, transitively enforcing the same invariant. | 2026-04-22 (Phase 10) |
 | Phase 11-worker-flow-codex-12-filled P02 | 8 | 2 tasks | 3 files |
 | Phase 11 P04 | 5 | 2 tasks | 4 files |
 | Phase 11 P01 | 7m | 2 tasks | 4 files |
@@ -101,6 +105,11 @@ Progress: 6/9 plans complete (67%)
 | Phase 12-business-flow-codex-13-crud P02 | 6 | 2 tasks | 7 files |
 | Phase 13-admin-codex-10 P02 | 383 | 2 tasks | 7 files |
 | Phase 13-admin-codex-10 P01 | 15 | 2 tasks | 9 files |
+| Phase 07.1 P01 | 33m | 4 tasks | 24 files |
+| Phase 07.1 P02 (partial — auto-only) | 22m | 4 of 6 tasks (2 deferred checkpoints) | 12 files |
+| Phase 10-legacy-cleanup (inline) | 7m | 3 LEG requirements + closure | 5 created, 1 modified |
+| Phase 09 P01 | 16m | 4 tasks | 12 files |
+| Phase 09 P02 | 17min | 5 tasks | 9 files |
 
 ### Roadmap Evolution
 
@@ -119,7 +128,7 @@ Progress: 6/9 plans complete (67%)
   - Admin seed: uncomment UPDATE in `supabase/migrations/20260414000005_phase6_admin_seed.sql`
 - [ ] **Phase 8 HUMAN-UAT (Phase 7 이후):** 13 scenarios across Phase 4/5/6 + E2E 1-min loop 실측 + signed URL TTL 실측
 - [ ] **Phase 9 UI/UX Sweep (Phase 7 이후):** Worker+Business+Admin 전 55 routes × Desktop + Mobile 375px 체크리스트
-- [ ] **Phase 10 Legacy Cleanup:** `/my/schedule` 로컬 MOCK 제거, stale Clerk TODO 정리, mock-data import CI 가드
+- [x] **Phase 10 Legacy Cleanup:** `/my/schedule` 로컬 MOCK 제거 (pre-satisfied), stale Clerk TODO 정리 (pre-satisfied), mock-data import CI 가드 (installed 2026-04-22) — see `.planning/phases/10-legacy-cleanup/10-SUMMARY.md`
 
 ### Blockers
 
@@ -135,16 +144,19 @@ Progress: 6/9 plans complete (67%)
 
 ### Last Session Summary
 
-- 2026-04-15 v1.1 Ship-Ready 밀스톤 kickoff.
-- PROJECT.md / REQUIREMENTS.md / MILESTONES.md 정비 후 gsd-roadmapper가 4-phase 로드맵(7–10) 생성.
-- 20/20 REQ-ID 매핑, 카테고리별 완전 분리: MIG+INFRA(7) · UAT+INFRA-02(8) · QA(9) · LEG(10).
-- 다음 단계: `/gsd-plan-phase 7`로 DB 마이그레이션 적용 + Admin seed + MOCK-LOG 템플릿 + CLOVA_OCR_SECRET 가이드 plan화.
+- 2026-04-22 Phase 10 **inline planner+executor** closure: 3 LEG requirements satisfied + closure commit. LEG-01 (`/my/schedule` MOCK removal) and LEG-02 (Clerk TODO in push/register) were pre-satisfied by Phase 5 commit `d24e452` and v1.0 Phase 4 Plan 06 respectively — Phase 10 produced verification evidence (`.planning/phases/10-legacy-cleanup/10-LEG-0{1,2}-VERIFICATION.md`). LEG-03 installed `scripts/check-no-mock-imports.mjs` + `npm run check:no-mock` grep gate; Red-Green verified (212 files scanned exit 0, probe injection exit 1). Commits: `d75164d`, `61d981f`, `8e2e9bc` + closure. Duration 7m.
+- 2026-04-22 Phase 07.1 Plan 02 **auto-only** execution: 4 tasks shipped (commits `ddcaf4b`, `8e4bba8`, `ba57a7e`, `de69340`). Task 4 + Task 6 human checkpoints deferred per session directive ("사람이 직접 검증해야 하는 부분은 놔두고 나머지 부분은 끝까지 진행").
+- Deliverables: `scripts/review/run-full-sweep.ts` (aggregate runner, D-17 table verbatim), `tests/review/routes/run-matrix.ts` (108 scenarios), `tests/review/flows/01..07-*.spec.ts` (D-15 loops), `scripts/review/auto-fix-loop.ts` (D-19 WHITELIST + D-20 DENY + D-21 + D-22 + `hasFunctionalFailure`), `scripts/review/report-writer.ts`, `scripts/review/run-review.ts`. Smoke-emitted `07.1-REVIEW.md` carries `production_ready: false` placeholder awaiting real sweep.
+- No D-20 denylist edits (verified via `git diff --name-only 588b478..HEAD`).
+- tsc baseline unchanged (only the 2 pre-existing `src/lib/ocr/` drift errors remain).
+- VALIDATION.md rows 07.1-02-01/02/03/05 marked ✅ green; rows 02-04/02-06 remain ⬜ pending (deferred checkpoints).
 
 ### Next Session Starting Point
 
-1. `/gsd-plan-phase 7` 실행 → Phase 7 plan 구조 도출
-2. Supabase 접근 가능 환경에서 `npx tsx scripts/apply-supabase-migrations.ts` 준비
-3. `supabase/migrations/20260414000005_phase6_admin_seed.sql`의 UPDATE 블록 주석 해제 전략 결정
+1. **Phase 07.1 Task 4 (checkpoint:human-verify):** Run real auto-fix iter 1 — `REVIEW_RUN=1 npx tsx scripts/review/run-review.ts` (needs Docker Desktop + `supabase start`). Inspect iter-1 git diff against D-20 denylist + MANUAL-FIX-NEEDED.md. Resume signal: `approved` / `manual-fix: <summary>` / `stop: <reason>`.
+2. **Phase 07.1 Task 6 (checkpoint:human-verify):** After iter-loop reaches `{green, paused, exhausted}`, attest the 11 Success Criteria (CONTEXT.md §success_criteria), confirm `production_ready: true` in the real REVIEW.md. Resume signal: `signed off — production_ready: true, all 11 SC PASS`.
+3. If Phase 07.1 checkpoints pass: `/gsd:verify-work 07.1` closes the phase; advance STATE to Phase 8.
+4. **Phase 10 is closed** as of 2026-04-22. If a regression re-introduces `src/lib/mock-data`, `npm run check:no-mock` catches it. No further action needed on LEG requirements.
 
 ### Files of Interest
 
@@ -156,8 +168,10 @@ Progress: 6/9 plans complete (67%)
 - `.planning/phases/05-reviews-settlements/05-HUMAN-UAT.md` — Phase 5 3 UAT 시나리오 — Phase 8에서 실행
 - `.planning/phases/04-db/04-HUMAN-UAT.md` — Phase 4 5 UAT 시나리오 — Phase 8에서 실행
 - `supabase/migrations/20260414000005_phase6_admin_seed.sql` — Admin 계정 시드 (주석 해제 후 적용) — Phase 7 MIG-03
-- `src/app/(worker)/my/schedule/page.tsx` — Phase 1 legacy local MOCK 상수 — Phase 10 LEG-01
-- `src/app/api/push/register/route.ts` — stale Clerk TODO — Phase 10 LEG-02
+- `src/app/(worker)/my/schedule/page.tsx` — already on real Supabase (Phase 5 d24e452); Phase 10 LEG-01 verified
+- `src/app/api/push/register/route.ts` — already deleted (v1.0 Phase 4 Plan 06); Phase 10 LEG-02 verified
+- `scripts/check-no-mock-imports.mjs` — Phase 10 LEG-03 grep gate (new, 2026-04-22)
+- `.planning/phases/10-legacy-cleanup/10-SUMMARY.md` — Phase 10 closure summary
 - `prisma/schema.prisma` — Phase 2-6 최종 스키마 (Phase 7에서 migrate status clean 확인)
 
 ## Quick Tasks Completed

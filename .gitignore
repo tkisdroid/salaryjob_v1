@@ -68,3 +68,22 @@ src/_legacy/
 salaryjob*.html
 salaryjob*.zip
 salaryjob*_files/
+
+# Phase 07.1 review harness
+.env.test
+playwright/.auth/
+MANUAL-FIX-NEEDED.md
+tests/review/_results.json
+
+# Phase 9 + 07.1 review shards (keep .review/.gitkeep tracked)
+.review/*.json
+!.review/.gitkeep
+
+
+# Supabase CLI runtime state (do not track)
+supabase/.temp/
+
+
+# Codex/AI review dumps may capture secrets (e.g. .env reads) — exclude by default
+# Sanitized reviews can be committed manually after explicit review
+.planning/**/reviews/*codex*

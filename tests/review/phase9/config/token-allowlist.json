@@ -1,0 +1,40 @@
+{
+  "tokens": [
+    "brand",
+    "brand-light",
+    "brand-dark",
+    "brand-soft",
+    "brand-deep",
+    "ink",
+    "ink-soft",
+    "surface",
+    "surface-2",
+    "border-soft",
+    "destructive",
+    "foreground",
+    "background",
+    "card",
+    "popover",
+    "primary",
+    "secondary",
+    "muted",
+    "accent"
+  ],
+  "allowedArbitraryPatterns": [
+    "bg-\\[color-mix\\(in_oklch,var\\(--[a-z-]+\\)[^\\]]*\\)\\]",
+    "bg-\\[var\\(--[a-z-]+\\)\\]",
+    "text-\\[var\\(--[a-z-]+\\)\\]",
+    "border-\\[var\\(--[a-z-]+\\)\\]"
+  ],
+  "forbiddenHueFamilies": [
+    "red",
+    "blue",
+    "pink",
+    "purple",
+    "indigo",
+    "violet",
+    "fuchsia",
+    "rose"
+  ],
+  "forbiddenHexRegex": "bg-\\[#[0-9a-fA-F]{3,8}\\]"
+}

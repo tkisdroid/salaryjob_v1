@@ -1,0 +1,8 @@
+[
+  {
+    "route": "/auth/whoami",
+    "persona": "anon",
+    "status": 401,
+    "reason": "Expected 401 for unauthenticated whoami probe — D-18 baseline entry"
+  }
+]

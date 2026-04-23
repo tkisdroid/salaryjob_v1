@@ -10,7 +10,12 @@ import 'server-only'
  * ok:false → Business is closed, suspended, or verification failed
  */
 export type BizVerificationResult =
-  | { ok: true; status: 'operating'; businessName?: string }
+  | {
+      ok: true;
+      status: 'operating';
+      businessName?: string;
+      ownerName?: string;
+    }
   | { ok: false; reason: 'closed' | 'suspended' | 'not_found' | 'api_error' | 'invalid_format' }
 
 /**
@@ -87,6 +92,7 @@ export async function verifyBusinessStatus(
     const bSttCd = firstResult?.b_stt_cd as string // 사업 상태 코드
     const bStt = firstResult?.b_stt as string // 사업 상태
     const companyNmKor = firstResult?.company_nm_kor as string // 회사명
+    const ownerName = extractOwnerNameFromBizStatus(firstResult)
 
     // 사업 상태 코드 의미:
     // 01: 계속사업자 (operating)
@@ -94,7 +100,12 @@ export async function verifyBusinessStatus(
     // 03: 폐업자 (closed)
 
     if (bSttCd === '01') {
-      return { ok: true, status: 'operating', businessName: companyNmKor }
+      return {
+        ok: true,
+        status: 'operating',
+        businessName: companyNmKor,
+        ownerName,
+      }
     } else if (bSttCd === '02') {
       return { ok: false, reason: 'suspended' }
     } else if (bSttCd === '03') {
@@ -115,4 +126,29 @@ export async function verifyBusinessStatus(
   } finally {
     clearTimeout(timer)
   }
+}
+
+function extractOwnerNameFromBizStatus(result: Record<string, unknown>): string | undefined {
+  const candidates = [
+    result['ceo_nm'],
+    result['ceoNm'],
+    result['rprsntv_nm'],
+    result['representativeName'],
+    result['representative_name'],
+    result['owner_name'],
+    result['ownerName'],
+    result['소유자명'],
+    result['대표자명'],
+  ]
+
+  for (const candidate of candidates) {
+    if (typeof candidate === 'string') {
+      const normalized = candidate.trim()
+      if (normalized.length > 1 && normalized.length <= 20) {
+        return normalized
+      }
+    }
+  }
+
+  return undefined
 }

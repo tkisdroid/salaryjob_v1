@@ -89,6 +89,9 @@ export default async function BizProfilePage() {
               initialOwnerPhone={profile.ownerPhone ?? null}
               initialOwnerPhoneVerifiedAt={profile.ownerPhoneVerifiedAt ?? null}
               hasBusinessRegImage={Boolean(profile.businessRegImageUrl)}
+              businessRegImageIsPdf={profile.businessRegImageUrl
+                ?.toLowerCase()
+                .endsWith('.pdf')}
               businessRegImageSignedUrl={regImageSignedUrls[index] ?? null}
               rating={Number(profile.rating)}
               reviewCount={profile.reviewCount}

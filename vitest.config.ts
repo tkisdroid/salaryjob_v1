@@ -13,7 +13,25 @@ export default defineConfig({
       ['**', 'node'],
     ],
     setupFiles: ['tests/setup.ts'],
-    exclude: ['node_modules', 'tests/e2e/**', '.next'],
+    // Phase 9 note: narrow the `tests/review/**` exclude so vitest discovers
+    // `tests/review/phase9/**/*.test.ts` (static-analysis unit tests) while
+    // still excluding all Playwright specs (`*.spec.ts`) and the Phase 07.1
+    // sub-trees (routes, fixtures, helpers, flows, smoke, config). The Phase 9
+    // `.test.ts` files are vitest targets by design per 09-02-PLAN Task 02-05.
+    exclude: [
+      'node_modules',
+      'tests/e2e/**',
+      'tests/review/**/*.spec.ts',
+      'tests/review/routes/**',
+      'tests/review/fixtures/**',
+      'tests/review/helpers/**',
+      'tests/review/flows/**',
+      'tests/review/smoke/**',
+      'tests/review/config/**',
+      'tests/review/auth.setup.ts',
+      'tests/review/_results.json',
+      '.next',
+    ],
     testTimeout: 15000,
     // Phase 4 Plan 04 — disable file-level parallelism.
     // tests/applications/*.test.ts share the Supabase DB and each file runs
