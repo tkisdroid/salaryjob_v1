@@ -72,9 +72,12 @@ salaryjob*_files/
 # Phase 07.1 review harness
 .env.test
 playwright/.auth/
-.review/
 MANUAL-FIX-NEEDED.md
 tests/review/_results.json
+
+# Phase 9 + 07.1 review shards (keep .review/.gitkeep tracked)
+.review/*.json
+!.review/.gitkeep
 
 
 # Supabase CLI runtime state (do not track)

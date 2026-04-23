@@ -21,6 +21,11 @@
     "review:seed": "tsx scripts/review/seed-test-data.ts",
     "review:smoke": "cross-env REVIEW_RUN=1 tsx scripts/review/review-runner.ts --route=/",
     "review:quality": "npm run test:types && npm run test:lint && npm run test -- --run",
+    "review:phase9": "cross-env REVIEW_RUN=1 playwright test tests/review/phase9/ --reporter=list",
+    "review:phase9:tokens": "tsx scripts/review/phase9-token-drift.ts",
+    "review:phase9:aggregate": "tsx scripts/review/phase9-issue-writer.ts --aggregate",
+    "review:phase9:verify": "tsx scripts/review/phase9-issue-writer.ts --verify",
+    "review:phase9:report": "tsx scripts/review/phase9-report-writer.ts",
     "check:no-mock": "node scripts/check-no-mock-imports.mjs"
   },
   "dependencies": {
