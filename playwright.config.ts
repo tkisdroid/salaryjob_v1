@@ -37,7 +37,12 @@ const reviewProjects = isReview
       {
         name: 'review-desktop',
         testDir: './tests/review',
-        testIgnore: /auth\.setup\.ts/,
+        // Ignore auth.setup.ts (run as its own project) AND any `.test.ts`
+        // file — the latter is vitest territory (Phase 9 static-analysis tests
+        // under tests/review/phase9/). Playwright's default testMatch covers
+        // both `.spec.ts` and `.test.ts`, so we narrow it here to keep the
+        // two runners non-overlapping.
+        testIgnore: [/auth\.setup\.ts/, /.*\.test\.ts$/],
         dependencies: ['setup-worker', 'setup-biz', 'setup-admin'],
         use: { ...devices['Desktop Chrome'] },
       },
@@ -45,7 +50,7 @@ const reviewProjects = isReview
         // D-09 exact project name — required by verification grep `mobile-375`.
         name: 'mobile-375',
         testDir: './tests/review',
-        testIgnore: /auth\.setup\.ts/,
+        testIgnore: [/auth\.setup\.ts/, /.*\.test\.ts$/],
         dependencies: ['setup-worker', 'setup-biz', 'setup-admin'],
         use: {
           ...devices['iPhone 13 Mini'],
