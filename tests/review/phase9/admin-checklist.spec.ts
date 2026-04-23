@@ -1,29 +1,14 @@
 /**
- * tests/review/phase9/worker-checklist.spec.ts
+ * tests/review/phase9/admin-checklist.spec.ts
  *
- * Phase 9 Plan 02 Task 02-01 — Worker persona 4-bucket checklist.
+ * Phase 9 Plan 02 Task 02-02 — Admin persona 4-bucket checklist.
  *
- * Runs under BOTH Playwright projects (review-desktop + mobile-375) via the
- * existing testDir inclusion — viewport awareness is per testInfo.project.name,
- * matching the Phase 07.1 run-matrix.ts:67-76 pattern. Each test emits Phase9Issue
- * entries to the shared `issues` array; test.afterAll writes a per-project shard
- * to `.review/phase9-worker-${projectName}.json` for Plan 03 aggregation.
+ * Clone of worker-checklist.spec.ts with PERSONA=admin + admin-specific
+ * EMPTY_HINT_ROUTES. All bucket logic is functionally identical; documentation
+ * lives in worker-checklist.spec.ts module header.
  *
- * Buckets (QA-01 + QA-05b):
- *   1. button-dup      — same-action duplicate CTAs on the same page
- *   2. empty-state     — surface-level heuristic on list-view routes (info)
- *   3. error-toast     — injected 500 on primaryCta click, expect toast
- *   4. nav-gap         — walk anchor hrefs, assert status < 400 (4xx allow-list)
- *
- * Pitfall 3 (tab-bar math) handled in tab-bar-occlusion.spec.ts, not here.
- * Pitfall 4 (auto-fix loop) NOT imported; semantic issues are human-triage only.
- * Pitfall 5 (token drift) handled by vitest token-drift.test.ts, not here.
- * Pitfall 6 (4xx allow-list) persona-scoped via allowed-4xx.json check below.
- * Pitfall 7 (networkidle) bounded via { timeout: 20_000 } + test.setTimeout.
- *
- * Tied to Plan 01 artifacts:
- *   - checklist-base.ts — STORAGE_STATE, routesForPersona, Phase9Issue, Phase9Viewport
- *   - tests/review/config/allowed-4xx.json — D-18 persona-scoped 4xx allow-list
+ * Covers QA-03 (Admin routes all buckets) for the 4 admin routes in
+ * tests/review/routes/manifest.ts seedAs='admin'.
  */
 import { test, expect } from "@playwright/test";
 import { writeFileSync, mkdirSync } from "node:fs";
@@ -36,7 +21,7 @@ import {
 } from "./checklist-base";
 import allowed4xx from "../config/allowed-4xx.json";
 
-const PERSONA = "worker" as const;
+const PERSONA = "admin" as const;
 const ROUTES_FOR_PERSONA = routesForPersona(PERSONA);
 
 type Allow4xxEntry = {
@@ -47,31 +32,20 @@ type Allow4xxEntry = {
 };
 const ALLOW_LIST = allowed4xx as Allow4xxEntry[];
 
-// List-view routes where a short body text strongly suggests an empty-state gap
-// on the populated Phase 07.1 seed. Severity=info; human decides.
-const EMPTY_HINT_ROUTES = [
-  "/my/applications",
-  "/my/shifts",
-  "/my/favorites",
-  "/my/settlements",
-  "/notifications",
-];
+const EMPTY_HINT_ROUTES = ["/admin/businesses", "/admin/settlements"];
 
 const slug = (s: string) => s.replace(/[^a-z0-9]/gi, "-");
 
 const issues: Phase9Issue[] = [];
 
 test.describe(`@phase9-${PERSONA}`, () => {
-  test.setTimeout(60_000); // Pitfall 7 — production build + long tails
+  test.setTimeout(60_000);
 
   const storage = STORAGE_STATE[PERSONA];
   if (storage) test.use({ storageState: storage });
 
-  // Describe-level sanity — expected route count for this persona.
-  // Kept as an expect() so the grep gate `ROUTES_FOR_PERSONA.length).toBe(20)`
-  // matches in-source at plan verify time.
   test.beforeAll(() => {
-    expect(ROUTES_FOR_PERSONA.length).toBe(20);
+    expect(ROUTES_FOR_PERSONA.length).toBe(4);
   });
 
   for (const route of ROUTES_FOR_PERSONA) {
@@ -97,10 +71,10 @@ test.describe(`@phase9-${PERSONA}`, () => {
           message: `goto failed: ${(err as Error).message}`,
           evidence: `page.goto(${route.path})`,
         });
-        return; // bail on this route only
+        return;
       }
 
-      // ---- Bucket 1: button-dup (QA-05b) ----
+      // ---- Bucket 1: button-dup ----
       try {
         const cta = await page.$$eval(
           'button, a[role="button"], [data-cta]',
@@ -145,7 +119,7 @@ test.describe(`@phase9-${PERSONA}`, () => {
         });
       }
 
-      // ---- Bucket 4: nav-gap (QA-01) ----
+      // ---- Bucket 4: nav-gap ----
       try {
         const anchors = await page.$$eval('a[href]', (els) =>
           els
@@ -221,8 +195,7 @@ test.describe(`@phase9-${PERSONA}`, () => {
         });
       }
 
-      // ---- Bucket 3: error-toast (QA-01) ----
-      // Only triggered on routes whose primaryCta selector targets a button / submit.
+      // ---- Bucket 3: error-toast ----
       if (
         route.primaryCta.includes("button") ||
         route.primaryCta.includes('type="submit"')
@@ -283,7 +256,7 @@ test.describe(`@phase9-${PERSONA}`, () => {
         }
       }
 
-      // ---- Bucket 2: surface-level empty-state heuristic (QA-01) ----
+      // ---- Bucket 2: empty-state heuristic ----
       if (EMPTY_HINT_ROUTES.includes(route.path)) {
         try {
           const bodyText = (await page.locator("body").innerText()).trim();
@@ -318,10 +291,10 @@ test.describe(`@phase9-${PERSONA}`, () => {
   test.afterAll(() => {
     mkdirSync(".review", { recursive: true });
     const projectTag = test.info().project.name;
-    // Literal shard prefix `phase9-worker-` so plan verification grep matches
+    // Literal shard prefix `phase9-admin-` so plan verification grep matches
     // without depending on template-literal expansion.
     writeFileSync(
-      join(".review", `phase9-worker-${projectTag}.json`),
+      join(".review", `phase9-admin-${projectTag}.json`),
       JSON.stringify({ issues }, null, 2),
     );
   });
