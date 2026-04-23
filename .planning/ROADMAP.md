@@ -73,7 +73,7 @@ Plans:
 **Plans:** 3 plans
 
 Plans:
-- [ ] 09-01-PLAN.md — Wave 0 infrastructure: checklist-base module, token-allowlist + empty-state-map configs, empty-state seed overlay, issue-writer + token-drift + report-writer scripts, npm `review:phase9` wiring — autonomous (QA-01..05 infra substrate)
+- [x] 09-01-PLAN.md — Wave 0 infrastructure: checklist-base module, token-allowlist + empty-state-map configs, empty-state seed overlay, issue-writer + token-drift + report-writer scripts, npm `review:phase9` wiring — autonomous (QA-01..05 infra substrate)
 - [ ] 09-02-PLAN.md — Wave 1 checklist sweeps: worker/biz/admin checklist specs × 2 viewports × 4 buckets (button-dup, empty-state, error-toast, nav-gap) + empty-state.spec with seed overlay + tab-bar-occlusion.spec (mobile-only) + token-drift.test (vitest) — autonomous (QA-01, QA-02, QA-03, QA-05)
 - [ ] 09-03-PLAN.md — Wave 3 human fix loop + sign-off: aggregate shards, human-authored fix commits for critical/high, `--verify` gate, `phase9_complete: true` report, 5-SC attestation + 9-route visual spot-check, REQUIREMENTS.md close — checkpointed (QA-04 + closes QA-01..05)
 

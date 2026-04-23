@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Registered Requirements
 status: executing
-last_updated: "2026-04-22T20:02:05Z"
-last_activity: 2026-04-22
+last_updated: "2026-04-23T08:00:43.271Z"
+last_activity: 2026-04-23
 progress:
   total_phases: 8
   completed_phases: 4
-  total_plans: 14
-  completed_plans: 12
+  total_plans: 16
+  completed_plans: 14
   percent: 86
 ---
 
@@ -20,15 +20,15 @@ progress:
 ## Project Reference
 
 - **Core value:** 이력서·면접 제로. 탭 하나로 확정, 근무 후 즉시 정산.
-- **Current focus:** Phase 10 closed 2026-04-22; remaining active work is Phase 07.1 Plan 02 human checkpoints (Task 4 + Task 6) and Phase 7/8/9 (DB apply + UAT + UI sweep)
+- **Current focus:** Phase 09 — ui-ux-full-sweep-55-routes-desktop-mobile-375px
 - **Exit criterion for current milestone:** 실 사용자 관점 "탐색→지원→확정→근무→리뷰→정산" 플로우가 브라우저에서 1분 이내 완료 + 13 HUMAN-UAT 시나리오 PASS(또는 MOCK-LOG 기록) + UI/UX QA 체크리스트 0 critical/high 이슈
 
 ## Current Position
 
-Phase: 10 (legacy-cleanup) — COMPLETE (2026-04-22)
-Plan: Inline Phase 10 — 3 atomic LEG tasks shipped + closure
-Status: Phase 10 closed. Remaining active work: Phase 07.1 Plan 02 human checkpoints (Task 4 + Task 6), Phase 7 DB migration apply (Supabase network needed), Phase 8 HUMAN-UAT, Phase 9 UI/UX sweep.
-Last activity: 2026-04-22 (Phase 10 closed: LEG-01/02/03 satisfied, commits d75164d, 61d981f, 8e2e9bc + closure)
+Phase: 09 (ui-ux-full-sweep-55-routes-desktop-mobile-375px) — EXECUTING
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-23
 Progress: 12/14 plans complete (86%); Phase 07.1 Plan 02 still partial (2 human checkpoints pending).
 
 ## Phase Progress
@@ -43,7 +43,7 @@ Progress: 12/14 plans complete (86%); Phase 07.1 Plan 02 still partial (2 human 
 | 6. Admin Backoffice | Code Complete (v1.0) — HUMAN-UAT 5+3 → Phase 8, DB apply → Phase 7 | 2026-04-13 (automated gates) |
 | 7. DB Migration Apply & Infra Foundation | Not started | — |
 | 8. HUMAN-UAT Execution (13 scenarios + E2E Loop) | Not started | — |
-| 9. UI/UX Full Sweep (55 routes × Desktop + Mobile 375px) | Not started | — |
+| 9. UI/UX Full Sweep (55 routes × Desktop + Mobile 375px) | In progress — Plan 01 ✅ (Wave 0 substrate), Plans 02/03 pending | Plan 01: 2026-04-23 (commits 76c519f, 7d57031, 25d9970, 8768e11) |
 | 10. Legacy Cleanup & Milestone Close | Complete (LEG-01/02/03 — inline 3-task executor) | 2026-04-22 (commits d75164d, 61d981f, 8e2e9bc) |
 
 ## Performance Metrics
@@ -108,6 +108,7 @@ Progress: 12/14 plans complete (86%); Phase 07.1 Plan 02 still partial (2 human 
 | Phase 07.1 P01 | 33m | 4 tasks | 24 files |
 | Phase 07.1 P02 (partial — auto-only) | 22m | 4 of 6 tasks (2 deferred checkpoints) | 12 files |
 | Phase 10-legacy-cleanup (inline) | 7m | 3 LEG requirements + closure | 5 created, 1 modified |
+| Phase 09 P01 | 16m | 4 tasks | 12 files |
 
 ### Roadmap Evolution
 
