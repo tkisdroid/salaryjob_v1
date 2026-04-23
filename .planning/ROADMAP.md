@@ -2,7 +2,7 @@
 
 **Milestone:** v1.1 Ship-Ready — Gap Fill & Full QA Sweep
 **Created:** 2026-04-15
-**Last updated:** 2026-04-23 (Phase 07.1 insertion + QA-06..QA-11 registration)
+**Last updated:** 2026-04-23 (Phase 07.1 insertion + QA-06..QA-11 registration + Phase 9 plans authored)
 **Granularity:** standard
 **Phase numbering:** Phase 7 onward (continuing from v1.0 which closed at Phase 6)
 **Coverage:** 26/26 REQ-IDs mapped (100%) — cross-checked against REQUIREMENTS.md traceability table.
@@ -61,8 +61,8 @@ Plans:
 **Plans:** TBD
 
 ### Phase 9: UI/UX Full Sweep (55 routes × Desktop + Mobile 375px)
-**Goal:** Worker·Business·Admin 전 55 라우트가 Desktop + Mobile 375px 두 뷰포트에서 버튼 중복/오동작, 빈 상태, 에러 토스트, 네비게이션, shadcn 토큰 드리프트를 기준으로 체크리스트 0 critical/high 상태로 수렴한다.
-**Depends on:** Phase 7 (실 DB 없이는 빈 상태/로딩/에러 경로를 끝까지 볼 수 없음); Phase 8과는 논리적으로 병렬이지만 단일 개발자 컨텍스트에서 순차 진행 권장
+**Goal:** Worker·Business·Admin 전 54 라우트(ROADMAP 레이블 "55"는 pre-harness 추정치 — `discoverRoutes()` + `tests/review/routes/manifest.ts` self-check 기준 54가 공식 개수)가 Desktop + Mobile 375px 두 뷰포트에서 버튼 중복/오동작, 빈 상태, 에러 토스트, 네비게이션, shadcn 토큰 드리프트를 기준으로 체크리스트 0 critical/high 상태로 수렴한다.
+**Depends on:** Phase 7 (실 DB 없이는 빈 상태/로딩/에러 경로를 끝까지 볼 수 없음 — Phase 07.1 local-stack substrate도 유효한 대안); Phase 8과는 논리적으로 병렬이지만 단일 개발자 컨텍스트에서 순차 진행 권장
 **Requirements:** QA-01, QA-02, QA-03, QA-04, QA-05
 **Success Criteria** (what must be TRUE):
   1. Worker 전 라우트(home · search · job detail · apply · my/schedule · my/applications · my/shifts · reviews · settlements · profile · auth 흐름)가 Desktop + Mobile 375px 체크리스트(버튼 중복/오동작/비활성 · 빈 상태 · 에러 토스트 · 네비게이션 누락) 전 항목 PASS이며 스크린샷 또는 체크 기록이 남아있다
@@ -70,7 +70,13 @@ Plans:
   3. Admin 전 라우트(/admin 대시보드 · /admin/businesses list + detail · commission edit · 등록증 열람)가 동일 체크리스트 전 항목 PASS이다
   4. sweep 중 발견된 모든 critical·high 등급 이슈는 close 전에 수정되어 fix 커밋이 이슈 항목에 링크되어 있고, low/info 등급만 백로그 todo로 이월되어 있다
   5. shadcn 디자인 토큰(spacing/typography/color) 드리프트, 동일 액션에 대한 중복 버튼, 모바일 하단 탭바로 가려진 CTA가 Worker·Business·Admin 전 화면에서 0건이다
-**Plans:** TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 09-01-PLAN.md — Wave 0 infrastructure: checklist-base module, token-allowlist + empty-state-map configs, empty-state seed overlay, issue-writer + token-drift + report-writer scripts, npm `review:phase9` wiring — autonomous (QA-01..05 infra substrate)
+- [ ] 09-02-PLAN.md — Wave 1 checklist sweeps: worker/biz/admin checklist specs × 2 viewports × 4 buckets (button-dup, empty-state, error-toast, nav-gap) + empty-state.spec with seed overlay + tab-bar-occlusion.spec (mobile-only) + token-drift.test (vitest) — autonomous (QA-01, QA-02, QA-03, QA-05)
+- [ ] 09-03-PLAN.md — Wave 3 human fix loop + sign-off: aggregate shards, human-authored fix commits for critical/high, `--verify` gate, `phase9_complete: true` report, 5-SC attestation + 9-route visual spot-check, REQUIREMENTS.md close — checkpointed (QA-04 + closes QA-01..05)
+
 **UI hint**: yes
 
 ### Phase 10: Legacy Cleanup & Milestone Close
@@ -141,7 +147,7 @@ The table below lists **every REQ-ID registered in `REQUIREMENTS.md`** (v1.1 for
 | 7. DB Migration Apply & Infra Foundation | 0/2 | Not started | — |
 | 07.1. Automated Review Harness & Zero-Error Gate | 1/2 (Plan 02 partial: 4/6 auto tasks shipped; Task 4 + Task 6 human checkpoints deferred) | In Progress |  |
 | 8. HUMAN-UAT Execution | 0/TBD | Not started | — |
-| 9. UI/UX Full Sweep | 0/TBD | Not started | — |
+| 9. UI/UX Full Sweep | 0/3 | Plans authored (2026-04-23) — not yet executed | — |
 | 10. Legacy Cleanup & Milestone Close | 1/1 (3/3 LEG requirements) | Complete | 2026-04-22 |
 | 11. Worker Flow Codex 12 | 4/4 | Complete | 2026-04-21 |
 | 12. Business Flow Codex 13 | 3/3 | Complete | 2026-04-21 |
@@ -208,3 +214,4 @@ Plans:
 
 *Roadmap created: 2026-04-15 by gsd-roadmapper. Phase numbering continues from v1.0 close (Phase 6) per milestone policy.*
 *Updated 2026-04-23: Phase 07.1 (Automated Review Harness & Zero-Error Gate) inserted between Phase 7 and Phase 8; QA-06..QA-11 registered in REQUIREMENTS.md; Requirements Coverage recounted to 26/26.*
+*Updated 2026-04-23: Phase 9 plans authored (3 PLAN.md files at 09-01/02/03-PLAN.md); Progress table Phase 9 row updated to 0/3.*
