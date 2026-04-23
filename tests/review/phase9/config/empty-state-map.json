@@ -1,0 +1,14 @@
+[
+  { "path": "/my/applications", "persona": "worker", "phrase": "지원 내역이 없" },
+  { "path": "/my/shifts", "persona": "worker", "phrase": "근무 내역이 없" },
+  { "path": "/my/favorites", "persona": "worker", "phrase": "찜한 공고가 없" },
+  { "path": "/my/settlements", "persona": "worker", "phrase": "정산 내역이 없" },
+  { "path": "/notifications", "persona": "worker", "phrase": "알림이 없" },
+  { "path": "/biz/posts", "persona": "biz", "phrase": "등록된 공고가 없" },
+  { "path": "/biz/workers", "persona": "biz", "phrase": "지원자가 없|근무자가 없" },
+  { "path": "/biz/chat", "persona": "biz", "phrase": "대화가 없|메시지가 없" },
+  { "path": "/biz/settlements", "persona": "biz", "phrase": "정산 내역이 없" },
+  { "path": "/biz/posts/new", "persona": "biz", "phrase": "공고 작성|새 공고" },
+  { "path": "/admin/businesses", "persona": "admin", "phrase": "등록된 사업자가 없|업체가 없" },
+  { "path": "/admin/settlements", "persona": "admin", "phrase": "정산 내역이 없" }
+]
