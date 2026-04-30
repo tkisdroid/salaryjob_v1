@@ -68,6 +68,9 @@ export async function POST(req: NextRequest) {
     const history: ChatHistoryItem[] = historyRows
       .reverse()
       .slice(0, -1)
+      // Exclude AGENT messages from AI context — they are human-written and
+      // should not be treated as model output in the Gemini conversation.
+      .filter((m) => m.role === 'USER' || m.role === 'AI')
       .map((m) => ({ role: m.role === 'USER' ? 'user' : 'model', content: m.content }))
 
     let replyText = '잠시 후 상담원이 연결됩니다.'

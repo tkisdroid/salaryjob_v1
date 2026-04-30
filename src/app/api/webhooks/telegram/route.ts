@@ -30,6 +30,12 @@ export async function POST(req: NextRequest) {
 
     const { sessionPrefix, message: agentMessage } = parsed
 
+    // Validate prefix is strictly hex (already enforced by parseReplyCommand regex,
+    // but we re-check here as a defence-in-depth measure before raw SQL)
+    if (!/^[a-f0-9]{8}$/.test(sessionPrefix)) {
+      return NextResponse.json({ ok: true })
+    }
+
     // Find the session by UUID prefix using raw SQL cast
     type SessionRow = { id: string }
     const rows = await prisma.$queryRaw<SessionRow[]>`

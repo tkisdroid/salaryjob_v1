@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from "react"
 import { cn } from "@/lib/utils"
 import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
+import { CHAT_POLL_INTERVAL_MS } from "@/lib/constants/chat"
 
 interface Message {
   id: string
@@ -45,7 +46,7 @@ export default function ChatSessionDetail({ sessionId }: { sessionId: string }) 
 
   useEffect(() => {
     fetchMessages()
-    const interval = setInterval(fetchMessages, 4000)
+    const interval = setInterval(fetchMessages, CHAT_POLL_INTERVAL_MS)
     return () => clearInterval(interval)
   }, [fetchMessages])
 

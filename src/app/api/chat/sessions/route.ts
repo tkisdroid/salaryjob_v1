@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         guestName: userId ? undefined : guestName,
         guestPhone: userId ? undefined : guestPhone,
         guestEmail: userId ? undefined : guestEmail,
-        source: source as 'WEB' | 'KAKAO',
+        source,
         status: 'open',
         aiEnabled: true,
       },

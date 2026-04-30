@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react"
 import { cn } from "@/lib/utils"
+import { CHAT_POLL_INTERVAL_MS } from "@/lib/constants/chat"
 
 // ---------------------------------------------------------------------------
 // Types
@@ -70,7 +71,7 @@ export default function ChatWidget() {
 
   useEffect(() => {
     if (step === "chat" && sessionId) {
-      pollIntervalRef.current = setInterval(pollMessages, 4000)
+      pollIntervalRef.current = setInterval(pollMessages, CHAT_POLL_INTERVAL_MS)
     }
     return () => {
       if (pollIntervalRef.current) clearInterval(pollIntervalRef.current)
@@ -105,7 +106,7 @@ export default function ChatWidget() {
       setGuestFormError("이름을 입력해 주세요.")
       return
     }
-    if (!/^0\d{8,10}$/.test(guestForm.phone.replace(/-/g, ""))) {
+    if (!/^0\d{9,10}$/.test(guestForm.phone.replace(/-/g, ""))) {
       setGuestFormError("올바른 전화번호를 입력해 주세요. (예: 01012345678)")
       return
     }

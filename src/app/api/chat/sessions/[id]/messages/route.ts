@@ -94,10 +94,12 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       select: { role: true, content: true },
     })
 
-    // Reverse to chronological order; exclude the message we just inserted
+    // Reverse to chronological order; exclude the message we just inserted and
+    // any AGENT messages (human replies should not be fed back as model output)
     const history: ChatHistoryItem[] = historyRows
       .reverse()
-      .slice(0, -1) // remove last (just-inserted user message)
+      .slice(0, -1)
+      .filter((m) => m.role === 'USER' || m.role === 'AI')
       .map((m) => ({
         role: m.role === 'USER' ? 'user' : 'model',
         content: m.content,
