@@ -36,11 +36,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ ok: true })
     }
 
-    // Find the session by UUID prefix using raw SQL cast
+    // Build the LIKE pattern as a named variable for clarity —
+    // $queryRaw template values are always parameterized by Prisma.
+    const likePattern = `${sessionPrefix}%`
     type SessionRow = { id: string }
     const rows = await prisma.$queryRaw<SessionRow[]>`
       SELECT id FROM edu_chat_sessions
-      WHERE id::text LIKE ${sessionPrefix + '%'}
+      WHERE id::text LIKE ${likePattern}
         AND status != 'closed'
       LIMIT 1
     `

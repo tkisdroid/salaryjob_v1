@@ -45,8 +45,12 @@ export default function ChatSessionDetail({ sessionId }: { sessionId: string }) 
   }, [sessionId])
 
   useEffect(() => {
-    fetchMessages()
-    const interval = setInterval(fetchMessages, CHAT_POLL_INTERVAL_MS)
+    let interval: ReturnType<typeof setInterval>
+    // Fetch immediately on mount, then start the polling interval after the
+    // first response completes to avoid two near-simultaneous requests.
+    fetchMessages().then(() => {
+      interval = setInterval(fetchMessages, CHAT_POLL_INTERVAL_MS)
+    })
     return () => clearInterval(interval)
   }, [fetchMessages])
 

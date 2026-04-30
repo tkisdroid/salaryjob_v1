@@ -57,8 +57,10 @@ export default function ChatWidget() {
       const newMsgs: Message[] = data.messages ?? []
       setMessages((prev) => {
         if (newMsgs.length > prev.length) {
-          const added = newMsgs.length - prev.length
-          setUnreadCount((c) => (step === "chat" ? 0 : c + added))
+          // Increment unread only when widget is closed — check step outside setter
+          if (step !== "chat") {
+            setUnreadCount((c) => c + (newMsgs.length - prev.length))
+          }
           return newMsgs
         }
         return prev
@@ -106,8 +108,9 @@ export default function ChatWidget() {
       setGuestFormError("이름을 입력해 주세요.")
       return
     }
-    if (!/^0\d{9,10}$/.test(guestForm.phone.replace(/-/g, ""))) {
-      setGuestFormError("올바른 전화번호를 입력해 주세요. (예: 01012345678)")
+    // Korean mobile numbers: 010-XXXX-XXXX, or older 011/016/017/018/019 prefixes
+    if (!/^01[016789]\d{7,8}$/.test(guestForm.phone.replace(/-/g, ""))) {
+      setGuestFormError("올바른 휴대폰 번호를 입력해 주세요. (예: 01012345678)")
       return
     }
 

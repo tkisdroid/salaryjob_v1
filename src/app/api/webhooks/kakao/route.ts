@@ -65,6 +65,9 @@ export async function POST(req: NextRequest) {
       select: { role: true, content: true },
     })
 
+    // Reverse to chronological; remove the last item (just-inserted USER message
+    // which is already the current utterance — not part of prior context).
+    // .slice(0, -1) on an empty array returns [] safely.
     const history: ChatHistoryItem[] = historyRows
       .reverse()
       .slice(0, -1)
