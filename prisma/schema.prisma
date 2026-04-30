@@ -84,6 +84,7 @@ model User {
   workerChatThreads  ChatThread[]       @relation("WorkerChatThreads")
   businessChatThreads ChatThread[]      @relation("BusinessChatThreads")
   chatMessagesSent   ChatMessage[]      @relation("ChatMessageSender")
+  eduChatSessions    EduChatSession[]
 
   @@map("users")
 }
@@ -346,4 +347,63 @@ model ChatMessage {
   @@index([threadId, createdAt])
   @@index([senderId])
   @@map("chat_messages")
+}
+
+// ============================================================================
+// Eduland AI Chatbot — consultation chat system
+// ============================================================================
+
+enum ChatSource {
+  WEB
+  KAKAO
+}
+
+enum ChatRole {
+  USER
+  AI
+  AGENT
+}
+
+enum ChatSessionStatus {
+  open
+  pending_agent
+  closed
+}
+
+model EduChatSession {
+  id             String            @id @default(uuid()) @db.Uuid
+  // Linked member (null for guest sessions)
+  userId         String?           @db.Uuid
+  user           User?             @relation(fields: [userId], references: [id], onDelete: SetNull)
+  // Guest contact info collected at conversation start
+  guestName      String?
+  guestPhone     String?
+  guestEmail     String?
+  source         ChatSource        @default(WEB)
+  kakaoUserId    String?           // Kakao user_key
+  telegramRelay  String?           // Telegram chat_id for agent relay
+  status         ChatSessionStatus @default(open)
+  aiEnabled      Boolean           @default(true)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+
+  messages EduChatMessage[]
+
+  @@index([userId])
+  @@index([status, createdAt])
+  @@index([kakaoUserId])
+  @@map("edu_chat_sessions")
+}
+
+model EduChatMessage {
+  id        String         @id @default(uuid()) @db.Uuid
+  sessionId String         @db.Uuid
+  session   EduChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  role      ChatRole
+  content   String         @db.Text
+  source    ChatSource     @default(WEB)
+  createdAt DateTime       @default(now())
+
+  @@index([sessionId, createdAt])
+  @@map("edu_chat_messages")
 }

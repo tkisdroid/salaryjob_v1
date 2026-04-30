@@ -7,6 +7,7 @@ import {
   getMissingRuntimeEnvKeys,
   hasRequiredRuntimeEnv,
 } from "@/lib/env";
+import ChatWidget from "@/components/chat/chat-widget";
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
@@ -71,6 +72,7 @@ export default function RootLayout({
           <>
             <ServiceWorkerRegistrar />
             {children}
+            <ChatWidget />
             <Toaster position="top-center" />
           </>
         ) : (
